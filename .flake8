@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 88
+max-complexity = 22
+enable-extensions = H106,H203,H204,H205,H210,H904
+extend-ignore = E203
+doctests = True
+docstring-convention = numpy
+include-in-doctest = "*.rst"

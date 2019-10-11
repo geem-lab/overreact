@@ -1,0 +1,6 @@
+cclib>=1.6.2
+scipy>=0.19.1
+matplotlib>=2.1.1
+numpy>=1.15.0
+pytest>=5.2.1
+thermo>=0.1.39
