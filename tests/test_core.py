@@ -9,31 +9,31 @@ from overreact import core
 
 def test_parse_works():
     """Test parsing of reactions."""
-    scheme = core.parse("A -> B  # a direct reaction")
+    scheme = core.parse_reactions("A -> B  // a direct reaction")
     assert ["A", "B"] == scheme[0]
     assert ["A -> B"] == scheme[1]
     assert [False] == scheme[2]
     assert np.all(scheme[3] == scheme[4])
     assert np.all(np.array([[-1], [1]]) == scheme[3])
 
-    scheme = core.parse("B <- A  # reverse reaction of the above")
+    scheme = core.parse_reactions("B <- A  // reverse reaction of the above")
     assert ["A", "B"] == scheme[0]
     assert ["A -> B"] == scheme[1]
     assert [False] == scheme[2]
     assert np.all(scheme[3] == scheme[4])
     assert np.all(np.array([[-1], [1]]) == scheme[3])
 
-    scheme = core.parse("A <=> B  # an equilibrium")
+    scheme = core.parse_reactions("A <=> B  // an equilibrium")
     assert ["A", "B"] == scheme[0]
     assert ["A -> B", "B -> A"] == scheme[1]
     assert np.all(np.array([True, True]) == scheme[2])
     assert np.all(np.array([[-1.0, 1.0], [1.0, -1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0, 0.0], [1.0, 0.0]]) == scheme[4])
 
-    scheme = core.parse(
-        """A <=> B  -> A  # a lot of
-        A  -> B <=> A     # repeated
-        A  -> B <-  A     # reactions
+    scheme = core.parse_reactions(
+        """A <=> B  -> A  // a lot of
+        A  -> B <=> A     // repeated
+        A  -> B <-  A     // reactions
         B <-  A  -> B"""
     )
     assert ["A", "B"] == scheme[0]
@@ -42,29 +42,31 @@ def test_parse_works():
     assert np.all(np.array([[-1.0, 1.0], [1.0, -1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0, 0.0], [1.0, 0.0]]) == scheme[4])
 
-    scheme = core.parse("A -> A* -> B  # a transition state")
-    assert ["A", "A*", "B"] == scheme[0]
+    scheme = core.parse_reactions("A -> A‡ -> B  // a transition state")
+    assert ["A", "A‡", "B"] == scheme[0]
     assert ["A -> B"] == scheme[1]
     assert [False] == scheme[2]
     assert np.all(np.array([[-1.0], [0.0], [1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0], [1.0], [0.0]]) == scheme[4])
 
-    scheme = core.parse("A -> A* -> B <- A* <- A  # (should be) same as above")
-    assert ["A", "A*", "B"] == scheme[0]
+    scheme = core.parse_reactions(
+        "A -> A‡ -> B <- A‡ <- A  // (should be) same as above"
+    )
+    assert ["A", "A‡", "B"] == scheme[0]
     assert ["A -> B"] == scheme[1]
     assert [False] == scheme[2]
     assert np.all(np.array([[-1.0], [0.0], [1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0], [1.0], [0.0]]) == scheme[4])
 
-    scheme = core.parse(
+    scheme = core.parse_reactions(
         """
-        B  -> B*  -> C  # chained reactions and transition states
-        B* -> D          # this is a bifurcation
-        B  -> B** -> E  # this is a classical competitive reaction
-        A  -> B*
+        B  -> B‡  -> C  // chained reactions and transition states
+        B‡ -> D         // this is a bifurcation
+        B  -> B'‡ -> E  // this is a classical competitive reaction
+        A  -> B‡
     """
     )
-    assert ["B", "B*", "C", "D", "B**", "E", "A"] == scheme[0]
+    assert ["B", "B‡", "C", "D", "B'‡", "E", "A"] == scheme[0]
     assert ["B -> C", "B -> D", "B -> E", "A -> C", "A -> D"] == scheme[1]
     assert np.all(np.array([False, False, False, False, False]) == scheme[2])
     assert np.all(
@@ -96,24 +98,24 @@ def test_parse_works():
         == scheme[4]
     )
 
-    scheme = core.parse(
-        """# when in doubt, reactions should be considered distinct
-        A -> A* -> B  # this is a tricky example
-        A -> B        # but it's better to be explicit"""
+    scheme = core.parse_reactions(
+        """// when in doubt, reactions should be considered distinct
+        A -> A‡ -> B  // this is a tricky example
+        A -> B        // but it's better to be explicit"""
     )
-    assert ["A", "A*", "B"] == scheme[0]
+    assert ["A", "A‡", "B"] == scheme[0]
     assert ["A -> B", "A -> B"] == scheme[1]
     assert np.all(np.array([False, False]) == scheme[2])
     assert np.all(np.array([[-1.0, -1.0], [0.0, 0.0], [1.0, 1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0, -1.0], [1.0, 0.0], [0.0, 1.0]]) == scheme[4])
 
-    scheme = core.parse(
+    scheme = core.parse_reactions(
         """
-        # the policy is to not chain transition states
-        A -> A* -> A** -> B  # this is weird"""
+        // the policy is to not chain transition states
+        A -> A‡ -> A'‡ -> B  // this is weird"""
     )
-    assert ["A", "A*", "A**", "B"] == scheme[0]
-    assert ["A -> A**"] == scheme[1]
+    assert ["A", "A‡", "A'‡", "B"] == scheme[0]
+    assert ["A -> A'‡"] == scheme[1]
     assert [False] == scheme[2]
     assert np.all(np.array([[-1.0], [0.0], [1.0], [0.0]]) == scheme[3])
     assert np.all(np.array([[-1.0], [1.0], [0.0], [0.0]]) == scheme[4])
@@ -147,11 +149,11 @@ def test_private_functions_work():
         (((2, "A"),), ((1, "B"),), False),
         (((1, "A"),), ((20, "B"),), False),
     ]
-    assert list(core._parse_reactions("E + S <=> ES -> ES* -> E + P")) == [
+    assert list(core._parse_reactions("E + S <=> ES -> ES‡ -> E + P")) == [
         (((1, "E"), (1, "S")), ((1, "ES"),), True),
         (((1, "ES"),), ((1, "E"), (1, "S")), True),
-        (((1, "ES"),), ((1, "ES*"),), False),
-        (((1, "ES*"),), ((1, "E"), (1, "P")), False),
+        (((1, "ES"),), ((1, "ES‡"),), False),
+        (((1, "ES‡"),), ((1, "E"), (1, "P")), False),
     ]
 
     assert list(core._unparse_reactions([(((1, "A"),), ((1, "B"),), True)])) == [
@@ -171,11 +173,11 @@ def test_private_functions_work():
             [
                 (((1, "E"), (1, "S")), ((1, "ES"),), True),
                 (((1, "ES"),), ((1, "E"), (1, "S")), True),
-                (((1, "ES"),), ((1, "ES*"),), False),
-                (((1, "ES*"),), ((1, "E"), (1, "P")), False),
+                (((1, "ES"),), ((1, "ES‡"),), False),
+                (((1, "ES‡"),), ((1, "E"), (1, "P")), False),
             ]
         )
-    ) == ["E + S -> ES", "ES -> E + S", "ES -> ES*", "ES* -> E + P"]
+    ) == ["E + S -> ES", "ES -> E + S", "ES -> ES‡", "ES‡ -> E + P"]
 
     assert list(
         core._unparse_reactions(

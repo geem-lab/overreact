@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Degree of Rate Control &#8212; overreact 1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="degree-of-rate-control">
+<h1>Degree of Rate Control<a class="headerlink" href="#degree-of-rate-control" title="Permalink to this headline">¶</a></h1>
+<p>Here we try to reproduce the analysis on the Langmuir-Hinshelwood mechanism of
+&lt;<a class="reference external" href="https://pubs.acs.org/doi/full/10.1021/acscatal.7b00115">https://pubs.acs.org/doi/full/10.1021/acscatal.7b00115</a>&gt;.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">overreact</span> <span class="kn">import</span> <span class="n">core</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="n">rates</span><span class="p">,</span> <span class="n">simulate</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scheme</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="n">parse_reactions</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="gp">... </span><span class="s2">A + * &lt;=&gt; A*  # fast to equilibrium</span>
+<span class="gp">... </span><span class="s2">B + * &lt;=&gt; B*  # fast to equilibrium</span>
+<span class="gp">... </span><span class="s2">A* + B* -&gt; AB*‡ -&gt; AB* + *  # RDS</span>
+<span class="gp">... </span><span class="s2">AB* &lt;=&gt; AB + *  # fast to equilibrium</span>
+<span class="gp">... </span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scheme</span><span class="o">.</span><span class="n">compounds</span>
+<span class="go">[&#39;A&#39;, &#39;*&#39;, &#39;A*&#39;, &#39;B&#39;, &#39;B*&#39;, &#39;AB*‡&#39;, &#39;AB*&#39;, &#39;AB&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scheme</span><span class="o">.</span><span class="n">reactions</span>
+<span class="go">[&#39;A + * -&gt; A*&#39;, &#39;A* -&gt; A + *&#39;, &#39;B + * -&gt; B*&#39;, &#39;B* -&gt; B + *&#39;, &#39;A* + B* -&gt; AB* + *&#39;, &#39;AB* -&gt; AB + *&#39;, &#39;AB + * -&gt; AB*&#39;]</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">*</span></code> denotes a free surface site.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.misc</span> <span class="kn">import</span> <span class="n">derivative</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="kn">import</span> <span class="n">kilo</span><span class="p">,</span> <span class="n">calorie</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">k</span> <span class="o">=</span> <span class="n">rates</span><span class="o">.</span><span class="n">eyring</span><span class="p">(</span><span class="n">kilo</span> <span class="o">*</span> <span class="n">calorie</span> <span class="o">*</span> <span class="n">api</span><span class="o">.</span><span class="n">get_delta</span><span class="p">(</span><span class="n">scheme</span><span class="o">.</span><span class="n">B</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.5</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">k</span>
+<span class="go">array([4.2245e+14, 6.2124e+12, 4.2245e+14, 6.2124e+12,</span>
+<span class="go">       1.3588e-02, 4.2245e+14, 6.2124e+12])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dydt</span> <span class="o">=</span> <span class="n">simulate</span><span class="o">.</span><span class="n">get_dydt</span><span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now the graph:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1000.</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">simulate</span><span class="o">.</span><span class="n">get_y</span><span class="p">(</span><span class="n">dydt</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mi">30</span> <span class="o">*</span> <span class="mf">60.0</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;BDF&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">compound</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scheme</span><span class="o">.</span><span class="n">compounds</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="k">if</span> <span class="ow">not</span> <span class="n">compound</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;‡&quot;</span><span class="p">):</span>
+<span class="gp">... </span>       <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">compound</span><span class="p">)</span>
+<span class="go">[...]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">drc</span> <span class="o">=</span> <span class="p">[</span><span class="n">derivative</span><span class="p">(</span><span class="k">lambda</span> <span class="n">k</span><span class="p">:</span> <span class="n">simulate</span><span class="o">.</span><span class="n">get_dydt</span><span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="n">k</span><span class="p">)(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">y</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="mf">1e-4</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">drc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;DRC&quot;</span><span class="p">)</span>
+<span class="go">[...]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="go">&lt;...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (s)&quot;</span><span class="p">)</span>
+<span class="go">Text(...)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="go">(...)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Concentration (M)&quot;</span><span class="p">)</span>
+<span class="go">Text(...)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;docs/_static/drc.png&quot;</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-default" id="id1">
+<img alt="../../_images/drc.png" src="../../_images/drc.png" />
+<p class="caption"><span class="caption-text">A one minute simulation of the Langmuir-Hinshelwood mechanism.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Background information, step-by-step usage instructions and tutorials.</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../foreword.html">Foreword</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../thermochemistry.html">Notes about thermochemistry</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General notes, legal information and changelog.</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../zbibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently asked questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Felipe Silveira de Souza Schneider.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/tutorials/degree-of-rate-control/degree-of-rate-control.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

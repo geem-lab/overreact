@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Notes about thermochemistry &#8212; overreact 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bibliography" href="zbibliography.html" />
+    <link rel="prev" title="Hydrogen abstraction of methane by chlorine atoms" href="tutorials/hydrogen-abstraction.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="notes-about-thermochemistry">
+<h1>Notes about thermochemistry<a class="headerlink" href="#notes-about-thermochemistry" title="Permalink to this headline">¶</a></h1>
+<p>overreact employs standard statistical thermodynamical partition functions (the
+Rigid Rotor Harmonic Oscillator), but also two Quasi-Rigid Rotor Harmonic
+Oscillator approximations, one for entropy and one for enthalpy, for when
+vibrational frequencies are too small.</p>
+<p>A Head-Gordon damping is used for the treatment of QRRHO, which ensures the
+standard procedure is used for frequencies well above
+<span class="math notranslate nohighlight">\(100 \text{cm}^{-1}\)</span>.</p>
+<p>Below is the treatment for entropy:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python3</span>
+
+<span class="sd">&quot;&quot;&quot;Validate Grimme&#39;s QRRHO treatment for vibrational entropy.</span>
+
+<span class="sd">Quasi-Rigid Rotor Harmonic Oscillator (QRRHO) models attempt to improve free</span>
+<span class="sd">energies for weakly bounded structures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+
+<span class="kn">from</span> <span class="nn">overreact</span> <span class="kn">import</span> <span class="n">_thermo</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;colorblind&quot;</span><span class="p">)</span>
+
+<span class="n">vibfreqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mf">350.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+<span class="n">vibmoments</span> <span class="o">=</span> <span class="n">_thermo</span><span class="o">.</span><span class="n">_gas</span><span class="o">.</span><span class="n">_vibrational_moment</span><span class="p">(</span><span class="n">vibfreqs</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">vibfreqs</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">_thermo</span><span class="o">.</span><span class="n">_gas</span><span class="o">.</span><span class="n">calc_vib_entropy</span><span class="p">(</span><span class="n">vibfreq</span><span class="p">,</span> <span class="n">qrrho</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">vibfreq</span> <span class="ow">in</span> <span class="n">vibfreqs</span><span class="p">],</span>
+    <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Harmonic approx.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">vibfreqs</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">_thermo</span><span class="o">.</span><span class="n">_gas</span><span class="o">.</span><span class="n">calc_rot_entropy</span><span class="p">(</span><span class="n">moments</span><span class="o">=</span><span class="n">vibmoment</span><span class="p">,</span> <span class="n">independent</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">vibmoment</span> <span class="ow">in</span> <span class="n">vibmoments</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;-.&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Rotational approx.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">vibfreqs</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">_thermo</span><span class="o">.</span><span class="n">_gas</span><span class="o">.</span><span class="n">calc_vib_entropy</span><span class="p">(</span><span class="n">vibfreq</span><span class="p">,</span> <span class="n">qrrho</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">vibfreq</span> <span class="ow">in</span> <span class="n">vibfreqs</span><span class="p">],</span>
+    <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Damped average&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Entropy [J mol$^{-1}$ K$^{-1}$]&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Mode frequency [cm$^{-1}$]&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">350</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/qrrho-entropy.py">Source code</a>, <a class="reference external" href="./examples/qrrho-entropy.png">png</a>, <a class="reference external" href="./examples/qrrho-entropy.hires.png">hires.png</a>, <a class="reference external" href="./examples/qrrho-entropy.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/qrrho-entropy.png" src="_images/qrrho-entropy.png" />
+</div>
+<p>Now, the treatment for enthalpy (the inset consists of the damping function
+itself):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python3</span>
+
+<span class="sd">&quot;&quot;&quot;Validate Grimme&#39;s QRRHO treatment for vibrational enthalpy.</span>
+
+<span class="sd">Quasi-Rigid Rotor Harmonic Oscillator (QRRHO) models attempt to improve free</span>
+<span class="sd">energies for weakly bounded structures.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+
+<span class="kn">from</span> <span class="nn">overreact</span> <span class="kn">import</span> <span class="n">_thermo</span>
+<span class="kn">from</span> <span class="nn">overreact</span> <span class="kn">import</span> <span class="n">constants</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;colorblind&quot;</span><span class="p">)</span>
+
+<span class="n">vibfreqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">,</span> <span class="mf">400.0</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
+<span class="n">vibmoments</span> <span class="o">=</span> <span class="n">_thermo</span><span class="o">.</span><span class="n">_gas</span><span class="o">.</span><span class="n">_vibrational_moment</span><span class="p">(</span><span class="n">vibfreqs</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">vibfreqs</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">_thermo</span><span class="o">.</span><span class="n">_gas</span><span class="o">.</span><span class="n">calc_vib_energy</span><span class="p">(</span><span class="n">vibfreq</span><span class="p">,</span> <span class="n">qrrho</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">/</span> <span class="n">constants</span><span class="o">.</span><span class="n">kcal</span>
+        <span class="k">for</span> <span class="n">vibfreq</span> <span class="ow">in</span> <span class="n">vibfreqs</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;RRHO&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">vibfreqs</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="n">_thermo</span><span class="o">.</span><span class="n">_gas</span><span class="o">.</span><span class="n">calc_vib_energy</span><span class="p">(</span><span class="n">vibfreq</span><span class="p">,</span> <span class="n">qrrho</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">/</span> <span class="n">constants</span><span class="o">.</span><span class="n">kcal</span>
+        <span class="k">for</span> <span class="n">vibfreq</span> <span class="ow">in</span> <span class="n">vibfreqs</span>
+    <span class="p">],</span>
+    <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Quasi-RRHO&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">inset</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">])</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="n">_thermo</span><span class="o">.</span><span class="n">_gas</span><span class="o">.</span><span class="n">_head_gordon_damping</span><span class="p">(</span><span class="n">vibfreqs</span><span class="p">)</span>
+<span class="n">inset</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vibfreqs</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;V$_i$ [kcal/mol]&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\nu_i$ [cm$^{-1}$]&quot;</span><span class="p">)</span>
+<span class="n">inset</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\omega$&quot;</span><span class="p">)</span>
+<span class="n">inset</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\nu_i$ [cm$^{-1}$]&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+<span class="n">inset</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">inset</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./examples/qrrho-enthalpy.py">Source code</a>, <a class="reference external" href="./examples/qrrho-enthalpy.png">png</a>, <a class="reference external" href="./examples/qrrho-enthalpy.hires.png">hires.png</a>, <a class="reference external" href="./examples/qrrho-enthalpy.pdf">pdf</a>)</p>
+<div class="figure align-default">
+<img alt="_images/qrrho-enthalpy.png" src="_images/qrrho-enthalpy.png" />
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="index.html">
+    <img class="logo" src="_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Background information, step-by-step usage instructions and tutorials.</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Notes about thermochemistry</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General notes, legal information and changelog.</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="zbibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently asked questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="tutorials/hydrogen-abstraction.html" title="previous chapter">Hydrogen abstraction of methane by chlorine atoms</a></li>
+      <li>Next: <a href="zbibliography.html" title="next chapter">Bibliography</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Felipe Silveira de Souza Schneider.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/thermochemistry.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

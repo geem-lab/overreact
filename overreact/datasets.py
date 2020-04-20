@@ -2,64 +2,30 @@
 
 """Small toy datasets for tests and benchmark."""
 
-from collections.abc import MutableMapping
 import os
-import warnings
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    from cclib import ccopen
-    from cclib.parser import ccData
+from overreact import io
 
-_datapath = os.path.normpath(os.path.join(os.path.dirname(__file__), "../data/"))
+data_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "../data/"))
 
 
-# https://stackoverflow.com/a/61144084/4039050
-class LazyDict(MutableMapping):
-    """Lazily evaluated dictionary."""
-
-    function = None
-
-    def __init__(self, *args, **kargs):
-        self._dict = dict(*args, **kargs)
-
-    def __getitem__(self, key):
-        """Evaluate value."""
-        value = self._dict[key]
-        if not isinstance(value, ccData):
-            ccdata = self.function(value)
-            ccdata.jobfilename = value
-
-            value = ccdata
-            self._dict[key] = ccdata
-        return value
-
-    def __setitem__(self, key, value):
-        """Store value lazily."""
-        self._dict[key] = value
-
-    def __delitem__(self, key):
-        """Delete value."""
-        return self._dict[key]
-
-    def __iter__(self):
-        """Iterate over dictionary."""
-        return iter(self._dict)
-
-    def __len__(self):
-        """Evaluate size of dictionary."""
-        return len(self._dict)
+logfiles = {}
+for name in os.listdir(data_path):
+    walk_dir = os.path.join(data_path, name)
+    if os.path.isdir(walk_dir):
+        logfiles[name] = io._LazyDict()
+        logfiles[name]._function = io.read_logfile
+        for root, _, files in os.walk(walk_dir):
+            for filename in files:
+                if filename.endswith(".out"):
+                    logfiles[name][
+                        f"{filename[:-4]}@{os.path.relpath(root, walk_dir)}".replace(
+                            "@.", ""
+                        )
+                    ] = os.path.join(root, filename)
 
 
-def _load_logfile(path):
-    try:
-        return ccopen(path).parse()
-    except AttributeError:
-        raise ValueError(f"could not parse logfile: '{path}'")
-
-
-logfiles = LazyDict()
-logfiles.function = _load_logfile
-for filename in os.listdir(_datapath):
-    if filename.endswith(".out"):
-        logfiles[filename[:-4]] = os.path.join(_datapath, filename)
+if __name__ == "__main__":
+    for name in logfiles:
+        for compound in logfiles[name]:
+            print(name, compound, logfiles[name][compound].logfile)

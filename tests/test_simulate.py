@@ -34,7 +34,7 @@ def test_get_y_propagates_reaction():
         A=np.array([[-1.0, 1.0], [-4.0, 4.0], [1.0, -1.0]]),
         B=np.array([[-1.0, 0.0], [-4.0, 0.0], [1.0, 0.0]]),
     )
-    t, y = simulate.get_y(
+    t, y, r = simulate.get_y(
         simulate.get_dydt(scheme, [1.0, 1.0]),
         y0=[2.00, 2.00, 0.01],
         t_span=[0.0, 200.0],

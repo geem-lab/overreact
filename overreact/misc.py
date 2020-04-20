@@ -5,22 +5,19 @@
 Ideally, the functions here will be transfered to other modules in the future.
 """
 
-import numpy as _np
-from scipy.constants import atm as _atm
-from scipy.constants import atomic_mass as _atomic_mass
-from scipy.constants import h as _h
-from scipy.constants import hbar as _hbar
-from scipy.constants import k as _k
-from scipy.constants import N_A as _N_A
-from scipy.constants import R as _R
+from functools import lru_cache
+
+import numpy as np
 from scipy.stats import cauchy as _cauchy
 from scipy.stats import norm as _norm
+
+from overreact import constants
 
 
 def _find_package(package):
     """Check if a package exists without importing it.
 
-    Derived from
+    Inspired by
     <https://github.com/cclib/cclib/blob/87abf82c6a06836a2e5fb95a64cdf376c5ef8d4f/cclib/parser/utils.py#L35-L46>.
 
     Parameters
@@ -42,6 +39,382 @@ def _find_package(package):
 
     module_spec = importlib.util.find_spec(package)
     return module_spec is not None and module_spec.loader is not None
+
+
+_found_thermo = _find_package("thermo")
+if _found_thermo:
+    from thermo.chemical import Chemical as _Chemical
+
+# Inspired by
+# https://github.com/cclib/cclib/blob/master/cclib/parser/utils.py#L159
+element = [
+    None,
+    "H",
+    "He",
+    "Li",
+    "Be",
+    "B",
+    "C",
+    "N",
+    "O",
+    "F",
+    "Ne",
+    "Na",
+    "Mg",
+    "Al",
+    "Si",
+    "P",
+    "S",
+    "Cl",
+    "Ar",
+    "K",
+    "Ca",
+    "Sc",
+    "Ti",
+    "V",
+    "Cr",
+    "Mn",
+    "Fe",
+    "Co",
+    "Ni",
+    "Cu",
+    "Zn",
+    "Ga",
+    "Ge",
+    "As",
+    "Se",
+    "Br",
+    "Kr",
+    "Rb",
+    "Sr",
+    "Y",
+    "Zr",
+    "Nb",
+    "Mo",
+    "Tc",
+    "Ru",
+    "Rh",
+    "Pd",
+    "Ag",
+    "Cd",
+    "In",
+    "Sn",
+    "Sb",
+    "Te",
+    "I",
+    "Xe",
+    "Cs",
+    "Ba",
+    "La",
+    "Ce",
+    "Pr",
+    "Nd",
+    "Pm",
+    "Sm",
+    "Eu",
+    "Gd",
+    "Tb",
+    "Dy",
+    "Ho",
+    "Er",
+    "Tm",
+    "Yb",
+    "Lu",
+    "Hf",
+    "Ta",
+    "W",
+    "Re",
+    "Os",
+    "Ir",
+    "Pt",
+    "Au",
+    "Hg",
+    "Tl",
+    "Pb",
+    "Bi",
+    "Po",
+    "At",
+    "Rn",
+    "Fr",
+    "Ra",
+    "Ac",
+    "Th",
+    "Pa",
+    "U",
+    "Np",
+    "Pu",
+    "Am",
+    "Cm",
+    "Bk",
+    "Cf",
+    "Es",
+    "Fm",
+    "Md",
+    "No",
+    "Lr",
+    "Rf",
+    "Db",
+    "Sg",
+    "Bh",
+    "Hs",
+    "Mt",
+    "Ds",
+    "Rg",
+    "Cn",
+    "Nh",
+    "Fl",
+    "Mc",
+    "Lv",
+    "Ts",
+    "Og",
+]
+
+# Inspired by
+# https://github.com/cclib/cclib/blob/master/cclib/parser/utils.py#L159
+atomic_mass = [
+    None,
+    1.008,
+    4.002602,
+    6.94,
+    9.0121831,
+    10.81,
+    12.011,
+    14.007,
+    15.999,
+    18.998403163,
+    20.1797,
+    22.98976928,
+    24.305,
+    26.9815385,
+    28.085,
+    30.973761998,
+    32.06,
+    35.45,
+    39.948,
+    39.0983,
+    40.078,
+    44.955908,
+    47.867,
+    50.9415,
+    51.9961,
+    54.938044,
+    55.845,
+    58.933194,
+    58.6934,
+    63.546,
+    65.38,
+    69.723,
+    72.63,
+    74.921595,
+    78.971,
+    79.904,
+    83.798,
+    85.4678,
+    87.62,
+    88.90584,
+    91.224,
+    92.90637,
+    95.95,
+    97.90721,
+    101.07,
+    102.9055,
+    106.42,
+    107.8682,
+    112.414,
+    114.818,
+    118.71,
+    121.76,
+    127.6,
+    126.90447,
+    131.293,
+    132.90545196,
+    137.327,
+    138.90547,
+    140.116,
+    140.90766,
+    144.242,
+    144.91276,
+    150.36,
+    151.964,
+    157.25,
+    158.92535,
+    162.5,
+    164.93033,
+    167.259,
+    168.93422,
+    173.045,
+    174.9668,
+    178.49,
+    180.94788,
+    183.84,
+    186.207,
+    190.23,
+    192.217,
+    195.084,
+    196.966569,
+    200.592,
+    204.38,
+    207.2,
+    208.9804,
+    209.0,
+    210.0,
+    222.0,
+    223.0,
+    226.0,
+    227.0,
+    232.0377,
+    231.03588,
+    238.02891,
+    237.0,
+    244.0,
+    243.0,
+    247.0,
+    247.0,
+    251.0,
+    252.0,
+    257.0,
+    258.0,
+    259.0,
+    262.0,
+    267.0,
+    268.0,
+    271.0,
+    274.0,
+    269.0,
+    276.0,
+    281.0,
+    281.0,
+    285.0,
+    286.0,
+    289.0,
+    288.0,
+    293.0,
+    294.0,
+    294.0,
+]
+
+# Inspired by
+# https://github.com/cclib/cclib/blob/master/cclib/parser/utils.py#L159
+atomic_number = {
+    "H": 1,
+    "He": 2,
+    "Li": 3,
+    "Be": 4,
+    "B": 5,
+    "C": 6,
+    "N": 7,
+    "O": 8,
+    "F": 9,
+    "Ne": 10,
+    "Na": 11,
+    "Mg": 12,
+    "Al": 13,
+    "Si": 14,
+    "P": 15,
+    "S": 16,
+    "Cl": 17,
+    "Ar": 18,
+    "K": 19,
+    "Ca": 20,
+    "Sc": 21,
+    "Ti": 22,
+    "V": 23,
+    "Cr": 24,
+    "Mn": 25,
+    "Fe": 26,
+    "Co": 27,
+    "Ni": 28,
+    "Cu": 29,
+    "Zn": 30,
+    "Ga": 31,
+    "Ge": 32,
+    "As": 33,
+    "Se": 34,
+    "Br": 35,
+    "Kr": 36,
+    "Rb": 37,
+    "Sr": 38,
+    "Y": 39,
+    "Zr": 40,
+    "Nb": 41,
+    "Mo": 42,
+    "Tc": 43,
+    "Ru": 44,
+    "Rh": 45,
+    "Pd": 46,
+    "Ag": 47,
+    "Cd": 48,
+    "In": 49,
+    "Sn": 50,
+    "Sb": 51,
+    "Te": 52,
+    "I": 53,
+    "Xe": 54,
+    "Cs": 55,
+    "Ba": 56,
+    "La": 57,
+    "Ce": 58,
+    "Pr": 59,
+    "Nd": 60,
+    "Pm": 61,
+    "Sm": 62,
+    "Eu": 63,
+    "Gd": 64,
+    "Tb": 65,
+    "Dy": 66,
+    "Ho": 67,
+    "Er": 68,
+    "Tm": 69,
+    "Yb": 70,
+    "Lu": 71,
+    "Hf": 72,
+    "Ta": 73,
+    "W": 74,
+    "Re": 75,
+    "Os": 76,
+    "Ir": 77,
+    "Pt": 78,
+    "Au": 79,
+    "Hg": 80,
+    "Tl": 81,
+    "Pb": 82,
+    "Bi": 83,
+    "Po": 84,
+    "At": 85,
+    "Rn": 86,
+    "Fr": 87,
+    "Ra": 88,
+    "Ac": 89,
+    "Th": 90,
+    "Pa": 91,
+    "U": 92,
+    "Np": 93,
+    "Pu": 94,
+    "Am": 95,
+    "Cm": 96,
+    "Bk": 97,
+    "Cf": 98,
+    "Es": 99,
+    "Fm": 100,
+    "Md": 101,
+    "No": 102,
+    "Lr": 103,
+    "Rf": 104,
+    "Db": 105,
+    "Sg": 106,
+    "Bh": 107,
+    "Hs": 108,
+    "Mt": 109,
+    "Ds": 110,
+    "Rg": 111,
+    "Cn": 112,
+    "Nh": 113,
+    "Fl": 114,
+    "Mc": 115,
+    "Lv": 116,
+    "Ts": 117,
+    "Og": 118,
+}
 
 
 def _check_package(package, found_package):
@@ -70,193 +443,48 @@ def _check_package(package, found_package):
         raise ImportError(f"You must install `{package}` to use this function")
 
 
-# TODO(schneiderfelipe): I am in the position of testing all cases found in
-# Table 5-3 of Statistical Thermodynamics, McQuarrie. All I need is the (spin)
-# electronic and translational entropies.
+def _get_chemical(
+    identifier, temperature=298.15, pressure=constants.atm, *args, **kwargs
+):
+    """Wrap `thermo.Chemical`.
 
-
-# TODO(schneiderfelipe): in the future, there could be an implementation using
-# a distribution of excited states. Currently, only the spin multiplicity of
-# the ground state is considered. A starting point is (part of) the last two
-# terms in eq. 5-19 of Statistical Thermodynamics, McQuarrie.
-#
-# Inspired by
-# <https://github.com/eljost/thermoanalysis/blob/89b28941520fdeee1c96315b1900e124f094df49/thermoanalysis/thermo.py#L31>
-def electronic_entropy(multiplicity):
-    """Electronic entropy.
-
-    Only the ground state is considered. See
-    <https://en.wikipedia.org/wiki/Electronic_entropy>.
+    All parameters are passed to `thermo.Chemical` and the returned object is
+    returned.
 
     Parameters
     ----------
-    multiplicity : int
-        Multiplicity of the molecule.
-
-    Returns
-    -------
-    float
-        Electronic entropy in J/(mol*K).
-
-    Examples
-    --------
-    >>> electronic_entropy(1)
-    0.0
-    >>> electronic_entropy(2)
-    5.763
-    >>> electronic_entropy(3)
-    9.134
-
-    """
-    return _R * _np.log(multiplicity)
-
-
-# TODO(schneiderfelipe): this is only valid for diatomic molecules at high
-# enough temperatures.
-def vibrational_entropy(nu, temperature=298.15):
-    r"""Calculate the vibrational entropy of an ideal gas.
-
-    Take a look at <https://socratic.org/questions/5715a4e711ef6b17257e0033>.
-
-    Parameters
-    ----------
-    nu : array-like
-        Frequency magnitude.
+    identifier : str
     temperature : array-like, optional
-
-    Returns
-    -------
-    float
-        Vibrational entropy in J/(mol*K).
-
-    Examples
-    --------
-    >>> from scipy.constants import k, h
-    >>> vibrational_entropy(3374 * k / h)  # nitrogen molecule
-    0.0012463
-
-    """
-    vibrational_temperature = _h * nu / _k
-    energy_fraction = vibrational_temperature / temperature
-    return _R * (
-        (energy_fraction / (_np.exp(energy_fraction) - 1.0))
-        - _np.log(1.0 - _np.exp(-energy_fraction))
-    )
-
-
-# TODO(schneiderfelipe): this is only valid for diatomic molecules at high
-# enough temperatures.
-#
-# TODO(schneiderfelipe): we have Table 6-3, Statistical Thermodynamics,
-# McQuarrie, to validate.
-def rotational_entropy(moment_inertia, temperature=298.15, symmetry_number=1):
-    r"""Calculate the rotational entropy of an ideal gas.
-
-    Take a look at <https://socratic.org/questions/5715a4e711ef6b17257e0033>.
-
-    Parameters
-    ----------
-    moment_inertia : float
-        Molecular mass in atomic mass units (amu).
-    temperature : float, optional
         Absolute temperature in Kelvin.
-    symmetry_number : int, optional
-
-    Returns
-    -------
-    float
-        Rotational entropy in J/(mol*K).
-
-    Examples
-    --------
-    >>> from scipy.constants import hbar, k
-    >>> rotational_entropy(hbar**2 / (2.0 * k * 15.2))  # HCl
-    33.06
-    >>> rotational_entropy(hbar**2 / (2.0 * k * 87.6), symmetry_number=2)  # H2
-    12.73
-
-    """
-    rotational_temperature = _hbar ** 2 / (2.0 * _k * moment_inertia)
-    q_rot = temperature / (symmetry_number * rotational_temperature)
-    return _R * (_np.log(q_rot) + 1.0)
-
-
-# Inspired by
-# <https://github.com/eljost/thermoanalysis/blob/89b28941520fdeee1c96315b1900e124f094df49/thermoanalysis/thermo.py#L74>
-def sackur_tetrode(molecular_mass, temperature=298.15, pressure=_atm):
-    r"""Calculate the translational entropy of an ideal gas.
-
-    Take a look at <https://socratic.org/questions/5715a4e711ef6b17257e0033>.
-
-    Parameters
-    ----------
-    molecular_mass : float
-        Molecular mass in atomic mass units (amu).
-    temperature : float
-        Absolute temperature in Kelvin.
-    pressure : float
-
-    Returns
-    -------
-    float
-        Translational entropy in J/(mol*K).
-
-    Notes
-    -----
-    It seems that using 1 bar (1e5 Pa) instead of 1 atm (1.01325e5 Pa) better
-    agrees with the results of Gaussian and ORCA.
-
-    The formula used here follows
-    <https://en.wikipedia.org/wiki/Sackur%E2%80%93Tetrode_equation#Derivation_from_information_theoretic_perspective>.
-
-    Examples
-    --------
-    >>> sackur_tetrode(35.45)  # Cl-
-    153.246
-
-    >>> from scipy.constants import bar
-    >>> sackur_tetrode(35.45, pressure=bar)  # Cl-
-    153.356
-
-    There is a simplified formula for this, which should (somewhat) agree
-    with the one used here. They differ by less than 10 J/(mol*K):
-
-    >>> import numpy as np
-    >>> from scipy.constants import R
-    >>> R * (3/2 * np.log(35.45) + 5/2 * np.log(298.15)) - 2.315  # check!
-    160.617
-    >>> R * (3/2 * np.log(35.45) + 5/2 * np.log(298.15)) - 2.315 \
-    ... - sackur_tetrode(35.45, temperature=298.15) < 7.4
-    True
-
-    """
-    molecular_mass = molecular_mass * _atomic_mass
-    debroglie_wavelength = _h / _np.sqrt(
-        2.0 * _np.pi * molecular_mass * _k * temperature
-    )
-    q_trans = molar_volume(temperature, pressure) / (_N_A * debroglie_wavelength ** 3)
-    return _R * (_np.log(q_trans) + 2.5)
-
-
-def molar_volume(temperature=298.15, pressure=_atm):
-    """Ideal gas molar volume.
-
-    Parameters
-    ----------
-    temperature : array-like, optional
     pressure : array-like, optional
-
-    Returns
-    -------
-    float
+        Reference gas pressure.
 
     Examples
     --------
-    >>> from scipy.constants import bar
-    >>> molar_volume(temperature=273.15, pressure=bar)
-    0.0227110
+    >>> from overreact import constants
+    >>> water = _get_chemical("water", pressure=constants.atm)
+    >>> water.name
+    'water'
+    >>> water.Van_der_Waals_volume
+    0.0
+    >>> water.Vm
+    1.806904e-5
+    >>> water.permittivity
+    78.35530812232503
+    >>> water.isobaric_expansion
+    0.000402256
+    >>> water.omega
+    0.344
+    >>> water.mul
+    0.00091272
     """
-    return _R * _np.asanyarray(temperature) / _np.asanyarray(pressure)
+    _check_package("thermo", _found_thermo)
+    # TODO(schneiderfelipe): transform this in a perfect wrapper by returning a
+    # named tuple with only the required data.
+    # TODO(schneiderfelipe): support logging the retrieval of data.
+    # TODO(schneiderfelipe): cache results.
+    # TODO(schneiderfelipe): test returned parameters.
+    return _Chemical(identifier, temperature, pressure, *args, **kwargs)
 
 
 def broaden_spectrum(
@@ -289,7 +517,6 @@ def broaden_spectrum(
 
     Examples
     --------
-    >>> import numpy as np
     >>> vibfreqs = np.array([81.44, 448.3, 573.57, 610.86, 700.53, 905.17,
     ...                      1048.41, 1114.78, 1266.59, 1400.68, 1483.76,
     ...                      1523.79, 1532.97, 1947.39, 3135.34, 3209.8,
@@ -316,7 +543,7 @@ def broaden_spectrum(
     elif distribution in {"lorentzian", "cauchy"}:
         distribution = _cauchy
 
-    s = _np.sum(
+    s = np.sum(
         [
             yp * distribution.pdf(x, xp, scale=scale, *args, **kwargs)
             for xp, yp in zip(x0, y0)
@@ -325,8 +552,134 @@ def broaden_spectrum(
     )
 
     if fit_points:
-        s_max = _np.max(s)
+        s_max = np.max(s)
         if s_max == 0.0:
             s_max = 1.0
-        return s * _np.max(y0) / s_max
+        return s * np.max(y0) / s_max
     return s
+
+
+def halton(num, dim=None, jump=1, cranley_patterson=True):
+    """Calculate Halton low-discrepancy sequences.
+
+    Those sequences are good performers for Quasi-Monte Carlo numerical
+    integration for dimensions up to around 6. A Cranley-Patterson rotation is
+    applied by default. The origin is also jumped over by default.
+
+    Parameters
+    ----------
+    num : int
+    dim : int, optional
+    jump : int, optional
+    cranley_patterson : bool, optional
+
+    Returns
+    -------
+    array-like
+
+    Examples
+    --------
+    >>> halton(10, 3)  # doctest: +SKIP
+    array([[0.48274151, 0.3651573 , 0.3713145 ],
+           [0.98274151, 0.69849064, 0.5713145 ],
+           [0.73274151, 0.03182397, 0.7713145 ],
+           [0.23274151, 0.47626841, 0.9713145 ],
+           [0.60774151, 0.80960175, 0.1713145 ],
+           [0.10774151, 0.14293508, 0.4113145 ],
+           [0.85774151, 0.58737953, 0.6113145 ],
+           [0.35774151, 0.92071286, 0.8113145 ],
+           [0.54524151, 0.25404619, 0.0113145 ],
+           [0.04524151, 0.40219434, 0.2113145 ]])
+    >>> halton(10, 3, cranley_patterson=False)
+    array([[0.5       , 0.33333333, 0.2       ],
+           [0.25      , 0.66666667, 0.4       ],
+           [0.75      , 0.11111111, 0.6       ],
+           [0.125     , 0.44444444, 0.8       ],
+           [0.625     , 0.77777778, 0.04      ],
+           [0.375     , 0.22222222, 0.24      ],
+           [0.875     , 0.55555556, 0.44      ],
+           [0.0625    , 0.88888889, 0.64      ],
+           [0.5625    , 0.03703704, 0.84      ],
+           [0.3125    , 0.37037037, 0.08      ]])
+
+    Cranley-Patterson rotations can improve Quasi-Monte Carlo integral
+    estimates done with Halton sequences. Compare the following estimates of
+    the integral of x between 0 and 1, which is exactly 0.5:
+
+    >>> np.mean(halton(100, cranley_patterson=False))
+    0.489921875
+    >>> I = [np.mean(halton(100)) for i in range(1000)]
+    >>> np.mean(I), np.var(I) < 0.00004
+    (0.500, True)
+
+    Now the integral of x**2 between 0 and 1, which is exactly 1/3:
+
+    >>> np.mean(halton(100, cranley_patterson=False)**2)
+    0.3222149658203125
+    >>> I = [np.mean(halton(100)**2) for i in range(1000)]
+    >>> np.mean(I), np.var(I) < 0.00004
+    (0.333, True)
+
+    >>> x = halton(1500)
+    >>> np.mean(x)  # estimate of the integral of x between 0 and 1
+    0.50
+    >>> np.mean(x**2)  # estimate of the integral of x**2 between 0 and 1
+    0.33
+    """
+    if dim is None:
+        actual_dim = 1
+    else:
+        actual_dim = dim
+
+    res = np.array(
+        [
+            [_vdc(i, b) for i in range(jump, jump + num)]
+            for b in _first_primes(actual_dim)
+        ]
+    )
+
+    if cranley_patterson:
+        res = (res + np.random.rand(actual_dim, 1)) % 1.0
+    if dim is None:
+        return res.reshape((num,))
+    return res.T
+
+
+def _first_primes(size):
+    """Help haltonspace.
+
+    Examples
+    --------
+    >>> _first_primes(1)
+    [2]
+    >>> _first_primes(4)
+    [2, 3, 5, 7]
+    >>> _first_primes(10)
+    [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+    """
+
+    def _is_prime(num):
+        """Check if num is prime."""
+        for i in range(2, int(np.sqrt(num)) + 1):
+            if (num % i) == 0:
+                return False
+        return True
+
+    primes = [2]
+    p = 3
+    while len(primes) < size:
+        if _is_prime(p):
+            primes.append(p)
+        p += 2
+    return primes
+
+
+@lru_cache(maxsize=1000000)
+def _vdc(n, b=2):
+    """Help haltonspace."""
+    res, denom = 0, 1
+    while n:
+        denom *= b
+        n, remainder = divmod(n, b)
+        res += remainder / denom
+    return res

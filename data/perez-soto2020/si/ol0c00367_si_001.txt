@@ -1,0 +1,6539 @@
+Supporting Information
+The Challenge of Reproducing with Calculations
+Experimental Kinetic Data for an Organic Reaction
+
+Raw
+
+Raúl Pérez-Soto1, Maria Besora2,*, Feliu Maseras1,*.
+
+1 Institute of Chemical Research of Catalonia (ICIQ), The Barcelona Institute of Science and
+Technology, Avgda. Països Catalans, 16, 43007 Tarragona, Catalonia, Spain.
+2 Departament de Química Física i Inorgànica, Universitat Rovira i Virgili, 43007, Tarragona, Catalonia,
+Spain.
+
+Table of Contents
+1. Computational Details .................................................................................................................................. S2
+2. Data extraction from experiment .................................................................................................................. S2
+3. Benchmark with DFT and DLPNO-CCSD(T) ............................................................................................. S4
+4. DLPNO-CCSD(T) Solvation effect ............................................................................................................. S6
+5. Microkinetic Study ....................................................................................................................................... S7
+5.1 Microkinetic Model ............................................................................................................................... S8
+5.2 Hypotheses Tested ............................................................................................................................... S13
+5.3 Inspecting the microkinetic simulation results. .................................................................................... S15
+5.4 Effect of the Initial Water Content ....................................................................................................... S16
+6. Revisiting the Benchmark .......................................................................................................................... S17
+7. Quasi-harmonic corrected models .............................................................................................................. S20
+8. Python Script example with the values of section 5.1 ................................................................................ S23
+9. Geometries ................................................................................................................................................. S35
+10. References ................................................................................................................................................ S60
+
+S1
+
+1. Computational Details
+All the DFT calculations were carried out with Gaussian091 (Revision D.01) with a grid of 75
+radial shells and 302 angular points per shell (“Finegrid” in Gaussian). Most of the work was
+done using B3LYP-D3 2 , 3 , 4 (where D3 stands for GD3 5 empirical dispersion) with RRHO
+approximations for the free energy corrections, implicit SMD6 solvation for dichloromethane
+(DCM) and reference state corrections7 for liquid phase at 1M and 298.15K. The basis set used
+for all atoms was cc-pVTZ 8 . Per each optimized structure a frequency calculation was
+performed to ensure the minima/transition state nature of the obtained structure. In all the
+optimizations the symmetry was disabled with the keyword nosymm. Quasi-harmonic
+corrections 9 were obtained with a threshold of 100cm-1, using the GoodVibes software. 10
+Microkinetic simulations were carried out with a script developed in-house, the details are
+discussed in Section 5 and an example script is provided in Section 8.
+DFT calculations of Section 3 were carried out using the 6-31+g(d,p)11 for all atoms unless
+specified otherwise. The DFT functionals used were BP86-D3, PBEPBE-D3 (generally known
+as PBE0-D3), PBE1PBE-D3, M06-D3, M06-2X-D3 and ωB97X-D. 12 , 13 , 14 , 15 , 16 From those
+PBEPBE-D3 and M06-2X-D3 were chosen to run kinetic simulations and therefore reoptimized
+with cc-pVTZ basis set for all atoms (Section 6). Single-point DLPNO-CCSD(T)17 calculations
+with the cc-pVTZ basis set were performed in ORCA4.0 18 always with the autoaux19 option
+enabled to include matching auxiliary basis functions. Default NormalPNO 20 options and
+TightSCF cutoff were employed. When the implicit solvation was included the SMD method
+for dichloromethane as implemented in ORCA4.0 was included.
+
+2. Data extraction from experiment
+As the experimental results were reported in a graphic we had to interpolate the experimental
+values from the graph. To obtain the numerical values we measured the relative position of the
+center of the data markers/axes ticks by visual inspection with an error of ±1 pixel. When in
+doubt the mid value between the two pixel relative positions was considered.
+First the ticks of the X and Y axes were measured. With the value that was indicated per each
+tick we calculated a conversion factor to convert pixel distances in times and concentrations this
+is summarized in Table S2. Next the factors obtained per each axis were averaged obtaining
+27.3 ± 0.9 s/pixel for the X axis and 0.357 ± 0.009 mM/pixel for the Y axis. Finally the
+coordinates of each of the data points were measured and translated with the conversion factors
+to time-concentration pairs. Table S1 summarizes this final step and includes the values used as
+reference in the work.
+Table S1: Pixel measurements on the Data points and estimated time-concentration values
+Relative Position
+Final Values
+X
+Y
+X-Ox
+Y-Oy
+Time Concentration
+Point Id
+(pixel) (pixel) (pixel) (pixel)
+(s)
+(mM)
+Origin
+43.0
+177.0
+0.0
+0.0
+0.0
+0.000
+1
+49.5
+167.5
+6.5
+9.5
+177.2
+3.391
+2
+60.0
+144.5
+17.0
+32.5
+463.4
+11.600
+3
+70.5
+127.0
+27.5
+50.0
+749.7
+17.846
+4
+81.5
+112.5
+38.5
+64.5 1049.5
+23.021
+5
+92.0
+102.0
+49.0
+75.0 1335.7
+26.769
+6
+113.0
+84.5
+70.0
+92.5 1908.2
+33.015
+7
+134.5
+72.0
+91.5
+105.0 2494.3
+37.477
+8
+155.5
+62.0
+112.5 115.0 3066.8
+41.046
+9
+198.0
+48.0
+155.0 129.0 4225.3
+46.043
+S2
+
+Table S2: Marker pixel measurements and values for the selection of a conversion factor from
+pixels to time and concentrations.
+Y Axis
+
+X Axis
+
+X
+Y
+Conv.
+X
+Y
+Value Y-Oy
+Value X-Ox
+Coord Coord
+Factor
+Coord Coord
+(pixel) (pixel) (mM) (pixel) (mM/pixel) (pixel) (pixel)
+(s)
+(pixel)
+177.0
+0
+0.0
+--41.0
+0
+0.0
+172.0
+2
+5.0
+0.4000
+61.0
+500
+20.0
+166.0
+4
+11.0
+0.3636
+78.5
+1000
+37.5
+160.0
+6
+17.0
+0.3529
+96.0
+55.0
+177.0 1500
+155.0
+8
+22.0
+0.3636
+114.0
+2000
+73.0
+149.0
+10
+28.0
+0.3571
+131.5
+2500
+90.5
+143.0
+12
+34.0
+0.3529
+149.0
+3000 108.0
+138.0
+14
+39.0
+0.3590
+167.0
+3500 126.0
+132.0
+16
+45.0
+0.3556
+184.5
+4000 143.5
+126.5
+18
+50.5
+0.3564
+202.0
+4500 161.0
+121.0
+20
+56.0
+0.3571
+115.0
+22
+62.0
+0.3548
+109.0
+24
+68.0
+0.3529
+104.0
+26
+73.0
+0.3562
+98.0
+28
+79.0
+0.3544
+41.0
+92.5
+30
+84.5
+0.3550
+87.0
+32
+90.0
+0.3556
+81.0
+34
+96.0
+0.3542
+75.0
+36
+102.0
+0.3529
+70.0
+38
+107.0
+0.3551
+64.0
+40
+113.0
+0.3540
+58.0
+42
+119.0
+0.3529
+53.0
+44
+124.0
+0.3548
+47.0
+46
+130.0
+0.3538
+42.5
+48
+134.5
+0.3569
+36.0
+50
+141.0
+0.3546
+30.0
+52
+147.0
+0.3537
+24.5
+54
+152.5
+0.3541
+19.0
+56
+158.0
+0.3544
+13.0
+58
+164.0
+0.3537
+8.0
+60
+169.0
+0.3550
+
+S3
+
+Conv.
+Factor
+(s/pixel)
+--25.00
+26.67
+27.27
+27.40
+27.62
+27.78
+27.78
+27.87
+27.95
+
+3. Benchmark with DFT and DLPNO-CCSD(T)
+In order to decide an appropriate theory level (method, functional, basis set, solvation model
+etc…) a small set of relevant structures were calculated. Initially only single point (SP)
+calculations over the structures optimized with B3LYP-D3/6-31+g(d,p) and SMD implicit
+solvation for dichloromethane. For some cases we did optimize the structure with the new
+theory level. The set of structures included the Aldehyde, Amine, Water, Hemiaminal, Imine
+and the Transition states for the dehydration of the hemiaminal (TS2, TS2W, TS2N, TS2NW
+and TS2WW) see Figure 1 of the main text. Table S3 compiles the relative free energies of the
+transition states, intermediates and products referred to the appropriate free molecules of
+reactants. For SP calculations the free energy of each structure was obtained GSP = USP + Gref –
+U ref where ref corresponds to B3LYP-D3/6-31+g(d,p) with SMD for that structure.
+Entries 1, 2 and 5 show the effect of changing the basis set within the Pople Basis set family.
+The most significant difference is between entries 1 and 2 that switch the reaction from
+endergonic to exergonic. This clearly indicates the importance of polarization functions in the
+basis set for this system.
+Entries 2, 3 and 4 show the effect of changing the solvation model as well as the reaction in
+vacuum. No significant difference was found between pcm and smd for this system. There is a
+significant difference for the transition state catalyzed by two waters in vacuum which is likely
+due to the lack of interactions of the Hydrogen’s of the water and the solvent.
+Entries 2, 7, 8, 9, 10, 11 and 12 show the effect of changing the DFT functional. In all of them
+GD3 empirical dispersion was added except for the ωB97X-D functional. The two pure
+functionals, BP86-D3 and PBEPBE-D3 (Entries 8 and 9), predict more stable structures than
+B3LYP-D3 overall. PBE1PBE-D3 functional gives similar results to B3LYP for the Transition
+states. PBE1PBE-D3 and M06-2X-D3 substantially stabilize the Hemiaminal. The Minnesota
+family (Entries 10 and 11) and ωB97X-D (Entry 12) predict slightly higher barriers.
+Entries 13-16 show the effect of increasing the basis function for the DLPNO-CCSD(T) method.
+As the basis set is larger the predicted stabilities increase. However the large difference
+between Entry 6 and Entry 14 motivated the test done in the section 4 “DLPNO-CCSD(T)
+Solvation Effect”. In Entry 16, the TS2NW was not included because the computational cost
+was high and, with the other results in sight, it was unlikely to provide any new insights.
+Finally as B3LYP-D3 seems to have an intermediate behavior between the tested functionals
+we decided to move on with it and increased the basis set.
+
+S4
+
+Table S3: DFT and DLPNO-CCSD(T) benchmark results.
+Free Energies with 1M as reference state
+(kcal mol-1)
+
+Optimized relative energies (SP relative energies)
+
+Entry
+
+Method
+
+Basis
+Set
+
+Solvation
+Model
+
+TS2
+
+TS2W
+
+TS2WW
+
+TS2NW
+
+Hemiaminal
+
+Imine
++
+Water
+
+1▲
+
+B3LYP-D3
+
+6-31+g(d)
+
+smd
+
+43.1 (43.3)
+
+30.7 (30.8)
+
+24.4 (24.4)
+
+28.2 (27.0)
+
+10.1 (10.2)
+
+0.8 ( 0.9)
+
+2*▲
+
+B3LYP-D3
+
+6-31+g(d,p)
+
+smd
+
+41.1 (41.1)
+
+28.3 (28.3)
+
+22.1 (22.1)
+
+24.3 (24.3)
+
+8.8 ( 8.8)
+
+-2.1 (-2.1)
+
+3▲
+
+B3LYP-D3
+
+6-31+g(d,p)
+
+pcm
+
+41.7 (42.5)
+
+27.4 (28.2)
+
+20.7 (21.2)
+
+24.2 (22.8)
+
+8.2 ( 8.9)
+
+-1.6 (-1.4)
+
+4▲
+
+B3LYP-D3
+
+6-31+g(d,p)
+
+---
+
+47.0 (53.0)
+
+25.8 (31.1)
+
+16.0 (16.8)
+
+21.5 (22.2)
+
+5.5 ( 6.4)
+
+-1.0 (-0.9)
+
+B3LYP-D3
+
+6-311++g(d,p)
+
+smd
+
+41.2 (41.3)
+
+29.4 (29.3)
+
+23.3 (23.6)
+
+26.4 (25.6)
+
+9.7 ( 9.5)
+
+-2.3 (-2.4)
+
+B3LYP-D3
+
+cc-pVTZ
+
+smd
+
+47.7 (------)
+
+32.5 (------)
+
+22.4 (------)
+
+23.1 (------)
+
+9.2 (------)
+
+-1.1 (-----)
+
+PBE1PBE-D3
+
+6-31+g(d,p)
+
+smd
+
+42.8 (42.8)
+
+27.8 (28.7)
+
+21.3 (21.3)
+
+23.6 (23.8)
+
+3.0 ( 3.4)
+
+-3.0 (-3.1)
+
+PBEPBE-D3
+
+6-31+g(d,p)
+
+smd
+
+37.0 (38.2)
+
+22.2 (23.7)
+
+15.9 (16.0)
+
+18.6 (18.7)
+
+6.6 ( 6.7)
+
+-2.8 (-2.9)
+
+9▲
+
+BP86-D3
+
+6-31+g(d,p)
+
+smd
+
+36.6 (37.8)
+
+20.7 (22.8)
+
+14.8 (15.5)
+
+18.0 (17.5)
+
+6.6 ( 6.7)
+
+-2.7 (-2.8)
+
+10▲
+
+M06-D3
+
+6-31+g(d,p)
+
+smd
+
+44.8 (44.5)
+
+32.0 (32.7)
+
+28.1 (26.9)
+
+31.2 (27.9)
+
+5.5 ( 6.2)
+
+-2.0 (-2.7)
+
+11▲
+
+M06-2X-D3
+
+6-31+g(d,p)
+
+smd
+
+44.5 (44.5)
+
+29.6 (30.8)
+
+25.4 (24.9)
+
+27.3 (27.3)
+
+2.6 ( 2.5)
+
+-3.6 (-4.4)
+
+12
+
+ωB97X-D
+
+6-31+g(d,p)
+
+smd
+
+43.5 (43.7)
+
+32.3 (31.9)
+
+26.6 (26.2)
+
+29.5 (27.4)
+
+5.3 ( 5.1)
+
+-1.9 (-2.5)
+
+13
+
+DLPNO
+
+cc-pVDZ
+
+smd
+
+------ (72.6)
+
+------ (47.8)
+
+------ (37.5)
+
+------ (44.2)
+
+------ ( 7.3)
+
+----- (-1.0)
+
+14
+
+DLPNO
+
+cc-pVTZ
+
+smd
+
+------ (56.8)
+
+------ (39.4)
+
+------ (33.8)
+
+------ (38.0)
+
+------ ( 6.1)
+
+----- (-3.5)
+
+15
+
+DLPNO
+
+cc-pVQZ
+
+smd
+
+------ (50.3)
+
+------ (37.2)
+
+------ (33.5)
+
+------ (36.7)
+
+------ ( 6.0)
+
+----- (-4.2)
+
+16
+
+DLPNO
+
+cc-pV5Z
+
+smd
+
+------ (46.5)
+
+------ (36.4)
+
+------ (33.7)
+
+------ (------)
+
+------ ( 6.0)
+
+----- (-4.6)
+
+▲
+
+5
+6
+
+▲□
+▲
+
+7
+
+▲
+
+8
+
+* The geometries optimized with this theory level were used for the single point (SP) calculations.
+Energies referred to the free reactants (and free water for the TSs with water molecules as catalysts).
+
+S5
+
+▲
+
+Empirical dispersion GD3 included.
+
+□
+
+Manuscript structures.
+
+4. DLPNO-CCSD(T) Solvation effect
+The effect of the solvation on the DLPNO-CCSD(T) energy was checked to discard that the
+increase in the barriers was due to an incorrect coupling between the DLPNO-CCSD(T)
+methodology and the SMD implicit solvation. First the geometries of each compound were
+optimized in B3LYP-D3/cc-pVTZ with implicit solvation for dichloromethane with SMD. Over
+those geometries a SP calculation was run in vacuum maintaining the theory level. Finally two SP
+calculations per structure were done with DLPNO-CCSD(T)/cc-pVTZ, one with SMD solvation
+and the other without it.
+Table S4: Single point calculations on structures optimized in B3LYP-D3/cc-pVTZ with implicit
+solvation
+Structure
+Name
+Benzaldehyde
+NButylamine
+Water
+Hemiaminal
+Imine
+TS2
+TS2W
+TS2N
+TS2NW
+TS2WW
+
+B3LYP-D3/cc-pVTZ
+
+Uvac
+
+DLPNO-CCSD(T)/cc-pVTZ
+
+Usol
+
+hartree
+-345.706974 -345.719632
+-213.895670 -213.904198
+-76.459829 -76.466651
+-559.611741 -559.630035
+-483.142477 -483.158753
+-559.534063 -559.563968
+-636.029384 -636.067008
+-773.472516 -773.501454
+-849.966431 -849.998025
+-712.539097 -712.566653
+
+Uvac
+
+Usol
+
+hartree
+-344.959042 -344.966951
+-213.416621 -213.423305
+-76.331990
+-76.338910
+-558.389832 -558.401077
+-482.047899 -482.056414
+-558.292421 -558.318276
+-634.660364 -634.691998
+-771.760086 -771.779235
+-848.115925 -848.138254
+-711.039192 -711.060149
+
+B3LYP-D3
+
+DLPNO
+
+Usol –U vac
+kcal mol-1
+-7.9
+-5.0
+-5.4
+-4.2
+-4.3
+-4.3
+-11.5
+-7.1
+-10.2
+-5.3
+-18.8
+-16.2
+-23.6
+-19.9
+-18.2
+-12.0
+-19.8
+-14.0
+-17.3
+-13.2
+
+As can be seen in Table S4 the difference in the solvation effect between one and the other theory
+level depends on the compound that we compare. It is generally smaller in the reactants and for the
+transition states, intermediates and products increases as the number of molecules within the
+calculation increase. In all cases the inclusion of implicit solvation implies a decrease in potential
+energy. As the main interest is discerning if the high barrier is due to the solvation, relative energies
+in vacuum and in solution need to be calculated and compared. This is what is reported in the Table
+1 of the main text.
+
+S6
+
+5. Microkinetic Study
+
+Chart S1: Summary of the terms related to microkinetic simulations
+
+As the usage of the term microkinetic modeling is relatively broad Chart S1 summarizes the
+different concepts related to microkinetic simulations as used for the following sections.
+Boundaries: Isothermal (T=cte) liquid phase (V=cte) batch reactor model (Closed System) thus
+rendering the Energy Balances unnecessary for the simulations. Therefore temperature is only
+included in Thermodynamic and Kinetic Constant calculations.
+Thermodynamics: Values are at 298.15K and 1 atm (default for Gaussian09 calculations). Since the
+reactions were in liquid phase free energies were corrected for a 1M reference state.
+Kinetic Constants: The constants were calculated within the standard Transition State Theory with
+the Erying Equation:
+using
+. The constants were always used in the same
+format as Table S12, this is important due to the numeric nature of the solver and intrinsic
+limitations of computers, since in some of the simulations the usage of less decimal places led to
+numerical instability of the differential system. In this case the increase of the decimal places avoids
+the need of reducing the tolerance of the solver and therefore the time needed for the calculation.
+Solver: The Solver employed was a deterministic numerical algorithm, the LSODA from the
+ODEPACK package21 as used by the python Scipy library (version 1.3.0).22 The relative tolerance
+(rtol) was set up to 10-6 and the absolute tolerance (atol) was set up to 10-11 as a tradeoff between
+performance and accuracy. The remaining parameters were the default values of the
+scipy.integrate.odeint function. The concentrations obtained were saved at intervals of 0.1s.
+Initial Conditions: The initial conditions concentration of all species was zero except the
+benzaldehyde, 0.06M, n-butylamine 0.06M and the water 0.001M (Compounds C00, C01 and C02
+in Table S5 respectively) unless specified otherwise.
+
+S7
+
+5.1 Microkinetic Model
+To explain the modeling criteria for the elemental steps used we will use the profile of the target
+reaction catalyzed by a single water molecule (red energy profile in Figure 1 of the manuscript). As
+the hemiaminal formation and dehydration cannot be modeled as bimolecular reversible elemental
+steps:
+
+The first hypothesis considered is that every bond-forming and bond-breaking reaction which
+involve a calculated TS are unimolecular, meaning that first the molecules form an adduct, and is
+this adduct the one that proceeds through the TS. Therefore for the hemiaminal formation ( and
+similarly for the dehydration) is represented by the steps:
+Step 1)
+Step 2)
+Step 3)
+
+[
+[
+
+]
+]
+
+[
+[
+
+]
+]
+
+The second hypothesis considered is relative to steps 1) and 3). In order to form the adducts all the
+different combinations of 2 were considered, for step 1) those would be:
+Step 1a)
+Step 1b)
+Step 1c)
+Step 1d)
+Step 1e)
+Step 1f)
+
+[
+
+[
+[
+[
+[
+
+]
+[
+
+]
+
+]
+
+[
+[
+[
+
+]
+]
+
+]
+]
+]
+]
+
+Any of these different adducts formations were all considered to be fast, diffusion-controlled
+elemental steps. By fast we refer to including a “fictional” barrier of 2 kcal mol -1 in the endergonic
+direction of the reversible step.
+Therefore, we modeled each bond-forming bond breaking event as a set of soft, diffusion-controlled,
+bimolecular collisions with fast diffusions that have apparent barriers of 2 kcal mol-1. Only the
+barriers of the unimolecular bond breaking/formation steps (as step 2 of the example) were
+calculated using the energies of the corresponding transition state structures. Tables from S5 to S12
+include all the information about the Microkinetic model as well as the thermodynamics derived
+from B3LYP-D3/cc-pVTZ. Section 8 shows an example of the python code used.
+
+S8
+
+Table S5: List of Species/Compounds considered in the Microkinetic Model.
+Compound ID Model Label Structure Name
+
+G1atm, 298.15K
+(hartree)
+
+ΔG1M, 298.15K
+(kcal mol-1)
+
+C00
+
+A
+
+Benzaldehyde
+
+-345.640471
+
+0.0
+
+C01
+
+B
+
+NButylamine
+
+-213.785156
+
+0.0
+
+C02
+
+W
+
+Water
+
+-76.463950
+
+0.0
+
+C03
+
+[A+B]
+
+A_N
+
+-559.415509
+
+4.5
+
+C04
+
+[A+W]
+
+A_W
+
+-422.097795
+
+2.3
+
+C05
+
+[B+W]
+
+N_W
+
+-290.246742
+
+-0.4
+
+C06
+
+[W+W]
+
+W_W
+
+-152.923000
+
+1.2
+
+C07
+
+[B+B]
+
+N_N
+
+-427.560866
+
+4.0
+
+C08
+
+[A+B+W]
+
+A_N_W
+
+-635.872800
+
+6.7
+
+C09
+
+[A+B+B]
+
+A_N_N
+
+-773.193472
+
+7.1
+
+C10
+
+[A+W+W]
+
+A_W_W
+
+-498.555875
+
+4.1
+
+C11
+
+[B+W+W]
+
+N_W_W
+
+-366.706991
+
+0.0
+
+C12
+
+[B+B+W]
+
+N_N_W
+
+-504.023772
+
+2.8
+
+C13
+
+[W+W+W]
+
+W_W_W
+
+-229.382056
+
+2.4
+
+C14
+
+[A+B+B+W]
+
+A_N_N_W
+
+-849.654737
+
+6.9
+
+C15
+
+[A+B+W+W]
+
+A_N_W_W
+
+-712.337684
+
+4.3
+
+C16
+
+Hemi
+
+Hemiaminal
+
+-559.408007
+
+9.2
+
+C17
+
+[Hemi+W]
+
+Int_W
+
+-635.869928
+
+8.5
+
+C18
+
+[Hemi+B]
+
+Int_N
+
+-773.187317
+
+10.9
+
+C19
+
+[Hemi+B+W]
+
+Int_N_W
+
+-849.649184
+
+10.4
+
+C20
+
+[Hemi+W+W]
+
+Int_W_W
+
+-712.332717
+
+7.4
+
+C21
+
+I
+
+Imine
+
+-482.963413
+
+-1.1
+
+C22
+
+[I+W]
+
+I_W
+
+-559.423021
+
+-0.3
+
+C23
+
+[I+B]
+
+I_N
+
+-696.739874
+
+2.5
+
+C24
+
+[I+W+W]
+
+I_W_W
+
+-635.882776
+
+0.5
+
+C25
+
+[I+B+W]
+
+I_N_W
+
+-773.200786
+
+2.5
+
+C26
+
+[I+B+W+W]
+
+I_N_W_W
+
+-849.662415
+
+2.1
+
+C27
+
+[I+W+W+W]
+
+I_W_W_W
+
+-712.341547
+
+1.8
+
+Model Label corresponds to the encoding used in the reaction listing. The Structure Name corresponds to the
+name of the entry in the IOChemBD data collection. The energy values correspond to the structures
+optimized in B3LYP-D3/cc-pVTZ
+
+S9
+
+Table S6: List of Transition State Structures considered for the microkinetic model.
+Model Label Structure Name
+
+G1atm, 298.15K
+(hartree)
+
+ΔG1M, 298.15K
+(kcal mol-1)
+
+TS1
+
+TS1
+
+-559.364154
+
+36.7
+
+TS2
+
+TS2
+
+-559.346617
+
+47.7
+
+TS1W
+
+TS1W
+
+-635.849649
+
+21.3
+
+TS2W
+
+TS2W
+
+-635.831806
+
+32.5
+
+TS1N
+
+TS1N
+
+-773.160610
+
+27.7
+
+TS2N
+
+TS2N
+
+-773.146697
+
+36.4
+
+TS1WW
+
+TS1WW
+
+-712.316303
+
+17.7
+
+TS2WW
+
+TS2WW
+
+-712.308845
+
+22.4
+
+TS1NW
+
+TS1NW
+
+-849.632365
+
+20.9
+
+TS2NW
+
+TS2NW
+
+-849.628951
+
+23.1
+
+Table S7: List of reactions considered for the microkinetic model to describe the aggregation of the
+reactants.
+Event ID
+
+Chemical Event
+
+TS Label
+
+Reaction ID
+Direct Reverse
+
+Barriers (kcal mol-1)
+Direct
+
+Reverse
+
+E01
+
+A+B
+
+[A+B]
+
+---
+
+R000
+
+R001
+
+6.5
+
+2.0
+
+E02
+
+A+W
+
+[A+W]
+
+---
+
+R002
+
+R003
+
+4.3
+
+2.0
+
+E03
+
+B+W
+
+[B+W]
+
+---
+
+R004
+
+R005
+
+2.0
+
+2.4
+
+E04
+
+B+B
+
+[B+B]
+
+---
+
+R006
+
+R007
+
+6.0
+
+2.0
+
+E05
+
+W+W
+
+[W+W]
+
+---
+
+R008
+
+R009
+
+3.2
+
+2.0
+
+E06
+
+A + [B+W]
+
+[A+B+W]
+
+---
+
+R010
+
+R011
+
+9.1
+
+2.0
+
+E07
+
+A + [B+B]
+
+[A+B+B]
+
+---
+
+R012
+
+R013
+
+5.0
+
+2.0
+
+E08
+
+A + [W+W]
+
+[A+W+W]
+
+---
+
+R014
+
+R015
+
+4.9
+
+2.0
+
+E09
+
+B + [A+B]
+
+[A+B+B]
+
+---
+
+R016
+
+R017
+
+4.6
+
+2.0
+
+E10
+
+B + [A+W]
+
+[A+B+W]
+
+---
+
+R018
+
+R019
+
+6.5
+
+2.0
+
+E11
+
+B + [B+W]
+
+[B+B+W]
+
+---
+
+R020
+
+R021
+
+5.2
+
+2.0
+
+E12
+
+B + [W+W]
+
+[B+W+W]
+
+---
+
+R022
+
+R023
+
+2.0
+
+3.2
+
+E13
+
+W + [A+B]
+
+[A+B+W]
+
+---
+
+R024
+
+R025
+
+4.3
+
+2.0
+
+E14
+
+W + [A+W]
+
+[A+W+W]
+
+---
+
+R026
+
+R027
+
+3.8
+
+2.0
+
+E15
+
+W + [B+W]
+
+[B+W+W]
+
+---
+
+R028
+
+R029
+
+2.4
+
+2.0
+
+E16
+
+W + [B+B]
+
+[B+B+W]
+
+---
+
+R030
+
+R031
+
+2.0
+
+3.2
+
+E17
+
+W + [W+W]
+
+[W+W+W]
+
+---
+
+R032
+
+R033
+
+3.2
+
+2.0
+
+---
+
+R034
+
+R035
+
+4.8
+
+2.0
+
+E18
+
+[A+B] + [B+W]
+
+[A+B+B+W]
+S10
+
+E19
+
+[A+B] + [W+W]
+
+[A+B+W+W]
+
+---
+
+R036
+
+R037
+
+2.0
+
+3.4
+
+E20
+
+[A+W] + [B+W]
+
+[A+B+W+W]
+
+---
+
+R038
+
+R039
+
+4.4
+
+2.0
+
+E21
+
+[A+W] + [B+B]
+
+[A+B+B+W]
+
+---
+
+R040
+
+R041
+
+2.6
+
+2.0
+
+Table S8: List of reactions considered for the microkinetic model to describe the Hemiaminal
+formation.
+Event ID
+E22
+
+Chemical Event
+[A+B]
+
+Hemi
+
+TS Label
+
+Reaction ID
+Direct Reverse
+
+Barriers (kcal mol-1)
+Direct
+
+Reverse
+
+TS1
+
+R042
+
+R043
+
+32.2
+
+27.5
+
+E23
+
+[A+B+W]
+
+[Hemi+W]
+
+TS1W
+
+R044
+
+R045
+
+14.6
+
+12.8
+
+E24
+
+[A+B+B]
+
+[Hemi+B]
+
+TS1N
+
+R046
+
+R047
+
+20.6
+
+16.8
+
+E25
+
+[A+B+W+W]
+
+[Hemi+W+W]
+
+TS1WW
+
+R048
+
+R049
+
+13.4
+
+10.3
+
+E26
+
+[A+B+B+W]
+
+[Hemi+B+W]
+
+TS1NW
+
+R050
+
+R051
+
+14.0
+
+10.6
+
+Table S9: List of reactions considered for the microkinetic model to describe the diffusion of the
+Hemiaminal-catalyst adducts.
+
+Event ID
+
+Chemical Event
+
+TS Label
+
+Reaction ID
+Direct Reverse
+
+Barriers
+(kcal mol-1)
+Direct
+
+Reverse
+
+E27
+
+[Hemi+W]
+
+Hemi + W
+
+---
+
+R052
+
+R053
+
+2.6
+
+2.0
+
+E28
+
+[Hemi+B]
+
+Hemi + B
+
+---
+
+R054
+
+R055
+
+2.0
+
+3.8
+
+E29
+
+[Hemi+B+W]
+
+Hemi + [B+W]
+
+---
+
+R056
+
+R057
+
+2.0
+
+3.6
+
+E30
+
+[Hemi+B+W]
+
+[Hemi+B] + W
+
+---
+
+R058
+
+R059
+
+2.6
+
+2.0
+
+E31
+
+[Hemi+B+W]
+
+[Hemi+W] + B
+
+---
+
+R060
+
+R061
+
+2.0
+
+3.8
+
+E32
+
+[Hemi+W+W]
+
+Hemi + [W+W]
+
+---
+
+R062
+
+R063
+
+5.0
+
+2.0
+
+E33
+
+[Hemi+W+W]
+
+[Hemi+W] + W
+
+---
+
+R064
+
+R065
+
+3.2
+
+2.0
+
+Table S10: List of reactions considered for the microkinetic model to describe the dehydration of
+the Hemiaminal.
+Event ID
+E34
+
+Chemical Event
+Hemi
+
+[I+W]
+
+TS Label
+
+Reaction ID
+Direct Reverse
+
+Barriers (kcal mol-1)
+Direct
+
+Reverse
+
+TS2
+
+R066
+
+R067
+
+38.5
+
+47.9
+
+E35
+
+[Hemi+W]
+
+[I+W+W]
+
+TS2W
+
+R068
+
+R069
+
+23.9
+
+32.0
+
+E36
+
+[Hemi+B]
+
+[I+B+W]
+
+TS2N
+
+R070
+
+R071
+
+25.5
+
+33.9
+
+E37
+
+[Hemi+W+W]
+
+[I+W+W+W]
+
+TS2WW
+
+R072
+
+R073
+
+15.0
+
+20.5
+
+E38
+
+[Hemi+B+W]
+
+[I+B+W+W]
+
+TS2NW
+
+R074
+
+R075
+
+12.7
+
+21.0
+
+S11
+
+Table S11: List of reactions considered for the microkinetic model to describe the diffusion of the
+products.
+
+Event ID
+
+Chemical Event
+
+TS Label
+
+Reaction ID
+Direct Reverse
+
+E39
+
+[I+W]
+
+I+W
+
+Barriers
+(kcal mol-1)
+Direct
+
+Reverse
+
+---
+
+R076
+
+R077
+
+2.0
+
+2.8
+
+E40
+
+[I+W+W]
+
+I + [W+W]
+
+---
+
+R078
+
+R079
+
+2.0
+
+2.4
+
+E41
+
+[I+W+W]
+
+[I+W] + W
+
+---
+
+R080
+
+R081
+
+2.0
+
+2.7
+
+E42
+
+[I+B+W]
+
+I + [B+W]
+
+---
+
+R082
+
+R083
+
+2.0
+
+6.0
+
+E43
+
+[I+B+W]
+
+[I+B] + W
+
+---
+
+R084
+
+R085
+
+2.0
+
+2.0
+
+E44
+
+[I+B+W]
+
+[I+W] + B
+
+---
+
+R086
+
+R087
+
+2.0
+
+4.7
+
+E45
+
+[I+B+W+W]
+
+I + [B+W+W]
+
+---
+
+R088
+
+R089
+
+2.0
+
+5.1
+
+E46
+
+[I+B+W+W]
+
+[I+B] + [W+W]
+
+---
+
+R090
+
+R091
+
+3.6
+
+2.0
+
+E47
+
+[I+B+W+W]
+
+[I+W] + [B+W]
+
+---
+
+R092
+
+R093
+
+2.0
+
+4.7
+
+E48
+
+[I+B+W+W]
+
+[I+W+W] + B
+
+---
+
+R094
+
+R095
+
+2.0
+
+3.6
+
+E49
+
+[I+B+W+W]
+
+[I+B+W] + W
+
+---
+
+R096
+
+R097
+
+2.4
+
+2.0
+
+E50
+
+[I+W+W+W]
+
+I + [W+W+W]
+
+---
+
+R098
+
+R099
+
+2.0
+
+2.6
+
+[I+W] + [W+W]
+
+---
+
+R100
+
+R101
+
+2.0
+
+2.9
+
+[I+W+W] + W
+
+---
+
+R102
+
+R103
+
+2.0
+
+3.4
+
+E51
+E52
+
+[I+W+W+W]
+[I+W+W+W]
+
+Table S12: List of kinetic constants at 298.15K in s-1 for the unimolecular steps and M-1s-1 for the
+bimolecular steps for the B3LYP-D3/cc-pVTZ calculated energies.
+Event
+ID
+E01
+E02
+E03
+E04
+E05
+E06
+E07
+E08
+E09
+E10
+E11
+E12
+E13
+E14
+E15
+E16
+E17
+E18
+
+Direct Constant
+
+Reverse Constant
+
+1.1520016141E+08
+4.6522262685E+09
+2.1243982518E+11
+2.3472075016E+08
+2.8944452758E+10
+1.2474135377E+06
+1.2524507574E+09
+1.6652981977E+09
+2.5518729986E+09
+1.1386583655E+08
+9.4996816172E+08
+2.1243982518E+11
+4.5983410911E+09
+1.0360877187E+10
+1.0305446152E+11
+2.1243982518E+11
+2.9128971462E+10
+1.8163911446E+09
+
+2.1243982518E+11
+2.1243982518E+11
+1.0627425113E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.9848780886E+10
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.6258534710E+10
+2.1243982518E+11
+2.1243982518E+11
+
+S12
+
+E19
+E20
+E21
+E22
+E23
+E24
+E25
+E26
+E27
+E28
+E29
+E30
+E31
+E32
+E33
+E34
+E35
+E36
+E37
+E38
+E39
+E40
+E41
+E42
+E43
+E44
+E45
+E46
+E47
+E48
+E49
+E50
+E51
+E52
+
+2.1243982518E+11
+3.6580372751E+09
+8.1375555674E+10
+1.4846115923E-11
+1.3627835178E+02
+4.7620982072E-03
+9.0926246695E+02
+3.1831794500E+02
+7.4531321673E+10
+2.1243982518E+11
+2.1243982518E+11
+7.8918184665E+10
+2.1243982518E+11
+1.4207544383E+09
+2.9722595183E+10
+3.5961305166E-16
+1.8128732564E-05
+1.2863754590E-06
+6.4999399338E+01
+3.0671312390E+03
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+1.4131533551E+10
+2.1243982518E+11
+2.1243982518E+11
+1.0154287036E+11
+2.1243982518E+11
+2.1243982518E+11
+2.1243982518E+11
+
+2.0822723299E+10
+2.1243982518E+11
+2.1243982518E+11
+4.1907492732E-08
+2.9212843905E+03
+3.2277543932E+00
+1.7512558087E+05
+1.1404141794E+05
+2.1243982518E+11
+1.0627613561E+10
+1.4311551605E+10
+2.1243982518E+11
+1.0036851306E+10
+2.1243982518E+11
+2.1243982518E+11
+4.4655823739E-23
+2.2320322775E-11
+8.2046628228E-13
+5.6414819627E-03
+2.5170839485E-03
+5.2266979709E+10
+1.1028202726E+11
+6.1072075449E+10
+2.5466485201E+08
+2.0798187287E+11
+2.0691187767E+09
+1.0983092618E+09
+2.1243982518E+11
+2.1655291772E+09
+1.5057926667E+10
+2.1243982518E+11
+8.1548110537E+10
+4.5447672655E+10
+2.1539435241E+10
+
+5.2 Hypotheses Tested
+Figure 2 of the manuscript contains the total concentration of imine which was calculated as the
+sum of the concentrations of compounds C21 to C27. The direct simulation of the microkinetic
+model with the constants of Table S12 (purple line) yielded an unexpected result: the reaction can’t
+proceed with those conditions. Two main hypotheses were introduced in order to introduce changes
+in the Mathematical Model and see if it improved or not the agreement with experiment.
+The first hypothesis (see H1 in Chart S2) considered that only the TSs’ energies were overestimated
+by DFT. Testing the mentioned hypothesis is straight forward, it just involves reducing the barriers
+for both direct and reverse reactions for the Hemiaminal formations and Hemiaminal Dehydrations.
+This in the mathematical model translates as only recalculating the barriers for those 20 reactions.
+Although simple, it gives a lot of information, since it has the same effect over the Mathematical
+Model as finding a lower-energy TS for the same reaction or even the impact on the kinetics of
+S13
+
+Tunneling effects. Consistent with the hypothesis, we applied a correction to the TSs of the
+indicated reactions systematically and simultaneously. When at any of those reactions, the energy
+of any TS reached either the energy of its reactant or product we stopped decreasing the energy of
+that TS while we continued with the rest of TSs. The correction values used went from 0.00 to 8.00
+kcal mol-1 in steps of 0.25 kcal mol-1 and therefore simulating a total of 33 free energy profiles. As
+can be clearly seen in the main text Figure 2 (top) this hypothesis was refuted.
+
+Chart S2: Visual explanation of Hypotheses H1 and H2 and their effects on the free energy profile
+
+The second hypothesis (see H2 in Chart S2), the systematic error, consists on assuming that every
+DFT calculation has an error that, at least for this system, can be considered constant. This
+hypothesis has no effect for unimolecular reactions but the system of study corresponds to a system
+with a big amount of bimolecular aggregations. The overall effect on the whole free energy profile
+of this hypothesis is that the compounds that require more reactants to be obtained will be more
+affected. But for the Hemiaminal formations and dehydrations, since we have modeled them as
+unimolecular reactions, the relative barrier will remain unchanged, but the stability of its reactants
+and products will change. This raises the effects of the concentration of each species. For the
+mathematical model, we are only changing the values of the kinetic constants. The correction
+values used went from 0 to 4 kcal mol-1 and the steps considered were of 0.1 kcal mol-1. Figure 2
+(bottom) contains these results although the models with correction values in the interval (0,2.3]
+were not represented for clarity reasons. The best fitting model corresponds to the correction of 3.2
+kcal mol-1.
+
+S14
+
+5.3 Inspecting the microkinetic simulation results.
+Assuming that the systematic correction is the way to proceed we do analyze in detail the results of
+the microkinetic simulation to get some chemical insight. Figure S1 has the time evolution of the
+concentration of different concentrations described by the equations 1-5:
+1)
+2)
+3)
+4)
+5)
+
+[
+[
+[
+[
+[
+
+]
+]
+]
+
+]
+
+[
+[
+]
+
+[
+
+[
+
+]
+]
+[
+
+]
+
+[
+]
+
+]
+[
+
+]
+[
+
+[
+[
+
+[
+]
+
+]
+
+]
+]
+[
+
+]
+[
+[
+
+[
+]
+
+[
+]
+]
+[
+
+]
+
+]
+
+[
+
+[
+
+]
+
+[
+
+]
+[
+
+]
+
+]
+[
+
+[
+
+]
+
+[
+
+]
+
+[
+
+]
+
+[
+
+]
+[
+
+[
+
+]
+
+[
+
+]
+
+]
+]
+[
+
+]
+
+]
+
+[
+
+]
+
+The concentration of the Hemiaminal species remains around 10-6 and 10-7 M and was not included
+in the plot for that reason. Looking at the dotted lines we can see how the water moves. Initially,
+due to the high concentration of reactants the water aggregates with them. In the first ca 1000s all
+the water produced with the imine formed is directly stolen by the reactants, as would be the case
+for any subproduct-catalyzed reaction. At that point the concentration of reactants has decreased
+significantly and the concentration of imine risen. As consequence of the further consumption of
+reactants the water is freed from them, and has two main sinks, either the black dotted lines (alone
+or forming water dimers or trimers) or the blue dotted line (forming adducts with the Imine).
+
+Figure S1: Time Evolution of Water adducts, Aldehyde and Imine for the model corrected with a systematic
+correction of 3.2 kcal mol-1
+
+This provides some insight in how the water is moving in the system, clearly preferring to be with
+the reactants and products and pushed aside as the reactants disappear. However, this does not
+provide insight into which one is the preferential pathway and the rate limiting step. To do so we
+inspected the values of the rates of all the hemiaminal formation and dehydration step. However a
+simpler and more illustrative procedure is what we ended up with. This consists on simulating the
+same model, but “disabling” certain pathways. “Disabling” a pathway can be done in several
+manners. In order to keep the microkinetic model constant, to disable a certain reaction all what is
+needed is to set up its kinetic constant to 0. If it is a reversible reaction setting up both kinetic
+constants to 0 is all it takes. Figure S2 shows the results of removing either the reversible reaction
+E37 (TS2WW) or E38 (TS2NW).
+S15
+
+Figure S2: Time evolution of the Total Imine concentration for the Full model and its versions.
+
+When we move from the full model to the model without E38 (green) we see that the reaction does
+not happen. For the model without E37 (blue) we see an initial overlap that starts to diverge after ca
+500s. Comparing Figure S1 with Figure S2 gives us the key to understand it. Initially the amount of
+water is so low that forming a dimer that can catalyze the reaction is very unlikely, on the other
+hand the amine is in high concentration, so initially the reaction proceeds through the amine-water
+catalyzed pathways. As water build up and amine is abundant the water forms adducts with the
+reactants. We can see in Figure S1 a crossing point between the red dotted line and the solid blue
+line more or less at the time where the two curves of Figure S2 start to diverge. Approximately at
+that point, the water concentration is enough for the Water-dimer-catalyzed pathway to start
+working. Around time 1000s is when we start seeing the water moving out of the reactants due their
+consumption which accentuates the divergence seen in Figure S2.
+
+5.4 Effect of the Initial Water Content
+Until now the initial water concentration was considered to be 1mM based on Sigma Aldrich
+datasheets.23 The effects of this estimate on the imine concentration evolution are inspected in this
+section. To do so the previously analyzed model (Section 5.3) was simulated at different initial
+water concentrations. To explore different orders of magnitude the concentration was sampled from
+10-6 to 10-2 in exponential steps of 0.5. Figure S3 summarizes the results from these simulations.
+
+S16
+
+Figure S3: Simulations For the Model Corrected with 3.2 kcal mol-1 at different initial water concentrations.
+
+Reducing the initial water concentration does not change the shape of the profile significantly but
+shifts it to the right, introducing an initial delay period in which the water necessary to start the
+catalysis via the TS2NW builds up. As increasing the correction shifts the curve towards the left in
+a similar fashion we can conclude that if the experimental initial water concentration was different
+we would have found a different value for the correction that would fit similarly since the shape of
+the predicted concentration evolution does not change significantly.
+
+6. Revisiting the Benchmark
+From the DFT methods attempted in Table S3 we selected two that displayed significantly different
+behaviors compared to B3LYP-D3. PBEPBE-D3 had a general stabilization of all species and M062X-D3 had a significant stabilization of the intermediate which were the reasons for their selection.
+Per each of the newly selected functionals we re-optimized and re-calculated the frequencies for all
+the structures included in Table S5 and Table S6. The cc-pVTZ basis set was employed for these
+new calculations. Table S13 and Table S14 are the equivalents of Table S6 and Table S5
+respectively. As the systematic error hypothesis approach gave good agreement with the
+experimental values, we also applied it to M06-2X-D3 and PBEPBE-D3.
+
+S17
+
+Table S13: Free Energies of structures corresponding to transition states.
+PBEPBE-D3
+
+M06-2X-D3
+
+G1atm, 298.15K
+(hartree)
+
+G1atm, 298.15K
+(hartree)
+
+Model Label Structure Name
+TS1
+
+TS1
+
+-558.628144
+
+-559.084080
+
+TS2
+
+TS2
+
+-558.607151
+
+-559.054667
+
+TS1W
+
+TS1W
+
+-635.027706
+
+-635.533698
+
+TS2W
+
+TS2W
+
+-635.002556
+
+-635.506067
+
+TS1N
+
+TS1N
+
+-772.115648
+
+-772.749151
+
+TS2N
+
+TS2N
+
+-772.102271
+
+-772.726823
+
+TS1WW
+
+TS1WW
+
+-711.410713
+
+-711.965147
+
+TS2WW
+
+TS2WW
+
+-711.399978
+
+-711.946752
+
+TS1NW
+
+TS1NW
+
+-848.503461
+
+-849.186971
+
+TS2NW
+
+TS2NW
+
+-848.487403
+
+-849.167306
+
+Table S14: Free Energies of the structures corresponding to minima
+
+Compound ID Model Label Structure Name
+
+PBEPBE-D3
+
+M06-2X-D3
+
+G1atm, 298.15K
+(hartree)
+
+G1atm, 298.15K
+(hartree)
+
+C00
+
+A
+
+Benzaldehyde
+
+-345.204216
+
+-345.482549
+
+C01
+
+B
+
+NButylamine
+
+-213.473811
+
+-213.655803
+
+C02
+
+W
+
+Water
+
+-76.377566
+
+-76.429318
+
+C03
+
+[A+B]
+
+A_N
+
+-558.669245
+
+-559.128296
+
+C04
+
+[A+W]
+
+A_W
+
+-421.575321
+
+-421.904397
+
+C05
+
+[B+W]
+
+N_W
+
+-289.850805
+
+-290.081831
+
+C06
+
+[W+W]
+
+W_W
+
+-152.751291
+
+-152.852759
+
+C07
+
+[B+B]
+
+N_N
+
+-426.939508
+
+-427.299347
+
+C08
+
+[A+B+W]
+
+A_N_W
+
+-635.039977
+
+-635.550808
+
+C09
+
+[A+B+B]
+
+A_N_N
+
+-772.135506
+
+-772.772138
+
+C10
+
+[A+W+W]
+
+A_W_W
+
+-497.948640
+
+-498.325321
+
+C11
+
+[B+W+W]
+
+N_W_W
+
+-366.227140
+
+-366.504631
+
+C12
+
+[B+B+W]
+
+N_N_W
+
+-503.317954
+
+-503.725971
+
+C13
+
+[W+W+W]
+
+W_W_W
+
+-229.125807
+
+-229.275851
+
+C14
+
+[A+B+B+W]
+
+A_N_N_W
+
+-848.512752
+
+-849.198224
+
+C15
+
+[A+B+W+W]
+
+A_N_W_W
+
+-711.420442
+
+-711.975968
+
+C16
+
+Hemi
+
+Hemiaminal
+
+-558.664707
+
+-559.131156
+
+S18
+
+C17
+
+[Hemi+W]
+
+Int_W
+
+-635.042635
+
+-635.556037
+
+C18
+
+[Hemi+B]
+
+Int_N
+
+-772.133501
+
+-772.775743
+
+C19
+
+[Hemi+B+W]
+
+Int_N_W
+
+-848.509617
+
+-849.202810
+
+C20
+
+[Hemi+W+W]
+
+Int_W_W
+
+-711.420803
+
+-711.982975
+
+C21
+
+I
+
+Imine
+
+-482.303116
+
+-482.713941
+
+C22
+
+[I+W]
+
+I_W
+
+-558.677931
+
+-559.137508
+
+C23
+
+[I+B]
+
+I_N
+
+-695.768724
+
+-696.358570
+
+C24
+
+[I+W+W]
+
+I_W_W
+
+-635.052830
+
+-635.561528
+
+C25
+
+[I+B+W]
+
+I_N_W
+
+-772.146455
+
+-772.785180
+
+C26
+
+[I+B+W+W]
+
+I_N_W_W
+
+-848.522175
+
+-849.208152
+
+C27
+
+[I+W+W+W]
+
+I_W_W_W
+
+-711.427680
+
+-711.983994
+
+Figure S4: Imine concentration for all the models obtained from systematic corrections to the M06-2X Free
+energy profile. Y axis is in logarithmic scale for visualization reasons.
+
+As can be seen for M06-2X-D3 (Figure S4) was systematically corrected from 0.0 to 6.0 kcal mol-1
+at steps of 1.0 kcal mol-1. Even with the correction, the imine is not formed. The main reason for
+this is likely the reason why we selected M06-2X-D3. The stability of the intermediate coupled with
+the overall increase of the energy of the transition state structures ends up creating a wall after the
+hemiaminal is formed in the free energy surface which cannot be surpassed at 298.15K even with
+the proposed catalysts.
+
+S19
+
+Figure S5: Imine concentration for all the models obtained from systematic corrections to the PBEPBE Free
+energy profile.
+
+PBEPBE-D3 (Figure S5) was systematically corrected from 0.0 to 2.5 kcal mol-1 at steps of 0.1 kcal
+mol-1 and displayed a completely different behavior. Without the correction the barriers are too
+small and upon the addition of the systematic correction we see that the reaction has an induction
+period and then proceeds in a very short time window. This indicates that the barriers predicted for
+the catalyzed pathways relative to the hemiaminal-catalyst adducts are too small. So when the
+stabilization of the adducts due to the systematic correction occurs and concentration is not limiting
+the hemiaminal dehydration, it goes too fast.
+
+7. Quasi-harmonic corrected models
+In order to refine the results quasi-harmonic corrections to the free energies for frequencies below
+100 cm-1 using the GoodVibes software as indicated in the section 1. Generally the magnitude of
+these corrections is not too large and it could be expected that a small improvement in the
+prediction of the experimental results could be obtained, either in the description of the overall
+equilibrium or in the shape of the concentration profiles. Table S15 has the values of the corrections
+obtained for each structure relevant to the Microkinetic Model.
+
+S20
+
+Table S15: Quasi-harmonic corrections for each functional revisited.
+Gqh – G (kcal mol-1)
+
+Gqh – G (kcal mol-1)
+
+Model Label B3LYP PBEPBE M06-2X Model Label B3LYP PBEPBE M06-2X
+A
+
+0.1
+
+0.1
+
+0.0
+
+TS1
+
+1.6
+
+1.6
+
+1.6
+
+B
+
+0.1
+
+0.1
+
+0.1
+
+TS2
+
+1.3
+
+1.4
+
+1.3
+
+W
+
+0.0
+
+0.0
+
+0.0
+
+TS1W
+
+1.8
+
+1.6
+
+1.5
+
+[A+B]
+
+1.9
+
+2.3
+
+1.4
+
+TS2W
+
+2.1
+
+1.9
+
+1.9
+
+[A+W]
+
+1.0
+
+0.9
+
+1.0
+
+TS1N
+
+2.7
+
+3.0
+
+2.8
+
+[B+W]
+
+0.7
+
+0.7
+
+0.9
+
+TS2N
+
+3.1
+
+3.1
+
+2.8
+
+[W+W]
+
+0.1
+
+0.2
+
+0.0
+
+TS1WW
+
+2.0
+
+2.3
+
+1.9
+
+[B+B]
+
+2.0
+
+2.0
+
+1.4
+
+TS2WW
+
+2.2
+
+2.4
+
+2.0
+
+[A+B+W]
+
+2.7
+
+2.6
+
+2.9
+
+TS1NW
+
+3.0
+
+3.9
+
+3.2
+
+[A+B+B]
+
+4.7
+
+4.6
+
+3.7
+
+TS2NW
+
+7.1
+
+3.5
+
+3.6
+
+[A+W+W]
+
+1.9
+
+2.0
+
+1.7
+
+[B+W+W]
+
+1.3
+
+1.4
+
+1.0
+
+[B+B+W]
+
+3.2
+
+3.3
+
+2.6
+
+[W+W+W]
+
+0.0
+
+0.0
+
+0.7
+
+[A+B+B+W]
+
+4.6
+
+4.6
+
+3.5
+
+[A+B+W+W]
+
+3.8
+
+3.6
+
+3.3
+
+Hemi
+
+1.3
+
+1.4
+
+1.5
+
+[Hemi+W]
+
+1.9
+
+2.0
+
+1.7
+
+[Hemi+B]
+
+3.0
+
+3.3
+
+2.0
+
+[Hemi+B+W]
+
+4.4
+
+4.1
+
+3.8
+
+[Hemi+W+W]
+
+2.3
+
+2.4
+
+2.3
+
+I
+
+1.2
+
+1.2
+
+0.9
+
+[I+W]
+
+1.6
+
+1.7
+
+1.6
+
+[I+B]
+
+3.2
+
+3.1
+
+2.4
+
+[I+W+W]
+
+2.5
+
+2.6
+
+2.6
+
+[I+B+W]
+
+3.7
+
+4.0
+
+3.7
+
+[I+W+W+W]
+
+2.8
+
+3.3
+
+2.5
+
+[I+B+W+W]
+
+4.6
+
+4.1
+
+3.6
+
+As seen in Figure S6, Figure S7 and Figure S8 the model without correction (purple line) remained
+mostly the same for the results with the different functionals. Therefore the same Systematic
+Correction applied previously was applied to these new sets of thermodynamic values.
+
+S21
+
+Figure S6: Imine concentration for all the models obtained from systematic corrections to the M06-2X Free
+energy profile with quasi-harmonic corrections. Systematic correction steps of 1.0 kcal mol-1
+
+Figure S7: Imine concentration for all the models obtained from systematic corrections to the PBEPBE Free
+energy profile with quasi-harmonic corrections. Systematic correction steps of 0.1 kcal mol-1
+
+The shape of the curves obtained with M06-2X-D3 (Figure S6) and PBEPBE-D3 (Figure S7) did
+not improve the prediction of the experimental values. No significant change can be seen with M062X-D3 but in the case of PBEPBE-D3 a significant deterioration of the description of the
+equilibrium can be appreciated. In the case of B3LYP-D3 (Figure S8) not only did not improve, but
+did exactly the opposite. This is likely due to the large correction over the TS2NW structure of 7.1
+kcal mol-1 which overall reduces the relative barriers ca 3.0 kcal mol-1 with respect to [I+B+W+W]
+and [Hemi+B+W].
+S22
+
+Figure S8: Imine concentration for all the models obtained from systematic corrections to the B3LYP Free
+energy profile with quasi-harmonic corrections. Systematic correction steps of 0.5 kcal mol-1 for the until 4.5
+kcal mol-1 and of 0.1 kcal mol-1 until 6.0 kcal mol-1
+
+8. Python Script example with the values of section 5.1
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+
+import sys
+import numpy as np
+import scipy.integrate
+OFile = 'Outputs/Scan_000.out'
+# alias for ode function
+odeint = scipy.integrate.odeint
+# Calculations Memory Constraint
+MaxMem = 28*1E6
+# Parameters
+species = 28
+dt = 1E-5 # Timestep s
+report_t = 1E-1 # s
+tfin = 5000 # Final Time
+xini = np.zeros(species)
+xini[0] = 0.06
+xini[1] = 0.06
+xini[2] = 0.001
+# Model at T=298.15 K
+def f(x,t):
+dxdt = np.zeros(28)
+
+S23
+
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+
+#Constants
+k00 = 1.1520016141e+08
+k01 = 2.1243982518e+11
+k02 = 4.6522262685e+09
+k03 = 2.1243982518e+11
+k04 = 2.1243982518e+11
+k05 = 1.0627425113e+11
+k06 = 2.3472075016e+08
+k07 = 2.1243982518e+11
+k08 = 2.8944452758e+10
+k09 = 2.1243982518e+11
+k10 = 1.2474135377e+06
+k11 = 2.1243982518e+11
+k12 = 1.2524507574e+09
+k13 = 2.1243982518e+11
+k14 = 1.6652981977e+09
+k15 = 2.1243982518e+11
+k16 = 2.5518729986e+09
+k17 = 2.1243982518e+11
+k18 = 1.1386583655e+08
+k19 = 2.1243982518e+11
+k20 = 9.4996816172e+08
+k21 = 2.1243982518e+11
+k22 = 2.1243982518e+11
+k23 = 2.9848780886e+10
+k24 = 4.5983410911e+09
+k25 = 2.1243982518e+11
+k26 = 1.0360877187e+10
+k27 = 2.1243982518e+11
+k28 = 1.0305446152e+11
+k29 = 2.1243982518e+11
+k30 = 2.1243982518e+11
+k31 = 2.6258534710e+10
+k32 = 2.9128971462e+10
+k33 = 2.1243982518e+11
+k34 = 1.8163911446e+09
+k35 = 2.1243982518e+11
+k36 = 2.1243982518e+11
+k37 = 2.0822723299e+10
+k38 = 3.6580372751e+09
+k39 = 2.1243982518e+11
+k40 = 8.1375555674e+10
+k41 = 2.1243982518e+11
+k42 = 1.4846115923e-11
+k43 = 4.1907492732e-08
+k44 = 1.3627835178e+02
+k45 = 2.9212843905e+03
+k46 = 4.7620982072e-03
+k47 = 3.2277543932e+00
+k48 = 9.0926246695e+02
+k49 = 1.7512558087e+05
+k50 = 3.1831794500e+02
+k51 = 1.1404141794e+05
+k52 = 7.4531321673e+10
+k53 = 2.1243982518e+11
+k54 = 2.1243982518e+11
+k55 = 1.0627613561e+10
+k56 = 2.1243982518e+11
+k57 = 1.4311551605e+10
+k58 = 7.8918184665e+10
+k59 = 2.1243982518e+11
+k60 = 2.1243982518e+11
+k61 = 1.0036851306e+10
+k62 = 1.4207544383e+09
+
+S24
+
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+
+k63 = 2.1243982518e+11
+k64 = 2.9722595183e+10
+k65 = 2.1243982518e+11
+k66 = 3.5961305166e-16
+k67 = 4.4655823739e-23
+k68 = 1.8128732564e-05
+k69 = 2.2320322775e-11
+k70 = 1.2863754590e-06
+k71 = 8.2046628228e-13
+k72 = 6.4999399338e+01
+k73 = 5.6414819627e-03
+k74 = 3.0671312390e+03
+k75 = 2.5170839485e-03
+k76 = 2.1243982518e+11
+k77 = 5.2266979709e+10
+k78 = 2.1243982518e+11
+k79 = 1.1028202726e+11
+k80 = 2.1243982518e+11
+k81 = 6.1072075449e+10
+k82 = 2.1243982518e+11
+k83 = 2.5466485201e+08
+k84 = 2.1243982518e+11
+k85 = 2.0798187287e+11
+k86 = 2.1243982518e+11
+k87 = 2.0691187767e+09
+k88 = 2.1243982518e+11
+k89 = 1.0983092618e+09
+k90 = 1.4131533551e+10
+k91 = 2.1243982518e+11
+k92 = 2.1243982518e+11
+k93 = 2.1655291772e+09
+k94 = 2.1243982518e+11
+k95 = 1.5057926667e+10
+k96 = 1.0154287036e+11
+k97 = 2.1243982518e+11
+k98 = 2.1243982518e+11
+k99 = 8.1548110537e+10
+k100 = 2.1243982518e+11
+k101 = 4.5447672655e+10
+k102 = 2.1243982518e+11
+k103 = 2.1539435241e+10
+#Rate laws
+r00 = k00*x[0]*x[1]
+r01 = k01*x[3]
+r02 = k02*x[0]*x[2]
+r03 = k03*x[4]
+r04 = k04*x[1]*x[2]
+r05 = k05*x[5]
+r06 = k06*x[1]*x[1]
+r07 = k07*x[7]
+r08 = k08*x[2]*x[2]
+r09 = k09*x[6]
+r10 = k10*x[0]*x[5]
+r11 = k11*x[8]
+r12 = k12*x[0]*x[7]
+r13 = k13*x[9]
+r14 = k14*x[0]*x[6]
+r15 = k15*x[10]
+r16 = k16*x[1]*x[3]
+r17 = k17*x[9]
+r18 = k18*x[1]*x[4]
+r19 = k19*x[8]
+r20 = k20*x[1]*x[5]
+r21 = k21*x[12]
+
+S25
+
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+
+r22
+r23
+r24
+r25
+r26
+r27
+r28
+r29
+r30
+r31
+r32
+r33
+r34
+r35
+r36
+r37
+r38
+r39
+r40
+r41
+r42
+r43
+r44
+r45
+r46
+r47
+r48
+r49
+r50
+r51
+r52
+r53
+r54
+r55
+r56
+r57
+r58
+r59
+r60
+r61
+r62
+r63
+r64
+r65
+r66
+r67
+r68
+r69
+r70
+r71
+r72
+r73
+r74
+r75
+r76
+r77
+r78
+r79
+r80
+r81
+r82
+r83
+r84
+r85
+
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+
+k22*x[1]*x[6]
+k23*x[11]
+k24*x[2]*x[3]
+k25*x[8]
+k26*x[2]*x[4]
+k27*x[10]
+k28*x[2]*x[5]
+k29*x[11]
+k30*x[2]*x[7]
+k31*x[12]
+k32*x[2]*x[6]
+k33*x[13]
+k34*x[3]*x[5]
+k35*x[14]
+k36*x[3]*x[6]
+k37*x[15]
+k38*x[4]*x[5]
+k39*x[15]
+k40*x[4]*x[7]
+k41*x[14]
+k42*x[3]
+k43*x[16]
+k44*x[8]
+k45*x[17]
+k46*x[9]
+k47*x[18]
+k48*x[15]
+k49*x[20]
+k50*x[14]
+k51*x[19]
+k52*x[17]
+k53*x[2]*x[16]
+k54*x[18]
+k55*x[1]*x[16]
+k56*x[19]
+k57*x[5]*x[16]
+k58*x[19]
+k59*x[2]*x[18]
+k60*x[19]
+k61*x[1]*x[17]
+k62*x[20]
+k63*x[6]*x[16]
+k64*x[20]
+k65*x[2]*x[17]
+k66*x[16]
+k67*x[22]
+k68*x[17]
+k69*x[24]
+k70*x[18]
+k71*x[25]
+k72*x[20]
+k73*x[27]
+k74*x[19]
+k75*x[26]
+k76*x[22]
+k77*x[2]*x[21]
+k78*x[24]
+k79*x[6]*x[21]
+k80*x[24]
+k81*x[2]*x[22]
+k82*x[25]
+k83*x[5]*x[21]
+k84*x[25]
+k85*x[2]*x[23]
+
+S26
+
+217
+r86 = k86*x[25]
+218
+r87 = k87*x[1]*x[22]
+219
+r88 = k88*x[26]
+220
+r89 = k89*x[11]*x[21]
+221
+r90 = k90*x[26]
+222
+r91 = k91*x[6]*x[23]
+223
+r92 = k92*x[26]
+224
+r93 = k93*x[5]*x[22]
+225
+r94 = k94*x[26]
+226
+r95 = k95*x[1]*x[24]
+227
+r96 = k96*x[26]
+228
+r97 = k97*x[2]*x[25]
+229
+r98 = k98*x[27]
+230
+r99 = k99*x[13]*x[21]
+231
+r100 = k100*x[27]
+232
+r101 = k101*x[6]*x[22]
+233
+r102 = k102*x[27]
+234
+r103 = k103*x[2]*x[24]
+235
+#MassBalances
+236
+dxdt[0] = -r00+r01-r02+r03-r10+r11-r12+r13-r14+r15
+237
+dxdt[1] = -r00+r01-r04+r05-2.0*r06+2.0*r07-r16+r17-r18+r19-r20+r21r22+r23+r54-r55+r60-r61+r86-r87+r94-r95
+238
+dxdt[2] = -r02+r03-r04+r05-2.0*r08+2.0*r09-r24+r25-r26+r27-r28+r29r30+r31-r32+r33+r52-r53+r58-r59+r64-r65+r76-r77+r80-r81+r84-r85+r96-r97+r102r103
+239
+dxdt[3] = +r00-r01-r16+r17-r24+r25-r34+r35-r36+r37-r42+r43
+240
+dxdt[4] = +r02-r03-r18+r19-r26+r27-r38+r39-r40+r41
+241
+dxdt[5] = +r04-r05-r10+r11-r20+r21-r28+r29-r34+r35-r38+r39+r56r57+r82-r83+r92-r93
+242
+dxdt[6] = +r08-r09-r14+r15-r22+r23-r32+r33-r36+r37+r62-r63+r78r79+r90-r91+r100-r101
+243
+dxdt[7] = +r06-r07-r12+r13-r30+r31-r40+r41
+244
+dxdt[8] = +r10-r11+r18-r19+r24-r25-r44+r45
+245
+dxdt[9] = +r12-r13+r16-r17-r46+r47
+246
+dxdt[10] = +r14-r15+r26-r27
+247
+dxdt[11] = +r22-r23+r28-r29+r88-r89
+248
+dxdt[12] = +r20-r21+r30-r31
+249
+dxdt[13] = +r32-r33+r98-r99
+250
+dxdt[14] = +r34-r35+r40-r41-r50+r51
+251
+dxdt[15] = +r36-r37+r38-r39-r48+r49
+252
+dxdt[16] = +r42-r43+r52-r53+r54-r55+r56-r57+r62-r63-r66+r67
+253
+dxdt[17] = +r44-r45-r52+r53+r60-r61+r64-r65-r68+r69
+254
+dxdt[18] = +r46-r47-r54+r55+r58-r59-r70+r71
+255
+dxdt[19] = +r50-r51-r56+r57-r58+r59-r60+r61-r74+r75
+256
+dxdt[20] = +r48-r49-r62+r63-r64+r65-r72+r73
+257
+dxdt[21] = +r76-r77+r78-r79+r82-r83+r88-r89+r98-r99
+258
+dxdt[22] = +r66-r67-r76+r77+r80-r81+r86-r87+r92-r93+r100-r101
+259
+dxdt[23] = +r84-r85+r90-r91
+260
+dxdt[24] = +r68-r69-r78+r79-r80+r81+r94-r95+r102-r103
+261
+dxdt[25] = +r70-r71-r82+r83-r84+r85-r86+r87+r96-r97
+262
+dxdt[26] = +r74-r75-r88+r89-r90+r91-r92+r93-r94+r95-r96+r97
+263
+dxdt[27] = +r72-r73-r98+r99-r100+r101-r102+r103
+264
+return dxdt
+265
+266
+267 def Jacobian(x,t):
+268
+Jac = np.zeros(shape=(28,28))
+269
+#Constants
+270
+k00 = 1.1520016141e+08
+271
+k01 = 2.1243982518e+11
+272
+k02 = 4.6522262685e+09
+273
+k03 = 2.1243982518e+11
+274
+k04 = 2.1243982518e+11
+275
+k05 = 1.0627425113e+11
+
+S27
+
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+
+k06
+k07
+k08
+k09
+k10
+k11
+k12
+k13
+k14
+k15
+k16
+k17
+k18
+k19
+k20
+k21
+k22
+k23
+k24
+k25
+k26
+k27
+k28
+k29
+k30
+k31
+k32
+k33
+k34
+k35
+k36
+k37
+k38
+k39
+k40
+k41
+k42
+k43
+k44
+k45
+k46
+k47
+k48
+k49
+k50
+k51
+k52
+k53
+k54
+k55
+k56
+k57
+k58
+k59
+k60
+k61
+k62
+k63
+k64
+k65
+k66
+k67
+k68
+k69
+
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+=
+
+2.3472075016e+08
+2.1243982518e+11
+2.8944452758e+10
+2.1243982518e+11
+1.2474135377e+06
+2.1243982518e+11
+1.2524507574e+09
+2.1243982518e+11
+1.6652981977e+09
+2.1243982518e+11
+2.5518729986e+09
+2.1243982518e+11
+1.1386583655e+08
+2.1243982518e+11
+9.4996816172e+08
+2.1243982518e+11
+2.1243982518e+11
+2.9848780886e+10
+4.5983410911e+09
+2.1243982518e+11
+1.0360877187e+10
+2.1243982518e+11
+1.0305446152e+11
+2.1243982518e+11
+2.1243982518e+11
+2.6258534710e+10
+2.9128971462e+10
+2.1243982518e+11
+1.8163911446e+09
+2.1243982518e+11
+2.1243982518e+11
+2.0822723299e+10
+3.6580372751e+09
+2.1243982518e+11
+8.1375555674e+10
+2.1243982518e+11
+1.4846115923e-11
+4.1907492732e-08
+1.3627835178e+02
+2.9212843905e+03
+4.7620982072e-03
+3.2277543932e+00
+9.0926246695e+02
+1.7512558087e+05
+3.1831794500e+02
+1.1404141794e+05
+7.4531321673e+10
+2.1243982518e+11
+2.1243982518e+11
+1.0627613561e+10
+2.1243982518e+11
+1.4311551605e+10
+7.8918184665e+10
+2.1243982518e+11
+2.1243982518e+11
+1.0036851306e+10
+1.4207544383e+09
+2.1243982518e+11
+2.9722595183e+10
+2.1243982518e+11
+3.5961305166e-16
+4.4655823739e-23
+1.8128732564e-05
+2.2320322775e-11
+
+S28
+
+340
+k70 = 1.2863754590e-06
+341
+k71 = 8.2046628228e-13
+342
+k72 = 6.4999399338e+01
+343
+k73 = 5.6414819627e-03
+344
+k74 = 3.0671312390e+03
+345
+k75 = 2.5170839485e-03
+346
+k76 = 2.1243982518e+11
+347
+k77 = 5.2266979709e+10
+348
+k78 = 2.1243982518e+11
+349
+k79 = 1.1028202726e+11
+350
+k80 = 2.1243982518e+11
+351
+k81 = 6.1072075449e+10
+352
+k82 = 2.1243982518e+11
+353
+k83 = 2.5466485201e+08
+354
+k84 = 2.1243982518e+11
+355
+k85 = 2.0798187287e+11
+356
+k86 = 2.1243982518e+11
+357
+k87 = 2.0691187767e+09
+358
+k88 = 2.1243982518e+11
+359
+k89 = 1.0983092618e+09
+360
+k90 = 1.4131533551e+10
+361
+k91 = 2.1243982518e+11
+362
+k92 = 2.1243982518e+11
+363
+k93 = 2.1655291772e+09
+364
+k94 = 2.1243982518e+11
+365
+k95 = 1.5057926667e+10
+366
+k96 = 1.0154287036e+11
+367
+k97 = 2.1243982518e+11
+368
+k98 = 2.1243982518e+11
+369
+k99 = 8.1548110537e+10
+370
+k100 = 2.1243982518e+11
+371
+k101 = 4.5447672655e+10
+372
+k102 = 2.1243982518e+11
+373
+k103 = 2.1539435241e+10
+374
+# Partial Derivatives
+375
+Jac[0,0] = -k00*x[1]-k02*x[2]-k10*x[5]-k12*x[7]-k14*x[6]
+376
+Jac[0,1] = -k00*x[0]
+377
+Jac[0,2] = -k02*x[0]
+378
+Jac[0,3] = +k01
+379
+Jac[0,4] = +k03
+380
+Jac[0,5] = -k10*x[0]
+381
+Jac[0,6] = -k14*x[0]
+382
+Jac[0,7] = -k12*x[0]
+383
+Jac[0,8] = +k11
+384
+Jac[0,9] = +k13
+385
+Jac[0,10] = +k15
+386
+Jac[1,0] = -k00*x[1]
+387
+Jac[1,1] = -k00*x[0]-k04*x[2]-2.0*k06*2.0*x[1]-k16*x[3]-k18*x[4]k20*x[5]-k22*x[6]-k55*x[16]-k61*x[17]-k87*x[22]-k95*x[24]
+388
+Jac[1,2] = -k04*x[1]
+389
+Jac[1,3] = +k01-k16*x[1]
+390
+Jac[1,4] = -k18*x[1]
+391
+Jac[1,5] = +k05-k20*x[1]
+392
+Jac[1,6] = -k22*x[1]
+393
+Jac[1,7] = +2.0*k07
+394
+Jac[1,8] = +k19
+395
+Jac[1,9] = +k17
+396
+Jac[1,11] = +k23
+397
+Jac[1,12] = +k21
+398
+Jac[1,16] = -k55*x[1]
+399
+Jac[1,17] = -k61*x[1]
+400
+Jac[1,18] = +k54
+401
+Jac[1,19] = +k60
+402
+Jac[1,22] = -k87*x[1]
+
+S29
+
+403
+Jac[1,24] = -k95*x[1]
+404
+Jac[1,25] = +k86
+405
+Jac[1,26] = +k94
+406
+Jac[2,0] = -k02*x[2]
+407
+Jac[2,1] = -k04*x[2]
+408
+Jac[2,2] = -k02*x[0]-k04*x[1]-2.0*k08*2.0*x[2]-k24*x[3]-k26*x[4]k28*x[5]-k30*x[7]-k32*x[6]-k53*x[16]-k59*x[18]-k65*x[17]-k77*x[21]-k81*x[22]k85*x[23]-k97*x[25]-k103*x[24]
+409
+Jac[2,3] = -k24*x[2]
+410
+Jac[2,4] = +k03-k26*x[2]
+411
+Jac[2,5] = +k05-k28*x[2]
+412
+Jac[2,6] = +2.0*k09-k32*x[2]
+413
+Jac[2,7] = -k30*x[2]
+414
+Jac[2,8] = +k25
+415
+Jac[2,10] = +k27
+416
+Jac[2,11] = +k29
+417
+Jac[2,12] = +k31
+418
+Jac[2,13] = +k33
+419
+Jac[2,16] = -k53*x[2]
+420
+Jac[2,17] = +k52-k65*x[2]
+421
+Jac[2,18] = -k59*x[2]
+422
+Jac[2,19] = +k58
+423
+Jac[2,20] = +k64
+424
+Jac[2,21] = -k77*x[2]
+425
+Jac[2,22] = +k76-k81*x[2]
+426
+Jac[2,23] = -k85*x[2]
+427
+Jac[2,24] = +k80-k103*x[2]
+428
+Jac[2,25] = +k84-k97*x[2]
+429
+Jac[2,26] = +k96
+430
+Jac[2,27] = +k102
+431
+Jac[3,0] = +k00*x[1]
+432
+Jac[3,1] = +k00*x[0]-k16*x[3]
+433
+Jac[3,2] = -k24*x[3]
+434
+Jac[3,3] = -k01-k16*x[1]-k24*x[2]-k34*x[5]-k36*x[6]-k42
+435
+Jac[3,5] = -k34*x[3]
+436
+Jac[3,6] = -k36*x[3]
+437
+Jac[3,8] = +k25
+438
+Jac[3,9] = +k17
+439
+Jac[3,14] = +k35
+440
+Jac[3,15] = +k37
+441
+Jac[3,16] = +k43
+442
+Jac[4,0] = +k02*x[2]
+443
+Jac[4,1] = -k18*x[4]
+444
+Jac[4,2] = +k02*x[0]-k26*x[4]
+445
+Jac[4,4] = -k03-k18*x[1]-k26*x[2]-k38*x[5]-k40*x[7]
+446
+Jac[4,5] = -k38*x[4]
+447
+Jac[4,7] = -k40*x[4]
+448
+Jac[4,8] = +k19
+449
+Jac[4,10] = +k27
+450
+Jac[4,14] = +k41
+451
+Jac[4,15] = +k39
+452
+Jac[5,0] = -k10*x[5]
+453
+Jac[5,1] = +k04*x[2]-k20*x[5]
+454
+Jac[5,2] = +k04*x[1]-k28*x[5]
+455
+Jac[5,3] = -k34*x[5]
+456
+Jac[5,4] = -k38*x[5]
+457
+Jac[5,5] = -k05-k10*x[0]-k20*x[1]-k28*x[2]-k34*x[3]-k38*x[4]k57*x[16]-k83*x[21]-k93*x[22]
+458
+Jac[5,8] = +k11
+459
+Jac[5,11] = +k29
+460
+Jac[5,12] = +k21
+461
+Jac[5,14] = +k35
+462
+Jac[5,15] = +k39
+463
+Jac[5,16] = -k57*x[5]
+
+S30
+
+464
+Jac[5,19] = +k56
+465
+Jac[5,21] = -k83*x[5]
+466
+Jac[5,22] = -k93*x[5]
+467
+Jac[5,25] = +k82
+468
+Jac[5,26] = +k92
+469
+Jac[6,0] = -k14*x[6]
+470
+Jac[6,1] = -k22*x[6]
+471
+Jac[6,2] = +k08*2.0*x[2]-k32*x[6]
+472
+Jac[6,3] = -k36*x[6]
+473
+Jac[6,6] = -k09-k14*x[0]-k22*x[1]-k32*x[2]-k36*x[3]-k63*x[16]k79*x[21]-k91*x[23]-k101*x[22]
+474
+Jac[6,10] = +k15
+475
+Jac[6,11] = +k23
+476
+Jac[6,13] = +k33
+477
+Jac[6,15] = +k37
+478
+Jac[6,16] = -k63*x[6]
+479
+Jac[6,20] = +k62
+480
+Jac[6,21] = -k79*x[6]
+481
+Jac[6,22] = -k101*x[6]
+482
+Jac[6,23] = -k91*x[6]
+483
+Jac[6,24] = +k78
+484
+Jac[6,26] = +k90
+485
+Jac[6,27] = +k100
+486
+Jac[7,0] = -k12*x[7]
+487
+Jac[7,1] = +k06*2.0*x[1]
+488
+Jac[7,2] = -k30*x[7]
+489
+Jac[7,4] = -k40*x[7]
+490
+Jac[7,7] = -k07-k12*x[0]-k30*x[2]-k40*x[4]
+491
+Jac[7,9] = +k13
+492
+Jac[7,12] = +k31
+493
+Jac[7,14] = +k41
+494
+Jac[8,0] = +k10*x[5]
+495
+Jac[8,1] = +k18*x[4]
+496
+Jac[8,2] = +k24*x[3]
+497
+Jac[8,3] = +k24*x[2]
+498
+Jac[8,4] = +k18*x[1]
+499
+Jac[8,5] = +k10*x[0]
+500
+Jac[8,8] = -k11-k19-k25-k44
+501
+Jac[8,17] = +k45
+502
+Jac[9,0] = +k12*x[7]
+503
+Jac[9,1] = +k16*x[3]
+504
+Jac[9,3] = +k16*x[1]
+505
+Jac[9,7] = +k12*x[0]
+506
+Jac[9,9] = -k13-k17-k46
+507
+Jac[9,18] = +k47
+508
+Jac[10,0] = +k14*x[6]
+509
+Jac[10,2] = +k26*x[4]
+510
+Jac[10,4] = +k26*x[2]
+511
+Jac[10,6] = +k14*x[0]
+512
+Jac[10,10] = -k15-k27
+513
+Jac[11,1] = +k22*x[6]
+514
+Jac[11,2] = +k28*x[5]
+515
+Jac[11,5] = +k28*x[2]
+516
+Jac[11,6] = +k22*x[1]
+517
+Jac[11,11] = -k23-k29-k89*x[21]
+518
+Jac[11,21] = -k89*x[11]
+519
+Jac[11,26] = +k88
+520
+Jac[12,1] = +k20*x[5]
+521
+Jac[12,2] = +k30*x[7]
+522
+Jac[12,5] = +k20*x[1]
+523
+Jac[12,7] = +k30*x[2]
+524
+Jac[12,12] = -k21-k31
+525
+Jac[13,2] = +k32*x[6]
+526
+Jac[13,6] = +k32*x[2]
+
+S31
+
+527
+528
+529
+530
+531
+532
+533
+534
+535
+536
+537
+538
+539
+540
+541
+542
+543
+544
+545
+546
+547
+548
+549
+550
+551
+552
+553
+554
+555
+556
+557
+558
+559
+560
+561
+562
+563
+564
+565
+566
+567
+568
+569
+570
+571
+572
+573
+574
+575
+576
+577
+578
+579
+580
+581
+582
+583
+584
+585
+586
+587
+588
+589
+590
+
+Jac[13,13] = -k33-k99*x[21]
+Jac[13,21] = -k99*x[13]
+Jac[13,27] = +k98
+Jac[14,3] = +k34*x[5]
+Jac[14,4] = +k40*x[7]
+Jac[14,5] = +k34*x[3]
+Jac[14,7] = +k40*x[4]
+Jac[14,14] = -k35-k41-k50
+Jac[14,19] = +k51
+Jac[15,3] = +k36*x[6]
+Jac[15,4] = +k38*x[5]
+Jac[15,5] = +k38*x[4]
+Jac[15,6] = +k36*x[3]
+Jac[15,15] = -k37-k39-k48
+Jac[15,20] = +k49
+Jac[16,1] = -k55*x[16]
+Jac[16,2] = -k53*x[16]
+Jac[16,3] = +k42
+Jac[16,5] = -k57*x[16]
+Jac[16,6] = -k63*x[16]
+Jac[16,16] = -k43-k53*x[2]-k55*x[1]-k57*x[5]-k63*x[6]-k66
+Jac[16,17] = +k52
+Jac[16,18] = +k54
+Jac[16,19] = +k56
+Jac[16,20] = +k62
+Jac[16,22] = +k67
+Jac[17,1] = -k61*x[17]
+Jac[17,2] = +k53*x[16]-k65*x[17]
+Jac[17,8] = +k44
+Jac[17,16] = +k53*x[2]
+Jac[17,17] = -k45-k52-k61*x[1]-k65*x[2]-k68
+Jac[17,19] = +k60
+Jac[17,20] = +k64
+Jac[17,24] = +k69
+Jac[18,1] = +k55*x[16]
+Jac[18,2] = -k59*x[18]
+Jac[18,9] = +k46
+Jac[18,16] = +k55*x[1]
+Jac[18,18] = -k47-k54-k59*x[2]-k70
+Jac[18,19] = +k58
+Jac[18,25] = +k71
+Jac[19,1] = +k61*x[17]
+Jac[19,2] = +k59*x[18]
+Jac[19,5] = +k57*x[16]
+Jac[19,14] = +k50
+Jac[19,16] = +k57*x[5]
+Jac[19,17] = +k61*x[1]
+Jac[19,18] = +k59*x[2]
+Jac[19,19] = -k51-k56-k58-k60-k74
+Jac[19,26] = +k75
+Jac[20,2] = +k65*x[17]
+Jac[20,6] = +k63*x[16]
+Jac[20,15] = +k48
+Jac[20,16] = +k63*x[6]
+Jac[20,17] = +k65*x[2]
+Jac[20,20] = -k49-k62-k64-k72
+Jac[20,27] = +k73
+Jac[21,2] = -k77*x[21]
+Jac[21,5] = -k83*x[21]
+Jac[21,6] = -k79*x[21]
+Jac[21,11] = -k89*x[21]
+Jac[21,13] = -k99*x[21]
+Jac[21,21] = -k77*x[2]-k79*x[6]-k83*x[5]-k89*x[11]-k99*x[13]
+Jac[21,22] = +k76
+
+S32
+
+591
+Jac[21,24] = +k78
+592
+Jac[21,25] = +k82
+593
+Jac[21,26] = +k88
+594
+Jac[21,27] = +k98
+595
+Jac[22,1] = -k87*x[22]
+596
+Jac[22,2] = +k77*x[21]-k81*x[22]
+597
+Jac[22,5] = -k93*x[22]
+598
+Jac[22,6] = -k101*x[22]
+599
+Jac[22,16] = +k66
+600
+Jac[22,21] = +k77*x[2]
+601
+Jac[22,22] = -k67-k76-k81*x[2]-k87*x[1]-k93*x[5]-k101*x[6]
+602
+Jac[22,24] = +k80
+603
+Jac[22,25] = +k86
+604
+Jac[22,26] = +k92
+605
+Jac[22,27] = +k100
+606
+Jac[23,2] = -k85*x[23]
+607
+Jac[23,6] = -k91*x[23]
+608
+Jac[23,23] = -k85*x[2]-k91*x[6]
+609
+Jac[23,25] = +k84
+610
+Jac[23,26] = +k90
+611
+Jac[24,1] = -k95*x[24]
+612
+Jac[24,2] = +k81*x[22]-k103*x[24]
+613
+Jac[24,6] = +k79*x[21]
+614
+Jac[24,17] = +k68
+615
+Jac[24,21] = +k79*x[6]
+616
+Jac[24,22] = +k81*x[2]
+617
+Jac[24,24] = -k69-k78-k80-k95*x[1]-k103*x[2]
+618
+Jac[24,26] = +k94
+619
+Jac[24,27] = +k102
+620
+Jac[25,1] = +k87*x[22]
+621
+Jac[25,2] = +k85*x[23]-k97*x[25]
+622
+Jac[25,5] = +k83*x[21]
+623
+Jac[25,18] = +k70
+624
+Jac[25,21] = +k83*x[5]
+625
+Jac[25,22] = +k87*x[1]
+626
+Jac[25,23] = +k85*x[2]
+627
+Jac[25,25] = -k71-k82-k84-k86-k97*x[2]
+628
+Jac[25,26] = +k96
+629
+Jac[26,1] = +k95*x[24]
+630
+Jac[26,2] = +k97*x[25]
+631
+Jac[26,5] = +k93*x[22]
+632
+Jac[26,6] = +k91*x[23]
+633
+Jac[26,11] = +k89*x[21]
+634
+Jac[26,19] = +k74
+635
+Jac[26,21] = +k89*x[11]
+636
+Jac[26,22] = +k93*x[5]
+637
+Jac[26,23] = +k91*x[6]
+638
+Jac[26,24] = +k95*x[1]
+639
+Jac[26,25] = +k97*x[2]
+640
+Jac[26,26] = -k75-k88-k90-k92-k94-k96
+641
+Jac[27,2] = +k103*x[24]
+642
+Jac[27,6] = +k101*x[22]
+643
+Jac[27,13] = +k99*x[21]
+644
+Jac[27,20] = +k72
+645
+Jac[27,21] = +k99*x[13]
+646
+Jac[27,22] = +k101*x[6]
+647
+Jac[27,24] = +k103*x[2]
+648
+Jac[27,27] = -k73-k98-k100-k102
+649
+return Jac
+650
+651
+652 # Calculation handling a maximum matrix size
+653 if species*tfin/dt > MaxMem:
+654
+tfin2 = MaxMem*dt/species
+
+S33
+
+655
+656
+657
+658
+659
+660
+661
+662
+663
+664
+665
+666
+667
+668
+669
+670
+671
+672
+673
+674
+675
+676
+677
+678
+679
+680
+681
+682
+683
+
+ti = 0
+else:
+tfin2 = tfin
+ti = 0
+t = np.arange(0,tfin2+dt,dt)
+xini2 = xini
+# Time indexes and Out predefinition
+Out_index = []
+t_old = -(report_t+1.0)
+for i in range(len(t)):
+if t[i] - t_old >= report_t:
+Out_index.append(i)
+t_old = t[i]
+Out = ['' for i in Out_index]
+while ti+tfin2 <= tfin:
+#print('Current interval: [{},{}] s'.format(ti,ti+tfin2))
+x = odeint(f,xini2,t,Dfun=Jacobian,rtol=1E-6,atol=1E-11)
+# Output Writing
+for j,i in enumerate(Out_index):
+Row = '\t'.join(map(str,x[i,:].tolist()))
+Out[j] = '{}\t{}'.format(ti+t[i],Row)
+t_old = t[i]
+with open('{}.txt'.format(OFile),'a') as F:
+F.write('\n'.join(Out))
+F.write('\n')
+xini2 = x[-1,:]
+ti += tfin2
+
+S34
+
+9. Geometries
+
+Benzaldehyde
+Number of Imaginary Frequencies = 0
+14
+Energy (POTENTIAL) = -345.719632320 Eh
+C   -1.6968    0.0685   -0.0001
+C   -0.3000    0.0615   0.0004
+C   0.4033     1.2594   -0.0001
+C   -0.2894    2.4662   -0.0010
+C   -1.6850    2.4790   -0.0014
+C   -2.3877    1.2855   -0.0010
+H   0.2288     -0.8840  0.0011
+H   1.4850     1.2543   0.0003
+H   0.2566     3.4005   -0.0013
+H   -2.2163    3.4213   -0.0022
+H   -3.4693    1.2754   -0.0014
+C   -2.4231    -1.2136  0.0004
+O   -3.6322    -1.3279  0.0006
+H   -1.7754    -2.1108  0.0016
+
+NButylamine
+Number of Imaginary Frequencies = 0
+16
+Energy (POTENTIAL) = -213.904198497 Eh
+C   -3.5451    -1.0834    -0.0000
+H   -3.2750    -2.1440    0.0064
+H   -3.0914    -0.6563    -0.8997
+C   -2.9526    -0.4069    1.2354
+H   -3.2206    0.6558     1.2297
+H   -3.3960    -0.8337    2.1401
+C   -1.4365    -0.5351    1.3223
+H   -0.9910    -0.1276    0.4038
+H   -1.1656    -1.5937    1.3588
+N   -0.9238    0.1047     2.5431
+H   0.0838     -0.0023    2.5908
+H   -1.0928    1.1046     2.4948
+C   -5.0638    -0.9454    -0.0816
+H   -5.3616    0.1054     -0.1187
+H   -5.4630    -1.4356    -0.9718
+H   -5.5467    -1.3941    0.7898
+
+Water
+Number of Imaginary Frequencies = 0
+3
+Energy (POTENTIAL) = -76.4666514750 Eh
+O   0.8096   0.1311   0.0000
+H   1.7728   0.1775   0.0000
+H   0.5317   1.0546   0.0000
+
+Hemiaminal
+Number of Imaginary Frequencies = 0
+30
+Energy (POTENTIAL) = -559.630034705 Eh
+C     2.1965     1.1709     -0.0648
+C     0.8511     1.1909     0.2798
+C     0.1160     0.0068     0.3443
+C     0.7492     -1.1993    0.0556
+C     2.0969     -1.2217    -0.2961
+C     2.8242     -0.0384    -0.3556
+H     0.3626     2.1325     0.4990
+H     0.1857     -2.1202    0.1132
+H     3.8726     -0.0562    -0.6235
+N     -2.1182    0.4044     -0.4763
+C     -3.5300    0.7523     -0.3133
+H     -3.6005    1.4408     0.5333
+H     -3.8300    1.3208     -1.1987
+H     -1.9765    -0.2783    -1.2117
+H     -1.3334    -1.3423    2.0752
+C     -1.3654    0.0656     0.6888
+H     -1.5275    0.8603     1.4247
+O     -1.8256    -1.1818    1.2592
+C     -4.5133    -0.4064    -0.1186
+H     -4.2576    -0.9486    0.7923
+H     -4.3932    -1.1132    -0.9470
+H     2.7563     2.0964     -0.1057
+H     2.5782     -2.1652    -0.5198
+C     -5.9652    0.0669     -0.0588
+H     -6.2104    0.6077     -0.9786
+H     -6.0753    0.7879     0.7576
+C     -6.9576    -1.0769    0.1386
+H     -6.7584    -1.6146    1.0688
+H     -7.9864    -0.7131    0.1793
+H     -6.8937    -1.7996    -0.6786
+
+Imine
+Number of Imaginary Frequencies = 0
+27
+Energy (POTENTIAL) = -483.158752526 Eh
+C   -8.8986    1.6627   2.8139
+C   -9.6353    2.7188   3.3382
+C   -9.0674    3.9849   3.4242
+C   -7.7575    4.2095   2.9912
+C   -7.0242    3.1393   2.4636
+C   -7.5916    1.8776   2.3766
+H   -9.3379    0.6763   2.7444
+H   -9.6407    4.8087   3.8315
+H   -6.0112    3.3109   2.1270
+C   -7.1935    5.5638   3.1051
+H   -7.8801    6.3226   3.5023
+N   -6.0045    5.8587   2.7778
+C   -5.5585    7.2299   2.9558
+C   -4.4166    7.3067   3.9707
+H   -4.7796    6.9432   4.9370
+H   -3.6184    6.6271   3.6599
+H   -5.1962    7.5897   1.9881
+H   -6.3791    7.8901   3.2695
+C   -3.8615    8.7217   4.1288
+H   -3.4892    9.0733   3.1617
+H   -4.6727    9.3996   4.4109
+H   -7.0177    1.0566   1.9673
+H   -10.6500   2.5580   3.6778
+C   -2.7452    8.8055   5.1670
+H   -1.9073    8.1579   4.8979
+H   -2.3617    9.8236   5.2589
+H   -3.0998    8.4937   6.1523
+
+W_W
+Number of Imaginary Frequencies = 0
+6
+Energy (POTENTIAL) = -152.942640477 Eh
+O   -1.1223   1.1696   0.1090
+H   -0.2446   1.4768   -0.1757
+H   -1.6951   1.3662   -0.6400
+O   1.4317    2.0847   -0.7691
+H   2.1060    1.4100   -0.6180
+H   1.7188    2.8403   -0.2406
+
+A_W
+Number of Imaginary Frequencies = 0
+17
+Energy (POTENTIAL) = -422.195334037 Eh
+C  -2.0892  -1.0248   -0.0772
+C  -0.7263  -0.7732   0.0464
+C  -0.2784  0.5332    0.1900
+C  -1.1939  1.5892    0.2097
+C  -2.5643  1.3298    0.0852
+C  -3.0076  0.0262    -0.0577
+H  -2.4403  -2.0423   -0.1895
+H  0.7797   0.7428    0.2874
+H  -3.2612  2.1566    0.1017
+C  -0.6940  2.9585    0.3616
+H  0.4020   3.0547    0.4446
+O  -1.3982  3.9552    0.3985
+O  0.4603   6.0529    0.8034
+H  0.5981   6.0141    1.7561
+H  -0.2708  5.4310    0.6438
+H  -0.0189  -1.5912   0.0306
+H  -4.0652  -0.1796   -0.1543
+
+N_W
+Number of Imaginary Frequencies = 0
+19
+Energy (POTENTIAL) = -290.385672764 Eh
+C   1.5520     -1.8817     -3.9961
+C   2.2446     -1.2857     -2.7766
+H   2.0260     -0.2166     -2.7189
+H   3.3314     -1.3845     -2.8877
+H   0.4708     -1.7755     -3.8743
+H   1.7569     -2.9575     -4.0319
+H   3.0773     -1.3492     -5.4216
+N   1.7505     -1.9096     -1.5360
+O   -1.0339    -1.3887     -1.5239
+H   -1.0643    -0.4583     -1.7705
+H   -0.0702    -1.5965     -1.4782
+C   1.9944     -1.2385     -5.3093
+H   1.7982     -0.1626     -5.2670
+H   2.2199     -1.5117     -0.7295
+H   1.9727     -2.9002     -1.5355
+C   1.2919     -1.8361     -6.5263
+H   1.6219     -1.3607     -7.4520
+H   1.4949     -2.9063     -6.6112
+H   0.2089     -1.7104     -6.4553
+
+N_N
+Number of Imaginary Frequencies = 0
+32
+Energy (POTENTIAL) = -427.816638070 Eh
+C   -3.0518   -0.6019    -0.8374
+H   -2.1847   -0.8659    -1.4509
+H   -3.3351   0.4144     -1.1273
+C   -2.6470   -0.6165    0.6355
+H   -3.5088   -0.3378    1.2523
+H   -2.3724   -1.6323    0.9290
+C   -1.4866   0.3190     0.9512
+H   -1.7520   1.3393     0.6426
+H   -0.6147   0.0268     0.3603
+N   -1.1148   0.2334     2.3714
+H   -0.3523   0.8703     2.5751
+H   -1.8941   0.5290     2.9505
+H   -0.3541   -1.7705    2.8251
+C   -3.3606   -4.5695    2.7887
+H   -2.9793   -5.5939    2.8461
+H   -3.5614   -4.3762    1.7305
+C   -2.2868   -3.6020    3.2836
+H   -2.6678   -2.5775    3.2222
+H   -2.0762   -3.7897    4.3409
+C   -0.9830   -3.6919    2.4983
+H   -1.2064   -3.5700    1.4280
+H   -0.5610   -4.6945    2.6133
+N   -0.0052   -2.7152    2.9951
+H   0.8579    -2.7983    2.4687
+C   -4.6640   -4.4658    3.5775
+H   -5.0878   -3.4611    3.5052
+H   -5.4133   -5.1689    3.2081
+H   -4.5018   -4.6795    4.6368
+C   -4.2009   -1.5604    -1.1427
+H   -4.4743   -1.5349    -2.1994
+H   -3.9298   -2.5894    -0.8943
+H   -5.0910   -1.3052    -0.5625
+
+W_W_W
+Number of Imaginary Frequencies = 0
+9
+Energy (POTENTIAL) = -229.424938835 Eh
+O   -3.9675   2.9517   -1.8093
+H   -3.2529   3.5904   -1.9169
+O   -6.0171   3.2425   -3.7022
+H   -4.4581   2.9700   -2.6536
+H   -5.9509   4.0363   -4.2463
+O   -6.4731   3.9166   -1.0186
+H   -6.4430   3.5369   -2.8738
+H   -5.5385   3.6329   -1.0095
+H   -6.9444   3.2446   -0.5117
+
+A_N
+Number of Imaginary Frequencies = 0
+30
+Energy (POTENTIAL) = -559.632335083 Eh
+C   -1.1655   -0.7841   0.9657
+C   0.0611    -0.1948   0.6563
+C   0.0968    1.0902    0.1079
+C   -1.0847   1.7730    -0.1329
+C   -2.3083   1.1777    0.1736
+C   -2.3494   -0.0991   0.7260
+H   -1.1859   -1.7847   1.3794
+H   1.0541    1.5328    -0.1307
+H   -3.2294   1.7110    -0.0215
+C   1.3041    -0.9553   0.8808
+H   1.1579    -1.9633   1.3071
+O   2.4211    -0.5393   0.6438
+N   1.0308    -2.4692   -1.7336
+H   1.9923    -2.7089   -1.5193
+C   -0.4493   -0.8763   -2.9018
+C   0.9873    -1.2652   -2.5746
+H   1.4621    -0.4552   -2.0163
+H   1.5529    -1.3778   -3.5100
+H   -1.0074   -0.7712   -1.9685
+H   -0.9243   -1.6904   -3.4612
+H   0.6454    -3.2585   -2.2420
+C   -0.5508   0.4190    -3.7053
+H   -0.0651   1.2234    -3.1452
+H   0.0075    0.3144    -4.6407
+H   -1.0600   2.7643    -0.5651
+H   -3.3000   -0.5589   0.9608
+C   -1.9931   0.8137    -4.0132
+H   -2.0420   1.7452    -4.5808
+H   -2.4963   0.0407    -4.5992
+H   -2.5648   0.9542    -3.0930
+
+A_W_W
+Number of Imaginary Frequencies = 0
+20
+Energy (POTENTIAL) = -498.672725819 Eh
+C   -0.6293    0.5136    -0.8906
+C   -1.4201    1.5976    -0.4947
+C   -2.5849    1.3841    0.2293
+C   -2.9612    0.0864    0.5618
+C   -2.1752    -0.9990   0.1722
+C   -1.0137    -0.7906   -0.5518
+C   0.5897     0.7864    -1.6578
+H   -1.1168    2.6033    -0.7585
+H   -0.4010    -1.6279   -0.8551
+H   -3.8683    -0.0830   1.1270
+O   1.3642     -0.0500   -2.0947
+O   1.3752     -2.8320   -2.1385
+H   1.3805     -1.8550   -2.1369
+H   0.8937     -3.0811   -2.9362
+O   3.9736     -3.9136   -1.9369
+H   3.0795     -3.5411   -2.0413
+H   4.0096     -4.1807   -1.0123
+H   0.7938     1.8554    -1.8383
+H   -3.1966    2.2223    0.5339
+H   -2.4737    -2.0044   0.4369
+
+N_W_W
+Number of Imaginary Frequencies = 0
+22
+Energy (POTENTIAL) = -366.866983514 Eh
+N   0.0780    -1.8566   -2.4095
+C   1.1139    -1.9652   -3.4538
+C   2.1930    -0.9080   -3.2588
+H   2.5855    -0.9859   -2.2424
+H   1.7421    0.0863    -3.3486
+H   1.5571    -2.9609   -3.3734
+H   0.6948    -1.8819   -4.4632
+H   -0.6552   -2.5403   -2.5656
+H   -0.3664   -0.9449   -2.4560
+O   3.9011    -3.1801   -1.1917
+H   3.0471    -2.9378   -0.7806
+H   3.6930    -3.2972   -2.1241
+O   1.4396    -2.4293   -0.0633
+H   1.5667    -1.6048   0.4201
+H   0.8885    -2.1837   -0.8568
+C   3.3426    -1.0378   -4.2565
+H   3.7648    -2.0453   -4.1880
+H   2.9561    -0.9365   -5.2751
+C   4.4476    -0.0119   -4.0192
+H   4.8827    -0.1326   -3.0245
+H   5.2522    -0.1154   -4.7499
+H   4.0615    1.0077    -4.0924
+
+N_N_W
+Number of Imaginary Frequencies = 0
+35
+Energy (POTENTIAL) = -504.298154258 Eh
+O   -6.4830    2.9667    -3.5701
+H   -4.3507    2.6624    -3.6094
+H   -6.5667    3.8216    -4.0063
+H   -6.5730    3.1655    -2.6028
+H   -5.8689    3.3299    -0.3420
+H   -7.4378    2.9145    -0.4254
+H   -3.0599    1.8314    -3.0758
+C   -3.1585    3.7407    -2.3588
+H   -3.7112    3.5027    -1.4384
+H   -3.5620    4.6906    -2.7181
+C   -1.6855    3.9192    -2.0143
+H   -1.1362    4.1807    -2.9239
+H   -1.2789    2.9607    -1.6716
+C   -1.4465    4.9819    -0.9420
+H   -2.0129    4.7223    -0.0422
+H   -1.8472    5.9393    -1.2896
+C   0.0286     5.1467    -0.5829
+H   0.1724     5.9150    0.1794
+H   0.4456     4.2133    -0.1967
+H   0.6168     5.4328    -1.4582
+N   -3.3546    2.7413    -3.4166
+C   -7.1158    4.9391    -0.6190
+H   -7.2820    5.1706    0.4399
+H   -8.0636    5.1076    -1.1359
+C   -6.0521    5.8729    -1.1809
+H   -5.8914    5.6365    -2.2364
+H   -5.1013    5.6764    -0.6750
+C   -6.4065    7.3513    -1.0348
+H   -7.3514    7.5490    -1.5500
+H   -6.5777    7.5815    0.0211
+C   -5.3207    8.2715    -1.5886
+H   -5.1487    8.0812    -2.6507
+H   -5.5923    9.3231    -1.4789
+H   -4.3720    8.1169    -1.0689
+N   -6.7381    3.5294    -0.8271
+
+A_N_W
+Number of Imaginary Frequencies = 0
+33
+Energy (POTENTIAL) = -636.108992967 Eh
+C   0.4664    1.5702     -1.8626
+C   -0.1796   1.3625     -0.6517
+C   0.3580    0.4811     0.2893
+C   1.5514    -0.1926    0.0097
+C   2.1943    0.0147     -1.2000
+C   1.6529    0.8955     -2.1363
+H   -1.1063   1.8771     -0.4297
+H   1.9643    -0.8722    0.7416
+H   2.1589    1.0555     -3.0794
+N   -2.1984   -1.6968    0.5148
+H   -1.3583   -2.2562    0.4097
+C   -2.8896   -2.0696    1.7534
+H   -3.2084   -3.1217    1.7647
+H   -2.1785   -1.9473    2.5735
+H   -2.7881   -1.8860    -0.2885
+H   0.1463    -3.6919    2.1704
+H   0.4575    -2.2089    1.9414
+C   -0.3471   0.2867     1.5650
+H   -1.2404   0.9151     1.7036
+O   0.0145    -0.4656    2.4567
+C   -4.1004   -1.1780    2.0017
+H   -3.7703   -0.1350    2.0297
+H   -4.7899   -1.2623    1.1541
+O   0.5244    -3.0851    1.5242
+C   -4.8415   -1.5185    3.2936
+H   -5.1801   -2.5583    3.2538
+H   -4.1441   -1.4549    4.1346
+H   3.1168    -0.5063    -1.4185
+H   0.0493    2.2525     -2.5909
+C   -6.0360   -0.6031    3.5537
+H   -6.5502   -0.8681    4.4796
+H   -5.7210   0.4400     3.6354
+H   -6.7639   -0.6644    2.7409
+
+A_N_N
+Number of Imaginary Frequencies = 0
+46
+Energy (POTENTIAL) = -773.545187223 Eh
+C    0.6180    1.9599    -1.6191
+C    0.1379    1.5084    -0.3970
+C    0.8163    0.5039    0.2958
+C    1.9838    -0.0454   -0.2426
+C    2.4628    0.4061    -1.4622
+C    1.7799    1.4083    -2.1512
+H    -0.7703   1.9230    0.0220
+H    2.5059    -0.8173   0.3064
+H    2.1560    1.7593    -3.1033
+N    -2.0774   -1.4633   0.5412
+H    -1.3578   -2.1218   0.2476
+C    -2.5938   -1.8380   1.8614
+H    -3.0502   -2.8383   1.8755
+H    -1.7450   -1.8736   2.5485
+H    -2.8213   -1.5049   -0.1474
+H    0.9058    -2.5903   0.7699
+C    0.2867    0.0416    1.5917
+H    -0.5885   0.5994    1.9616
+O    0.7662    -0.8632   2.2503
+C    -3.6113   -0.8220   2.3679
+H    -3.1466   0.1689    2.3770
+H    -4.4450   -0.7654   1.6586
+C    -4.1509   -1.1511   3.7590
+H    -4.6172   -2.1409   3.7416
+H    -3.3143   -1.2191   4.4612
+H    3.3671    -0.0163   -1.8798
+H    0.0902    2.7363    -2.1565
+H    1.0786    -3.6948   -0.4130
+C    0.2378    -4.4455   1.3002
+H    -0.2596   -5.2785   0.7957
+H    -0.4648   -4.0730   2.0497
+C    1.5011    -4.9498   1.9992
+H    2.2003    -5.3259   1.2442
+H    1.9942    -4.1019   2.4860
+C    1.2247    -6.0417   3.0322
+H    0.7277    -6.8846   2.5420
+H    0.5185    -5.6603   3.7761
+N    0.4502    -3.3763   0.3171
+C    2.4880    -6.5343   3.7349
+H    2.2616    -7.3118   4.4674
+H    3.2000    -6.9508   3.0182
+H    2.9889    -5.7177   4.2606
+C    -5.1587   -0.1227   4.2673
+H    -5.5324   -0.3846   5.2592
+H    -4.7078   0.8704    4.3341
+H    -6.0188   -0.0493   3.5972
+
+A_N_W_W
+Number of Imaginary Frequencies = 0
+36
+Energy (POTENTIAL) = -712.593621195 Eh
+C   0.0341    -0.8077    -0.8500
+C   0.4696    0.5176     -0.7737
+C   -0.3865   1.5524     -1.1248
+C   -1.6795   1.2640     -1.5512
+C   -2.1198   -0.0579    -1.6274
+C   -1.2672   -1.0921    -1.2779
+C   0.9621    -1.8839    -0.4836
+H   1.4762    0.7292     -0.4360
+H   -1.5905   -2.1226    -1.3321
+H   -2.3480   2.0698     -1.8247
+H   1.6916    -1.9942    2.5932
+O   0.6838    -3.0738    -0.5241
+H   2.0289    -4.1874    -0.0549
+H   3.4970    -4.5441    -0.3515
+H   3.0793    -3.7344    2.0543
+H   3.1494    -3.5661    3.6789
+H   1.9673    -1.5584    -0.1836
+H   0.1775    -2.0059    2.2749
+H   -0.0509   2.5789     -1.0654
+H   -3.1266   -0.2737    -1.9588
+N   3.1617    -3.0509    2.8056
+C   4.4278    -2.3126    2.6658
+H   4.5441    -1.6660    3.5388
+H   5.2973    -2.9826    2.6467
+C   4.4186    -1.4622    1.4009
+H   4.2405    -2.1132    0.5383
+H   3.5730    -0.7710    1.4478
+C   5.7110    -0.6784    1.1839
+H   5.8973    -0.0412    2.0539
+H   6.5535    -1.3741    1.1260
+C   5.6710    0.1809     -0.0780
+H   4.8593    0.9111     -0.0307
+H   6.6037    0.7305     -0.2188
+H   5.5103    -0.4338    -0.9672
+O   0.9137    -1.4032    2.4240
+O   2.7759    -4.7359    0.2584
+
+A_N_N_W
+Number of Imaginary Frequencies = 0
+49
+Energy (POTENTIAL) = -850.030454675 Eh
+C    -0.5867    -0.0720    -1.3738
+C    -1.1793    1.0386     -0.7702
+C    -2.5502    1.0635     -0.5497
+C    -3.3315    -0.0223    -0.9350
+C    -2.7442    -1.1330    -1.5408
+C    -1.3765    -1.1592    -1.7589
+C    0.8714     -0.0855    -1.5848
+H    -0.5601    1.8748     -0.4699
+H    -0.9022    -2.0138    -2.2207
+H    -4.3994    -0.0064    -0.7612
+N    1.6903     0.0838     1.4051
+C    2.8561     0.9488     1.1887
+H    1.9655     -0.7226    1.9602
+C    3.9495     0.2057     0.4274
+H    3.2790     1.3396     2.1257
+H    2.5356     1.8181     0.6062
+H    3.5376     -0.1701    -0.5130
+H    4.2466     -0.6719    1.0090
+O    1.4887     -1.0167    -2.0683
+N    2.3793     -3.3017    0.0383
+H    2.3112     -2.4167    -0.4558
+H    3.0745     -3.8492    -0.4570
+O    3.0825     -2.4709    2.6108
+H    2.8646     -2.8353    1.7122
+H    2.6501     -3.0646    3.2335
+H    1.3911     0.8402     -1.2923
+H    0.9747     0.5755     1.9280
+H    -3.0095    1.9222     -0.0787
+H    -3.3565    -1.9755    -1.8332
+C    5.1784     1.0671     0.1437
+H    4.8806     1.9438     -0.4403
+H    5.5806     1.4489     1.0872
+C    1.0723     -3.9816    -0.0001
+H    0.6869     -4.0657    -1.0235
+H    1.2100     -4.9993    0.3729
+C    0.0522     -3.2506    0.8650
+H    0.3990     -3.2482    1.9021
+H    0.0096     -2.2040    0.5544
+C    -1.3462    -3.8586    0.7910
+H    -1.6890    -3.8462    -0.2476
+H    -1.3045    -4.9111    1.0890
+C    6.2718     0.3066     -0.6037
+H    7.1407     0.9389     -0.7976
+H    6.6111     -0.5578    -0.0277
+H    5.9066     -0.0615    -1.5656
+C    -2.3535    -3.1173    1.6668
+H    -3.3536    -3.5469    1.5812
+H    -2.0628    -3.1570    2.7195
+H    -2.4176    -2.0652    1.3815
+
+Int_W
+Number of Imaginary Frequencies = 0
+33
+Energy (POTENTIAL) = -636.113822802 Eh
+C    0.4143    1.6704     -1.9171
+C    -0.2317   1.3735     -0.7202
+C    0.2544    0.3736     0.1193
+C    1.4012    -0.3284    -0.2543
+C    2.0477    -0.0334    -1.4485
+C    1.5560    0.9665     -2.2838
+H    -1.1178   1.9268     -0.4336
+H    1.7926    -1.1070    0.3862
+H    2.0628    1.1963     -3.2119
+N    -1.1761   -1.2401    1.2497
+H    0.1603    -2.4669    1.6470
+C    -2.2472   -1.4890    2.2281
+H    -2.4567   -2.5615    2.2242
+H    -1.8458   -1.2507    3.2142
+H    -1.5328   -1.3247    0.3049
+H    0.7575    -3.3380    2.7867
+H    0.8514    -0.8600    2.5133
+C    -0.4783   0.0429     1.4063
+H    -1.1734   0.8575     1.6269
+O    0.3723    -0.0145    2.5412
+C    -3.5458   -0.7205    1.9833
+H    -3.3448   0.3541     1.9699
+H    -3.9284   -0.9810    0.9908
+O    1.0090    -2.8018    2.0258
+C    -4.6105   -1.0220    3.0378
+H    -4.7916   -2.1009    3.0691
+H    -4.2260   -0.7464    4.0244
+H    0.0287    2.4521     -2.5587
+H    2.9369    -0.5839    -1.7273
+C    -5.9275   -0.2931    2.7809
+H    -6.3508   -0.5768    1.8144
+H    -6.6681   -0.5245    3.5489
+H    -5.7834   0.7900     2.7740
+
+Int_N
+Number of Imaginary Frequencies = 0
+46
+Energy (POTENTIAL) = -773.548127632 Eh
+C   2.6975   2.2083    0.3520
+C   1.5170   1.8910    1.0161
+C   0.8931   0.6634    0.8030
+C   1.4682   -0.2492   -0.0826
+C   2.6458   0.0695    -0.7501
+C   3.2640   1.2978    -0.5347
+H   1.0755   2.6015    1.7041
+H   0.9951   -1.2081   -0.2484
+H   4.1825   1.5423    -1.0522
+N   -1.5168  0.5618    0.6068
+H   -0.9001  -2.4756   0.3874
+C   -2.8485  0.3403    1.1768
+H   -2.9686  -0.6809   1.5565
+H   -2.9606  1.0115    2.0331
+H   -1.3918  0.0105    -0.2354
+N   -0.8230  -3.0457   -0.4500
+H   0.3390   -1.1707   2.5281
+C   -1.9285   -2.7662  -1.3709
+H   -1.7660   -3.3477  -2.2832
+H   -1.8646   -1.7148  -1.6660
+C   -0.4172   0.3460   1.4972
+H   -0.5455   1.0123   2.3559
+O   -0.4426   -1.0219  1.9809
+H   -0.8637   -4.0133  -0.1473
+C   -3.9318   0.6291   0.1463
+H   -3.7589   0.0027   -0.7343
+H   -3.8433   1.6667   -0.1881
+C   -3.3316   -3.0557  -0.8340
+H   -3.3779   -4.1028  -0.5156
+H   -3.5031   -2.4510  0.0619
+C   -5.3419   0.3702   0.6736
+H   -5.4120   -0.6654  1.0185
+H   -5.5230   0.9986   1.5511
+C   -4.4356   -2.7846  -1.8553
+H   -4.2489   -3.3812  -2.7536
+H   -4.3863   -1.7379  -2.1693
+C   -5.8329   -3.0920  -1.3219
+H   -6.6032   -2.8741  -2.0643
+H   -5.9242   -4.1460  -1.0485
+H   -6.0538   -2.5000  -0.4314
+C   -6.4212   0.6317   -0.3742
+H   -7.4187   0.4250   0.0184
+H   -6.4029   1.6727   -0.7056
+H   -6.2741   0.0024   -1.2545
+H   3.0823    -0.6437  -1.4374
+H   3.1758    3.1631   0.5282
+
+Int_W_W
+Number of Imaginary Frequencies = 0
+36
+Energy (POTENTIAL) = -712.598744597 Eh
+C   -0.4082   0.3686    -0.5850
+C   -1.2350   1.4749    -0.3884
+C   -2.5664   1.3111    -0.0229
+C   -3.0882   0.0319    0.1455
+C   -2.2714   -1.0759   -0.0564
+C   -0.9382   -0.9090   -0.4197
+C   1.0578    0.5915    -0.9290
+H   -0.8330   2.4720    -0.5261
+H   -0.3169   -1.7786   -0.5798
+H   -4.1251   -0.1000   0.4257
+N   1.7861    0.8706    0.3248
+C   3.1794    1.3313    0.1430
+H   1.6459    -0.4842   1.4932
+C   4.2036    0.2027    0.2306
+H   3.3868    2.0595    0.9294
+H   3.2862    1.8543    -0.8150
+H   3.9929    -0.5366   -0.5435
+H   4.0897    -0.3046   1.1928
+O   1.6570    -0.4564   -1.6402
+O   1.9634    -2.7987   -0.1432
+H   1.7391    -1.2589   -1.0846
+H   2.8788    -3.0975   -0.1940
+O   1.5925    -1.2900   2.0773
+H   1.8649    -2.3964   0.7503
+H   0.6742    -1.3309   2.3699
+H   1.1270    1.4573    -1.5991
+H   1.2669    1.5833    0.8249
+C   5.6391    0.7047    0.0836
+H   5.8382    1.4626    0.8479
+H   5.7504    1.2064    -0.8827
+H   -2.6720   -2.0740   0.0654
+H   -3.1963   2.1788    0.1243
+C   6.6694    -0.4166   0.1980
+H   7.6881    -0.0373   0.0968
+H   6.5958    -0.9195   1.1653
+H   6.5175    -1.1708   -0.5781
+
+Int_N_W
+Number of Imaginary Frequencies = 0
+49
+Energy (POTENTIAL) = -850.028529639 Eh
+C     0.8612     0.0938    -0.2614
+C     0.6479     1.1540    0.6153
+C     1.2500     1.1618    1.8710
+C     2.0725     0.1102    2.2592
+C     2.2916     -0.9515   1.3845
+C     1.6874     -0.9583   0.1337
+C     0.1731     0.0230    -1.6136
+H     0.0100     1.9736    0.3168
+H     1.8509     -1.7880   -0.5427
+H     2.5425     0.1173    3.2340
+N     -0.9725    -0.8135   -1.5324
+C     -1.7298    -0.9993   -2.7673
+H     -1.5786    -0.5377   -0.7552
+C     -2.8208    -2.0464   -2.5765
+H     -1.0364    -1.3236   -3.5497
+H     -2.1829    -0.0636   -3.1207
+H     -3.4758    -1.7317   -1.7581
+H     -2.3597    -2.9861   -2.2591
+O     -0.2016    1.3529    -2.0932
+H     0.8630     -0.3924   -2.3554
+H     0.5969     1.8800    -2.2267
+O     -2.5788    2.5689    -1.3106
+H     -1.7479    2.1499    -1.6076
+H     -3.2547    2.2157    -1.8996
+H     2.9324     -1.7729   1.6779
+H     1.0743     1.9905    2.5448
+C     -3.6590    -2.2781   -3.8325
+H     -4.1007    -1.3296   -4.1531
+H     -3.0065    -2.6035   -4.6487
+N     -2.7961    0.2277    0.7343
+H     -2.7177    1.1664    0.3524
+H     -2.3673    0.2366    1.6531
+C     -4.2069    -0.1574   0.8277
+H     -4.6223    -0.1438   -0.1840
+H     -4.2577    -1.1958   1.1670
+C     -5.0682    0.7193    1.7388
+H     -5.0073    1.7564    1.3919
+H     -4.6442    0.7037    2.7489
+C     -6.5314    0.2800    1.7911
+H     -6.9482    0.2970    0.7791
+H     -6.5831    -0.7608   2.1256
+C     -7.3867    1.1520    2.7078
+H     -7.3752    2.1949    2.3817
+H     -8.4267    0.8198    2.7208
+H     -7.0163    1.1241    3.7355
+C     -4.7659    -3.3087   -3.6219
+H     -5.4529    -2.9912   -2.8336
+H     -5.3506    -3.4606   -4.5313
+H     -4.3515    -4.2758   -3.3270
+
+I_W
+Number of Imaginary Frequencies = 0
+30
+Energy (POTENTIAL) = -559.639118313 Eh
+C   2.3993   1.3071    0.1528
+C   1.0348   1.5536    0.0577
+C   0.1268   0.4999    -0.0921
+C   0.6136   -0.8134   -0.1417
+C   1.9748   -1.0566   -0.0447
+C   2.8721   0.0008    0.1018
+H   0.6656   2.5709    0.0989
+H   -0.0745  -1.6391   -0.2544
+H   3.9336   -0.1959   0.1763
+N   -2.2216  -0.0380   -0.3634
+C   -3.6050  0.4069    -0.4292
+H   -3.6814  1.5004    -0.3824
+H   -4.0069  0.0857    -1.3949
+H   -2.1818  -1.8649   -0.6568
+H   -1.9781  -2.9075   -1.7677
+C   -1.3036  0.8214    -0.1899
+H   -1.5472  1.8867    -0.1040
+O   -2.1982  -2.8321   -0.8327
+C   -4.4359  -0.2281   0.6867
+H   -4.0346  0.0919    1.6529
+H   -4.3204  -1.3142   0.6409
+C   -5.9167  0.1375    0.5949
+H   -6.3070  -0.1883   -0.3740
+H   -6.0246  1.2260    0.6209
+H   3.0902   2.1317    0.2672
+H   2.3412   -2.0740   -0.0826
+C   -6.7464  -0.4844   1.7155
+H   -7.8005  -0.2136   1.6296
+H   -6.6802  -1.5748   1.6948
+H   -6.3965  -0.1510   2.6955
+
+I_N
+Number of Imaginary Frequencies = 0
+43
+Energy (POTENTIAL) = -697.073287438 Eh
+C   2.4227   1.5992    -0.2515
+C   1.0419   1.7454    -0.3175
+C   0.2002   0.6337    -0.2133
+C   0.7689   -0.6351   -0.0375
+C   2.1461   -0.7784   0.0276
+C   2.9777   0.3363    -0.0785
+H   0.6085   2.7291    -0.4509
+H   0.1289   -1.5025   0.0445
+H   4.0520   0.2177    -0.0265
+N   -2.1059  -0.0960   -0.2312
+C   -3.5185  0.2377    -0.2846
+H   -3.6822  1.2993    -0.5144
+H   -3.9658  -0.3486   -1.0926
+H   -1.9307  -2.2909   -0.5185
+H   -1.8530  -3.6927   -1.3578
+C   -1.2539  0.8420    -0.2861
+H   -1.5701  1.8875    -0.3916
+C   -4.2147  -0.1257   1.0282
+H   -3.8150  0.5039    1.8286
+H   -3.9638  -1.1564   1.2880
+C   -5.7326  0.0288    0.9518
+H   -6.1112  -0.5786   0.1245
+H   -5.9827  1.0664    0.7111
+H   3.0623   2.4679    -0.3341
+H   2.5770   -1.7619   0.1625
+C   -2.9234  -3.8351   0.3835
+H   -2.7286  -4.8936   0.5800
+H   -2.8957  -3.3329   1.3543
+C   -4.3217  -3.6848   -0.2207
+H   -4.3591  -4.2290   -1.1708
+H   -4.4918  -2.6314   -0.4608
+C   -5.4350  -4.1813   0.7010
+H   -5.3752  -3.6460   1.6536
+H   -5.2692  -5.2378   0.9335
+N   -1.8232  -3.2987   -0.4233
+C   -6.8300  -4.0016   0.1063
+H   -7.6052  -4.3622   0.7855
+H   -7.0351  -2.9489   -0.1020
+H   -6.9301  -4.5497   -0.8338
+C   -6.4326  -0.3812   2.2450
+H   -7.5155  -0.2684   2.1664
+H   -6.2241  -1.4254   2.4888
+H   -6.0948  0.2283    3.0866
+
+I_W_W
+Number of Imaginary Frequencies = 0
+33
+Energy (POTENTIAL) = -636.118279666 Eh
+C   0.2308   -0.5550    0.3711
+C   1.3677   -1.3621    0.4792
+C   2.6305   -0.8463    0.2145
+C   2.7721   0.4878     -0.1512
+C   1.6467   1.3057     -0.2435
+C   0.3854   0.7919     0.0175
+C   -1.0827  -1.1599    0.6268
+H   1.2567   -2.4011    0.7637
+H   -0.4795  1.4351     -0.0468
+H   3.7540   0.8927     -0.3573
+N   -2.1874  -0.6138    0.3217
+C   -3.4326  -1.2963    0.6380
+H   -2.4957  0.7885     -0.7463
+C   -4.2936  -0.4411    1.5682
+H   -3.2513  -2.2809    1.0853
+H   -3.9707  -1.4513    -0.3021
+H   -4.4234  0.5483     1.1208
+H   -3.7558  -0.2910    2.5090
+O   -0.5451  1.0395     -3.2159
+H   -1.0611  -2.1488    1.0974
+H   0.1353   0.6685     -2.6449
+O   -2.6319  1.5452     -1.3717
+H   -1.2781  1.2471     -2.6065
+H   -3.5108  1.4188     -1.7466
+H   3.5010   -1.4835    0.2941
+H   1.7538   2.3460     -0.5201
+C   -5.6595  -1.0658    1.8472
+H   -6.1879  -1.2121    0.9003
+H   -5.5221  -2.0613    2.2798
+C   -6.5141  -0.2154    2.7841
+H   -6.6884  0.7777     2.3634
+H   -7.4873  -0.6759    2.9642
+H   -6.0242  -0.0830    3.7516
+
+I_N_W
+Number of Imaginary Frequencies = 0
+46
+Energy (POTENTIAL) = -773.554713027 Eh
+C    3.0949    2.4337     -0.3142
+C    1.7819    2.6798     0.0708
+C    0.8713    1.6287     0.2136
+C    1.3028    0.3198     -0.0374
+C    2.6114    0.0756     -0.4224
+C    3.5125    1.1311     -0.5619
+H    1.4566    3.6950     0.2625
+H    0.6056    -0.4980    0.0714
+H    4.5335    0.9359     -0.8626
+N    -1.4000   1.0489     0.7960
+H    -3.5883   -2.1199    1.0878
+C    -2.7430   1.4608     1.1680
+H    -3.0078   0.9294     2.0867
+H    -2.7979   2.5378     1.3761
+H    -1.5106   -1.0713    0.8426
+N    -1.8064   -2.0349    0.6875
+H    -4.7896   -3.0673    1.3063
+C    -1.6103   -2.3922    -0.7252
+H    -0.5511   -2.3807    -1.0136
+H    -2.1067   -1.6284    -1.3281
+C    -0.5097   1.9340     0.6182
+H    -0.7319   2.9991     0.7597
+O    -4.5679   -2.1332    1.2335
+H    -1.2393   -2.6300    1.2821
+C    -3.7484   1.0838     0.0782
+H    -3.6551   0.0180     -0.1366
+H    -3.4931   1.6216     -0.8400
+C    -2.2075   -3.7579    -1.0437
+H    -1.7489   -4.5105    -0.3923
+H    -3.2732   -3.7399    -0.7988
+C    -2.0214   -4.1690    -2.5034
+H    -0.9534   -4.1895    -2.7414
+H    -2.4658   -3.4066    -3.1508
+C    -5.1905   1.3913     0.4764
+H    -5.4272   0.8486     1.3953
+H    -5.2885   2.4568     0.7064
+H    2.9340    -0.9390    -0.6165
+H    3.7895    3.2565     -0.4204
+C    -2.6398   -5.5289    -2.8201
+H    -2.4965   -5.8001    -3.8679
+H    -2.1919   -6.3164    -2.2090
+H    -3.7143   -5.5274    -2.6209
+C    -6.1912   1.0061     -0.6105
+H    -6.1408   -0.0639    -0.8236
+H    -7.2153   1.2377     -0.3106
+H    -5.9893   1.5415     -1.5416
+
+I_W_W_W
+Number of Imaginary Frequencies = 0
+36
+Energy (POTENTIAL) = -712.599349142 Eh
+C   0.5308   -0.7831   -0.1426
+C   0.0903   0.1935    0.7593
+C   0.9621   0.7232    1.6973
+C   2.2854   0.2872    1.7529
+C   2.7307   -0.6887   0.8679
+C   1.8560   -1.2240   -0.0701
+C   -0.3329  -1.3492   -1.1853
+H   -0.9283  0.5467    0.7132
+H   2.2029   -1.9799   -0.7631
+H   2.9640   0.7082    2.4829
+N   -1.4854  -0.9070   -1.4836
+C   -2.2427  -1.5671   -2.5374
+H   -2.3284  0.5844    -1.0215
+C   -3.5841  -2.0757   -2.0093
+H   -1.6730  -2.3907   -2.9835
+H   -2.4279  -0.8274   -3.3216
+H   -4.1290  -1.2397   -1.5619
+H   -3.4006  -2.7981   -1.2084
+O   1.4930   2.2060    -1.5910
+H   0.0893   -2.2022   -1.7271
+H   1.8192   1.6102    -0.9094
+O   -0.8523  3.3339    -0.5011
+H   0.6787   2.5834    -1.2070
+H   -1.1148  4.0960    -1.0297
+O   -2.8048  1.4396    -0.8505
+H   -1.5812  2.6838    -0.6075
+H   -3.3800  1.2690    -0.0960
+H   0.6145   1.4852    2.3816
+H   3.7562   -1.0307   0.9066
+C   -4.4370  -2.7197   -3.1010
+H   -4.5987  -1.9950   -3.9046
+H   -3.8877  -3.5551   -3.5455
+C   -5.7846  -3.2140   -2.5807
+H   -6.3680  -2.3923   -2.1586
+H   -6.3772  -3.6677   -3.3774
+H   -5.6543  -3.9634   -1.7963
+
+I_N_W_W
+Number of Imaginary Frequencies = 0
+49
+Energy (POTENTIAL) = -850.037095890 Eh
+C   0.6333    -0.7437    -0.2808
+C   0.2721    -0.0196    0.8623
+C   1.2442    0.4324     1.7398
+C   2.5916    0.1698     1.4937
+C   2.9614    -0.5502    0.3634
+C   1.9870    -1.0039    -0.5182
+C   -0.3538   -1.2066    -1.2665
+H   -0.7696   0.1946     1.0475
+H   2.2736    -1.5586    -1.4031
+H   3.3473    0.5289     2.1797
+N   -1.5994   -0.9844    -1.1817
+C   -2.4648   -1.4728    -2.2418
+H   -2.6608   0.6770     -0.2441
+C   -3.5642   -2.3777    -1.6889
+H   -1.8996   -2.0002    -3.0216
+H   -2.9295   -0.5999    -2.7096
+H   -4.0682   -1.8623    -0.8668
+H   -3.1080   -3.2754    -1.2609
+O   0.6495    2.1712     -2.0072
+H   0.0647    -1.7600    -2.1159
+H   1.1362    1.4622     -1.5749
+O   -0.8461   3.2768     0.0739
+H   0.1390    2.5833     -1.2810
+H   -1.1715   4.1628     -0.1203
+H   -1.6557   2.6877     0.0631
+H   -3.6477   1.6071     0.6805
+H   0.9558    0.9997     2.6147
+H   4.0052    -0.7556    0.1663
+C   -4.5860   -2.7697    -2.7547
+H   -5.0078   -1.8611    -3.1952
+H   -4.0787   -3.2978    -3.5676
+N   -3.0268   1.6209     -0.1221
+C   -3.7614   2.0237     -1.3313
+H   -3.0819   1.8977     -2.1773
+H   -3.9799   3.0930     -1.2634
+C   -5.0562   1.2533     -1.5802
+H   -4.8388   0.1827     -1.5797
+H   -5.7405   1.4303     -0.7433
+C   -5.7429   1.6294     -2.8924
+H   -5.0498   1.4559     -3.7212
+H   -5.9614   2.7017     -2.8954
+C   -5.7138   -3.6383    -2.2042
+H   -6.2608   -3.1168    -1.4151
+H   -6.4295   -3.9043    -2.9845
+H   -5.3253   -4.5667    -1.7790
+C   -7.0302   0.8438     -3.1321
+H   -7.7549   1.0242     -2.3345
+H   -7.4997   1.1225     -4.0773
+H   -6.8335   -0.2307    -3.1614
+
+TS1
+Number of Imaginary Frequencies = 1
+30
+Energy (POTENTIAL) = -559.581410801 Eh
+C   -1.5715   -0.6122    -0.3110
+C   -0.2040   -0.4003    -0.1384
+C   0.2427    0.8570     0.2634
+C   -0.6621   1.8917     0.4743
+C   -2.0256   1.6764     0.2929
+C   -2.4793   0.4196     -0.0977
+H   -1.9275   -1.5908    -0.6090
+H   1.3024    1.0016     0.4237
+H   -2.7305   2.4799     0.4625
+C   0.7932    -1.5142    -0.3925
+H   0.2891    -2.4860    -0.2824
+O   2.0077    -1.4125    0.2387
+N   1.3561    -1.4678    -1.8352
+H   2.3151    -1.4083    -1.0630
+C   -0.2781   -2.7160    -3.2635
+C   1.1444    -2.6222    -2.7255
+H   1.8579    -2.5359    -3.5467
+H   1.4031    -3.5170    -2.1569
+H   -0.5126   -1.8009    -3.8165
+H   -0.9763   -2.7618    -2.4247
+H   1.1341    -0.5921    -2.3030
+C   -0.4853   -3.9323    -4.1648
+H   0.2233    -3.8929    -4.9974
+H   -0.2493   -4.8402    -3.6017
+H   -3.5389   0.2423     -0.2297
+H   -0.3054   2.8644     0.7883
+C   -1.9096   -4.0241    -4.7076
+H   -2.0403   -4.9060    -5.3373
+H   -2.6366   -4.0852    -3.8942
+H   -2.1594   -3.1461    -5.3080
+
+TS2
+Number of Imaginary Frequencies = 1
+30
+Energy (POTENTIAL) = -559.563968031 Eh
+C   3.3622    1.9710    -0.5566
+C   1.9990    2.2260    -0.6114
+C   1.1287    1.3095    -1.2136
+C   1.6550    0.1494    -1.8009
+C   3.0158    -0.0951   -1.7534
+C   3.8733    0.8088    -1.1236
+H   1.5968    3.1290    -0.1708
+H   1.0044    -0.5528   -2.3021
+H   4.9360    0.6089    -1.0868
+N   -1.2179   0.8862    -1.7184
+C   -2.6269   1.2651    -1.7801
+H   -2.7007   2.3187    -1.5098
+H   -2.9580   1.1633    -2.8159
+H   -1.0256   -0.1149   -1.6534
+H   -0.2220   -0.7445   1.1179
+C   -0.2806   1.6399    -1.2485
+H   -0.5615   2.6494    -0.9692
+O   -0.6267   -0.2131   0.4210
+C   -3.4877   0.4023    -0.8600
+H   -3.0310   0.3958    0.1305
+H   -3.4567   -0.6323   -1.2144
+H   4.0244    2.6794    -0.0773
+H   3.4166    -0.9915   -2.2075
+C   -4.9351   0.8882    -0.8177
+H   -5.3492   0.9001    -1.8309
+H   -4.9578   1.9233    -0.4634
+C   -5.8142   0.0230    0.0825
+H   -6.8438   0.3853    0.1014
+H   -5.8320   -1.0131   -0.2635
+H   -5.4416   0.0214    1.1093
+
+TS1W
+Number of Imaginary Frequencies = 1
+33
+Energy (POTENTIAL) = -636.091079011 Eh
+C    1.8080    1.4952    0.0770
+C    1.2168    1.1828    1.2975
+C    1.8103    0.2578    2.1545
+C    3.0046    -0.3553   1.7788
+C    3.5930    -0.0481   0.5576
+C    2.9980    0.8783    -0.2953
+H    0.2932    1.6686    1.5902
+H    3.4587    -1.0786   2.4412
+H    3.4621    1.1204    -1.2424
+N    0.2495    -1.3394   3.2126
+H    0.9695    -2.1354   3.3128
+C    -0.8269   -1.5540   4.2180
+H    -1.1026   -2.6079   4.1737
+H    -0.3787   -1.3664   5.1925
+H    -0.1347   -1.3191   2.2706
+H    2.2018    -3.3085   4.6653
+H    2.2838    -1.4859   4.3467
+C    1.1439    -0.0865   3.4787
+H    0.4520    0.7161    3.7478
+O    1.9797    -0.3907   4.5055
+C    -2.0434   -0.6729   3.9806
+H    -1.7496   0.3792    3.9944
+H    -2.4469   -0.8772   2.9837
+O    2.3392    -2.7117   3.9229
+C    -3.1279   -0.9089   5.0319
+H    -2.7081   -0.7269   6.0253
+H    -3.4281   -1.9606   5.0113
+H    4.5190    -0.5299   0.2717
+H    1.3445    2.2213    -0.5781
+C    -4.3515   -0.0205   4.8231
+H    -5.1106   -0.2051   5.5851
+H    -4.0814   1.0370    4.8711
+H    -4.8086   -0.2012   3.8473
+
+TS2W
+Number of Imaginary Frequencies = 1
+33
+Energy (POTENTIAL) = -636.067008258 Eh
+C    -3.5494   1.0050    -0.3293
+C    -2.5620   0.0325    -0.5329
+C    -1.2188   0.3681    -0.4495
+C    -0.8489   1.6801    -0.1717
+C    -1.8247   2.6566    0.0221
+C    -3.1675   2.3244    -0.0551
+C    -4.9304   0.5624    -0.4164
+H    -2.8595   -0.9823   -0.7610
+H    -3.9097   3.0989    0.0848
+H    0.1982    1.9456    -0.1111
+N    -5.9548   1.2577    -0.0463
+C    -7.3415   0.8001    -0.1893
+H    -5.8364   2.2158    0.2609
+C    -8.1260   0.8373    1.1206
+H    -7.3077   -0.1990   -0.6212
+H    -7.8097   1.4633    -0.9190
+H    -9.1815   0.7743    0.8462
+H    -7.9919   1.8146    1.5963
+O    -6.0615   -1.6461   -1.9859
+H    -5.1296   -0.4680   -0.7016
+H    -5.7218   -2.4170   -2.4490
+O    -5.2098   0.4407    -2.8901
+H    -5.6156   -0.6089   -2.5541
+H    -4.2887   0.3042    -3.1324
+C    -7.8148   -0.2797   2.1236
+H    -8.5825   -0.2493   2.9012
+H    -7.9244   -1.2458   1.6227
+H    -1.5348   3.6776    0.2297
+H    -0.4625   -0.3892   -0.6046
+C    -6.4409   -0.2039   2.7919
+H    -5.6303   -0.4102   2.0945
+H    -6.2662   0.7852    3.2226
+H    -6.3666   -0.9341   3.6001
+
+TS1N
+Number of Imaginary Frequencies = 1
+46
+Energy (POTENTIAL) = -773.519736497 Eh
+C    1.6550    1.1809    -0.0117
+C    1.0622    0.8125    1.1912
+C    1.7910    0.1350    2.1711
+C    3.1322    -0.1431   1.9305
+C    3.7336    0.2232    0.7291
+C    2.9952    0.8825    -0.2486
+H    0.0224    1.0630    1.3724
+H    3.6898    -0.6425   2.7111
+H    3.4599    1.1707    -1.1827
+N    0.0198    -1.3022   3.1247
+H    0.7721    -2.4500   3.0356
+C    -0.9678   -1.5041   4.1974
+H    -1.4364   -2.4830   4.0567
+H    -0.4034   -1.5496   5.1304
+H    -0.4478   -1.0338   2.2647
+N    1.6812    -3.2522   3.2450
+H    1.3842    -4.0182   3.8420
+H    2.2183    -2.5614   3.8074
+C    2.3826    -3.7345   2.0407
+H    2.7222    -2.8556   1.4935
+H    3.2680    -4.3058   2.3273
+C    1.1537    -0.2783   3.5124
+H    0.6018    0.6146    3.8789
+O    1.9697    -0.8118   4.4061
+C    1.4639    -4.5760   1.1665
+H    1.1085    -5.4382   1.7402
+H    0.5801    -3.9852   0.9075
+C    -2.0504   -0.4309   4.2735
+H    -1.5875   0.5496    4.4087
+H    -2.5853   -0.3956   3.3180
+H    4.7789    -0.0018   0.5576
+H    1.0762    1.7048    -0.7620
+C    2.1511    -5.0581   -0.1101
+H    2.5014    -4.1910   -0.6775
+H    3.0430    -5.6334   0.1555
+C    -3.0451   -0.6824   5.4066
+H    -2.5022   -0.7259   6.3556
+H    -3.5064   -1.6657   5.2717
+C    1.2376    -5.9086   -0.9891
+H    0.3503    -5.3478   -1.2921
+H    1.7497    -6.2357   -1.8957
+H    0.8994    -6.8013   -0.4577
+C    -4.1343   0.3841    5.4908
+H    -4.8290   0.1809    6.3081
+H    -3.7029   1.3737    5.6593
+H    -4.7136   0.4301    4.5654
+
+TS2N
+Number of Imaginary Frequencies = 1
+46
+Energy (POTENTIAL) = -773.501454343 Eh
+C    3.2275    1.0516    0.8225
+C    1.8833    1.0773    1.1730
+C    0.8915    0.7418    0.2467
+C    1.2806    0.3998    -1.0501
+C    2.6255    0.3645    -1.4013
+C    3.6051    0.6876    -0.4670
+H    1.5951    1.3586    2.1788
+H    0.5244    0.1824    -1.7909
+H    4.6513    0.6660    -0.7432
+N    -1.4819   0.6821    -0.2748
+H    -0.8491   -1.8717   0.2599
+C    -2.8400   0.9615    0.1753
+H    -3.2186   0.1466    0.8103
+H    -2.8611   1.8645    0.8025
+H    -1.4050   -0.6961   -0.7497
+N    -1.2617   -1.8613   -0.6959
+H    0.2112    -0.8179   2.1831
+C    -2.5223   -2.6288   -0.7696
+H    -2.9503   -2.4833   -1.7619
+H    -3.2085   -2.1870   -0.0471
+C    -0.5422   0.7670    0.6654
+H    -0.7285   1.4227    1.5170
+O    -0.6086   -0.7919   1.6778
+H    -0.5791   -2.1908   -1.3722
+C    -3.7870   1.1463    -1.0057
+H    -3.7426   0.2537    -1.6391
+H    -3.4282   1.9774    -1.6213
+C    -2.3220   -4.1098    -0.4795
+H    -1.6015   -4.5212    -1.1938
+H    -1.8777   -4.2187    0.5145
+H    3.9799    1.3179     1.5537
+H    2.9091    0.0947     -2.4107
+C    -5.2339   1.3997     -0.5877
+H    -5.5818   0.5664     0.0309
+H    -5.2752   2.2897     0.0480
+C    -3.6252   -4.9045    -0.5513
+H    -4.0680   -4.7825    -1.5445
+H    -4.3424   -4.4835    0.1593
+C    -3.4289   -6.3902    -0.2590
+H    -4.3730   -6.9347    -0.3204
+H    -2.7362   -6.8436    -0.9720
+H    -3.0205   -6.5437    0.7426
+C    -6.1772   1.5798     -1.7751
+H    -7.2030   1.7635     -1.4490
+H    -5.8708   2.4245     -2.3971
+H    -6.1858   0.6902     -2.4101
+
+TS1WW
+Number of Imaginary Frequencies = 1
+36
+Energy (POTENTIAL) = -712.579697000 Eh
+C    -0.5939   0.3945     -0.5285
+C    -1.4928   1.4409     -0.3229
+C    -2.8160   1.1811     0.0165
+C    -3.2521   -0.1335    0.1481
+C    -2.3596   -1.1805    -0.0614
+C    -1.0357   -0.9211    -0.3996
+C    0.8508    0.7205     -0.8785
+H    -1.1572   2.4653     -0.4361
+H    -0.3485   -1.7391    -0.5598
+H    -4.2821   -0.3409    0.4069
+N    1.5813    1.0049     0.4461
+C    3.0310    1.3328     0.3191
+H    1.4962    0.1216     1.0892
+C    3.3007    2.6373     -0.4127
+H    3.4972    0.4919     -0.1883
+H    3.4203    1.3722     1.3363
+H    2.7349    3.4448     0.0631
+H    2.9496    2.5657     -1.4443
+O    1.5351    -0.2171    -1.6019
+O    1.8677    -2.3396    -0.2423
+H    1.6702    -1.1010    -1.0816
+H    2.7592    -2.6913    -0.3251
+O    1.5697    -1.1856    1.8620
+H    1.7338    -1.8270    0.8893
+H    0.7063    -1.4239    2.2149
+H    0.8691    1.6615     -1.4292
+H    1.0996    1.7702     0.9170
+H    -3.5056   2.0011     0.1687
+H    -2.6953   -2.2049    0.0349
+C    4.7899    2.9846     -0.4118
+H    5.3483    2.1659     -0.8746
+H    5.1438    3.0554     0.6208
+C    5.0883    4.2885     -1.1469
+H    4.5660    5.1293     -0.6844
+H    6.1561    4.5140     -1.1365
+H    4.7696    4.2334     -2.1903
+
+TS2WW
+Number of Imaginary Frequencies = 1
+36
+Energy (POTENTIAL) = -712.566653188 Eh
+C    -3.5036   1.0547    -0.2586
+C    -4.0465   1.8041    0.7914
+C    -3.2761   2.0924    1.9070
+C    -1.9613   1.6381    1.9903
+C    -1.4142   0.8974    0.9479
+C    -2.1803   0.6109    -0.1739
+C    -4.2619   0.7105    -1.4598
+H    -5.0581   2.1793    0.7267
+H    -1.7559   0.0418    -0.9910
+H    -1.3652   1.8663    2.8639
+N    -5.5573   0.7174    -1.5218
+C    -6.3009   0.4052    -2.7399
+H    -6.1003   1.2442    -0.8276
+C    -7.5961   -0.3317   -2.4254
+H    -5.6587   -0.1864   -3.3920
+H    -6.5121   1.3517    -3.2436
+H    -8.1925   0.2782    -1.7417
+H    -7.3622   -1.2634   -1.9026
+O    -3.7182   2.5174    -2.6784
+H    -3.7385   0.1822    -2.2408
+H    -2.9731   2.9144    -2.2155
+O    -5.6808   3.8296    -2.1052
+H    -4.6691   3.1812    -2.4108
+H    -6.1265   4.0800    -2.9196
+O    -7.2236   2.6485    -0.4294
+H    -6.6602   3.1995    -1.0814
+H    -7.3321   3.1810    0.3644
+C    -8.4068   -0.6320   -3.6853
+H    -8.6161   0.3051    -4.2094
+H    -7.8044   -1.2394   -4.3675
+H    -0.3925   0.5472    1.0068
+H    -3.6988   2.6768    2.7132
+C    -9.7184   -1.3516   -3.3817
+H    -10.2794  -1.5579   -4.2950
+H    -9.5379   -2.3049   -2.8793
+H    -10.3546  -0.7490   -2.7294
+
+TS1NW
+Number of Imaginary Frequencies = 1
+49
+Energy (POTENTIAL) = -850.013761948 Eh
+C   -0.4631   0.2587    -0.5582
+C   -1.2353   1.2664    0.0244
+C   -2.5483   1.0271    0.4136
+C   -3.1171   -0.2280   0.2096
+C   -2.3636   -1.2308   -0.3915
+C   -1.0470   -0.9860   -0.7729
+C   0.9998    0.5065    -0.9764
+H   -0.8125   2.2540    0.1717
+H   -0.4524   -1.7596   -1.2368
+H   -4.1393   -0.4177   0.5103
+N   1.7478    0.9206    0.3216
+C   3.1429    1.3477    0.0596
+H   1.6773    -0.1218   1.1889
+C   4.1586    0.2194    0.2175
+H   3.3850    2.1560    0.7527
+H   3.2072    1.7572    -0.9528
+H   3.8417    -0.6203   -0.4005
+H   4.1614    -0.1263   1.2559
+O   1.6093    -0.5010   -1.5885
+O   1.8977    -2.7314   -0.3959
+H   1.7787    -1.8310   -0.8932
+H   2.7831    -3.0362   -0.6185
+H   1.7495    -1.9128   1.2434
+H   1.0002    1.4400    -1.5821
+H   1.2503    1.6964    0.7466
+H   -3.1291   1.8179    0.8711
+H   -2.8008   -2.2065   -0.5622
+C   5.5708    0.6529    -0.1699
+H   5.8678    1.5165    0.4341
+H   5.5688    0.9914    -1.2104
+C   6.5966    -0.4656   -0.0011
+H   6.3390    -1.3292   -0.6191
+H   7.5977    -0.1387   -0.2890
+H   6.6435    -0.8044   1.0368
+H   2.3799    -1.1393   2.5716
+C   0.3122    -1.2565   2.6249
+H   -0.4623   -1.3523   1.8661
+H   0.3005    -2.1670   3.2277
+C   0.0456    -0.0362   3.4943
+H   0.0733    0.8601    2.8687
+H   0.8476    0.0683    4.2326
+C   -1.3030   -0.1140   4.2076
+H   -2.0925   -0.2430   3.4619
+H   -1.3266   -1.0061   4.8403
+C   -1.5969   1.1224    5.0529
+H   -1.6234   2.0235    4.4354
+H   -2.5606   1.0385    5.5586
+H   -0.8317   1.2687    5.8192
+N   1.6049    -1.1408   1.9144
+
+TS2NW
+Number of Imaginary Frequencies = 1
+49
+Energy (POTENTIAL) = -849.998025454 Eh
+C    -3.7194   1.0141    -0.0959
+C    -4.3166   1.5715    1.0412
+C    -3.5447   1.8771    2.1526
+C    -2.1754   1.6245    2.1478
+C    -1.5763   1.0595    1.0254
+C    -2.3440   0.7538    -0.0882
+C    -4.4724   0.6568    -1.2942
+H    -5.3791   1.7654    1.0625
+H    -1.8815   0.3258    -0.9674
+H    -1.5786   1.8627    3.0184
+N    -5.7316   0.8781    -1.4537
+C    -6.4670   0.5113    -2.6612
+H    -6.2183   1.5986    -0.8652
+C    -7.7812   -0.1804   -2.3175
+H    -5.8333   -0.1323   -3.2706
+H    -6.6356   1.4402    -3.2098
+H    -8.3470   0.4486    -1.6262
+H    -7.5711   -1.1165   -1.7923
+O    -3.4837   2.3151    -2.7448
+H    -3.9802   0.0299    -2.0222
+H    -2.9419   2.7866    -2.1046
+O    -5.5704   3.5613    -2.8987
+H    -4.4809   2.9549    -2.8386
+H    -5.4350   4.3602    -3.4159
+H    -6.4636   3.5590    -1.3146
+H    -6.7320   3.7401    0.3172
+C    -8.6273   -0.4567    -3.5592
+H    -8.8184   0.4870     -4.0782
+H    -8.0584   -1.0810    -4.2545
+H    -0.5136   0.8579     1.0195
+H    -4.0127   2.3082     3.0274
+C    -9.9534   -1.1360    -3.2268
+H    -10.5398  -1.3256    -4.1277
+H    -9.7918   -2.0940    -2.7271
+H    -10.5577  -0.5141    -2.5622
+C    -8.4321   3.2723     -0.7364
+H    -8.6328   2.7997     -1.7010
+H    -8.7879   4.3079     -0.8186
+C    -9.2205   2.5553     0.3533
+H    -8.8642   1.5229     0.4251
+H    -9.0041   3.0244     1.3197
+C    -10.7288  2.5605     0.1120
+H    -11.0831  3.5939     0.0514
+H    -10.9379  2.1080     -0.8623
+C    -11.5064  1.8168     1.1955
+H    -11.1933  0.7715     1.2552
+H    -11.3423  2.2672     2.1775
+H    -12.5804  1.8306     0.9993
+N    -6.9865   3.1967     -0.4998
+
+10. References
+(1) Frisch, M. J.; Trucks, G. W.; Schlegel, H. B.; Scuseria, G. E.; Robb, M. A.; Cheeseman, J. R.;
+Scalmani, G.; Barone, V.; Mennucci, B.; Petersson, G. A.; Nakatsuji, H.; Caricato, M.; Li, X.;
+Hratchian, H. P.; Izmaylov, A. F.; Bloino, J.; Zheng, G.; Sonnenberg, J. L.; Hada, M.; Ehara, M.;
+Toyota, K.; Fukuda, R.; Hasegawa, J.; Ishida, M.; Nakajima, T.; Honda, Y.; Kitao, O.; Nakai, H.;
+Vreven, T.; Montgomery, J. A. Jr.; Peralta, J. E.; Ogliaro, F.; Bearpark, M.; Heyd, J. J.; Brothers, E.;
+Kudin, K. N.; Staroverov, V. N.; Keith, T.; Kobayashi, R.; Normand, J.; Raghavachari, K.; Rendell,
+A.; Burant, J. C.; Iyengar, S. S.; Tomasi, J.; Cossi, M.; Rega, N.; Millam, J. M.; Klene, M.; Knox, J.
+E.; Cross, J. B.; Bakken, V.; Adamo, C.; Jaramillo, J.; Gomperts, R.; Stratmann, R. E.; Yazyev, O.;
+Austin, A. J.; Cammi, R.; Pomelli, C.; Ochterski, J. W.; Martin, R. L.; Morokuma, K.; Zakrzewski,
+V. G.; Voth, G. A.; Salvador, P.; Dannenberg, J. J.; Dapprich, S.; Daniels, A. D.; Farkas, O.;
+Foresman, J. B.; Ortiz, J. V.; Cioslowski, J.; Fox, D. J. Gaussian 09, Revision D.01, Gaussian, Inc.,
+Wallingford CT, 2013.
+(2) Stephens, P. J.; Devlin, F. J.; Chabalowski, C. F.; Frisch, M. J. Ab Initio Calculation of Vibrational
+Absorption and Circular Dichroism Spectra Using Density Functional Force Fields, J. Phys. Chem.
+1994, 98, 11623-11627.
+(3) Lee, C.; Yang, W.; Parr, R. G. Development of the Colle-Salvetti correlation-energy formula into a
+functional of the electron density, Phys. Rev. B 1988, 37, 785-789.
+(4) Becke, A. D. Density-functional thermochemistry. III. The role of exact exchange, J. Chem. Phys.
+1993, 98, 5648-5652.
+(5) Grimme, S. Semiempirical GGA-type density functional constructed with a long-range dispersion
+correction, J. Comput. Chem. 2006, 27, 1787-1799.
+(6) Marenich, A. V.; Cramer, C. J.; Truhlar, D. G. Universal Solvation Model Based on Solute Electron
+Density and on a Continuum Model of the Solvent Defined by the Bulk Dielectric Constant and
+Atomic Surface Tensions, J. Phys. Chem. B 2009, 113, 6378-6396.
+(7) Ribeiro, R. F.; Marenich, A. V.; Cramer, C. J.; Truhlar, D. G. Use of Solution-Phase Vibrational
+Frequencies in Continuum Models for the Free Energy of Solvation, J. Phys. Chem. B 2011, 115,
+14556-14562.
+(8) Dunning, T. H. Jr. Gaussian basis sets for use in correlated molecular calculations. I. The atoms
+boron through neon and hydrogen, J. Chem. Phys. 1989, 90, 1007.
+(9) Grimme, S. Supramolecular Binding Thermodynamics by Dispersion-Corrected Density Functional
+Theory Chem. Eur. J. 2012, 18, 9955-9964.
+(10) Funes-Ardoiz, I.; Paton, R. S. , GoodVibes 2.0.2, 2016, http://doi.org/10.5281/zenodo.595246.
+(11) a) Ditchfield, R. ; Hehre, W. J.; Pople, J. A. Self‐Consistent Molecular‐Orbital Methods. IX. An
+Extended Gaussian‐Type Basis for Molecular‐Orbital Studies of Organic Molecules J. Chem. Phys.
+1971, 54, 724–728. b) Hariharan, P. C.; Pople, J. A. The influence of polarization functions on
+molecular orbital hydrogenation energies Theor. Chim. Acta 1973, 28, 213–222.
+( 12 ) a) Becke, A. D. Density-functional exchange-energy approximation with correct asymptoticbehavior Phys. Rev. A 1988, 38, 3098. b) Perdew, J. P. Density-functional approximation for the
+correlation energy of the inhomogeneous electron gas Phys. Rev. B 1986, 33, 8822
+(13) Adamo, C. Toward reliable density functional methods without adjustable parameters: The PBE0
+model J. Chem. Phys. 1999, 110, 6158.
+(14) Ernzerhof, M.; Scuseria G. E. Assessment of the Perdew-Burke-Ernzerhof exchange-correlation
+functional J. Chem. Phys. 1999, 110, 5029.
+(15) Zhao, Y.; Truhlar, D. G. The M06 suite of density functionals for main group thermochemistry,
+thermochemical kinetics, noncovalent interactions, excited states, and transition elements: two new
+functionals and systematic testing of four M06-class functionals and 12 other functionals. Theor.
+Chem. Acc. 2008, 120, 215-241.
+(16) Chai, J.-D.; Head-Gordon, M. Long-range corrected hybrid density functionals with damped atomatom dispersion corrections Phys. Chem. Chem. Phys. 2008, 10, 6615-6620.
+
+S60
+
+(17) Riplinger, C.; Neese, F. An Efficient and near linear scaling pair natural orbital based local coupled
+cluster method, J. Chem. Phys. 2013, 138, 034106.
+(18) Neese, F. Software update: the ORCA program system, version 4.0, Wiley Interdiscip. Rev.:
+Comput. Mol. Sci. 2017, 8, e1327.
+(19) Stoychev, G. L.; Auer A. A.; Neese, F. Automatic Generation of Auxiliary Basis Sets, J. Chem.
+Theory Comput., 2017, 13, 554-562
+(20) Neese, F.; Hansen, A.; Liakos, D. G. Efficient and accurate approximations to the local coupled
+cluster singles doubles method using a truncated pair natural orbital basis, J. Chem. Phys. 2009, 131,
+064103
+(21) Hindmarsh, A. C. ODEPACK, A Systematized Collection of ODE Solvers, IMACS Transactions
+on Scientific Computation 1983, 1, 55-64.
+(22) a) Oliphant, T. E. Python for Scientific Computing, Computing in Science & Engineering 2007, 9,
+10-20. b) Millman, K. J.; Aivazis, M. Python for Scientists and Engineers, Computing in Science &
+Engineering 2011, 13, 9-12.
+(23) Sigma Aldrich webpage. Specification sheet, product 237027.
+https://www.sigmaaldrich.com/catalog/product/aldrich/237027 (accessed Dec 20, 2019)
+
+S61
+
+

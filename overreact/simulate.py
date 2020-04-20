@@ -6,11 +6,15 @@ Here are functions that calculate reaction rates as well, which is needed for
 the time simulations.
 """
 
-import numpy as _np
+import numpy as np
 from scipy.integrate import solve_ivp as _solve_ivp
 
+from overreact import core as _core
 
-def get_y(dydt, y0, t_span=(0.0, 10.0), method="RK45"):
+
+# TODO(schneiderfelipe): return dense output
+# TODO(schneiderfelipe): make t_span required
+def get_y(dydt, y0, t_span=(0.0, 10.0), method="Radau", num=50):
     """Simulate a reaction scheme from its rate function.
 
     This uses scipy's ``solve_ivp`` under the hood.
@@ -26,31 +30,49 @@ def get_y(dydt, y0, t_span=(0.0, 10.0), method="RK45"):
         integrates until it reaches t=tf.
     method : str, optional
         Integration method to use. See `scipy.integrade.solve_ivp` for details.
-        If not sure, first try to run "RK45" (default). If it makes unusually
-        many iterations, diverges, or fails, your problem is likely to be stiff
-        and you should use "BDF" or "Radau".
+        If not sure, first try to run "RK45". If it makes unusually many
+        iterations, diverges, or fails, your problem is likely to be stiff and
+        you should use "BDF" or "Radau" (default).
+    num : int, optional
+        Number of time samples to generate. Must be non-negative.
 
     Returns
     -------
-    t, y : array-like
+    t, y, r : array-like
 
     Examples
     --------
     >>> from overreact import core
-    >>> scheme = core.parse("A <=> B")
-    >>> t, y = get_y(get_dydt(scheme, [1, 1]), y0=[1, 0])
+    >>> scheme = core.parse_reactions("A <=> B")
+    >>> t, y, r = get_y(get_dydt(scheme, [1, 1]), y0=[1, 0])
     >>> y
-    array([[1.000, 0.999, 0.989, 0.901, 0.695, 0.580, 0.528, 0.508, 0.502,
-            0.500, 0.500, 0.500, 0.501, 0.500],
-           [0.000, 0.001, 0.011, 0.099, 0.305, 0.420, 0.472, 0.492, 0.498,
-            0.500, 0.500, 0.500, 0.499, 0.500]])
+    array([[1.        , 0.83243215, 0.72104241, 0.64695335, 0.59768619,
+            0.56497874, 0.54317395,        ..., 0.50000039, 0.50000037,
+            0.50000026, 0.50000017, 0.50000011, 0.50000008, 0.50000005],
+           [0.        , 0.16756785, 0.27895759, 0.35304665, 0.40231381,
+            0.43502126, 0.45682605,        ..., 0.49999961, 0.49999963,
+            0.49999974, 0.49999983, 0.49999989, 0.49999992, 0.49999995]])
     >>> t
-    array([0.00000000e+00, 9.99000500e-04, 1.09890055e-02, ...,
-           5.08550239e+00, 6.82280908e+00, 8.99291649e+00, 1.00000000e+01])
-
+    array([ 0.        ,  0.20408163,  0.40816327,  0.6122449 ,  0.81632653,
+            1.02040816,  1.2244898 ,         ...,  8.7755102 ,  8.97959184,
+            9.18367347,  9.3877551 ,  9.59183673,  9.79591837, 10.        ])
+    >>> r
+    array([[-1.00000000e+00, -6.64864300e-01, -4.42084817e-01,
+            -2.93906694e-01,             ..., -3.43875637e-07,
+            -2.26132930e-07, -1.50799945e-07, -1.01639971e-07],
+           [ 1.00000000e+00,  6.64864300e-01,  4.42084817e-01,
+             2.93906694e-01,             ...,  3.43875637e-07,
+             2.26132930e-07,  1.50799945e-07,  1.01639971e-07]])
     """
-    res = _solve_ivp(dydt, t_span, y0, method)
-    return res.t, res.y
+    # TODO(schneiderfelipe): raise a meaningful error when y0 has the wrong shape.
+    res = _solve_ivp(
+        dydt,
+        t_span,
+        y0,
+        method=method,
+        t_eval=np.linspace(t_span[0], t_span[1], num=num),
+    )
+    return res.t, res.y, np.array([dydt(t, y) for t, y in zip(res.t, res.y.T)]).T
 
 
 def get_dydt(scheme, k, ef=1.0e3):
@@ -60,6 +82,8 @@ def get_dydt(scheme, k, ef=1.0e3):
     ----------
     scheme : Scheme
     k : array-like
+        Reaction rate constant(s). Units match the concentration units given to
+        the returned function ``dydt``.
     ef : float, optional
 
     Returns
@@ -83,24 +107,31 @@ def get_dydt(scheme, k, ef=1.0e3):
     Examples
     --------
     >>> from overreact import core
-    >>> scheme = core.parse("A <=> B")
+    >>> scheme = core.parse_reactions("A <=> B")
     >>> dydt = get_dydt(scheme, [1, 1])
     >>> dydt(0.0, [1., 1.])
     array([0., 0.])
 
     """
-    k_adj = _np.asanyarray(k).copy()
+    scheme = _core._check_scheme(scheme)
+    is_half_equilibrium = np.asanyarray(scheme.is_half_equilibrium)
+    k_adj = np.asanyarray(k).copy()
+    A = np.asanyarray(scheme.A)
 
-    # TODO(schneiderfelipe): if there's only equilibria, I want the smallest
-    # one to be equal to one!
-    if _np.any(scheme.is_half_equilibrium) and _np.any(~scheme.is_half_equilibrium):
-        k_adj[scheme.is_half_equilibrium] *= ef * (
-            k_adj[~scheme.is_half_equilibrium].max()
-            / k_adj[scheme.is_half_equilibrium].min()
+    # TODO(schneiderfelipe): this test for equilibria should go to get_k since
+    # equilibria must obey the Collins-Kimball maximum reaction rate rule as
+    # well.
+    # TODO(schneiderfelipe): check whether we should filter RuntimeWarning.
+    # TODO(schneiderfelipe): if there's only equilibria, should I want the
+    # smallest one to be equal to one?
+    if np.any(is_half_equilibrium) and np.any(~is_half_equilibrium):
+        # TODO(schneiderfelipe): test those conditions
+        k_adj[is_half_equilibrium] *= ef * (
+            k_adj[~is_half_equilibrium].max() / k_adj[is_half_equilibrium].min()
         )
 
-    def _dydt(t, y, k=k_adj, A=scheme.A):
-        r = k * _np.prod(_np.power(y, _np.where(A > 0, 0, -A).T), axis=1)
-        return _np.dot(A, r)
+    def _dydt(t, y, k=k_adj, A=A):
+        r = k * np.prod(np.power(y, np.where(A > 0, 0, -A).T), axis=1)
+        return np.dot(A, r)
 
     return _dydt

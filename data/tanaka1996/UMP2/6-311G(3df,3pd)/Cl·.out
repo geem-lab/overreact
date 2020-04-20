@@ -1,0 +1,2557 @@
+
+                                 *****************
+                                 * O   R   C   A *
+                                 *****************
+
+           --- An Ab Initio, DFT and Semiempirical electronic structure package ---
+
+                  #######################################################
+                  #                        -***-                        #
+                  #          Department of theory and spectroscopy      #
+                  #               Directorship: Frank Neese             #
+                  #        Max Planck Institute fuer Kohlenforschung    #
+                  #                Kaiser Wilhelm Platz 1               #
+                  #                 D-45470 Muelheim/Ruhr               #
+                  #                      Germany                        #
+                  #                                                     #
+                  #                  All rights reserved                #
+                  #                        -***-                        #
+                  #######################################################
+
+
+                         Program Version 4.2.1 -  RELEASE  -
+
+
+ With contributions from (in alphabetic order):
+   Daniel Aravena         : Magnetic Suceptibility
+   Michael Atanasov       : Ab Initio Ligand Field Theory (pilot matlab implementation)
+   Alexander A. Auer      : GIAO ZORA, VPT2
+   Ute Becker             : Parallelization
+   Giovanni Bistoni       : ED, misc. LED, open-shell LED, HFLD
+   Martin Brehm           : Molecular dynamics
+   Dmytro Bykov           : SCF Hessian
+   Vijay G. Chilkuri      : MRCI spin determinant printing, contributions to CSF-ICE
+   Dipayan Datta          : RHF DLPNO-CCSD density
+   Achintya Kumar Dutta   : EOM-CC, STEOM-CC
+   Dmitry Ganyushin       : Spin-Orbit,Spin-Spin,Magnetic field MRCI
+   Miquel Garcia          : C-PCM Hessian, Gaussian charge scheme
+   Yang Guo               : DLPNO-NEVPT2, CIM, IAO-localization
+   Andreas Hansen         : Spin unrestricted coupled pair/coupled cluster methods
+   Benjamin Helmich-Paris : CASSCF linear response (MC-RPA)
+   Lee Huntington         : MR-EOM, pCC
+   Robert Izsak           : Overlap fitted RIJCOSX, COSX-SCS-MP3, EOM
+   Christian Kollmar      : KDIIS, OOCD, Brueckner-CCSD(T), CCSD density
+   Simone Kossmann        : Meta GGA functionals, TD-DFT gradient, OOMP2, MP2 Hessian
+   Martin Krupicka        : AUTO-CI
+   Lucas Lang             : DCDCAS
+   Dagmar Lenk            : GEPOL surface, SMD
+   Dimitrios Liakos       : Extrapolation schemes; Compound Job, initial MDCI parallelization
+   Dimitrios Manganas     : Further ROCIS development; embedding schemes
+   Dimitrios Pantazis     : SARC Basis sets
+   Taras Petrenko         : DFT Hessian,TD-DFT gradient, ASA, ECA, R-Raman, ABS, FL, XAS/XES, NRVS
+   Peter Pinski           : DLPNO-MP2, DLPNO-MP2 Gradient
+   Christoph Reimann      : Effective Core Potentials
+   Marius Retegan         : Local ZFS, SOC
+   Christoph Riplinger    : Optimizer, TS searches, QM/MM, DLPNO-CCSD(T), (RO)-DLPNO pert. Triples
+   Tobias Risthaus        : Range-separated hybrids, TD-DFT gradient, RPA, STAB
+   Michael Roemelt        : Original ROCIS implementation
+   Masaaki Saitow         : Open-shell DLPNO-CCSD energy and density
+   Barbara Sandhoefer     : DKH picture change effects
+   Avijit Sen             : IP-ROCIS
+   Kantharuban Sivalingam : CASSCF convergence, NEVPT2, FIC-MRCI
+   Bernardo de Souza      : ESD, SOC TD-DFT
+   Georgi Stoychev        : AutoAux, RI-MP2 NMR
+   Willem Van den Heuvel  : Paramagnetic NMR
+   Boris Wezisla          : Elementary symmetry handling
+   Frank Wennmohs         : Technical directorship
+
+
+ We gratefully acknowledge several colleagues who have allowed us to
+ interface, adapt or use parts of their codes:
+   Stefan Grimme, W. Hujo, H. Kruse,             : VdW corrections, initial TS optimization,
+                  C. Bannwarth                     DFT functionals, gCP, sTDA/sTD-DF
+   Ed Valeev, F. Pavosevic, A. Kumar             : LibInt (2-el integral package), F12 methods
+   Garnet Chan, S. Sharma, J. Yang, R. Olivares  : DMRG
+   Ulf Ekstrom                                   : XCFun DFT Library
+   Mihaly Kallay                                 : mrcc  (arbitrary order and MRCC methods)
+   Andreas Klamt, Michael Diedenhofen            : otool_cosmo (COSMO solvation model)
+   Jiri Pittner, Ondrej Demel                    : Mk-CCSD
+   Frank Weinhold                                : gennbo (NPA and NBO analysis)
+   Christopher J. Cramer and Donald G. Truhlar   : smd solvation model
+   Lars Goerigk                                  : TD-DFT with DH, B97 family of functionals
+   V. Asgeirsson, H. Jonsson                     : NEB implementation
+   FAccTs GmbH                                   : IRC, NEB, NEB-TS, Multilevel, MM, QM/MM, CI optimization
+   S Lehtola, MJT Oliveira, MAL Marques          : LibXC Library
+
+
+ Your calculation uses the libint2 library for the computation of 2-el integrals
+ For citations please refer to: http://libint.valeyev.net
+
+ Your ORCA version has been built with support for libXC version: 4.2.3
+ For citations please refer to: https://tddft.org/programs/libxc/
+
+ This ORCA versions uses:
+   CBLAS   interface :  Fast vector & matrix operations
+   LAPACKE interface :  Fast linear algebra routines
+   SCALAPACK package :  Parallel linear algebra routines
+
+
+----- Orbital basis set information -----
+Your calculation utilizes the basis: 6-311G(3df,3pd)
+   H, Li - Ne  : R. Krishnan, J. S. Binkley, R. Seeger and J. A. Pople, J. Chem. Phys. 72, 650 (1980).
+   Na - Ar     : A. D. McLean and G. S. Chandler J. Chem. Phys. 72, 5639, (1980).
+   K  - Ca     : J.-P. Blaudeau, M. P. McGrath, L. A. Curtiss and L. Radom, J. Chem. Phys. 107, 5016 (1997).
+   Ga - Kr     : L. A. Curtiss, M. P. McGrath, J.-P. Blandeau, N. E. Davis, R. C. Binning and L. Radom, J. Chem. Phys. 103, 6104 (1995).
+   Pol./Diff.
+   H, Li - Cl  : T. Clark, J. Chandrasekhar and P. v. R. Schleyer, J. Comp. Chem. 4, 294 (1983).
+   H - Ne      : M. J. Frisch, J. A. Pople and J. S. Binkley, J. Chem. Phys. 80, 3265 (1984).
+
+================================================================================
+                                        WARNINGS
+                       Please study these warnings very carefully!
+================================================================================
+
+
+WARNING: No MP2 level density has been requested!
+         To caclulate MP2 level properties use
+         %mp2 Density relaxed end
+         or
+         %mp2 Density unrelaxed end
+
+WARNING: Post HF methods need fully converged wavefunctions
+  ===> : Setting SCFConvForced true
+         You can overwrite this default with %scf ConvForced false 
+
+
+INFO   : the flag for use of LIBINT has been found!
+
+================================================================================
+                                       INPUT FILE
+================================================================================
+NAME = Cl·.inp
+|  1> ! UHF MP2 6-311G(3df,3pd) Freq NoFrozenCore TightSCF Grid4 FinalGrid5 PrintBasis PrintMOs NBO
+|  2> %maxcore 3000
+|  3> 
+|  4> *xyz 0 2
+|  5> Cl       0.000000000      0.000000000      0.000000000
+|  6> *
+|  7> 
+|  8> %pal
+|  9>  nprocs 12
+| 10> end
+| 11> 
+| 12>                          ****END OF INPUT****
+================================================================================
+
+                       ****************************
+                       * Single Point Calculation *
+                       ****************************
+
+---------------------------------
+CARTESIAN COORDINATES (ANGSTROEM)
+---------------------------------
+  Cl     0.000000    0.000000    0.000000
+
+----------------------------
+CARTESIAN COORDINATES (A.U.)
+----------------------------
+  NO LB      ZA    FRAG     MASS         X           Y           Z
+   0 Cl   17.0000    0    35.453    0.000000    0.000000    0.000000
+
+--------------------------------
+INTERNAL COORDINATES (ANGSTROEM)
+--------------------------------
+ Cl     0   0   0     0.000000000000     0.00000000     0.00000000
+
+---------------------------
+INTERNAL COORDINATES (A.U.)
+---------------------------
+ Cl     0   0   0     0.000000000000     0.00000000     0.00000000
+
+---------------------
+BASIS SET INFORMATION
+---------------------
+There are 1 groups of distinct atoms
+
+ Group   1 Type Cl  : 13s10p3d1f contracted to 6s5p3d1f pattern {631111/52111/111/1}
+
+Atom   0Cl   basis set group =>   1
+
+-------------------------
+BASIS SET IN INPUT FORMAT
+-------------------------
+
+ # Basis set for element : Cl
+ NewGTO Cl
+ S 6 
+   1  105819.0000000000      0.0007380002
+   2   15872.0000000000      0.0057180019
+   3    3619.6500000000      0.0294950099
+   4    1030.8000000000      0.1172860392
+   5     339.9080000000      0.3629491212
+   6     124.5380000000      0.5841491951
+ S 3 
+   1     124.5380000000      0.1341769734
+   2      49.5135000000      0.6242498762
+   3      20.8056000000      0.2917559421
+ S 1 
+   1       6.5834600000      1.0000000000
+ S 1 
+   1       2.5646800000      1.0000000000
+ S 1 
+   1       0.5597630000      1.0000000000
+ S 1 
+   1       0.1832730000      1.0000000000
+ P 5 
+   1     589.7760000000      0.0023909997
+   2     139.8490000000      0.0185039976
+   3      45.1413000000      0.0813769893
+   4      16.8733000000      0.2215519708
+   5       6.7411000000      0.7725688983
+ P 2 
+   1       6.7411000000     -1.5722438126
+   2       2.7715200000      0.9923888817
+ P 1 
+   1       1.0238700000      1.0000000000
+ P 1 
+   1       0.3813680000      1.0000000000
+ P 1 
+   1       0.1094370000      1.0000000000
+ D 1 
+   1       3.0000000000      1.0000000000
+ D 1 
+   1       0.7500000000      1.0000000000
+ D 1 
+   1       0.1875000000      1.0000000000
+ F 1 
+   1       0.7000000000      1.0000000000
+  end;
+
+
+
+           ************************************************************
+           *        Program running with 12 parallel MPI-processes    *
+           *              working on a common directory               *
+           ************************************************************
+------------------------------------------------------------------------------
+                           ORCA GTO INTEGRAL CALCULATION
+------------------------------------------------------------------------------
+
+                         BASIS SET STATISTICS AND STARTUP INFO
+
+ # of primitive gaussian shells          ...   27
+ # of primitive gaussian functions       ...   65
+ # of contracted shells                  ...   15
+ # of contracted basis functions         ...   43
+ Highest angular momentum                ...    3
+ Maximum contraction depth               ...    6
+ Integral package used                   ... LIBINT
+ Integral threshhold            Thresh   ...  2.500e-11
+ Primitive cut-off              TCut     ...  2.500e-12
+
+
+------------------------------ INTEGRAL EVALUATION ----------------------------
+
+
+ * One electron integrals 
+ Pre-screening matrix                    ... done
+ Shell pair data                         ... done (   0.000 sec)
+
+
+
+           ************************************************************
+           *        Program running with 12 parallel MPI-processes    *
+           *              working on a common directory               *
+           ************************************************************
+-------------------------------------------------------------------------------
+                                 ORCA SCF
+-------------------------------------------------------------------------------
+
+------------
+SCF SETTINGS
+------------
+Hamiltonian:
+ Ab initio Hamiltonian  Method          .... Hartree-Fock(GTOs)
+
+
+General Settings:
+ Integral files         IntName         .... Cl·
+ Hartree-Fock type      HFTyp           .... UHF
+ Total Charge           Charge          ....    0
+ Multiplicity           Mult            ....    2
+ Number of Electrons    NEL             ....   17
+ Basis Dimension        Dim             ....   43
+ Nuclear Repulsion      ENuc            ....      0.0000000000 Eh
+
+Convergence Acceleration:
+ DIIS                   CNVDIIS         .... on
+   Start iteration      DIISMaxIt       ....    12
+   Startup error        DIISStart       ....  0.200000
+   # of expansion vecs  DIISMaxEq       ....     5
+   Bias factor          DIISBfac        ....   1.050
+   Max. coefficient     DIISMaxC        ....  10.000
+ Newton-Raphson         CNVNR           .... off
+ SOSCF                  CNVSOSCF        .... off
+ Level Shifting         CNVShift        .... on
+   Level shift para.    LevelShift      ....    0.2500
+   Turn off err/grad.   ShiftErr        ....    0.0010
+ Zerner damping         CNVZerner       .... off
+ Static damping         CNVDamp         .... on
+   Fraction old density DampFac         ....    0.7000
+   Max. Damping (<1)    DampMax         ....    0.9800
+   Min. Damping (>=0)   DampMin         ....    0.0000
+   Turn off err/grad.   DampErr         ....    0.1000
+ Fernandez-Rico         CNVRico         .... off
+
+SCF Procedure:
+ Maximum # iterations   MaxIter         ....   125
+ SCF integral mode      SCFMode         .... Direct
+   Integral package                     .... LIBINT
+ Reset frequency        DirectResetFreq ....    20
+ Integral Threshold     Thresh          ....  2.500e-11 Eh
+ Primitive CutOff       TCut            ....  2.500e-12 Eh
+
+Convergence Tolerance:
+ Convergence Check Mode ConvCheckMode   .... Total+1el-Energy
+ Convergence forced     ConvForced      .... 1
+ Energy Change          TolE            ....  1.000e-08 Eh
+ 1-El. energy change                    ....  1.000e-05 Eh
+ DIIS Error             TolErr          ....  5.000e-07
+
+
+Diagonalization of the overlap matrix:
+Smallest eigenvalue                        ... 2.919e-02
+Time for diagonalization                   ...    0.002 sec
+Threshold for overlap eigenvalues          ... 1.000e-08
+Number of eigenvalues below threshold      ... 0
+Time for construction of square roots      ...    0.012 sec
+Total time needed                          ...    0.014 sec
+
+-------------------
+DFT GRID GENERATION
+-------------------
+
+General Integration Accuracy     IntAcc      ...  4.670
+Radial Grid Type                 RadialGrid  ... Gauss-Chebyshev
+Angular Grid (max. acc.)         AngularGrid ... Lebedev-302
+Angular grid pruning method      GridPruning ... 3 (G Style)
+Weight generation scheme         WeightScheme... Becke
+Basis function cutoff            BFCut       ...    1.0000e-11
+Integration weight cutoff        WCut        ...    1.0000e-14
+Grids for H and He will be reduced by one unit
+
+# of grid points (after initial pruning)     ...   6738 (   0.0 sec)
+# of grid points (after weights+screening)   ...   6738 (   0.0 sec)
+Grid point division into batches done        ...    0.0 sec
+Reduced shell lists constructed in    0.0 sec
+
+Total number of grid points                  ...     6738
+Total number of batches                      ...      106
+Average number of points per batch           ...       63
+Average number of grid points per atom       ...     6738
+Average number of shells per batch           ...     1.50 (10.00%)
+Average number of basis functions per batch  ...     4.50 (10.47%)
+Average number of large shells per batch     ...     1.20 (80.00%)
+Average number of large basis fcns per batch ...     4.20 (93.33%)
+Maximum spatial batch extension              ...  25.31, 17.78, 17.78 au
+Average spatial batch extension              ...   1.61,  1.30,  1.27 au
+
+Time for grid setup =    0.125 sec
+
+------------------------------
+INITIAL GUESS: MODEL POTENTIAL
+------------------------------
+Loading Hartree-Fock densities                     ... done
+Calculating cut-offs                               ... done
+Setting up the integral package                    ... done
+Initializing the effective Hamiltonian             ... done
+Starting the Coulomb interaction                   ... done (   0.0 sec)
+Reading the grid                                   ... done
+Mapping shells                                     ... done
+Starting the XC term evaluation                    ... done (   0.0 sec)
+Transforming the Hamiltonian                       ... done (   0.0 sec)
+Diagonalizing the Hamiltonian                      ... done (   0.0 sec)
+Back transforming the eigenvectors                 ... done (   0.0 sec)
+Now organizing SCF variables                       ... done
+                      ------------------
+                      INITIAL GUESS DONE (   0.3 sec)
+                      ------------------
+--------------
+SCF ITERATIONS
+--------------
+ITER       Energy         Delta-E        Max-DP      RMS-DP      [F,P]     Damp
+               ***  Starting incremental Fock matrix formation  ***
+  0   -459.4519435636   0.000000000000 0.01088291  0.00054716  0.6515136 0.7000
+  1   -459.4583179435  -0.006374379875 0.00981578  0.00044698  0.4573470 0.7000
+  2   -459.4630853532  -0.004767409702 0.00793426  0.00034398  0.3209664 0.7000
+  3   -459.4666084005  -0.003523047376 0.00631332  0.00026397  0.2253014 0.7000
+                               ***Turning on DIIS***
+  4   -459.4691953185  -0.002586917903 0.00500950  0.00020347  0.1581795 0.7000
+  5   -459.4613284513   0.007866867195 0.00450747  0.00017706  0.1110745 0.7000
+  6   -459.4627076063  -0.001379155090 0.01243245  0.00047925  0.0778739 0.0000
+  7   -459.4758946590  -0.013187052676 0.00137178  0.00005887  0.0011236 0.0000
+  8   -459.4750857808   0.000808878204 0.00121973  0.00005452  0.0006174 0.0000
+  9   -459.4758950295  -0.000809248717 0.00014253  0.00000748  0.0000870 0.0000
+ 10   -459.4760409265  -0.000145896940 0.00002891  0.00000113  0.0000126 0.0000
+ 11   -459.4760146227   0.000026303738 0.00000542  0.00000030  0.0000024 0.0000
+                            ***DIIS convergence achieved***
+
+               *****************************************************
+               *                     SUCCESS                       *
+               *           SCF CONVERGED AFTER  12 CYCLES          *
+               *****************************************************
+
+
+----------------
+TOTAL SCF ENERGY
+----------------
+
+Total Energy       :         -459.47601338 Eh          -12502.97796 eV
+
+Components:
+Nuclear Repulsion  :            0.00000000 Eh               0.00000 eV
+Electronic Energy  :         -459.47601338 Eh          -12502.97796 eV
+One Electron Energy:         -634.79470079 Eh          -17273.64198 eV
+Two Electron Energy:          175.31868742 Eh            4770.66402 eV
+
+Virial components:
+Potential Energy   :         -918.96137718 Eh          -25006.21036 eV
+Kinetic Energy     :          459.48536381 Eh           12503.23240 eV
+Virial Ratio       :            1.99997965
+
+
+---------------
+SCF CONVERGENCE
+---------------
+
+  Last Energy change         ...    1.2471e-06  Tolerance :   1.0000e-08
+  Last MAX-Density change    ...    1.8794e-06  Tolerance :   1.0000e-07
+  Last RMS-Density change    ...    1.1306e-07  Tolerance :   5.0000e-09
+  Last DIIS Error            ...    3.8828e-07  Tolerance :   5.0000e-07
+
+             **** THE GBW FILE WAS UPDATED (Cl·.gbw) ****
+             **** DENSITY FILE WAS UPDATED (Cl·.scfp) ****
+             **** ENERGY FILE WAS UPDATED (Cl·.en.tmp) ****
+----------------------
+UHF SPIN CONTAMINATION
+----------------------
+
+Expectation value of <S**2>     :     0.759702
+Ideal value S*(S+1) for S=0.5   :     0.750000
+Deviation                       :     0.009702
+
+             **** THE GBW FILE WAS UPDATED (Cl·.gbw) ****
+             **** DENSITY FILE WAS UPDATED (Cl·.scfp) ****
+----------------
+ORBITAL ENERGIES
+----------------
+                 SPIN UP ORBITALS
+  NO   OCC          E(Eh)            E(eV) 
+   0   1.0000    -104.891852     -2854.2524 
+   1   1.0000     -10.615466      -288.8615 
+   2   1.0000      -8.101388      -220.4500 
+   3   1.0000      -8.076936      -219.7846 
+   4   1.0000      -8.076936      -219.7846 
+   5   1.0000      -1.138464       -30.9792 
+   6   1.0000      -0.583923       -15.8894 
+   7   1.0000      -0.505078       -13.7439 
+   8   1.0000      -0.505078       -13.7439 
+   9   0.0000       0.375723        10.2239 
+  10   0.0000       0.378765        10.3067 
+  11   0.0000       0.387878        10.5547 
+  12   0.0000       0.387878        10.5547 
+  13   0.0000       0.406608        11.0644 
+  14   0.0000       0.406608        11.0644 
+  15   0.0000       0.418938        11.3999 
+  16   0.0000       0.418938        11.3999 
+  17   0.0000       0.744346        20.2547 
+  18   0.0000       1.312087        35.7037 
+  19   0.0000       1.324100        36.0306 
+  20   0.0000       1.324100        36.0306 
+  21   0.0000       1.367965        37.2242 
+  22   0.0000       1.367965        37.2242 
+  23   0.0000       2.300964        62.6124 
+  24   0.0000       2.308622        62.8208 
+  25   0.0000       2.308622        62.8208 
+  26   0.0000       2.331027        63.4305 
+  27   0.0000       2.331027        63.4305 
+  28   0.0000       2.369349        64.4733 
+  29   0.0000       2.369349        64.4733 
+  30   0.0000       2.372888        64.5696 
+  31   0.0000       2.426118        66.0180 
+  32   0.0000       2.426118        66.0180 
+  33   0.0000       5.565707       151.4506 
+  34   0.0000       5.576341       151.7400 
+  35   0.0000       5.576341       151.7400 
+  36   0.0000       5.608301       152.6096 
+  37   0.0000       5.608301       152.6096 
+  38   0.0000       9.924017       270.0462 
+  39   0.0000      26.131576       711.0763 
+  40   0.0000      26.174275       712.2382 
+  41   0.0000      26.174275       712.2382 
+  42   0.0000     218.715681      5951.5562 
+
+                 SPIN DOWN ORBITALS
+  NO   OCC          E(Eh)            E(eV) 
+   0   1.0000    -104.880759     -2853.9505 
+   1   1.0000     -10.603948      -288.5481 
+   2   1.0000      -8.070944      -219.6215 
+   3   1.0000      -8.070944      -219.6215 
+   4   1.0000      -8.052504      -219.1198 
+   5   1.0000      -1.017101       -27.6767 
+   6   1.0000      -0.483006       -13.1433 
+   7   1.0000      -0.483006       -13.1433 
+   8   0.0000      -0.041960        -1.1418 
+   9   0.0000       0.412223        11.2172 
+  10   0.0000       0.412223        11.2172 
+  11   0.0000       0.420558        11.4440 
+  12   0.0000       0.420558        11.4440 
+  13   0.0000       0.440709        11.9923 
+  14   0.0000       0.440709        11.9923 
+  15   0.0000       0.448815        12.2129 
+  16   0.0000       0.450827        12.2676 
+  17   0.0000       0.773904        21.0590 
+  18   0.0000       1.372534        37.3486 
+  19   0.0000       1.372534        37.3486 
+  20   0.0000       1.383690        37.6521 
+  21   0.0000       1.383690        37.6521 
+  22   0.0000       1.388011        37.7697 
+  23   0.0000       2.362827        64.2958 
+  24   0.0000       2.363792        64.3220 
+  25   0.0000       2.363792        64.3220 
+  26   0.0000       2.366577        64.3978 
+  27   0.0000       2.366577        64.3978 
+  28   0.0000       2.370356        64.5007 
+  29   0.0000       2.370356        64.5007 
+  30   0.0000       2.435326        66.2686 
+  31   0.0000       2.435326        66.2686 
+  32   0.0000       2.454971        66.8032 
+  33   0.0000       5.586242       152.0094 
+  34   0.0000       5.592249       152.1728 
+  35   0.0000       5.592249       152.1728 
+  36   0.0000       5.609989       152.6556 
+  37   0.0000       5.609989       152.6556 
+  38   0.0000       9.942083       270.5378 
+  39   0.0000      26.156310       711.7494 
+  40   0.0000      26.179002       712.3668 
+  41   0.0000      26.179002       712.3668 
+  42   0.0000     218.721718      5951.7205 
+------------------
+MOLECULAR ORBITALS
+------------------
+                      0         1         2         3         4         5   
+                 -104.89185 -10.61547  -8.10139  -8.07694  -8.07694  -1.13846
+                   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.411715 -0.121997  0.000000  0.000000 -0.000000  0.037155
+  0Cl  2s         0.654659 -0.331592  0.000000  0.000000 -0.000000  0.107419
+  0Cl  3s         0.012130  0.512278 -0.000000 -0.000000  0.000000 -0.211577
+  0Cl  4s        -0.000914  0.605578 -0.000000 -0.000000  0.000000 -0.430443
+  0Cl  5s         0.000172  0.040909  0.000000 -0.000000  0.000000  0.666063
+  0Cl  6s        -0.000084 -0.007145 -0.000000  0.000000 -0.000000  0.554411
+  0Cl  1pz       -0.000000 -0.000000 -0.010563 -1.213687  0.208704  0.000000
+  0Cl  1px       -0.000000  0.000000  1.048744  0.100359  0.636767 -0.000000
+  0Cl  1py        0.000000 -0.000000 -0.644160  0.183295  1.033284  0.000000
+  0Cl  2pz       -0.000000 -0.000000 -0.002809 -0.322552  0.055466  0.000000
+  0Cl  2px       -0.000000  0.000000  0.278899  0.026672  0.169228 -0.000000
+  0Cl  2py        0.000000  0.000000 -0.171305  0.048713  0.274607  0.000000
+  0Cl  3pz        0.000000  0.000000 -0.000431 -0.047991  0.008253 -0.000000
+  0Cl  3px        0.000000  0.000000  0.042748  0.003968  0.025179 -0.000000
+  0Cl  3py       -0.000000 -0.000000 -0.026257  0.007248  0.040858  0.000000
+  0Cl  4pz       -0.000000 -0.000000  0.000017  0.001840 -0.000316  0.000000
+  0Cl  4px       -0.000000 -0.000000 -0.001650 -0.000152 -0.000965  0.000000
+  0Cl  4py        0.000000  0.000000  0.001014 -0.000278 -0.001566 -0.000000
+  0Cl  5pz        0.000000  0.000000 -0.000006 -0.000585  0.000101  0.000000
+  0Cl  5px        0.000000 -0.000000  0.000556  0.000048  0.000307  0.000000
+  0Cl  5py       -0.000000 -0.000000 -0.000342  0.000088  0.000498 -0.000000
+  0Cl  1dz2      -0.000003 -0.000620  0.000000  0.000000  0.000000 -0.001979
+  0Cl  1dxz      -0.000000 -0.000016  0.000000  0.000000 -0.000000 -0.000050
+  0Cl  1dyz       0.000000  0.000010  0.000000  0.000000 -0.000000  0.000031
+  0Cl  1dx2y2     0.000002  0.000486 -0.000000 -0.000000  0.000000  0.001550
+  0Cl  1dxy      -0.000004 -0.000958  0.000000  0.000000 -0.000000 -0.003057
+  0Cl  2dz2       0.000002 -0.000180 -0.000000 -0.000000 -0.000000 -0.015651
+  0Cl  2dxz       0.000000 -0.000005 -0.000000 -0.000000  0.000000 -0.000397
+  0Cl  2dyz      -0.000000  0.000003  0.000000  0.000000  0.000000  0.000244
+  0Cl  2dx2y2    -0.000002  0.000141  0.000000  0.000000  0.000000  0.012259
+  0Cl  2dxy       0.000003 -0.000278 -0.000000  0.000000  0.000000 -0.024182
+  0Cl  3dz2      -0.000000  0.000023 -0.000000  0.000000  0.000000 -0.007007
+  0Cl  3dxz      -0.000000  0.000001  0.000000  0.000000  0.000000 -0.000178
+  0Cl  3dyz       0.000000 -0.000000 -0.000000  0.000000  0.000000  0.000109
+  0Cl  3dx2y2     0.000000 -0.000018  0.000000  0.000000 -0.000000  0.005488
+  0Cl  3dxy      -0.000001  0.000035 -0.000000 -0.000000  0.000000 -0.010826
+  0Cl  1f0        0.000000 -0.000000  0.000007  0.000248 -0.000043 -0.000000
+  0Cl  1f+1       0.000000 -0.000000 -0.000266 -0.000001 -0.000054 -0.000000
+  0Cl  1f-1       0.000000  0.000000  0.000163 -0.000020 -0.000085  0.000000
+  0Cl  1f+2       0.000000 -0.000000 -0.000004 -0.000146  0.000020 -0.000000
+  0Cl  1f-2       0.000000 -0.000000  0.000008  0.000285 -0.000052 -0.000000
+  0Cl  1f+3       0.000000 -0.000000  0.000033 -0.000068 -0.000391 -0.000000
+  0Cl  1f-3       0.000000  0.000000  0.000402  0.000002  0.000033  0.000000
+                      6         7         8         9        10        11   
+                  -0.58392  -0.50508  -0.50508   0.37572   0.37876   0.38788
+                   1.00000   1.00000   1.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.000000  0.000000 -0.000000  0.000000  0.002021 -0.000000
+  0Cl  2s         0.000000  0.000000 -0.000000  0.000000  0.005815 -0.000000
+  0Cl  3s        -0.000000 -0.000000  0.000000 -0.000000 -0.011248  0.000000
+  0Cl  4s        -0.000000 -0.000000  0.000000 -0.000000 -0.027688  0.000000
+  0Cl  5s         0.000000  0.000000 -0.000000  0.000000  0.069198 -0.000000
+  0Cl  6s         0.000000 -0.000000 -0.000000 -0.000000 -0.019186  0.000000
+  0Cl  1pz       -0.003012  0.268795  0.211138 -0.001545 -0.000000  0.000000
+  0Cl  1px        0.299043  0.112475 -0.139142  0.153375 -0.000000  0.000000
+  0Cl  1py       -0.183679  0.178710 -0.229997 -0.094206  0.000000 -0.000000
+  0Cl  2pz       -0.000723  0.064140  0.050382 -0.000253 -0.000000  0.000000
+  0Cl  2px        0.071771  0.026839 -0.033202  0.025113 -0.000000  0.000000
+  0Cl  2py       -0.044083  0.042644 -0.054882 -0.015425  0.000000 -0.000000
+  0Cl  3pz        0.002165 -0.195270 -0.153384  0.000415  0.000000 -0.000000
+  0Cl  3px       -0.214989 -0.081709  0.101082 -0.041169  0.000000 -0.000000
+  0Cl  3py        0.132051 -0.129826  0.167085  0.025287 -0.000000  0.000000
+  0Cl  4pz        0.005513 -0.482139 -0.378719  0.007990  0.000000 -0.000000
+  0Cl  4px       -0.547323 -0.201746  0.249581 -0.793237  0.000000 -0.000000
+  0Cl  4py        0.336177 -0.320553  0.412548  0.487223 -0.000000  0.000000
+  0Cl  5pz        0.002370 -0.249458 -0.195948 -0.010845 -0.000000  0.000000
+  0Cl  5px       -0.235336 -0.104383  0.129133  1.076720 -0.000000 -0.000000
+  0Cl  5py        0.144548 -0.165853  0.213452 -0.661344  0.000000 -0.000000
+  0Cl  1dz2       0.000000 -0.000000  0.000000  0.000000  0.032898  0.000305
+  0Cl  1dxz      -0.000000 -0.000000 -0.000000 -0.000000  0.000834 -0.017783
+  0Cl  1dyz       0.000000 -0.000000  0.000000  0.000000 -0.000512  0.010293
+  0Cl  1dx2y2    -0.000000  0.000000  0.000000 -0.000000 -0.025768  0.055665
+  0Cl  1dxy       0.000000 -0.000000  0.000000  0.000000  0.050831  0.028416
+  0Cl  2dz2       0.000000 -0.000000 -0.000000  0.000000  0.095809  0.000874
+  0Cl  2dxz      -0.000000 -0.000000 -0.000000 -0.000000  0.002428 -0.050914
+  0Cl  2dyz       0.000000 -0.000000  0.000000  0.000000 -0.001491  0.029470
+  0Cl  2dx2y2    -0.000000  0.000000  0.000000 -0.000000 -0.075044  0.159375
+  0Cl  2dxy       0.000000 -0.000000  0.000000  0.000000  0.148036  0.081358
+  0Cl  3dz2       0.000000 -0.000000  0.000000  0.000000  0.442100  0.004119
+  0Cl  3dxz      -0.000000 -0.000000  0.000000 -0.000000  0.011202 -0.239849
+  0Cl  3dyz       0.000000 -0.000000  0.000000  0.000000 -0.006880  0.138830
+  0Cl  3dx2y2    -0.000000  0.000000  0.000000 -0.000000 -0.346281  0.750796
+  0Cl  3dxy       0.000000 -0.000000  0.000000  0.000000  0.683095  0.383266
+  0Cl  1f0       -0.000237  0.007390  0.005805 -0.000105 -0.000000  0.000000
+  0Cl  1f+1       0.009624  0.001483 -0.001388  0.004260  0.000000  0.000000
+  0Cl  1f-1      -0.005911  0.001870 -0.002688 -0.002616 -0.000000 -0.000000
+  0Cl  1f+2       0.000139 -0.004200 -0.003535  0.000061  0.000000 -0.000000
+  0Cl  1f-2      -0.000273  0.008569  0.006611 -0.000121 -0.000000 -0.000000
+  0Cl  1f+3      -0.001189  0.009143 -0.011656 -0.000526 -0.000000 -0.000000
+  0Cl  1f-3      -0.014537 -0.000849  0.000875 -0.006434 -0.000000  0.000000
+                     12        13        14        15        16        17   
+                   0.38788   0.40661   0.40661   0.41894   0.41894   0.74435
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.000000  0.000000 -0.000000  0.000000 -0.000000 -0.034190
+  0Cl  2s         0.000000  0.000000 -0.000000  0.000000 -0.000000 -0.093758
+  0Cl  3s        -0.000000 -0.000000  0.000000 -0.000000  0.000000  0.141014
+  0Cl  4s        -0.000000 -0.000000  0.000000 -0.000000  0.000000  0.653494
+  0Cl  5s         0.000000  0.000000 -0.000000  0.000000 -0.000000 -2.120833
+  0Cl  6s        -0.000000 -0.000000  0.000000 -0.000000  0.000000  1.735289
+  0Cl  1pz        0.000000  0.185426 -0.004897 -0.000000 -0.000000  0.000000
+  0Cl  1px       -0.000000 -0.001207 -0.097088 -0.000000 -0.000000  0.000000
+  0Cl  1py        0.000000 -0.005006 -0.157986 -0.000000 -0.000000  0.000000
+  0Cl  2pz        0.000000  0.029572 -0.000781 -0.000000 -0.000000  0.000000
+  0Cl  2px       -0.000000 -0.000192 -0.015484 -0.000000 -0.000000  0.000000
+  0Cl  2py        0.000000 -0.000798 -0.025196 -0.000000 -0.000000 -0.000000
+  0Cl  3pz       -0.000000 -0.045438  0.001200  0.000000  0.000000  0.000000
+  0Cl  3px        0.000000  0.000296  0.023791  0.000000  0.000000  0.000000
+  0Cl  3py       -0.000000  0.001227  0.038714  0.000000  0.000000 -0.000000
+  0Cl  4pz       -0.000000 -0.961614  0.025394  0.000000  0.000000 -0.000000
+  0Cl  4px        0.000000  0.006259  0.503492  0.000000  0.000000 -0.000000
+  0Cl  4py       -0.000000  0.025959  0.819308  0.000000  0.000000 -0.000000
+  0Cl  5pz        0.000000  1.256639 -0.033185 -0.000000 -0.000000  0.000000
+  0Cl  5px       -0.000000 -0.008179 -0.657964 -0.000000 -0.000000  0.000000
+  0Cl  5py        0.000000 -0.033923 -1.070673 -0.000000 -0.000000  0.000000
+  0Cl  1dz2       0.000929 -0.000000 -0.000000  0.042147 -0.036797  0.005688
+  0Cl  1dxz      -0.053157  0.000000  0.000000 -0.021883 -0.025783  0.000144
+  0Cl  1dyz       0.032857 -0.000000  0.000000 -0.036425 -0.041280 -0.000089
+  0Cl  1dx2y2    -0.018565 -0.000000 -0.000000  0.010679 -0.009980 -0.004455
+  0Cl  1dxy      -0.008810  0.000000 -0.000000 -0.021872  0.018763  0.008789
+  0Cl  2dz2       0.002660 -0.000000 -0.000000  0.111534 -0.097375  0.026785
+  0Cl  2dxz      -0.152193  0.000000  0.000000 -0.057908 -0.068230  0.000679
+  0Cl  2dyz       0.094073 -0.000000  0.000000 -0.096391 -0.109239 -0.000417
+  0Cl  2dx2y2    -0.053153 -0.000000 -0.000000  0.028259 -0.026409 -0.020980
+  0Cl  2dxy      -0.025223  0.000000 -0.000000 -0.057880  0.049652  0.041386
+  0Cl  3dz2       0.012531 -0.000000 -0.000000  0.586176 -0.511764 -0.007185
+  0Cl  3dxz      -0.716963  0.000000  0.000000 -0.304343 -0.358587 -0.000182
+  0Cl  3dyz       0.443164 -0.000000  0.000000 -0.506594 -0.574117  0.000112
+  0Cl  3dx2y2    -0.250398 -0.000000 -0.000000  0.148520 -0.138797  0.005628
+  0Cl  3dxy      -0.118823  0.000000 -0.000000 -0.304196  0.260951 -0.011101
+  0Cl  1f0        0.000000  0.004568 -0.000121 -0.000000  0.000000 -0.000000
+  0Cl  1f+1       0.000000  0.000124 -0.000980  0.000000  0.000000  0.000000
+  0Cl  1f-1      -0.000000 -0.000134 -0.001587 -0.000000  0.000000  0.000000
+  0Cl  1f+2       0.000000 -0.002669 -0.000020 -0.000000 -0.000000 -0.000000
+  0Cl  1f-2       0.000000  0.005260 -0.000185  0.000000  0.000000 -0.000000
+  0Cl  1f+3       0.000000 -0.000195 -0.007201  0.000000 -0.000000 -0.000000
+  0Cl  1f-3      -0.000000 -0.000046  0.000591  0.000000 -0.000000 -0.000000
+                     18        19        20        21        22        23   
+                   1.31209   1.32410   1.32410   1.36797   1.36797   2.30096
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.002590  0.000000  0.000000  0.000000 -0.000000 -0.000000
+  0Cl  2s         0.007440  0.000000  0.000000  0.000000 -0.000000 -0.000000
+  0Cl  3s        -0.014367 -0.000000 -0.000000 -0.000000  0.000000  0.000000
+  0Cl  4s        -0.039260 -0.000000 -0.000000 -0.000000  0.000000  0.000000
+  0Cl  5s         0.121260  0.000000  0.000000  0.000000 -0.000000 -0.000000
+  0Cl  6s        -0.074225 -0.000000 -0.000000 -0.000000  0.000000  0.000000
+  0Cl  1pz        0.000000  0.000000  0.000000  0.000000  0.000000  0.000688
+  0Cl  1px       -0.000000 -0.000000  0.000000 -0.000000 -0.000000 -0.068278
+  0Cl  1py        0.000000 -0.000000 -0.000000 -0.000000  0.000000  0.041938
+  0Cl  2pz        0.000000  0.000000  0.000000  0.000000  0.000000  0.000215
+  0Cl  2px       -0.000000 -0.000000  0.000000 -0.000000 -0.000000 -0.021312
+  0Cl  2py        0.000000 -0.000000 -0.000000 -0.000000  0.000000  0.013090
+  0Cl  3pz       -0.000000 -0.000000 -0.000000 -0.000000 -0.000000 -0.001580
+  0Cl  3px        0.000000  0.000000 -0.000000  0.000000  0.000000  0.156819
+  0Cl  3py       -0.000000  0.000000  0.000000  0.000000 -0.000000 -0.096321
+  0Cl  4pz       -0.000000 -0.000000 -0.000000 -0.000000  0.000000  0.001297
+  0Cl  4px        0.000000  0.000000 -0.000000 -0.000000 -0.000000 -0.128740
+  0Cl  4py       -0.000000  0.000000  0.000000 -0.000000  0.000000  0.079075
+  0Cl  5pz        0.000000  0.000000  0.000000 -0.000000 -0.000000 -0.000427
+  0Cl  5px       -0.000000 -0.000000  0.000000  0.000000  0.000000  0.042423
+  0Cl  5py        0.000000 -0.000000 -0.000000  0.000000 -0.000000 -0.026057
+  0Cl  1dz2       0.084182 -0.000263 -0.002505  0.098852 -0.111483 -0.000000
+  0Cl  1dxz       0.002133  0.015838  0.143522  0.068212  0.058802  0.000000
+  0Cl  1dyz      -0.001310 -0.008030 -0.088333  0.109182  0.097845 -0.000000
+  0Cl  1dx2y2    -0.065937 -0.150264  0.016441  0.026795 -0.028233  0.000000
+  0Cl  1dxy       0.130071 -0.076343  0.006713 -0.050413  0.057861 -0.000000
+  0Cl  2dz2       0.497298 -0.001548 -0.014739  0.573867 -0.647193 -0.000000
+  0Cl  2dxz       0.012600  0.093168  0.844296  0.395988  0.341361  0.000000
+  0Cl  2dyz      -0.007739 -0.047239 -0.519633  0.633834  0.568018 -0.000000
+  0Cl  2dx2y2    -0.389515 -0.883955  0.096720  0.155551 -0.163902  0.000000
+  0Cl  2dxy       0.768383 -0.449105  0.039490 -0.292664  0.335901 -0.000000
+  0Cl  3dz2      -0.338750  0.001047  0.009965 -0.378729  0.427121  0.000000
+  0Cl  3dxz      -0.008583 -0.062995 -0.570865 -0.261336 -0.225285 -0.000000
+  0Cl  3dyz       0.005272  0.031940  0.351346 -0.418305 -0.374869  0.000000
+  0Cl  3dx2y2     0.265330  0.597680 -0.065396 -0.102657  0.108168 -0.000000
+  0Cl  3dxy      -0.523407  0.303659 -0.026701  0.193146 -0.221681  0.000000
+  0Cl  1f0       -0.000000 -0.000000 -0.000000 -0.000000  0.000000 -0.012812
+  0Cl  1f+1       0.000000 -0.000000 -0.000000 -0.000000 -0.000000  0.519162
+  0Cl  1f-1      -0.000000  0.000000  0.000000 -0.000000  0.000000 -0.318880
+  0Cl  1f+2       0.000000  0.000000 -0.000000  0.000000  0.000000  0.007479
+  0Cl  1f-2      -0.000000  0.000000 -0.000000 -0.000000 -0.000000 -0.014753
+  0Cl  1f+3      -0.000000  0.000000 -0.000000  0.000000 -0.000000 -0.064159
+  0Cl  1f-3      -0.000000 -0.000000  0.000000  0.000000 -0.000000 -0.784180
+                     24        25        26        27        28        29   
+                   2.30862   2.30862   2.33103   2.33103   2.36935   2.36935
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s        -0.000000  0.000000  0.000000 -0.000000 -0.000000  0.000000
+  0Cl  2s        -0.000000  0.000000  0.000000  0.000000 -0.000000  0.000000
+  0Cl  3s         0.000000 -0.000000  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  4s         0.000000 -0.000000 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  5s        -0.000000  0.000000 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  6s        -0.000000  0.000000  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  1pz       -0.009120 -0.041000 -0.000000  0.000000  0.000000  0.000000
+  0Cl  1px        0.021393 -0.005073 -0.000000  0.000000  0.000000  0.000000
+  0Cl  1py        0.034979 -0.007587  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  2pz       -0.002737 -0.012306 -0.000000  0.000000  0.000000  0.000000
+  0Cl  2px        0.006421 -0.001523 -0.000000  0.000000  0.000000  0.000000
+  0Cl  2py        0.010499 -0.002277  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  3pz        0.020179  0.090723  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  3px       -0.047337  0.011225  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  3py       -0.077398  0.016788 -0.000000  0.000000  0.000000  0.000000
+  0Cl  4pz       -0.014719 -0.066173 -0.000000  0.000000  0.000000  0.000000
+  0Cl  4px        0.034527 -0.008188 -0.000000  0.000000  0.000000  0.000000
+  0Cl  4py        0.056455 -0.012245  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  5pz        0.004883  0.021952  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  5px       -0.011454  0.002716  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  5py       -0.018728  0.004062 -0.000000  0.000000  0.000000  0.000000
+  0Cl  1dz2      -0.000000  0.000000 -0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  1dxz       0.000000  0.000000  0.000000  0.000000 -0.000000  0.000000
+  0Cl  1dyz      -0.000000 -0.000000 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  1dx2y2    -0.000000 -0.000000  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  1dxy      -0.000000  0.000000  0.000000 -0.000000  0.000000  0.000000
+  0Cl  2dz2       0.000000  0.000000 -0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  2dxz       0.000000  0.000000  0.000000  0.000000 -0.000000  0.000000
+  0Cl  2dyz      -0.000000 -0.000000 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  2dx2y2    -0.000000 -0.000000  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  2dxy      -0.000000  0.000000  0.000000 -0.000000  0.000000  0.000000
+  0Cl  3dz2       0.000000 -0.000000  0.000000  0.000000  0.000000  0.000000
+  0Cl  3dxz       0.000000 -0.000000 -0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  3dyz       0.000000 -0.000000  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  3dx2y2     0.000000 -0.000000 -0.000000  0.000000  0.000000  0.000000
+  0Cl  3dxy       0.000000 -0.000000 -0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  1f0        0.132739  0.596778 -0.006556 -0.015270 -0.305418 -0.729097
+  0Cl  1f+1      -0.123157  0.047968  0.259159  0.621651 -0.470107  0.189251
+  0Cl  1f-1      -0.210286  0.034136 -0.173814 -0.375549 -0.759237  0.322759
+  0Cl  1f+2      -0.089294 -0.345781  0.820245 -0.350038 -0.115631 -0.251770
+  0Cl  1f-2       0.146889  0.688617  0.413909 -0.181864  0.206659  0.505640
+  0Cl  1f+3      -0.940905  0.208588  0.010074  0.050020  0.229666 -0.096776
+  0Cl  1f-3       0.075174 -0.025194  0.241574  0.560515 -0.021286  0.001961
+                     30        31        32        33        34        35   
+                   2.37289   2.42612   2.42612   5.56571   5.57634   5.57634
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s        -0.000000 -0.000000  0.000000  0.000798 -0.000000  0.000000
+  0Cl  2s        -0.000000 -0.000000  0.000000  0.003312 -0.000000  0.000000
+  0Cl  3s         0.000000  0.000000 -0.000000 -0.016360  0.000000 -0.000000
+  0Cl  4s         0.000000 -0.000000  0.000000  0.017300 -0.000000  0.000000
+  0Cl  5s        -0.000000  0.000000 -0.000000 -0.010100  0.000000 -0.000000
+  0Cl  6s         0.000000 -0.000000  0.000000  0.006692 -0.000000  0.000000
+  0Cl  1pz       -0.006695 -0.760187 -0.189400  0.000000  0.000000  0.000000
+  0Cl  1px        0.664679 -0.104691  0.396494 -0.000000 -0.000000 -0.000000
+  0Cl  1py       -0.408260 -0.157979  0.648630  0.000000  0.000000  0.000000
+  0Cl  2pz       -0.002219 -0.251753 -0.062724  0.000000 -0.000000 -0.000000
+  0Cl  2px        0.220323 -0.034671  0.131308 -0.000000 -0.000000 -0.000000
+  0Cl  2py       -0.135327 -0.052318  0.214808  0.000000  0.000000  0.000000
+  0Cl  3pz        0.016285  1.848075  0.460447 -0.000000 -0.000000 -0.000000
+  0Cl  3px       -1.616793  0.254512 -0.963910 -0.000000  0.000000  0.000000
+  0Cl  3py        0.993068  0.384060 -1.576872 -0.000000 -0.000000 -0.000000
+  0Cl  4pz       -0.015495 -1.751101 -0.436286  0.000000  0.000000  0.000000
+  0Cl  4px        1.538384 -0.241157  0.913331  0.000000 -0.000000 -0.000000
+  0Cl  4py       -0.944908 -0.363907  1.494129  0.000000  0.000000  0.000000
+  0Cl  5pz        0.004996  0.560007  0.139525 -0.000000  0.000000 -0.000000
+  0Cl  5px       -0.495999  0.077123 -0.292086 -0.000000 -0.000000  0.000000
+  0Cl  5py        0.304653  0.116379 -0.477827 -0.000000  0.000000 -0.000000
+  0Cl  1dz2      -0.000000 -0.000000  0.000000 -0.563883 -0.013590 -0.009819
+  0Cl  1dxz       0.000000 -0.000000  0.000000 -0.014287  0.781888  0.558706
+  0Cl  1dyz      -0.000000  0.000000  0.000000  0.008776 -0.473598 -0.352377
+  0Cl  1dx2y2     0.000000  0.000000  0.000000  0.441669 -0.585645  0.817993
+  0Cl  1dxy      -0.000000 -0.000000  0.000000 -0.871265 -0.305677  0.408309
+  0Cl  2dz2      -0.000000 -0.000000  0.000000  0.391373  0.009439  0.006820
+  0Cl  2dxz       0.000000 -0.000000  0.000000  0.009916 -0.543078 -0.388062
+  0Cl  2dyz      -0.000000  0.000000  0.000000 -0.006091  0.328949  0.244752
+  0Cl  2dx2y2     0.000000  0.000000  0.000000 -0.306549  0.406773 -0.568156
+  0Cl  2dxy      -0.000000 -0.000000  0.000000  0.604717  0.212315 -0.283600
+  0Cl  3dz2       0.000000  0.000000 -0.000000 -0.125996 -0.003035 -0.002193
+  0Cl  3dxz      -0.000000  0.000000 -0.000000 -0.003192  0.174644  0.124794
+  0Cl  3dyz       0.000000 -0.000000 -0.000000  0.001961 -0.105784 -0.078708
+  0Cl  3dx2y2    -0.000000  0.000000 -0.000000  0.098688 -0.130811  0.182709
+  0Cl  3dxy      -0.000000 -0.000000  0.000000 -0.194679 -0.068277  0.091201
+  0Cl  1f0       -0.001213 -0.027840 -0.006936  0.000000 -0.000000 -0.000000
+  0Cl  1f+1       0.049167 -0.002397  0.005721 -0.000000 -0.000000 -0.000000
+  0Cl  1f-1      -0.030199 -0.001851  0.009825  0.000000  0.000000  0.000000
+  0Cl  1f+2       0.000708  0.016116  0.004600 -0.000000  0.000000 -0.000000
+  0Cl  1f-2      -0.001397 -0.032132 -0.007709  0.000000 -0.000000 -0.000000
+  0Cl  1f+3      -0.006076 -0.010904  0.043895  0.000000  0.000000 -0.000000
+  0Cl  1f-3      -0.074265  0.001271 -0.003497  0.000000 -0.000000  0.000000
+                     36        37        38        39        40        41   
+                   5.60830   5.60830   9.92402  26.13158  26.17428  26.17428
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.000000  0.000000 -0.115945  0.000000  0.000000  0.000000
+  0Cl  2s         0.000000  0.000000 -0.481565  0.000000  0.000000  0.000000
+  0Cl  3s        -0.000000 -0.000000  2.618773 -0.000000 -0.000000 -0.000000
+  0Cl  4s         0.000000  0.000000 -2.997744  0.000000  0.000000  0.000000
+  0Cl  5s        -0.000000 -0.000000  1.463581 -0.000000 -0.000000 -0.000000
+  0Cl  6s         0.000000  0.000000 -0.575004 -0.000000  0.000000  0.000000
+  0Cl  1pz        0.000000  0.000000  0.000000  0.028792  3.291640 -0.649008
+  0Cl  1px        0.000000 -0.000000  0.000000 -2.858565  0.363761  1.718089
+  0Cl  1py        0.000000 -0.000000  0.000000  1.755790  0.538255  2.807827
+  0Cl  2pz        0.000000  0.000000  0.000000  0.029182  3.335930 -0.657740
+  0Cl  2px        0.000000 -0.000000  0.000000 -2.897216  0.368656  1.741206
+  0Cl  2py        0.000000 -0.000000  0.000000  1.779531  0.545497  2.845607
+  0Cl  3pz       -0.000000 -0.000000 -0.000000 -0.019838 -2.267847  0.447148
+  0Cl  3px       -0.000000  0.000000 -0.000000  1.969553 -0.250621 -1.183715
+  0Cl  3py       -0.000000  0.000000 -0.000000 -1.209741 -0.370842 -1.934514
+  0Cl  4pz        0.000000 -0.000000  0.000000  0.009215  1.052920 -0.207603
+  0Cl  4px        0.000000 -0.000000  0.000000 -0.914878  0.116359  0.549577
+  0Cl  4py        0.000000 -0.000000  0.000000  0.561937  0.172175  0.898159
+  0Cl  5pz       -0.000000  0.000000 -0.000000 -0.002447 -0.279497  0.055108
+  0Cl  5px       -0.000000  0.000000 -0.000000  0.242987 -0.030887 -0.145885
+  0Cl  5py       -0.000000  0.000000 -0.000000 -0.149248 -0.045704 -0.238416
+  0Cl  1dz2      -0.559869 -0.800028 -0.003258  0.000000  0.000000  0.000000
+  0Cl  1dxz      -0.488239  0.331611 -0.000083 -0.000000 -0.000000  0.000000
+  0Cl  1dyz      -0.784290  0.555037  0.000051  0.000000 -0.000000  0.000000
+  0Cl  1dx2y2    -0.153247 -0.203929  0.002552  0.000000 -0.000000 -0.000000
+  0Cl  1dxy       0.284769  0.414554 -0.005034  0.000000 -0.000000  0.000000
+  0Cl  2dz2       0.389776  0.556972  0.002907 -0.000000 -0.000000 -0.000000
+  0Cl  2dxz       0.339907 -0.230864  0.000074  0.000000  0.000000 -0.000000
+  0Cl  2dyz       0.546015 -0.386412 -0.000045 -0.000000  0.000000 -0.000000
+  0Cl  2dx2y2     0.106689  0.141973 -0.002277 -0.000000  0.000000 -0.000000
+  0Cl  2dxy      -0.198254 -0.288609  0.004492 -0.000000 -0.000000  0.000000
+  0Cl  3dz2      -0.124904 -0.178482 -0.000928 -0.000000 -0.000000  0.000000
+  0Cl  3dxz      -0.108924  0.073981 -0.000024  0.000000 -0.000000  0.000000
+  0Cl  3dyz      -0.174971  0.123826  0.000014  0.000000 -0.000000  0.000000
+  0Cl  3dx2y2    -0.034189 -0.045496  0.000727  0.000000 -0.000000 -0.000000
+  0Cl  3dxy       0.063531  0.092485 -0.001435  0.000000  0.000000 -0.000000
+  0Cl  1f0        0.000000  0.000000 -0.000000 -0.000004 -0.000160  0.000032
+  0Cl  1f+1       0.000000 -0.000000  0.000000  0.000170 -0.000012 -0.000033
+  0Cl  1f-1       0.000000  0.000000  0.000000 -0.000104 -0.000008 -0.000056
+  0Cl  1f+2      -0.000000  0.000000 -0.000000  0.000002  0.000093 -0.000022
+  0Cl  1f-2       0.000000 -0.000000  0.000000 -0.000005 -0.000185  0.000035
+  0Cl  1f+3      -0.000000 -0.000000  0.000000 -0.000021 -0.000050 -0.000253
+  0Cl  1f-3      -0.000000 -0.000000  0.000000 -0.000256  0.000006  0.000020
+                     42   
+                 218.71568
+                   0.00000
+                  --------
+  0Cl  1s        -1.541315
+  0Cl  2s         1.911226
+  0Cl  3s        -1.419525
+  0Cl  4s         0.929937
+  0Cl  5s        -0.330585
+  0Cl  6s         0.126744
+  0Cl  1pz       -0.000000
+  0Cl  1px        0.000000
+  0Cl  1py       -0.000000
+  0Cl  2pz       -0.000000
+  0Cl  2px        0.000000
+  0Cl  2py       -0.000000
+  0Cl  3pz        0.000000
+  0Cl  3px       -0.000000
+  0Cl  3py        0.000000
+  0Cl  4pz       -0.000000
+  0Cl  4px        0.000000
+  0Cl  4py       -0.000000
+  0Cl  5pz        0.000000
+  0Cl  5px       -0.000000
+  0Cl  5py        0.000000
+  0Cl  1dz2       0.000012
+  0Cl  1dxz       0.000000
+  0Cl  1dyz      -0.000000
+  0Cl  1dx2y2    -0.000009
+  0Cl  1dxy       0.000019
+  0Cl  2dz2      -0.000011
+  0Cl  2dxz      -0.000000
+  0Cl  2dyz       0.000000
+  0Cl  2dx2y2     0.000009
+  0Cl  2dxy      -0.000017
+  0Cl  3dz2       0.000003
+  0Cl  3dxz       0.000000
+  0Cl  3dyz      -0.000000
+  0Cl  3dx2y2    -0.000003
+  0Cl  3dxy       0.000005
+  0Cl  1f0        0.000000
+  0Cl  1f+1       0.000000
+  0Cl  1f-1      -0.000000
+  0Cl  1f+2      -0.000000
+  0Cl  1f-2       0.000000
+  0Cl  1f+3      -0.000000
+  0Cl  1f-3       0.000000
+
+                      0         1         2         3         4         5   
+                 -104.88076 -10.60395  -8.07094  -8.07094  -8.05250  -1.01710
+                   1.00000   1.00000   1.00000   1.00000   1.00000   1.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.411758  0.121949  0.000000  0.000000  0.000000  0.036865
+  0Cl  2s         0.654678  0.331481  0.000000  0.000000  0.000000  0.106891
+  0Cl  3s         0.011972 -0.511343 -0.000000 -0.000000 -0.000000 -0.213243
+  0Cl  4s        -0.000839 -0.607480 -0.000000  0.000000 -0.000000 -0.420646
+  0Cl  5s         0.000178 -0.039283 -0.000000 -0.000000 -0.000000  0.647669
+  0Cl  6s        -0.000076  0.007296 -0.000000  0.000000 -0.000000  0.568094
+  0Cl  1pz        0.000000  0.000000 -0.037562 -1.230977 -0.010549  0.000000
+  0Cl  1px        0.000000 -0.000000 -0.644565  0.010657  1.047322  0.000000
+  0Cl  1py        0.000000  0.000000 -1.048786  0.037537 -0.643287 -0.000000
+  0Cl  2pz        0.000000  0.000000 -0.009984 -0.327211 -0.002807  0.000000
+  0Cl  2px        0.000000 -0.000000 -0.171334  0.002833  0.278661  0.000000
+  0Cl  2py        0.000000  0.000000 -0.278782  0.009978 -0.171159 -0.000000
+  0Cl  3pz       -0.000000  0.000000 -0.001489 -0.048798 -0.000465 -0.000000
+  0Cl  3px       -0.000000  0.000000 -0.025551  0.000422  0.046129 -0.000000
+  0Cl  3py       -0.000000 -0.000000 -0.041575  0.001488 -0.028334  0.000000
+  0Cl  4pz        0.000000  0.000000  0.000065  0.002145  0.000040 -0.000000
+  0Cl  4px        0.000000 -0.000000  0.001123 -0.000019 -0.003922 -0.000000
+  0Cl  4py        0.000000 -0.000000  0.001827 -0.000065  0.002409  0.000000
+  0Cl  5pz       -0.000000  0.000000 -0.000020 -0.000663 -0.000011 -0.000000
+  0Cl  5px       -0.000000  0.000000 -0.000347  0.000006  0.001141 -0.000000
+  0Cl  5py       -0.000000 -0.000000 -0.000565  0.000020 -0.000701  0.000000
+  0Cl  1dz2       0.000000  0.000514  0.000000  0.000000  0.000000  0.002626
+  0Cl  1dxz       0.000000  0.000013 -0.000000  0.000000  0.000000  0.000067
+  0Cl  1dyz      -0.000000 -0.000008  0.000000  0.000000 -0.000000 -0.000041
+  0Cl  1dx2y2    -0.000000 -0.000402  0.000000  0.000000 -0.000000 -0.002057
+  0Cl  1dxy       0.000001  0.000794 -0.000000  0.000000  0.000000  0.004057
+  0Cl  2dz2      -0.000010 -0.000359  0.000000  0.000000 -0.000000  0.016331
+  0Cl  2dxz      -0.000000 -0.000009 -0.000000 -0.000000 -0.000000  0.000414
+  0Cl  2dyz       0.000000  0.000006  0.000000 -0.000000  0.000000 -0.000254
+  0Cl  2dx2y2     0.000008  0.000281 -0.000000  0.000000  0.000000 -0.012791
+  0Cl  2dxy      -0.000015 -0.000555  0.000000  0.000000 -0.000000  0.025233
+  0Cl  3dz2       0.000001 -0.000046 -0.000000  0.000000 -0.000000  0.012765
+  0Cl  3dxz       0.000000 -0.000001  0.000000  0.000000  0.000000  0.000323
+  0Cl  3dyz      -0.000000  0.000001 -0.000000 -0.000000 -0.000000 -0.000199
+  0Cl  3dx2y2    -0.000001  0.000036  0.000000  0.000000 -0.000000 -0.009998
+  0Cl  3dxy       0.000001 -0.000071 -0.000000 -0.000000  0.000000  0.019723
+  0Cl  1f0        0.000000 -0.000000 -0.000002 -0.000067 -0.000002  0.000000
+  0Cl  1f+1       0.000000 -0.000000 -0.000014 -0.000002  0.000068  0.000000
+  0Cl  1f-1       0.000000 -0.000000 -0.000023  0.000002 -0.000042  0.000000
+  0Cl  1f+2       0.000000  0.000000 -0.000000  0.000039  0.000001 -0.000000
+  0Cl  1f-2       0.000000 -0.000000 -0.000003 -0.000077 -0.000002  0.000000
+  0Cl  1f+3       0.000000 -0.000000 -0.000106  0.000003 -0.000008  0.000000
+  0Cl  1f-3       0.000000 -0.000000  0.000009  0.000001 -0.000103  0.000000
+                      6         7         8         9        10        11   
+                  -0.48301  -0.48301  -0.04196   0.41222   0.41222   0.42056
+                   1.00000   1.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s        -0.000000  0.000000 -0.000000  0.000000  0.000000 -0.000000
+  0Cl  2s        -0.000000  0.000000 -0.000000  0.000000  0.000000 -0.000000
+  0Cl  3s         0.000000 -0.000000  0.000000 -0.000000 -0.000000  0.000000
+  0Cl  4s         0.000000 -0.000000  0.000000 -0.000000 -0.000000  0.000000
+  0Cl  5s        -0.000000  0.000000 -0.000000  0.000000  0.000000  0.000000
+  0Cl  6s        -0.000000  0.000000 -0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  1pz        0.338330 -0.015034 -0.002447  0.187174 -0.018333  0.000000
+  0Cl  1px       -0.005394 -0.177191  0.242910  0.010964  0.097832  0.000000
+  0Cl  1py       -0.014330 -0.288234 -0.149200  0.014781  0.159579 -0.000000
+  0Cl  2pz        0.080570 -0.003580 -0.000595  0.029738 -0.002913  0.000000
+  0Cl  2px       -0.001285 -0.042196  0.059066  0.001742  0.015544 -0.000000
+  0Cl  2py       -0.003413 -0.068640 -0.036280  0.002348  0.025354  0.000000
+  0Cl  3pz       -0.246356  0.010947  0.001701 -0.044961  0.004404 -0.000000
+  0Cl  3px        0.003928  0.129022 -0.168884 -0.002634 -0.023500 -0.000000
+  0Cl  3py        0.010435  0.209879  0.103732 -0.003551 -0.038332 -0.000000
+  0Cl  4pz       -0.601835  0.026742  0.003820 -0.967838  0.094796 -0.000000
+  0Cl  4px        0.009595  0.315194 -0.379246 -0.056694 -0.505870 -0.000000
+  0Cl  4py        0.025491  0.512723  0.232941 -0.076431 -0.825151  0.000000
+  0Cl  5pz       -0.331842  0.014745  0.004706  1.248134 -0.122250  0.000000
+  0Cl  5px        0.005291  0.173793 -0.467226  0.073113  0.652376  0.000000
+  0Cl  5py        0.014056  0.282707  0.286980  0.098566  1.064124 -0.000000
+  0Cl  1dz2       0.000000  0.000000 -0.000000  0.000000 -0.000000 -0.036159
+  0Cl  1dxz       0.000000  0.000000  0.000000  0.000000 -0.000000 -0.025989
+  0Cl  1dyz      -0.000000 -0.000000 -0.000000 -0.000000  0.000000 -0.041628
+  0Cl  1dx2y2    -0.000000 -0.000000  0.000000  0.000000  0.000000 -0.009816
+  0Cl  1dxy      -0.000000 -0.000000 -0.000000 -0.000000  0.000000  0.018433
+  0Cl  2dz2       0.000000  0.000000 -0.000000  0.000000 -0.000000 -0.094449
+  0Cl  2dxz       0.000000  0.000000  0.000000  0.000000 -0.000000 -0.067885
+  0Cl  2dyz      -0.000000 -0.000000 -0.000000 -0.000000  0.000000 -0.108734
+  0Cl  2dx2y2    -0.000000 -0.000000  0.000000  0.000000  0.000000 -0.025641
+  0Cl  2dxy      -0.000000 -0.000000 -0.000000 -0.000000  0.000000  0.048147
+  0Cl  3dz2       0.000000  0.000000 -0.000000  0.000000 -0.000000 -0.505208
+  0Cl  3dxz       0.000000 -0.000000  0.000000 -0.000000 -0.000000 -0.363120
+  0Cl  3dyz      -0.000000 -0.000000 -0.000000 -0.000000  0.000000 -0.581621
+  0Cl  3dx2y2    -0.000000 -0.000000  0.000000  0.000000  0.000000 -0.137152
+  0Cl  3dxy       0.000000 -0.000000 -0.000000 -0.000000  0.000000  0.257541
+  0Cl  1f0       -0.002116  0.000094  0.000049 -0.000331  0.000032  0.000000
+  0Cl  1f+1      -0.000049  0.000455 -0.001988 -0.000018 -0.000070  0.000000
+  0Cl  1f-1       0.000075  0.000734  0.001221 -0.000005 -0.000116  0.000000
+  0Cl  1f+2       0.001237 -0.000013 -0.000029  0.000192 -0.000025 -0.000000
+  0Cl  1f-2      -0.002436  0.000129  0.000056 -0.000381  0.000034  0.000000
+  0Cl  1f+3       0.000151  0.003335  0.000246 -0.000051 -0.000521 -0.000000
+  0Cl  1f-3       0.000016 -0.000274  0.003003  0.000009  0.000042 -0.000000
+                     12        13        14        15        16        17   
+                   0.42056   0.44071   0.44071   0.44882   0.45083   0.77390
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.000000  0.000000  0.000000  0.001228 -0.000000 -0.034551
+  0Cl  2s         0.000000  0.000000  0.000000  0.003774 -0.000000 -0.094743
+  0Cl  3s        -0.000000 -0.000000 -0.000000 -0.009521  0.000000  0.142445
+  0Cl  4s        -0.000000 -0.000000 -0.000000 -0.007271  0.000000  0.659590
+  0Cl  5s         0.000000  0.000000  0.000000 -0.001767  0.000000 -2.131001
+  0Cl  6s         0.000000  0.000000  0.000000  0.050578 -0.000000  1.732251
+  0Cl  1pz       -0.000000  0.000000 -0.000000 -0.000000 -0.002015 -0.000000
+  0Cl  1px        0.000000 -0.000000  0.000000  0.000000  0.200015 -0.000000
+  0Cl  1py        0.000000  0.000000 -0.000000 -0.000000 -0.122853  0.000000
+  0Cl  2pz       -0.000000  0.000000 -0.000000  0.000000 -0.000345 -0.000000
+  0Cl  2px        0.000000 -0.000000  0.000000  0.000000  0.034272 -0.000000
+  0Cl  2py        0.000000  0.000000  0.000000 -0.000000 -0.021050  0.000000
+  0Cl  3pz        0.000000 -0.000000  0.000000 -0.000000  0.000463  0.000000
+  0Cl  3px       -0.000000  0.000000 -0.000000 -0.000000 -0.045975  0.000000
+  0Cl  3py       -0.000000 -0.000000 -0.000000  0.000000  0.028239 -0.000000
+  0Cl  4pz        0.000000 -0.000000  0.000000  0.000000  0.009452 -0.000000
+  0Cl  4px       -0.000000  0.000000 -0.000000 -0.000000 -0.938389 -0.000000
+  0Cl  4py       -0.000000 -0.000000  0.000000  0.000000  0.576378  0.000000
+  0Cl  5pz       -0.000000  0.000000 -0.000000 -0.000000 -0.010141  0.000000
+  0Cl  5px        0.000000 -0.000000  0.000000  0.000000  1.006822  0.000000
+  0Cl  5py        0.000000  0.000000 -0.000000 -0.000000 -0.618411 -0.000000
+  0Cl  1dz2       0.042497  0.000474 -0.000792 -0.030470  0.000000 -0.000021
+  0Cl  1dxz      -0.021494 -0.026908  0.045530 -0.000772 -0.000000 -0.000001
+  0Cl  1dyz      -0.035799  0.017064 -0.027645  0.000474  0.000000  0.000000
+  0Cl  1dx2y2     0.010776 -0.047638 -0.028213  0.023866 -0.000000  0.000016
+  0Cl  1dxy      -0.022050 -0.023843 -0.014814 -0.047080  0.000000 -0.000032
+  0Cl  2dz2       0.111005  0.001088 -0.001819 -0.065999  0.000000  0.000062
+  0Cl  2dxz      -0.056144 -0.061818  0.104603 -0.001672 -0.000000  0.000002
+  0Cl  2dyz      -0.093509  0.039203 -0.063512  0.001027  0.000000 -0.000001
+  0Cl  2dx2y2     0.028147 -0.109445 -0.064817  0.051695 -0.000000 -0.000049
+  0Cl  2dxy      -0.057595 -0.054777 -0.034035 -0.101976  0.000000  0.000096
+  0Cl  3dz2       0.593767  0.006992 -0.011691 -0.460803  0.000000  0.007086
+  0Cl  3dxz      -0.300317 -0.397251  0.672185 -0.011676 -0.000000  0.000180
+  0Cl  3dyz      -0.500183  0.251921 -0.408132  0.007171  0.000000 -0.000110
+  0Cl  3dx2y2     0.150560 -0.703305 -0.416517  0.360931 -0.000000 -0.005550
+  0Cl  3dxy      -0.308077 -0.352000 -0.218712 -0.711994  0.000000  0.010949
+  0Cl  1f0       -0.000000  0.000000 -0.000000  0.000000  0.000017  0.000000
+  0Cl  1f+1       0.000000  0.000000 -0.000000 -0.000000 -0.000672  0.000000
+  0Cl  1f-1      -0.000000 -0.000000  0.000000  0.000000  0.000413  0.000000
+  0Cl  1f+2      -0.000000  0.000000  0.000000 -0.000000 -0.000010 -0.000000
+  0Cl  1f-2       0.000000  0.000000 -0.000000  0.000000  0.000019  0.000000
+  0Cl  1f+3       0.000000  0.000000  0.000000  0.000000  0.000083  0.000000
+  0Cl  1f-3       0.000000 -0.000000 -0.000000  0.000000  0.001016  0.000000
+                     18        19        20        21        22        23   
+                   1.37253   1.37253   1.38369   1.38369   1.38801   2.36283
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.000000  0.000000 -0.000000  0.000000 -0.001031  0.000000
+  0Cl  2s         0.000000  0.000000 -0.000000  0.000000 -0.002974  0.000000
+  0Cl  3s        -0.000000 -0.000000  0.000000 -0.000000  0.006137  0.000000
+  0Cl  4s        -0.000000 -0.000000  0.000000 -0.000000  0.011541 -0.000000
+  0Cl  5s         0.000000  0.000000 -0.000000  0.000000 -0.020583 -0.000000
+  0Cl  6s         0.000000  0.000000 -0.000000  0.000000 -0.010803  0.000000
+  0Cl  1pz       -0.000000 -0.000000 -0.000000 -0.000000  0.000000  0.000329
+  0Cl  1px        0.000000  0.000000  0.000000  0.000000 -0.000000 -0.032649
+  0Cl  1py       -0.000000  0.000000  0.000000 -0.000000  0.000000  0.020054
+  0Cl  2pz       -0.000000 -0.000000 -0.000000 -0.000000  0.000000  0.000109
+  0Cl  2px        0.000000 -0.000000 -0.000000  0.000000 -0.000000 -0.010858
+  0Cl  2py       -0.000000  0.000000  0.000000 -0.000000  0.000000  0.006669
+  0Cl  3pz        0.000000  0.000000  0.000000  0.000000 -0.000000 -0.000806
+  0Cl  3px       -0.000000 -0.000000 -0.000000  0.000000  0.000000  0.079988
+  0Cl  3py        0.000000 -0.000000 -0.000000  0.000000 -0.000000 -0.049131
+  0Cl  4pz        0.000000  0.000000 -0.000000 -0.000000  0.000000  0.000781
+  0Cl  4px       -0.000000  0.000000  0.000000 -0.000000 -0.000000 -0.077569
+  0Cl  4py       -0.000000  0.000000  0.000000  0.000000  0.000000  0.047644
+  0Cl  5pz        0.000000 -0.000000  0.000000  0.000000 -0.000000 -0.000235
+  0Cl  5px        0.000000  0.000000 -0.000000  0.000000  0.000000  0.023300
+  0Cl  5py        0.000000 -0.000000 -0.000000 -0.000000 -0.000000 -0.014312
+  0Cl  1dz2       0.148180  0.019252  0.000528  0.002557  0.088361 -0.000000
+  0Cl  1dxz      -0.010384  0.089717 -0.031048 -0.146427  0.002239  0.000000
+  0Cl  1dyz      -0.019711  0.145703  0.017337  0.090296 -0.001375 -0.000000
+  0Cl  1dx2y2     0.038518  0.006336  0.153320 -0.032361 -0.069210  0.000000
+  0Cl  1dxy      -0.076404 -0.009251  0.078064 -0.014750  0.136529 -0.000000
+  0Cl  2dz2       0.857931  0.111463  0.003012  0.014582  0.500997 -0.000000
+  0Cl  2dxz      -0.060120  0.519447 -0.177028 -0.834902  0.012694  0.000000
+  0Cl  2dyz      -0.114125  0.843590  0.098854  0.514855 -0.007797 -0.000000
+  0Cl  2dx2y2     0.223010  0.036686  0.874201 -0.184519 -0.392413  0.000000
+  0Cl  2dxy      -0.442367 -0.053563  0.445108 -0.084099  0.774099 -0.000000
+  0Cl  3dz2      -0.564101 -0.073288 -0.001907 -0.009235 -0.312912  0.000000
+  0Cl  3dxz       0.039530 -0.341543  0.112112  0.528743 -0.007928 -0.000000
+  0Cl  3dyz       0.075039 -0.554671 -0.062604 -0.326057  0.004870  0.000000
+  0Cl  3dx2y2    -0.146632 -0.024121 -0.553631  0.116856  0.245093 -0.000000
+  0Cl  3dxy       0.290862  0.035219 -0.281886  0.053260 -0.483485  0.000000
+  0Cl  1f0       -0.000000  0.000000 -0.000000  0.000000 -0.000000 -0.012856
+  0Cl  1f+1       0.000000 -0.000000  0.000000  0.000000  0.000000  0.520947
+  0Cl  1f-1      -0.000000 -0.000000 -0.000000 -0.000000 -0.000000 -0.319977
+  0Cl  1f+2      -0.000000  0.000000 -0.000000  0.000000  0.000000  0.007505
+  0Cl  1f-2       0.000000 -0.000000 -0.000000  0.000000 -0.000000 -0.014804
+  0Cl  1f+3       0.000000 -0.000000 -0.000000  0.000000 -0.000000 -0.064380
+  0Cl  1f-3       0.000000  0.000000  0.000000 -0.000000 -0.000000 -0.786876
+                     24        25        26        27        28        29   
+                   2.36379   2.36379   2.36658   2.36658   2.37036   2.37036
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s         0.000000 -0.000000  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  2s         0.000000 -0.000000  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  3s        -0.000000  0.000000 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  4s        -0.000000  0.000000  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  5s        -0.000000  0.000000  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  6s         0.000000 -0.000000 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  1pz       -0.008544 -0.038089 -0.000000  0.000000  0.000000  0.000000
+  0Cl  1px        0.019873 -0.004750  0.000000  0.000000 -0.000000  0.000000
+  0Cl  1py        0.032495 -0.007109 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  2pz       -0.002848 -0.012699 -0.000000  0.000000  0.000000  0.000000
+  0Cl  2px        0.006626 -0.001584  0.000000  0.000000 -0.000000  0.000000
+  0Cl  2py        0.010834 -0.002370 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  3pz        0.021177  0.094407  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  3px       -0.049258  0.011774 -0.000000 -0.000000  0.000000 -0.000000
+  0Cl  3py       -0.080542  0.017621  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  4pz       -0.020788 -0.092675 -0.000000  0.000000  0.000000  0.000000
+  0Cl  4px        0.048354 -0.011558  0.000000  0.000000 -0.000000  0.000000
+  0Cl  4py        0.079064 -0.017298 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  5pz        0.006349  0.028304  0.000000 -0.000000 -0.000000 -0.000000
+  0Cl  5px       -0.014768  0.003530 -0.000000 -0.000000  0.000000 -0.000000
+  0Cl  5py       -0.024148  0.005283  0.000000 -0.000000  0.000000 -0.000000
+  0Cl  1dz2      -0.000000  0.000000  0.000000  0.000000 -0.000000 -0.000000
+  0Cl  1dxz       0.000000  0.000000 -0.000000 -0.000000  0.000000 -0.000000
+  0Cl  1dyz      -0.000000 -0.000000  0.000000  0.000000  0.000000 -0.000000
+  0Cl  1dx2y2    -0.000000 -0.000000 -0.000000  0.000000 -0.000000 -0.000000
+  0Cl  1dxy      -0.000000  0.000000 -0.000000  0.000000  0.000000  0.000000
+  0Cl  2dz2      -0.000000  0.000000  0.000000  0.000000 -0.000000 -0.000000
+  0Cl  2dxz       0.000000  0.000000 -0.000000 -0.000000  0.000000 -0.000000
+  0Cl  2dyz      -0.000000 -0.000000  0.000000  0.000000  0.000000 -0.000000
+  0Cl  2dx2y2    -0.000000 -0.000000 -0.000000  0.000000 -0.000000 -0.000000
+  0Cl  2dxy      -0.000000  0.000000 -0.000000  0.000000  0.000000  0.000000
+  0Cl  3dz2       0.000000 -0.000000 -0.000000 -0.000000 -0.000000  0.000000
+  0Cl  3dxz       0.000000 -0.000000  0.000000  0.000000  0.000000 -0.000000
+  0Cl  3dyz       0.000000 -0.000000 -0.000000  0.000000 -0.000000  0.000000
+  0Cl  3dx2y2     0.000000 -0.000000  0.000000 -0.000000  0.000000  0.000000
+  0Cl  3dxy       0.000000 -0.000000  0.000000  0.000000 -0.000000 -0.000000
+  0Cl  1f0        0.133802  0.596495  0.004113  0.016101 -0.587460 -0.528917
+  0Cl  1f+1      -0.123061  0.048185 -0.159813 -0.654273  0.333789 -0.381316
+  0Cl  1f-1      -0.210209  0.034511  0.113589  0.397927  0.555233 -0.610189
+  0Cl  1f+2      -0.089909 -0.345594 -0.864541  0.218856 -0.199506 -0.192239
+  0Cl  1f-2       0.148116  0.688301 -0.437070  0.115605  0.409113  0.361948
+  0Cl  1f+3      -0.940460  0.210265 -0.002210 -0.050976 -0.167147  0.184863
+  0Cl  1f-3       0.075123 -0.025327 -0.151902 -0.591152  0.008876 -0.019446
+                     30        31        32        33        34        35   
+                   2.43533   2.43533   2.45497   5.58624   5.59225   5.59225
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s        -0.000000 -0.000000  0.000000 -0.000382  0.000000  0.000000
+  0Cl  2s        -0.000000 -0.000000  0.000000 -0.001536  0.000000  0.000000
+  0Cl  3s         0.000000  0.000000 -0.000000  0.007561 -0.000000 -0.000000
+  0Cl  4s         0.000000  0.000000 -0.000000 -0.008330  0.000000  0.000000
+  0Cl  5s        -0.000000 -0.000000  0.000000  0.004301 -0.000000 -0.000000
+  0Cl  6s        -0.000000 -0.000000 -0.000000  0.000182 -0.000000  0.000000
+  0Cl  1pz        0.755799 -0.209128  0.006854 -0.000000 -0.000000 -0.000000
+  0Cl  1px        0.114984  0.394054 -0.680473  0.000000 -0.000000 -0.000000
+  0Cl  1py        0.174809  0.644980  0.417960 -0.000000  0.000000  0.000000
+  0Cl  2pz        0.250175 -0.069223  0.002262 -0.000000  0.000000 -0.000000
+  0Cl  2px        0.038061  0.130435 -0.224584 -0.000000  0.000000 -0.000000
+  0Cl  2py        0.057863  0.213493  0.137944 -0.000000  0.000000  0.000000
+  0Cl  3pz       -1.835609  0.507908 -0.016398  0.000000  0.000000 -0.000000
+  0Cl  3px       -0.279262 -0.957038  1.628049  0.000000  0.000000  0.000000
+  0Cl  3py       -0.424559 -1.566463 -0.999982  0.000000 -0.000000 -0.000000
+  0Cl  4pz        1.736210 -0.480405  0.015219 -0.000000  0.000000  0.000000
+  0Cl  4px        0.264140  0.905214 -1.510997  0.000000 -0.000000 -0.000000
+  0Cl  4py        0.401569  1.481638  0.928086 -0.000000 -0.000000  0.000000
+  0Cl  5pz       -0.554088  0.153315 -0.004832  0.000000  0.000000 -0.000000
+  0Cl  5px       -0.084297 -0.288887  0.479724  0.000000  0.000000  0.000000
+  0Cl  5py       -0.128155 -0.472845 -0.294656  0.000000 -0.000000 -0.000000
+  0Cl  1dz2       0.000000  0.000000  0.000000  0.563413  0.011066 -0.012581
+  0Cl  1dxz       0.000000 -0.000000 -0.000000  0.014275 -0.638050  0.717762
+  0Cl  1dyz      -0.000000  0.000000  0.000000 -0.008768  0.383379 -0.448363
+  0Cl  1dx2y2    -0.000000  0.000000 -0.000000 -0.441301  0.752017  0.667260
+  0Cl  1dxy       0.000000  0.000000  0.000000  0.870538  0.388382  0.330110
+  0Cl  2dz2       0.000000  0.000000  0.000000 -0.393708 -0.007726  0.008784
+  0Cl  2dxz       0.000000 -0.000000 -0.000000 -0.009976  0.445503 -0.501161
+  0Cl  2dyz      -0.000000 -0.000000  0.000000  0.006127 -0.267685  0.313059
+  0Cl  2dx2y2    -0.000000  0.000000 -0.000000  0.308378 -0.525078 -0.465899
+  0Cl  2dxy       0.000000  0.000000  0.000000 -0.608325 -0.271179 -0.230491
+  0Cl  3dz2      -0.000000  0.000000 -0.000000  0.125352  0.002464 -0.002801
+  0Cl  3dxz       0.000000  0.000000  0.000000  0.003176 -0.142050  0.159797
+  0Cl  3dyz      -0.000000  0.000000 -0.000000 -0.001951  0.085352 -0.099820
+  0Cl  3dx2y2    -0.000000  0.000000 -0.000000 -0.098184  0.167423  0.148553
+  0Cl  3dxy       0.000000 -0.000000  0.000000  0.193684  0.086466  0.073493
+  0Cl  1f0        0.030212 -0.008359  0.000637 -0.000000  0.000000 -0.000000
+  0Cl  1f+1       0.002779  0.006181 -0.025832  0.000000  0.000000 -0.000000
+  0Cl  1f-1       0.002299  0.010679  0.015866 -0.000000 -0.000000  0.000000
+  0Cl  1f+2      -0.017473  0.005478 -0.000372  0.000000 -0.000000 -0.000000
+  0Cl  1f-2       0.034877 -0.009324  0.000734 -0.000000  0.000000 -0.000000
+  0Cl  1f+3       0.013144  0.047635  0.003192 -0.000000 -0.000000 -0.000000
+  0Cl  1f-3      -0.001487 -0.003783  0.039018 -0.000000  0.000000  0.000000
+                     36        37        38        39        40        41   
+                   5.60999   5.60999   9.94208  26.15631  26.17900  26.17900
+                   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000
+                  --------  --------  --------  --------  --------  --------
+  0Cl  1s        -0.000000  0.000000  0.115945 -0.000000  0.000000 -0.000000
+  0Cl  2s        -0.000000  0.000000  0.481588  0.000000  0.000000 -0.000000
+  0Cl  3s         0.000000 -0.000000 -2.618827 -0.000000 -0.000000  0.000000
+  0Cl  4s        -0.000000  0.000000  2.997805  0.000000  0.000000 -0.000000
+  0Cl  5s         0.000000 -0.000000 -1.463656 -0.000000 -0.000000  0.000000
+  0Cl  6s         0.000000  0.000000  0.573631  0.000000 -0.000000 -0.000000
+  0Cl  1pz        0.000000  0.000000 -0.000000 -0.028791  3.292593  0.644220
+  0Cl  1px        0.000000  0.000000 -0.000000  2.858437  0.361262 -1.718623
+  0Cl  1py       -0.000000  0.000000  0.000000 -1.755712  0.534170 -2.808618
+  0Cl  2pz        0.000000 -0.000000 -0.000000 -0.029181  3.336884  0.652886
+  0Cl  2px        0.000000  0.000000 -0.000000  2.897163  0.366122 -1.741741
+  0Cl  2py       -0.000000  0.000000  0.000000 -1.779498  0.541356 -2.846398
+  0Cl  3pz       -0.000000 -0.000000  0.000000  0.019834 -2.268516 -0.443852
+  0Cl  3px       -0.000000 -0.000000  0.000000 -1.969210 -0.248901  1.184089
+  0Cl  3py       -0.000000 -0.000000 -0.000000  1.209530 -0.368030  1.935069
+  0Cl  4pz        0.000000  0.000000 -0.000000 -0.009206  1.053073  0.206041
+  0Cl  4px        0.000000  0.000000 -0.000000  0.914028  0.115543 -0.549669
+  0Cl  4py        0.000000  0.000000 -0.000000 -0.561415  0.170844 -0.898283
+  0Cl  5pz       -0.000000 -0.000000  0.000000  0.002444 -0.279519 -0.054690
+  0Cl  5px       -0.000000 -0.000000  0.000000 -0.242686 -0.030669  0.145900
+  0Cl  5py       -0.000000 -0.000000 -0.000000  0.149063 -0.045348  0.238433
+  0Cl  1dz2       0.821810 -0.527272  0.001628  0.000000  0.000000 -0.000000
+  0Cl  1dxz      -0.311726 -0.501128  0.000041  0.000000 -0.000000 -0.000000
+  0Cl  1dyz      -0.523076 -0.805891 -0.000025 -0.000000 -0.000000 -0.000000
+  0Cl  1dx2y2     0.209904 -0.144929 -0.001275 -0.000000 -0.000000  0.000000
+  0Cl  1dxy      -0.425627  0.267883  0.002515  0.000000  0.000000  0.000000
+  0Cl  2dz2      -0.572412  0.367259 -0.000976 -0.000000  0.000000  0.000000
+  0Cl  2dxz       0.217125  0.349049 -0.000025  0.000000  0.000000  0.000000
+  0Cl  2dyz       0.364336  0.561325  0.000015  0.000000  0.000000  0.000000
+  0Cl  2dx2y2    -0.146204  0.100947  0.000765  0.000000  0.000000 -0.000000
+  0Cl  2dxy       0.296460 -0.186587 -0.001508  0.000000 -0.000000 -0.000000
+  0Cl  3dz2       0.183346 -0.117634  0.000657  0.000000 -0.000000 -0.000000
+  0Cl  3dxz      -0.069546 -0.111802  0.000017 -0.000000  0.000000  0.000000
+  0Cl  3dyz      -0.116698 -0.179794 -0.000010 -0.000000 -0.000000  0.000000
+  0Cl  3dx2y2     0.046830 -0.032334 -0.000515 -0.000000 -0.000000  0.000000
+  0Cl  3dxy      -0.094957  0.059765  0.001015  0.000000  0.000000  0.000000
+  0Cl  1f0       -0.000000  0.000000  0.000000  0.000000 -0.000006 -0.000001
+  0Cl  1f+1       0.000000  0.000000  0.000000 -0.000008 -0.000000  0.000001
+  0Cl  1f-1      -0.000000  0.000000 -0.000000  0.000005 -0.000000  0.000002
+  0Cl  1f+2      -0.000000 -0.000000  0.000000 -0.000000  0.000004  0.000001
+  0Cl  1f-2       0.000000  0.000000  0.000000  0.000000 -0.000007 -0.000001
+  0Cl  1f+3       0.000000 -0.000000  0.000000  0.000001 -0.000002  0.000010
+  0Cl  1f-3       0.000000 -0.000000 -0.000000  0.000012  0.000000 -0.000001
+                     42   
+                 218.72172
+                   0.00000
+                  --------
+  0Cl  1s        -1.541309
+  0Cl  2s         1.911233
+  0Cl  3s        -1.419518
+  0Cl  4s         0.929942
+  0Cl  5s        -0.330579
+  0Cl  6s         0.126733
+  0Cl  1pz       -0.000000
+  0Cl  1px        0.000000
+  0Cl  1py       -0.000000
+  0Cl  2pz       -0.000000
+  0Cl  2px        0.000000
+  0Cl  2py       -0.000000
+  0Cl  3pz        0.000000
+  0Cl  3px       -0.000000
+  0Cl  3py        0.000000
+  0Cl  4pz       -0.000000
+  0Cl  4px        0.000000
+  0Cl  4py       -0.000000
+  0Cl  5pz        0.000000
+  0Cl  5px       -0.000000
+  0Cl  5py        0.000000
+  0Cl  1dz2       0.000003
+  0Cl  1dxz       0.000000
+  0Cl  1dyz      -0.000000
+  0Cl  1dx2y2    -0.000003
+  0Cl  1dxy       0.000005
+  0Cl  2dz2      -0.000005
+  0Cl  2dxz      -0.000000
+  0Cl  2dyz       0.000000
+  0Cl  2dx2y2     0.000004
+  0Cl  2dxy      -0.000008
+  0Cl  3dz2       0.000003
+  0Cl  3dxz       0.000000
+  0Cl  3dyz      -0.000000
+  0Cl  3dx2y2    -0.000003
+  0Cl  3dxy       0.000005
+  0Cl  1f0        0.000000
+  0Cl  1f+1       0.000000
+  0Cl  1f-1      -0.000000
+  0Cl  1f+2      -0.000000
+  0Cl  1f-2       0.000000
+  0Cl  1f+3       0.000000
+  0Cl  1f-3       0.000000
+
+
+
+                    ********************************
+                    * MULLIKEN POPULATION ANALYSIS *
+                    ********************************
+
+--------------------------------------------
+MULLIKEN ATOMIC CHARGES AND SPIN POPULATIONS
+--------------------------------------------
+   0 Cl:    0.000000    1.000000
+Sum of atomic charges         :    0.0000000
+Sum of atomic spin populations:    1.0000000
+
+-----------------------------------------------------
+MULLIKEN REDUCED ORBITAL CHARGES AND SPIN POPULATIONS
+-----------------------------------------------------
+CHARGE
+  0 Cls       :     5.995594  s :     5.995594
+      pz      :     3.999678  p :    10.999164
+      px      :     3.273663
+      py      :     3.725822
+      dz2     :     0.001101  d :     0.004406
+      dxz     :     0.000001
+      dyz     :     0.000000
+      dx2y2   :     0.000675
+      dxy     :     0.002629
+      f0      :     0.000093  f :     0.000836
+      f+1     :     0.000097
+      f-1     :     0.000046
+      f+2     :     0.000032
+      f-2     :     0.000123
+      f+3     :     0.000232
+      f-3     :     0.000213
+
+SPIN
+  0 Cls       :     0.000970  s :     0.000970
+      pz      :    -0.000150  p :     0.999212
+      px      :     0.725713
+      py      :     0.273648
+      dz2     :    -0.000242  d :    -0.000970
+      dxz     :    -0.000000
+      dyz     :    -0.000000
+      dx2y2   :    -0.000149
+      dxy     :    -0.000579
+      f0      :     0.000084  f :     0.000788
+      f+1     :     0.000097
+      f-1     :     0.000045
+      f+2     :     0.000029
+      f-2     :     0.000111
+      f+3     :     0.000210
+      f-3     :     0.000213
+
+
+                     *******************************
+                     * LOEWDIN POPULATION ANALYSIS *
+                     *******************************
+
+-------------------------------------------
+LOEWDIN ATOMIC CHARGES AND SPIN POPULATIONS
+-------------------------------------------
+   0 Cl:    0.000000    1.000000
+
+----------------------------------------------------
+LOEWDIN REDUCED ORBITAL CHARGES AND SPIN POPULATIONS
+----------------------------------------------------
+CHARGE
+  0 Cls       :     5.995594  s :     5.995594
+      pz      :     3.999678  p :    10.999164
+      px      :     3.273663
+      py      :     3.725822
+      dz2     :     0.001101  d :     0.004406
+      dxz     :     0.000001
+      dyz     :     0.000000
+      dx2y2   :     0.000675
+      dxy     :     0.002629
+      f0      :     0.000093  f :     0.000836
+      f+1     :     0.000097
+      f-1     :     0.000046
+      f+2     :     0.000032
+      f-2     :     0.000123
+      f+3     :     0.000232
+      f-3     :     0.000213
+
+SPIN
+  0 Cls       :     0.000970  s :     0.000970
+      pz      :    -0.000150  p :     0.999212
+      px      :     0.725713
+      py      :     0.273648
+      dz2     :    -0.000242  d :    -0.000970
+      dxz     :    -0.000000
+      dyz     :    -0.000000
+      dx2y2   :    -0.000149
+      dxy     :    -0.000579
+      f0      :     0.000084  f :     0.000788
+      f+1     :     0.000097
+      f-1     :     0.000045
+      f+2     :     0.000029
+      f-2     :     0.000111
+      f+3     :     0.000210
+      f-3     :     0.000213
+
+
+                      *****************************
+                      * MAYER POPULATION ANALYSIS *
+                      *****************************
+
+  NA   - Mulliken gross atomic population
+  ZA   - Total nuclear charge
+  QA   - Mulliken gross atomic charge
+  VA   - Mayer's total valence
+  BVA  - Mayer's bonded valence
+  FA   - Mayer's free valence
+
+  ATOM       NA         ZA         QA         VA         BVA        FA
+  0 Cl    17.0000    17.0000     0.0000     1.0194     0.0000     1.0194
+
+  Mayer bond orders larger than 0.100000
+
+
+Now starting NBO....
+
+ *********************************** NBO 7.0 ***********************************
+             N A T U R A L   A T O M I C   O R B I T A L   A N D
+          N A T U R A L   B O N D   O R B I T A L   A N A L Y S I S
+ *********************** Giovanni  F. Caramori (I101916) ***********************
+  (c) Copyright 1996-2020 Board of Regents of the University of Wisconsin System
+      on behalf of the Theoretical Chemistry Institute.  All rights reserved.
+
+          Cite this program [NBO 7.0.8 (11-Feb-2020)] as:
+
+          NBO 7.0.  E. D. Glendening, J. K. Badenhoop, A. E. Reed,
+          J. E. Carpenter, J. A. Bohmann, C. M. Morales, P. Karafiloglou,
+          C. R. Landis, and F. Weinhold, Theoretical Chemistry Institute,
+          University of Wisconsin, Madison, WI (2018)
+
+       /NPA    / : Natural Population Analysis
+       /NBO    / : Natural Bond Orbital Analysis
+       /AONBO  / : Checkpoint the AO to NBO transformation
+       /ARCHIVE/ : Write the archive file to lfn47
+
+ Job title: ORCA Job: Cl·
+
+
+ NATURAL POPULATIONS:  Natural atomic orbital occupancies
+
+  NAO Atom No lang   Type(AO)    Occupancy     Spin
+ -----------------------------------------------------
+   1   Cl  1  s      Cor( 1s)     2.00000     0.00000
+   2   Cl  1  s      Cor( 2s)     2.00000     0.00000
+   3   Cl  1  s      Val( 3s)     1.99557     0.00097
+   4   Cl  1  s      Ryd( 4s)     0.00003     0.00000
+   5   Cl  1  s      Ryd( 5s)     0.00000     0.00000
+   6   Cl  1  s      Ryd( 6s)     0.00000     0.00000
+   7   Cl  1  px     Cor( 2p)     2.00000     0.00000
+   8   Cl  1  px     Val( 3p)     1.27290     0.72505
+   9   Cl  1  px     Ryd( 4p)     0.00077     0.00066
+  10   Cl  1  px     Ryd( 5p)     0.00000     0.00000
+  11   Cl  1  px     Ryd( 6p)     0.00000     0.00000
+  12   Cl  1  py     Cor( 2p)     2.00000     0.00000
+  13   Cl  1  py     Val( 3p)     1.72541     0.27352
+  14   Cl  1  py     Ryd( 4p)     0.00041     0.00013
+  15   Cl  1  py     Ryd( 5p)     0.00000     0.00000
+  16   Cl  1  py     Ryd( 6p)     0.00000     0.00000
+  17   Cl  1  pz     Cor( 2p)     2.00000     0.00000
+  18   Cl  1  pz     Val( 3p)     1.99948     0.00004
+  19   Cl  1  pz     Ryd( 4p)     0.00020    -0.00019
+  20   Cl  1  pz     Ryd( 5p)     0.00000     0.00000
+  21   Cl  1  pz     Ryd( 6p)     0.00000     0.00000
+  22   Cl  1  dxy    Ryd( 3d)     0.00261    -0.00058
+  23   Cl  1  dxy    Ryd( 4d)     0.00001     0.00000
+  24   Cl  1  dxy    Ryd( 5d)     0.00000     0.00000
+  25   Cl  1  dxz    Ryd( 3d)     0.00000     0.00000
+  26   Cl  1  dxz    Ryd( 4d)     0.00000     0.00000
+  27   Cl  1  dxz    Ryd( 5d)     0.00000     0.00000
+  28   Cl  1  dyz    Ryd( 3d)     0.00000     0.00000
+  29   Cl  1  dyz    Ryd( 4d)     0.00000     0.00000
+  30   Cl  1  dyz    Ryd( 5d)     0.00000     0.00000
+  31   Cl  1  dx2y2  Ryd( 3d)     0.00067    -0.00015
+  32   Cl  1  dx2y2  Ryd( 4d)     0.00000     0.00000
+  33   Cl  1  dx2y2  Ryd( 5d)     0.00000     0.00000
+  34   Cl  1  dz2    Ryd( 3d)     0.00109    -0.00024
+  35   Cl  1  dz2    Ryd( 4d)     0.00001     0.00000
+  36   Cl  1  dz2    Ryd( 5d)     0.00000     0.00000
+  37   Cl  1  f(0)   Ryd( 4f)     0.00009     0.00008
+  38   Cl  1  f(c1)  Ryd( 4f)     0.00010     0.00010
+  39   Cl  1  f(s1)  Ryd( 4f)     0.00005     0.00005
+  40   Cl  1  f(c2)  Ryd( 4f)     0.00003     0.00003
+  41   Cl  1  f(s2)  Ryd( 4f)     0.00012     0.00011
+  42   Cl  1  f(c3)  Ryd( 4f)     0.00023     0.00021
+  43   Cl  1  f(s3)  Ryd( 4f)     0.00021     0.00021
+
+
+ Summary of Natural Population Analysis:
+
+                                     Natural Population                 Natural
+             Natural    ---------------------------------------------    Spin
+  Atom No    Charge        Core      Valence    Rydberg      Total      Density
+ -------------------------------------------------------------------------------
+   Cl  1    0.00000      9.99999     6.99336    0.00665    17.00000     1.00000
+ ===============================================================================
+ * Total *  0.00000      9.99999     6.99336    0.00665    17.00000     1.00000
+
+                                 Natural Population
+ ---------------------------------------------------------
+   Core                       9.99999 ( 99.9999% of   10)
+   Valence                    6.99336 ( 99.9051% of    7)
+   Natural Minimal Basis     16.99335 ( 99.9609% of   17)
+   Natural Rydberg Basis      0.00665 (  0.0391% of   17)
+ ---------------------------------------------------------
+
+    Atom No         Natural Electron Configuration
+ ----------------------------------------------------------------------------
+     Cl  1      [core]3s( 2.00)3p( 5.00)
+
+
+ ***************************************************
+ *******         Alpha spin orbitals         *******
+ ***************************************************
+
+
+ NATURAL POPULATIONS:  Natural atomic orbital occupancies
+
+  NAO Atom No lang   Type(AO)    Occupancy      Energy
+ -------------------------------------------------------
+   1   Cl  1  s      Cor( 1s)     1.00000    -104.88477
+   2   Cl  1  s      Cor( 2s)     1.00000     -10.62104
+   3   Cl  1  s      Val( 3s)     0.99827      -1.13678
+   4   Cl  1  s      Ryd( 4s)     0.00001       1.01121
+   5   Cl  1  s      Ryd( 5s)     0.00000       9.83343
+   6   Cl  1  s      Ryd( 6s)     0.00000     218.54048
+   7   Cl  1  px     Cor( 2p)     1.00000      -8.09468
+   8   Cl  1  px     Val( 3p)     0.99898      -0.56076
+   9   Cl  1  px     Ryd( 4p)     0.00071       0.38788
+  10   Cl  1  px     Ryd( 5p)     0.00000       2.50418
+  11   Cl  1  px     Ryd( 6p)     0.00000      26.02178
+  12   Cl  1  py     Cor( 2p)     1.00000      -8.08361
+  13   Cl  1  py     Val( 3p)     0.99947      -0.52569
+  14   Cl  1  py     Ryd( 4p)     0.00027       0.40264
+  15   Cl  1  py     Ryd( 5p)     0.00000       2.52808
+  16   Cl  1  py     Ryd( 6p)     0.00000      26.04103
+  17   Cl  1  pz     Cor( 2p)     1.00000      -8.07691
+  18   Cl  1  pz     Val( 3p)     0.99976      -0.50444
+  19   Cl  1  pz     Ryd( 4p)     0.00000       0.41159
+  20   Cl  1  pz     Ryd( 5p)     0.00000       2.54256
+  21   Cl  1  pz     Ryd( 6p)     0.00000      26.05268
+  22   Cl  1  dxy    Ryd( 3d)     0.00102       0.61900
+  23   Cl  1  dxy    Ryd( 4d)     0.00001       1.14540
+  24   Cl  1  dxy    Ryd( 5d)     0.00000       5.52369
+  25   Cl  1  dxz    Ryd( 3d)     0.00000       0.63251
+  26   Cl  1  dxz    Ryd( 4d)     0.00000       1.15294
+  27   Cl  1  dxz    Ryd( 5d)     0.00000       5.53214
+  28   Cl  1  dyz    Ryd( 3d)     0.00000       0.65428
+  29   Cl  1  dyz    Ryd( 4d)     0.00000       1.16544
+  30   Cl  1  dyz    Ryd( 5d)     0.00000       5.54620
+  31   Cl  1  dx2y2  Ryd( 3d)     0.00026       0.61924
+  32   Cl  1  dx2y2  Ryd( 4d)     0.00000       1.14538
+  33   Cl  1  dx2y2  Ryd( 5d)     0.00000       5.52365
+  34   Cl  1  dz2    Ryd( 3d)     0.00043       0.65129
+  35   Cl  1  dz2    Ryd( 4d)     0.00000       1.16381
+  36   Cl  1  dz2    Ryd( 5d)     0.00000       5.54438
+  37   Cl  1  f(0)   Ryd( 4f)     0.00009       2.34638
+  38   Cl  1  f(c1)  Ryd( 4f)     0.00010       2.33216
+  39   Cl  1  f(s1)  Ryd( 4f)     0.00005       2.35293
+  40   Cl  1  f(c2)  Ryd( 4f)     0.00003       2.33104
+  41   Cl  1  f(s2)  Ryd( 4f)     0.00012       2.33107
+  42   Cl  1  f(c3)  Ryd( 4f)     0.00022       2.31194
+  43   Cl  1  f(s3)  Ryd( 4f)     0.00021       2.31195
+
+
+ Summary of Natural Population Analysis:
+
+                                     Natural Population
+             Natural    ---------------------------------------------
+  Atom No    Charge        Core      Valence    Rydberg      Total
+ --------------------------------------------------------------------
+   Cl  1   -0.50000      5.00000     3.99647    0.00353     9.00000
+ ====================================================================
+ * Total * -0.50000      5.00000     3.99647    0.00353     9.00000
+
+                                 Natural Population
+ ---------------------------------------------------------
+   Core                       5.00000 ( 99.9999% of    5)
+   Valence                    3.99647 ( 99.9118% of    4)
+   Natural Minimal Basis      8.99647 ( 99.9608% of    9)
+   Natural Rydberg Basis      0.00353 (  0.0392% of    9)
+ ---------------------------------------------------------
+
+    Atom No         Natural Electron Configuration
+ ----------------------------------------------------------------------------
+     Cl  1      [core]3s( 1.00)3p( 3.00)
+
+
+ NATURAL BOND ORBITAL ANALYSIS, alpha spin orbitals:
+
+                            Occupancies       Lewis Structure    Low   High
+         Max    Occ     -------------------  -----------------   occ   occ
+  Cycle  Ctr   Thresh    Lewis   non-Lewis     CR  BD  nC  LP    (L)   (NL)
+ ============================================================================
+    1     1     0.50     9.00000   0.00000      5   0   0   4     0      0
+ ----------------------------------------------------------------------------
+
+ Structure accepted: No low occupancy Lewis orbitals
+
+ -------------------------------------------------------
+   Core                      5.00000 (100.000% of   5)
+   Valence Lewis             4.00000 (100.000% of   4)
+  ==================      =============================
+   Total Lewis               9.00000 (100.000% of   9)
+  -----------------------------------------------------
+   Valence non-Lewis         0.00000 (  0.000% of   9)
+   Rydberg non-Lewis         0.00000 (  0.000% of   9)
+  ==================      =============================
+   Total non-Lewis           0.00000 (  0.000% of   9)
+ -------------------------------------------------------
+
+
+     (Occupancy)   Bond orbital / Coefficients / Hybrids
+ ------------------ Lewis ------------------------------------------------------
+   1. (1.00000) CR ( 1)Cl  1            s(100.00%)
+                                         1.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   2. (1.00000) CR ( 2)Cl  1            s(100.00%)
+                                         0.0000  1.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   3. (1.00000) CR ( 3)Cl  1            s(  0.00%)p 1.00(100.00%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  1.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   4. (1.00000) CR ( 4)Cl  1            s(  0.00%)p 1.00(100.00%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  1.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   5. (1.00000) CR ( 5)Cl  1            s(  0.00%)p 1.00(100.00%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  1.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   6. (1.00000) LP ( 1)Cl  1            s( 99.83%)p 0.00(  0.00%)d 0.00(  0.17%)
+                                         0.0000  0.0000  0.9991  0.0039  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000 -0.0319  0.0029  0.0001 -0.0005
+                                         0.0000  0.0000  0.0003  0.0000  0.0000
+                                         0.0162 -0.0014  0.0000 -0.0206  0.0018
+                                         0.0001  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   7. (1.00000) LP ( 2)Cl  1            s(  0.00%)p 1.00( 99.97%)d 0.00(  0.00%)
+                                                  f 0.00(  0.03%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.9995 -0.0222  0.0000
+                                         0.0000  0.0000  0.0000  0.0147 -0.0001
+                                         0.0000  0.0000  0.0000  0.0002  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0001 -0.0093  0.0033 -0.0002
+                                         0.0001 -0.0067  0.0130
+   8. (1.00000) LP ( 3)Cl  1            s(  0.00%)p 1.00( 99.97%)d 0.00(  0.00%)
+                                                  f 0.00(  0.03%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0005  0.0147 -0.0001
+                                         0.0000  0.0000  0.9997 -0.0073  0.0000
+                                         0.0000  0.0000  0.0000 -0.0001  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000 -0.0001  0.0033 -0.0059 -0.0001
+                                        -0.0002 -0.0132 -0.0066
+   9. (1.00000) LP ( 4)Cl  1            s(  0.00%)p 1.00( 99.98%)d 0.00(  0.00%)
+                                                  f 0.00(  0.02%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0002  0.0000
+                                         0.0000  0.0000  0.0000 -0.0001  0.0000
+                                         0.0000  0.0000  0.9999  0.0017  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000 -0.0094 -0.0002  0.0001  0.0055
+                                        -0.0108  0.0000  0.0000
+ ---------------- non-Lewis ----------------------------------------------------
+  10. (0.00000) RY ( 1)Cl  1            s( 92.63%)p 0.00(  0.00%)d 0.08(  7.37%)
+  11. (0.00000) RY ( 2)Cl  1            s( 90.95%)p 0.00(  0.00%)d 0.10(  9.05%)
+  12. (0.00000) RY ( 3)Cl  1            s( 94.96%)p 0.00(  0.00%)d 0.05(  5.04%)
+  13. (0.00000) RY ( 4)Cl  1            s(  0.00%)p 1.00( 97.97%)d 0.00(  0.00%)
+                                                  f 0.02(  2.03%)
+  14. (0.00000) RY ( 5)Cl  1            s(  0.00%)p 1.00( 62.64%)d 0.00(  0.00%)
+                                                  f 0.60( 37.36%)
+  15. (0.00000) RY ( 6)Cl  1            s(  0.00%)p 1.00( 99.61%)d 0.00(  0.00%)
+                                                  f 0.00(  0.39%)
+  16. (0.00000) RY ( 7)Cl  1            s(  0.00%)p 1.00( 81.39%)d 0.00(  0.00%)
+                                                  f 0.23( 18.61%)
+  17. (0.00000) RY ( 8)Cl  1            s(  0.00%)p 1.00( 70.99%)d 0.00(  0.00%)
+                                                  f 0.41( 29.01%)
+  18. (0.00000) RY ( 9)Cl  1            s(  0.00%)p 1.00( 99.94%)d 0.00(  0.00%)
+                                                  f 0.00(  0.06%)
+  19. (0.00000) RY (10)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+  20. (0.00000) RY (11)Cl  1            s(  0.00%)p 1.00( 70.99%)d 0.00(  0.00%)
+                                                  f 0.41( 29.01%)
+  21. (0.00000) RY (12)Cl  1            s(  3.40%)p 0.00(  0.00%)d28.40( 96.60%)
+  22. (0.00000) RY (13)Cl  1            s(  0.00%)p 1.00( 99.99%)d 0.00(  0.00%)
+                                                  f 0.00(  0.01%)
+  23. (0.00000) RY (14)Cl  1            s( 12.86%)p 0.00(  0.00%)d 6.77( 87.14%)
+  24. (0.00000) RY (15)Cl  1            s(  2.43%)p 0.00(  0.00%)d40.09( 97.57%)
+  25. (0.00000) RY (16)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  26. (0.00000) RY (17)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  27. (0.00000) RY (18)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  28. (0.00000) RY (19)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  29. (0.00000) RY (20)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  30. (0.00000) RY (21)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  31. (0.00000) RY (22)Cl  1            s(  0.91%)p 0.00(  0.00%)d99.99( 99.09%)
+  32. (0.00000) RY (23)Cl  1            s(  0.13%)p 0.00(  0.00%)d99.99( 99.87%)
+  33. (0.00000) RY (24)Cl  1            s(  0.13%)p 0.00(  0.00%)d99.99( 99.87%)
+  34. (0.00000) RY (25)Cl  1            s(  1.43%)p 0.00(  0.00%)d68.78( 98.57%)
+  35. (0.00000) RY (26)Cl  1            s(  0.19%)p 0.00(  0.00%)d99.99( 99.81%)
+  36. (0.00000) RY (27)Cl  1            s(  0.13%)p 0.00(  0.00%)d99.99( 99.87%)
+  37. (0.00000) RY (28)Cl  1            s(  0.00%)p 1.00( 13.31%)d 0.00(  0.00%)
+                                                  f 6.52( 86.69%)
+  38. (0.00000) RY (29)Cl  1            s(  0.00%)p 1.00( 27.00%)d 0.00(  0.00%)
+                                                  f 2.70( 73.00%)
+  39. (0.00000) RY (30)Cl  1            s(  0.00%)p 1.00(  9.97%)d 0.00(  0.00%)
+                                                  f 9.03( 90.03%)
+  40. (0.00000) RY (31)Cl  1            s(  0.00%)p 1.00(  3.76%)d 0.00(  0.00%)
+                                                  f25.57( 96.24%)
+  41. (0.00000) RY (32)Cl  1            s(  0.00%)p 1.00( 11.98%)d 0.00(  0.00%)
+                                                  f 7.35( 88.02%)
+  42. (0.00000) RY (33)Cl  1            s(  0.00%)p 1.00( 27.42%)d 0.00(  0.00%)
+                                                  f 2.65( 72.58%)
+  43. (0.00000) RY (34)Cl  1            s(  0.00%)p 1.00( 23.14%)d 0.00(  0.00%)
+                                                  f 3.32( 76.86%)
+
+
+ NHO DIRECTIONALITY AND BOND BENDING (deviation from line of nuclear centers at
+                                      the position of maximum hybrid amplitude)
+
+         [Thresholds for printing:  angular deviation  >  1.0 degree]
+                                    p- or d-character  > 25.0%
+                                    orbital occupancy  >  0.10e
+
+                        Line of Centers        Hybrid 1             Hybrid 2
+                        ---------------  -------------------  ------------------
+           NBO            Theta   Phi    Theta   Phi    Dev   Theta   Phi    Dev
+ ===============================================================================
+   7. LP ( 2)Cl  1          --     --     90.0    1.4   --      --     --    --
+   8. LP ( 3)Cl  1          --     --     90.0   88.6   --      --     --    --
+   9. LP ( 4)Cl  1          --     --      0.1  148.4   --      --     --    --
+
+
+ SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS
+
+     Threshold for printing:   0.25 kcal/mol
+                                                          E(2) E(NL)-E(L) F(L,NL)
+      Donor (L) NBO              Acceptor (NL) NBO      kcal/mol   a.u.    a.u.
+ ===============================================================================
+
+ within unit  1
+       None above threshold
+
+
+ NATURAL BOND ORBITALS (Summary):
+
+                                                     Principal Delocalizations
+           NBO                 Occupancy    Energy   (geminal,vicinal,remote)
+ ===============================================================================
+ Molecular unit  1  (Cl)
+ ------ Lewis --------------------------------------
+    1. CR ( 1)Cl  1             1.00000  -104.88477
+    2. CR ( 2)Cl  1             1.00000   -10.62104
+    3. CR ( 3)Cl  1             1.00000    -8.09468
+    4. CR ( 4)Cl  1             1.00000    -8.08361
+    5. CR ( 5)Cl  1             1.00000    -8.07691
+    6. LP ( 1)Cl  1             1.00000    -1.13995
+    7. LP ( 2)Cl  1             1.00000    -0.56235
+    8. LP ( 3)Cl  1             1.00000    -0.52667
+    9. LP ( 4)Cl  1             1.00000    -0.50511
+ ------ non-Lewis ----------------------------------
+   10. RY ( 1)Cl  1             0.00000     2.64536
+   11. RY ( 2)Cl  1             0.00000    24.57071
+   12. RY ( 3)Cl  1             0.00000   184.28811
+   13. RY ( 4)Cl  1             0.00000     1.03109
+   14. RY ( 5)Cl  1             0.00000     2.10160
+   15. RY ( 6)Cl  1             0.00000    25.92156
+   16. RY ( 7)Cl  1             0.00000     1.33750
+   17. RY ( 8)Cl  1             0.00000     2.30490
+   18. RY ( 9)Cl  1             0.00000    25.97982
+   19. RY (10)Cl  1             0.00000     0.72826
+   20. RY (11)Cl  1             0.00000     2.30490
+   21. RY (12)Cl  1             0.00000     4.24268
+   22. RY (13)Cl  1             0.00000    25.99760
+   23. RY (14)Cl  1             0.00000    14.49741
+   24. RY (15)Cl  1             0.00000     5.48133
+   25. RY (16)Cl  1             0.00000     0.63273
+   26. RY (17)Cl  1             0.00000     1.15307
+   27. RY (18)Cl  1             0.00000     5.53210
+   28. RY (19)Cl  1             0.00000     0.65437
+   29. RY (20)Cl  1             0.00000     1.16549
+   30. RY (21)Cl  1             0.00000     5.54618
+   31. RY (22)Cl  1             0.00000     0.82781
+   32. RY (23)Cl  1             0.00000     1.36161
+   33. RY (24)Cl  1             0.00000     5.49574
+   34. RY (25)Cl  1             0.00000     0.98580
+   35. RY (26)Cl  1             0.00000     1.44276
+   36. RY (27)Cl  1             0.00000     5.48434
+   37. RY (28)Cl  1             0.00000     2.33061
+   38. RY (29)Cl  1             0.00000     1.91097
+   39. RY (30)Cl  1             0.00000     2.24401
+   40. RY (31)Cl  1             0.00000     2.32924
+   41. RY (32)Cl  1             0.00000     2.32531
+   42. RY (33)Cl  1             0.00000     2.35234
+   43. RY (34)Cl  1             0.00000     2.01344
+          -------------------------------
+                 Total Lewis    9.00000  (100.0000%)
+           Valence non-Lewis    0.00000  (  0.0000%)
+           Rydberg non-Lewis    0.00000  (  0.0000%)
+          -------------------------------
+               Total unit  1    9.00000  (100.0000%)
+              Charge unit  1   -0.50000
+
+
+ ***************************************************
+ *******         Beta  spin orbitals         *******
+ ***************************************************
+
+
+ NATURAL POPULATIONS:  Natural atomic orbital occupancies
+
+  NAO Atom No lang   Type(AO)    Occupancy      Energy
+ -------------------------------------------------------
+   1   Cl  1  s      Cor( 1s)     1.00000    -104.87378
+   2   Cl  1  s      Cor( 2s)     1.00000     -10.60967
+   3   Cl  1  s      Val( 3s)     0.99730      -1.01376
+   4   Cl  1  s      Ryd( 4s)     0.00001       1.03796
+   5   Cl  1  s      Ryd( 5s)     0.00000       9.85307
+   6   Cl  1  s      Ryd( 6s)     0.00000     218.54654
+   7   Cl  1  px     Cor( 2p)     1.00000      -8.05751
+   8   Cl  1  px     Val( 3p)     0.27392      -0.14765
+   9   Cl  1  px     Ryd( 4p)     0.00005       0.43291
+  10   Cl  1  px     Ryd( 5p)     0.00000       2.56368
+  11   Cl  1  px     Ryd( 6p)     0.00000      26.04040
+  12   Cl  1  py     Cor( 2p)     1.00000      -8.06586
+  13   Cl  1  py     Val( 3p)     0.72595      -0.35637
+  14   Cl  1  py     Ryd( 4p)     0.00014       0.42313
+  15   Cl  1  py     Ryd( 5p)     0.00000       2.55617
+  16   Cl  1  py     Ryd( 6p)     0.00000      26.05096
+  17   Cl  1  pz     Cor( 2p)     1.00000      -8.07091
+  18   Cl  1  pz     Val( 3p)     0.99972      -0.48279
+  19   Cl  1  pz     Ryd( 4p)     0.00019       0.41721
+  20   Cl  1  pz     Ryd( 5p)     0.00000       2.55161
+  21   Cl  1  pz     Ryd( 6p)     0.00000      26.05736
+  22   Cl  1  dxy    Ryd( 3d)     0.00160       0.70959
+  23   Cl  1  dxy    Ryd( 4d)     0.00001       1.16780
+  24   Cl  1  dxy    Ryd( 5d)     0.00000       5.53772
+  25   Cl  1  dxz    Ryd( 3d)     0.00000       0.70030
+  26   Cl  1  dxz    Ryd( 4d)     0.00000       1.16981
+  27   Cl  1  dxz    Ryd( 5d)     0.00000       5.54282
+  28   Cl  1  dyz    Ryd( 3d)     0.00000       0.68270
+  29   Cl  1  dyz    Ryd( 4d)     0.00000       1.17294
+  30   Cl  1  dyz    Ryd( 5d)     0.00000       5.55115
+  31   Cl  1  dx2y2  Ryd( 3d)     0.00041       0.71061
+  32   Cl  1  dx2y2  Ryd( 4d)     0.00000       1.16789
+  33   Cl  1  dx2y2  Ryd( 5d)     0.00000       5.53776
+  34   Cl  1  dz2    Ryd( 3d)     0.00067       0.68444
+  35   Cl  1  dz2    Ryd( 4d)     0.00000       1.17249
+  36   Cl  1  dz2    Ryd( 5d)     0.00000       5.55003
+  37   Cl  1  f(0)   Ryd( 4f)     0.00000       2.36795
+  38   Cl  1  f(c1)  Ryd( 4f)     0.00000       2.36653
+  39   Cl  1  f(s1)  Ryd( 4f)     0.00000       2.36866
+  40   Cl  1  f(c2)  Ryd( 4f)     0.00000       2.36653
+  41   Cl  1  f(s2)  Ryd( 4f)     0.00001       2.36640
+  42   Cl  1  f(c3)  Ryd( 4f)     0.00001       2.36435
+  43   Cl  1  f(s3)  Ryd( 4f)     0.00000       2.36435
+
+
+ Summary of Natural Population Analysis:
+
+                                     Natural Population
+             Natural    ---------------------------------------------
+  Atom No    Charge        Core      Valence    Rydberg      Total
+ --------------------------------------------------------------------
+   Cl  1    0.50000      4.99999     2.99689    0.00312     8.00000
+ ====================================================================
+ * Total *  0.50000      4.99999     2.99689    0.00312     8.00000
+
+                                 Natural Population
+ ---------------------------------------------------------
+   Core                       4.99999 ( 99.9999% of    5)
+   Valence                    2.99689 ( 99.8963% of    3)
+   Natural Minimal Basis      7.99688 ( 99.9610% of    8)
+   Natural Rydberg Basis      0.00312 (  0.0390% of    8)
+ ---------------------------------------------------------
+
+    Atom No         Natural Electron Configuration
+ ----------------------------------------------------------------------------
+     Cl  1      [core]3s( 1.00)3p( 2.00)
+
+
+ NATURAL BOND ORBITAL ANALYSIS, beta spin orbitals:
+
+                            Occupancies       Lewis Structure    Low   High
+         Max    Occ     -------------------  -----------------   occ   occ
+  Cycle  Ctr   Thresh    Lewis   non-Lewis     CR  BD  nC  LP    (L)   (NL)
+ ============================================================================
+    1     1     0.50     7.99999   0.00001      5   0   0   3     0      0
+ ----------------------------------------------------------------------------
+
+ Structure accepted: No low occupancy Lewis orbitals
+
+ -------------------------------------------------------
+   Core                      4.99999 (100.000% of   5)
+   Valence Lewis             3.00000 (100.000% of   3)
+  ==================      =============================
+   Total Lewis               7.99999 (100.000% of   8)
+  -----------------------------------------------------
+   Valence non-Lewis         0.00000 (  0.000% of   8)
+   Rydberg non-Lewis         0.00001 (  0.000% of   8)
+  ==================      =============================
+   Total non-Lewis           0.00001 (  0.000% of   8)
+ -------------------------------------------------------
+
+
+     (Occupancy)   Bond orbital / Coefficients / Hybrids
+ ------------------ Lewis ------------------------------------------------------
+   1. (1.00000) CR ( 1)Cl  1            s(100.00%)
+                                         1.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   2. (1.00000) CR ( 2)Cl  1            s(100.00%)
+                                         0.0000  1.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   3. (1.00000) CR ( 3)Cl  1            s(  0.00%)p 1.00(100.00%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  1.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   4. (1.00000) CR ( 4)Cl  1            s(  0.00%)p 1.00(100.00%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  1.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   5. (1.00000) CR ( 5)Cl  1            s(  0.00%)p 1.00(100.00%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  1.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   6. (1.00000) LP ( 1)Cl  1            s( 99.73%)p 0.00(  0.00%)d 0.00(  0.27%)
+                                         0.0000  0.0000  0.9986 -0.0039  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0400  0.0023  0.0001  0.0007
+                                         0.0000  0.0000 -0.0004  0.0000  0.0000
+                                        -0.0203 -0.0012  0.0000  0.0259  0.0015
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000
+   7. (1.00000) LP ( 2)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.5233  0.0073  0.0000
+                                         0.0000  0.0000  0.8520  0.0118  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0005  0.0007  0.0000
+                                         0.0000  0.0033 -0.0003
+   8. (1.00000) LP ( 3)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0073  0.0001  0.0000
+                                         0.0000  0.0000 -0.0045 -0.0001  0.0000
+                                         0.0000  0.0000  0.9999  0.0139  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0000  0.0000  0.0000  0.0000
+                                         0.0000  0.0021  0.0001  0.0000 -0.0012
+                                         0.0024  0.0000  0.0000
+ ---------------- non-Lewis ----------------------------------------------------
+   9. (0.00000) LV ( 1)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+  10. (0.00001) RY ( 1)Cl  1            s(  0.00%)p 1.00( 99.70%)d 0.00(  0.00%)
+                                                  f 0.00(  0.30%)
+  11. (0.00000) RY ( 2)Cl  1            s( 92.28%)p 0.00(  0.00%)d 0.08(  7.72%)
+  12. (0.00000) RY ( 3)Cl  1            s(  9.61%)p 0.00(  0.00%)d 9.41( 90.39%)
+  13. (0.00000) RY ( 4)Cl  1            s( 99.35%)p 0.00(  0.00%)d 0.01(  0.65%)
+  14. (0.00000) RY ( 5)Cl  1            s(  0.00%)p 1.00( 99.97%)d 0.00(  0.00%)
+                                                  f 0.00(  0.03%)
+  15. (0.00000) RY ( 6)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+  16. (0.00000) RY ( 7)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+  17. (0.00000) RY ( 8)Cl  1            s(  0.00%)p 1.00( 96.49%)d 0.00(  0.00%)
+                                                  f 0.04(  3.51%)
+  18. (0.00000) RY ( 9)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+  19. (0.00000) RY (10)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+  20. (0.00000) RY (11)Cl  1            s(  0.00%)p 1.00( 96.49%)d 0.00(  0.00%)
+                                                  f 0.04(  3.51%)
+  21. (0.00000) RY (12)Cl  1            s(  4.87%)p 0.00(  0.00%)d19.54( 95.13%)
+  22. (0.00000) RY (13)Cl  1            s(  0.00%)p 1.00(100.00%)d 0.00(  0.00%)
+                                                  f 0.00(  0.00%)
+  23. (0.00000) RY (14)Cl  1            s( 84.39%)p 0.00(  0.00%)d 0.18( 15.61%)
+  24. (0.00000) RY (15)Cl  1            s(  4.32%)p 0.00(  0.00%)d22.13( 95.68%)
+  25. (0.00000) RY (16)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  26. (0.00000) RY (17)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  27. (0.00000) RY (18)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  28. (0.00000) RY (19)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  29. (0.00000) RY (20)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  30. (0.00000) RY (21)Cl  1            s(  0.00%)p 0.00(  0.00%)d 1.00(100.00%)
+  31. (0.00000) RY (22)Cl  1            s(  0.72%)p 0.00(  0.00%)d99.99( 99.28%)
+  32. (0.00000) RY (23)Cl  1            s(  1.04%)p 0.00(  0.00%)d95.51( 98.96%)
+  33. (0.00000) RY (24)Cl  1            s(  0.47%)p 0.00(  0.00%)d99.99( 99.53%)
+  34. (0.00000) RY (25)Cl  1            s(  1.12%)p 0.00(  0.00%)d88.41( 98.88%)
+  35. (0.00000) RY (26)Cl  1            s(  1.60%)p 0.00(  0.00%)d61.68( 98.40%)
+  36. (0.00000) RY (27)Cl  1            s(  0.51%)p 0.00(  0.00%)d99.99( 99.49%)
+  37. (0.00000) RY (28)Cl  1            s(  0.00%)p 1.00(  1.35%)d 0.00(  0.00%)
+                                                  f73.33( 98.65%)
+  38. (0.00000) RY (29)Cl  1            s(  0.00%)p 1.00(  0.14%)d 0.00(  0.00%)
+                                                  f99.99( 99.86%)
+  39. (0.00000) RY (30)Cl  1            s(  0.00%)p 1.00(  0.20%)d 0.00(  0.00%)
+                                                  f99.99( 99.80%)
+  40. (0.00000) RY (31)Cl  1            s(  0.00%)p 1.00(  0.45%)d 0.00(  0.00%)
+                                                  f99.99( 99.55%)
+  41. (0.00000) RY (32)Cl  1            s(  0.00%)p 1.00(  1.71%)d 0.00(  0.00%)
+                                                  f57.34( 98.29%)
+  42. (0.00000) RY (33)Cl  1            s(  0.00%)p 1.00(  3.29%)d 0.00(  0.00%)
+                                                  f29.35( 96.71%)
+  43. (0.00000) RY (34)Cl  1            s(  0.00%)p 1.00(  0.21%)d 0.00(  0.00%)
+                                                  f99.99( 99.79%)
+
+
+ NHO DIRECTIONALITY AND BOND BENDING (deviation from line of nuclear centers at
+                                      the position of maximum hybrid amplitude)
+
+         [Thresholds for printing:  angular deviation  >  1.0 degree]
+                                    p- or d-character  > 25.0%
+                                    orbital occupancy  >  0.10e
+
+                        Line of Centers        Hybrid 1             Hybrid 2
+                        ---------------  -------------------  ------------------
+           NBO            Theta   Phi    Theta   Phi    Dev   Theta   Phi    Dev
+ ===============================================================================
+   7. LP ( 2)Cl  1          --     --     90.0  238.4   --      --     --    --
+   8. LP ( 3)Cl  1          --     --    179.5  148.4   --      --     --    --
+
+
+ SECOND ORDER PERTURBATION THEORY ANALYSIS OF FOCK MATRIX IN NBO BASIS
+
+     Threshold for printing:   0.25 kcal/mol
+                                                          E(2) E(NL)-E(L) F(L,NL)
+      Donor (L) NBO              Acceptor (NL) NBO      kcal/mol   a.u.    a.u.
+ ===============================================================================
+
+ within unit  1
+       None above threshold
+
+
+ NATURAL BOND ORBITALS (Summary):
+
+                                                     Principal Delocalizations
+           NBO                 Occupancy    Energy   (geminal,vicinal,remote)
+ ===============================================================================
+ Molecular unit  1  (Cl)
+ ------ Lewis --------------------------------------
+    1. CR ( 1)Cl  1             1.00000  -104.87378
+    2. CR ( 2)Cl  1             1.00000   -10.60967
+    3. CR ( 3)Cl  1             1.00000    -8.05751
+    4. CR ( 4)Cl  1             1.00000    -8.06586
+    5. CR ( 5)Cl  1             1.00000    -8.07091
+    6. LP ( 1)Cl  1             1.00000    -1.01834
+    7. LP ( 2)Cl  1             1.00000    -0.48303
+    8. LP ( 3)Cl  1             1.00000    -0.48303
+ ------ non-Lewis ----------------------------------
+    9. LV ( 1)Cl  1             0.00000    -0.02349
+   10. RY ( 1)Cl  1             0.00001     2.29108
+   11. RY ( 2)Cl  1             0.00000     2.03357
+   12. RY ( 3)Cl  1             0.00000     1.67993
+   13. RY ( 4)Cl  1             0.00000   201.76263
+   14. RY ( 5)Cl  1             0.00000     0.78743
+   15. RY ( 6)Cl  1             0.00000    26.05193
+   16. RY ( 7)Cl  1             0.00000     0.93268
+   17. RY ( 8)Cl  1             0.00000     1.95424
+   18. RY ( 9)Cl  1             0.00000    26.06520
+   19. RY (10)Cl  1             0.00000     1.01459
+   20. RY (11)Cl  1             0.00000     1.95424
+   21. RY (12)Cl  1             0.00000     5.12836
+   22. RY (13)Cl  1             0.00000    26.07324
+   23. RY (14)Cl  1             0.00000    22.72315
+   24. RY (15)Cl  1             0.00000     2.14458
+   25. RY (16)Cl  1             0.00000     0.70046
+   26. RY (17)Cl  1             0.00000     1.17005
+   27. RY (18)Cl  1             0.00000     5.54289
+   28. RY (19)Cl  1             0.00000     0.68276
+   29. RY (20)Cl  1             0.00000     1.17303
+   30. RY (21)Cl  1             0.00000     5.55118
+   31. RY (22)Cl  1             0.00000     0.88650
+   32. RY (23)Cl  1             0.00000     1.42347
+   33. RY (24)Cl  1             0.00000     5.68599
+   34. RY (25)Cl  1             0.00000     0.95182
+   35. RY (26)Cl  1             0.00000     1.53231
+   36. RY (27)Cl  1             0.00000     5.72753
+   37. RY (28)Cl  1             0.00000     2.36188
+   38. RY (29)Cl  1             0.00000     2.36635
+   39. RY (30)Cl  1             0.00000     2.36813
+   40. RY (31)Cl  1             0.00000     2.36453
+   41. RY (32)Cl  1             0.00000     2.35877
+   42. RY (33)Cl  1             0.00000     2.35221
+   43. RY (34)Cl  1             0.00000     2.36445
+          -------------------------------
+                 Total Lewis    7.99999  ( 99.9999%)
+           Valence non-Lewis    0.00000  (  0.0000%)
+           Rydberg non-Lewis    0.00001  (  0.0001%)
+          -------------------------------
+               Total unit  1    8.00000  (100.0000%)
+              Charge unit  1    0.50000
+
+ $CHOOSE
+  ALPHA
+   LONE 1 4 END
+  END
+  BETA
+   LONE 1 3 END
+  END
+ $END
+
+ NBO analysis completed in 0.09 CPU seconds (0 wall seconds)
+ Maximum scratch memory used by NBO was 544710 words (4.16 MB)
+Stopping NBO...Storing NBOs: Cl·.nbo
+
+                                *** returned from  NBO  program ***
+
+-------
+TIMINGS
+-------
+
+Total SCF time: 0 days 0 hours 0 min 3 sec 
+
+Total time                  ....       3.666 sec
+Sum of individual times     ....       3.176 sec  ( 86.6%)
+
+Fock matrix formation       ....       2.576 sec  ( 70.3%)
+Diagonalization             ....       0.039 sec  (  1.1%)
+Density matrix formation    ....       0.004 sec  (  0.1%)
+Population analysis         ....       0.241 sec  (  6.6%)
+Initial guess               ....       0.160 sec  (  4.4%)
+Orbital Transformation      ....       0.000 sec  (  0.0%)
+Orbital Orthonormalization  ....       0.000 sec  (  0.0%)
+DIIS solution               ....       0.032 sec  (  0.9%)
+
+
+           ************************************************************
+           *        Program running with 12 parallel MPI-processes    *
+           *              working on a common directory               *
+           ************************************************************
+
+------------------------------------------------------------------------------
+                                ORCA  MP2 
+------------------------------------------------------------------------------
+
+
+----------
+MP2 ENERGY (disk based algorithm)
+----------
+
+Dimension of the basis                    ...   43
+Memory devoted to MP2                     ... 3000 MB   
+Data format for buffers                   ... DOUBLE
+Compression type for matrix containers    ... UNCOMPRESSED
+
+-------------------------------
+PARTIAL EXCHANGE TRANSFORMATION
+-------------------------------
+
+Transformation type                        ... two-operators
+Generation of integrals (i,mue|j,nue)      ... ON
+Generation of integrals (mue,kappa|nue,tau)... OFF
+Generation of integrals (i,mue|a,nue)      ... OFF
+Dimension of the basis                     ...   43
+Number of internal alpha-MOs               ...    9 (   0-   8)
+Number of internal beta-MOs                ...    8 (   0-   7)
+Pair cutoff                                ... 2.500e-12 Eh
+Number of AO pairs in the trafo            ...  946
+Total Number of distinct AO pairs          ...  946
+Memory devoted for trafo                   ... 3000.0 MB 
+Max. Number of MO pairs treated together   ... 212664      
+Number Format for Storage                  ... Double (8 Byte)
+Integral package used                      ... LIBINT
+
+Starting integral evaluation:
+    ... done with AO integral generation
+Closing buffer AOK[aa] ( 0.00 GB; CompressionRatio= 1.55)
+Closing buffer AOK[bb] ( 0.00 GB; CompressionRatio= 1.62)
+Closing buffer AOK[ab] ( 0.00 GB; CompressionRatio= 1.57)
+Closing buffer AOK[ba] ( 0.00 GB; CompressionRatio= 1.60)
+Collecting buffer AOK 
+Number of alpha/alpha MO pairs in trafo    ...   45
+Number of beta /beta  MO pairs in trafo    ...   36
+Number of alpha/ beta MO pairs in trafo    ...   72
+------------------------
+SORTING OF (i,mue|j,nue)
+------------------------
+
+SORTING OF ALPHA/ALPHA PAIRS
+IBATCH = 1 of  1
+Closing buffer KAO[aa] ( 0.00 GB; CompressionRatio= 1.00)
+Collecting buffer KAO 
+SORTING OF BETA /BETA  PAIRS
+IBATCH = 1 of  1
+Closing buffer KAO[bb] ( 0.00 GB; CompressionRatio= 1.00)
+Collecting buffer KAO 
+SORTING OF ALPHA/BETA  PAIRS
+IBATCH = 1 of  1
+Closing buffer KAO[ab] ( 0.00 GB; CompressionRatio= 0.999189408268)
+Collecting buffer KAO[ab] 
+N(AO-Batches) Done                         ...       900 
+N(AO-Batches) Skipped                      ...         0 
+N(IJ)-pairs Skipped                        ...         0 
+TOTAL TIME for half transformation         ...     0.137 sec
+AO-integral generation                     ...     0.025 sec
+Half transformation                        ...     0.002 sec
+K-integral sorting                         ...     0.067 sec
+Process  5:   Internal MO   5
+Process  2:   Internal MO   2
+Process  8:   Internal MO   8
+
+Finished integral transformation - now doing MP2 part
+
+OPERATOR COMBINATION   0   0: ij=(  0..  8,  0..  8)
+Process  5:   Internal MO   5
+Process  2:   Internal MO   2
+Process  8:   Internal MO   8
+OPERATOR COMBINATION   0   1: ij=(  0..  8,  0..  7)
+Process  2:   Internal MO   2
+Process  5:   Internal MO   5
+OPERATOR COMBINATION   1   1: ij=(  0..  7,  0..  7)
+
+Correlation energy components
+ E2 and T2 for alpha/alpha pairs :     -0.038191861 Eh 
+ E2 and T2 for beta/beta   pairs :     -0.024584389 Eh 
+ E2 and T2 for alpha/beta  pairs :     -0.186687767 Eh 
+
+-----------------------------------------------
+ MP2 CORRELATION ENERGY   :     -0.249464017 Eh
+-----------------------------------------------
+
+
+-------
+TIMINGS
+-------
+Total time                :    0.329 sec
+Integral trafo            :    0.164 sec ( 49.8%)
+K(i,j)                    :    0.003 sec (  0.9%)
+T(i,j)                    :    0.000 sec (  0.0%)
+
+---------------------------------------
+MP2 TOTAL ENERGY:     -459.725477392 Eh
+---------------------------------------
+
+-------------------------   --------------------
+FINAL SINGLE POINT ENERGY      -459.725477392349
+-------------------------   --------------------
+
+
+                            ***************************************
+                            *     ORCA property calculations      *
+                            ***************************************
+
+
+  WARNING: The energy has been calculated at the MP2 level but the densities
+           used in the property calculations are still SCF densities
+           MP2 response densities have not been calculated 
+           use %mp2 Density relaxed end
+           or  %mp2 Density unrelaxed end
+
+                                    ---------------------
+                                    Active property flags
+                                    ---------------------
+   (+) Dipole Moment
+
+
+------------------------------------------------------------------------------
+                       ORCA ELECTRIC PROPERTIES CALCULATION
+------------------------------------------------------------------------------
+
+Dipole Moment Calculation                       ... on
+Quadrupole Moment Calculation                   ... off
+Polarizability Calculation                      ... off
+GBWName                                         ... Cl·.gbw
+Electron density file                           ... Cl·.scfp
+The origin for moment calculation is the CENTER OF MASS  = ( 0.000000,  0.000000  0.000000)
+
+-------------
+DIPOLE MOMENT
+-------------
+                                X             Y             Z
+Electronic contribution:     -0.00000       0.00000      -0.00000
+Nuclear contribution   :      0.00000       0.00000       0.00000
+                        -----------------------------------------
+Total Dipole Moment    :     -0.00000       0.00000      -0.00000
+                        -----------------------------------------
+Magnitude (a.u.)       :      0.00000
+Magnitude (Debye)      :      0.00000
+
+
+
+--------------------
+Rotational spectrum 
+--------------------
+ 
+Rotational constants in cm-1:     0.000000     0.000000     0.000000 
+Rotational constants in MHz :     0.000000     0.000000     0.000000 
+
+ Dipole components along the rotational axes: 
+x,y,z [a.u.] :    -0.000000     0.000000    -0.000000 
+x,y,z [Debye]:    -0.000000     0.000000    -0.000000 
+
+ 
+------------------------------------------------------------------------------
+                         ORCA MP2 H E S S I A N CALCULATION
+------------------------------------------------------------------------------
+
+Calculating analytic MP2 second derivatives ... (>Cl·.last_mp2) done
+Warning: T+R mode no 3 is zero 
+Warning: T+R mode no 4 is zero 
+Warning: T+R mode no 5 is zero 
+WARNING     : the number of degrees of freedom found cannot be correct
+CONSEQUENCE : will not project translation and rotation
+
+-----------------------
+VIBRATIONAL FREQUENCIES
+-----------------------
+
+Scaling factor for frequencies =  1.000000000  (already applied!)
+
+   0:         0.00 cm**-1
+   1:         0.00 cm**-1
+   2:         0.00 cm**-1
+
+
+------------
+NORMAL MODES
+------------
+
+These modes are the Cartesian displacements weighted by the diagonal matrix
+M(i,i)=1/sqrt(m[i]) where m[i] is the mass of the displaced atom
+Thus, these vectors are normalized but *not* orthogonal
+
+                   0          1          2    
+      0       0.000022   0.005423  -0.999985
+      1      -0.000368   0.999985   0.005423
+      2       1.000000   0.000368   0.000024
+
+
+-----------
+IR SPECTRUM
+-----------
+
+ Mode    freq (cm**-1)   T**2         TX         TY         TZ
+-------------------------------------------------------------------
+
+The first frequency considered to be a vibration is 0
+The total number of vibrations considered is 3
+
+
+--------------------------
+THERMOCHEMISTRY AT 298.15K
+--------------------------
+
+Temperature         ... 298.15 K
+Pressure            ... 1.00 atm
+Total Mass          ... 35.45 AMU
+The molecule is recognized as being linear
+
+Throughout the following assumptions are being made:
+  (1) The electronic state is orbitally nondegenerate
+      but the spin degeneracy is treated
+  (2) There are no thermally accessible electronically excited states
+  (3) Hindered rotations indicated by low frequency modes are not
+      treated as such but are treated as vibrations and this may
+      cause some error
+  (4) All equations used are the standard statistical mechanics
+      equations for an ideal gas
+  (5) All vibrations are strictly harmonic
+
+freq.       0.00  E(vib)   ...       0.59 
+freq.       0.00  E(vib)   ...       0.59 
+freq.       0.00  E(vib)   ...       0.59 
+
+------------
+INNER ENERGY
+------------
+
+The inner energy is: U= E(el) + E(ZPE) + E(vib) + E(rot) + E(trans)
+    E(el)   - is the total energy from the electronic structure calculation
+              = E(kin-el) + E(nuc-el) + E(el-el) + E(nuc-nuc)
+    E(ZPE)  - the the zero temperature vibrational energy from the frequency calculation
+    E(vib)  - the the finite temperature correction to E(ZPE) due to population
+              of excited vibrational states
+    E(rot)  - is the rotational thermal energy
+    E(trans)- is the translational thermal energy
+
+Summary of contributions to the inner energy U:
+Electronic energy                ...   -459.72547739 Eh
+Zero point energy                ...      0.00000003 Eh       0.00 kcal/mol
+Thermal vibrational correction   ...      0.00283260 Eh       1.78 kcal/mol
+Thermal rotational correction    ...      0.00000000 Eh       0.00 kcal/mol
+Thermal translational correction ...      0.00141627 Eh       0.89 kcal/mol
+-----------------------------------------------------------------------
+Total thermal energy                   -459.72122849 Eh
+
+
+Summary of corrections to the electronic energy:
+(perhaps to be used in another calculation)
+Total thermal correction                  0.00424887 Eh       2.67 kcal/mol
+Non-thermal (ZPE) correction              0.00000003 Eh       0.00 kcal/mol
+-----------------------------------------------------------------------
+Total correction                          0.00424890 Eh       2.67 kcal/mol
+
+
+--------
+ENTHALPY
+--------
+
+The enthalpy is H = U + kB*T
+                kB is Boltzmann's constant
+Total free energy                 ...   -459.72122849 Eh 
+Thermal Enthalpy correction       ...      0.00094421 Eh       0.59 kcal/mol
+-----------------------------------------------------------------------
+Total Enthalpy                    ...   -459.72028428 Eh
+
+
+Note: Rotational entropy computed according to Herzberg 
+Infrared and Raman Spectra, Chapter V,1, Van Nostrand Reinhold, 1945 
+Point Group:  Kh, Symmetry Number:   1  
+Rotational constants in cm-1:     0.000000     0.000000     0.000000 
+
+Vibrational entropy computed according to the QRRHO of S. Grimme
+Chem.Eur.J. 2012 18 9955
+
+
+-------
+ENTROPY
+-------
+
+The entropy contributions are T*S = T*(S(el)+S(vib)+S(rot)+S(trans))
+     S(el)   - electronic entropy
+     S(vib)  - vibrational entropy
+     S(rot)  - rotational entropy
+     S(trans)- translational entropy
+The entropies will be listed as mutliplied by the temperature to get
+units of energy
+
+Electronic entropy                ...      0.00065446 Eh      0.41 kcal/mol
+Vibrational entropy               ...            -inf Eh      -inf kcal/mol
+Rotational entropy                ...      0.00000000 Eh      0.00 kcal/mol
+Translational entropy             ...      0.01740262 Eh     10.92 kcal/mol
+-----------------------------------------------------------------------
+Final entropy term                ...            -inf Eh      -inf kcal/mol
+
+In case the symmetry of your molecule has not been determined correctly
+or in case you have a reason to use a different symmetry number we print 
+out the resulting rotational entropy values for sn=1,12 :
+ --------------------------------------------------------
+|  sn= 1 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn= 2 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn= 3 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn= 4 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn= 5 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn= 6 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn= 7 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn= 8 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn= 9 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn=10 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn=11 | S(rot)=             -inf Eh      -inf kcal/mol|
+|  sn=12 | S(rot)=             -inf Eh      -inf kcal/mol|
+ --------------------------------------------------------
+
+
+-------------------
+GIBBS FREE ENERGY
+-------------------
+
+The Gibbs free energy is G = H - T*S
+
+Total enthalpy                    ...   -459.72028428 Eh 
+Total entropy correction          ...             inf Eh       inf kcal/mol
+-----------------------------------------------------------------------
+Final Gibbs free energy         ...             inf Eh
+
+For completeness - the Gibbs free energy minus the electronic energy
+G-E(el)                           ...             inf Eh       inf kcal/mol
+
+
+Timings for individual modules:
+
+Sum of individual times         ...       12.763 sec (=   0.213 min)
+GTO integral calculation        ...        0.911 sec (=   0.015 min)   7.1 %
+SCF iterations                  ...        4.090 sec (=   0.068 min)  32.0 %
+MP2 module                      ...        0.676 sec (=   0.011 min)   5.3 %
+Analytical frequency calculation...        7.086 sec (=   0.118 min)  55.5 %
+                             ****ORCA TERMINATED NORMALLY****
+TOTAL RUN TIME: 0 days 0 hours 0 minutes 13 seconds 286 msec

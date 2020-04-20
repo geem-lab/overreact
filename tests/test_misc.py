@@ -4,37 +4,8 @@
 
 import numpy as np
 import pytest
-from scipy.constants import atm
-from scipy.constants import bar
 
 from overreact import misc
-
-
-def test_molar_volume_is_precise():
-    """Ensure our molar volumes are as precise as possible.
-
-    Values below were taken from
-    <https://en.wikipedia.org/wiki/Molar_volume#Ideal_gases>, which were
-    calculated to the same precision using the ideal gas constant from 2014
-    CODATA.
-    """
-    assert misc.molar_volume(273.15, bar) == pytest.approx(0.02271098038, 1e-5)
-    assert misc.molar_volume(pressure=bar) == pytest.approx(0.02478959842, 1e-5)
-    assert misc.molar_volume(273.15) == pytest.approx(0.022414, 1e-5)
-    assert misc.molar_volume() == pytest.approx(0.024465, 1e-4)
-
-
-def test_molar_volume_works_with_sequences():
-    """Ensure molar volumes can be calculated for many temperatures at once."""
-    assert misc.molar_volume([273.15, 298.15], bar) == pytest.approx(
-        [0.02271098038, 0.02478959842], 1e-5
-    )
-    assert misc.molar_volume([273.15, 298.15], [atm, bar]) == pytest.approx(
-        [0.022414, 0.02478959842], 1e-5
-    )
-    assert misc.molar_volume(273.15, [atm, bar]) == pytest.approx(
-        [0.022414, 0.02271098038], 1e-5
-    )
 
 
 def test_broaden_spectrum_works():

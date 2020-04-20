@@ -2,101 +2,133 @@
 
 """Module dedicated to quantum tunneling approximations."""
 
+import logging
+
 import numpy as _np
-from scipy.constants import h as _h
-from scipy.constants import k as _k
-from scipy.constants import N_A as _N_A
 from scipy.integrate import fixed_quad as _fixed_quad
 from scipy.special import roots_laguerre as _roots_laguerre
 
+from overreact import constants
 
-def wigner(nu, temperature=298.15):
+logger = logging.getLogger(__name__)
+
+
+def wigner(vibfreq, temperature=298.15):
     """Calculate the Wigner correction to quantum tunneling.
 
     Parameters
     ----------
-    nu : array-like
-        Magnitude of the imaginary frequency.
+    vibfreq : array-like
+        Magnitude of the imaginary frequency in cm-1. Only the absolute value
+        is used.
     temperature : array-like, optional
+        Absolute temperature in Kelvin.
 
     Returns
     -------
     kappa : array-like
 
+    Raises
+    ------
+    ValueError
+        If vibfreq is zero.
+
     Examples
     --------
-    >>> from scipy.constants import c, centi
-    >>> wigner(1821.0777 * c / centi)
+    >>> wigner(1821.0777)
     4.218
-    >>> wigner(262.38 * c / centi)
+    >>> wigner(262.38)
     1.06680
-    >>> wigner(113.87 * c / centi)
+    >>> wigner(113.87)
     1.01258
-    >>> wigner(169.14 * c / centi)
+    >>> wigner(169.14)
     1.02776
 
     """
+    if _np.isclose(vibfreq, 0.0).any():
+        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
+
+    nu = _np.abs(vibfreq) * constants.c / constants.centi
     temperature = _np.asanyarray(temperature)
-    u = _h * _np.abs(nu) / (_k * temperature)
-    return 1.0 + u ** 2 / 24.0
+    u = constants.h * _np.abs(nu) / (constants.k * temperature)
+
+    kappa = 1.0 + u ** 2 / 24.0
+    logger.info(f"Wigner tunneling coefficient: {kappa}")
+    return kappa
 
 
-def eckart(nu, delta_forward, delta_backward=None, temperature=298.15):
+def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
     """Calculate the Eckart correction to quantum tunneling.
 
     See doi:10.1021/j100809a040 and doi:10.6028/jres.086.014.
 
     Parameters
     ----------
-    nu : array-like
-        Magnitude of the imaginary frequency.
+    vibfreq : array-like
+        Magnitude of the imaginary frequency in cm-1. Only the absolute value
+        is used.
     delta_forward : array-like
         Activation enthalpy at 0 K for the forward reaction.
     delta_backward : array-like, optional
         Activation enthalpy at 0 K for the reverse reaction. If delta_backward
-        is not given, the "symmetrical" Eckart model is used
-        (i.e., ``delta_backward == delta_forward`` is assumed).
+        is not given, the "symmetrical" Eckart model is used (i.e.,
+        ``delta_backward == delta_forward`` is assumed).
     temperature : array-like, optional
+        Absolute temperature in Kelvin.
 
     Returns
     -------
     kappa : array-like
 
+    Raises
+    ------
+    ValueError
+        If vibfreq is zero.
+
     Examples
     --------
-    >>> import numpy as np
-    >>> from scipy.constants import c, centi
-    >>> eckart(1218 * c / centi, 13672.624, 24527.729644, temperature=300)
+    >>> eckart(1218, 13672.624, 24527.729644, temperature=300)
     array(3.9)
-    >>> eckart(1218 * c / centi, 13672.624, 24527.729644,
-    ...        temperature=[200, 298.15])
+    >>> eckart(1218, 13672.624, 24527.729644, temperature=[200, 298.15])
     array([17.1, 4.0])
-    >>> nu = np.array([1218, 200])
-    >>> eckart(nu * c / centi, 13672.624, 24527.729644, temperature=400)
+    >>> eckart([1218, 200], 13672.624, 24527.729644, temperature=400)
     array([2.3, 1.0])
-    >>> eckart(414.45 * c / centi, 394.54, 394.54)
+
+    If no backward barrier is given, a symmetric Eckart potential is assumed:
+
+    >>> eckart(414.45, 394.54)
     array(1.16)
-    >>> eckart(414.45 * c / centi, 789.08, 789.08)
+    >>> eckart(414.45, 789.08)
     array(1.3)
-    >>> eckart(3315.6 * c / centi, 3156.31, 3156.31)
+    >>> eckart(3315.6, 3156.31)
     array(3.3)
 
     """
+    if _np.isclose(vibfreq, 0.0).any():
+        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
+
+    nu = _np.abs(vibfreq) * constants.c / constants.centi
     temperature = _np.asanyarray(temperature)
-    u = _h * _np.abs(nu) / (_k * temperature)
+    u = constants.h * _np.abs(nu) / (constants.k * temperature)
 
     if delta_backward is None:
         delta_backward = delta_forward
+    logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
+    logger.debug(f"backward potential barrier: {delta_backward} J/mol")
+    assert _np.all(delta_forward >= 0.0)
+    assert _np.all(delta_backward >= 0.0)
 
     # convert energies in joules per mole to joules
-    delta_forward = delta_forward / _N_A
-    delta_backward = delta_backward / _N_A
+    delta_forward = delta_forward / constants.N_A
+    delta_backward = delta_backward / constants.N_A
 
     two_pi = 2.0 * _np.pi
-    alpha1 = two_pi * delta_forward / (_h * nu)
-    alpha2 = two_pi * delta_backward / (_h * nu)
+    alpha1 = two_pi * delta_forward / (constants.h * nu)
+    alpha2 = two_pi * delta_backward / (constants.h * nu)
 
-    return _eckart(u, alpha1, alpha2)
+    kappa = _eckart(u, alpha1, alpha2)
+    logger.info(f"Eckart tunneling coefficient: {kappa}")
+    return kappa
 
 
 @_np.vectorize
@@ -126,6 +158,8 @@ def _eckart(u, alpha1, alpha2=None):
     below zero and Laguerre quadrature for values from zero to infinity). The
     orders for both quadratures are fixed and are the smallest numbers that
     allow us to reproduce values from the literature (doi:10.1021/j100809a040).
+
+    Both alpha1 and alpha2 should be non-negative.
 
     Examples
     --------
