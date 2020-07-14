@@ -98,7 +98,7 @@ def get_molecular_volume(
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
     80.
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
-    ...                      full_output=True)
+    ...                      full_output=True)  # doctest: +SKIP
     (80., 115., 0.1)
     >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)
     (80., 240., 0.1)

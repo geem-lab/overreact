@@ -15,10 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8, '3.x', 'pypy3']
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.INTEGRATIVE_KEY }}
+        submodules: true
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:

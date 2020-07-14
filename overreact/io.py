@@ -255,7 +255,7 @@ def _parse_source(file_path_or_str):
     keys of compounds match. This implementation detail is crucial for the
     proper internal bevahiour of overreact:
 
-    >>> model = parse_model("data/perez-soto2020/GFN2-xTB/model.k")
+    >>> model = parse_model("data/perez-soto2020/NoRI/GFN2-xTB/model.k")
     >>> model.scheme.compounds
     ['Benzaldehyde(dcm)', 'NButylamine(dcm)', 'A_N(dcm)', 'A_N_N(dcm)',
      'Water(dcm)', 'A_N_W(dcm)', 'A_N_N_W(dcm)', 'A_N_W_W(dcm)', 'TS1_#(dcm)',

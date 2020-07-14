@@ -1119,6 +1119,10 @@ def test_change_reference_state_works_for_symmetry():
     ) / constants.kcal == pytest.approx([0.0, -0.3, -0.4, -0.4, -0.6], 9e-2)
 
 
+# TODO(schneiderfelipe): separate all tests of the QRRHO model in a separate test
+# file.
+# TODO(schneiderfelipe): test and compare solutions to small imaginary
+# frequencies using the QRRHO model.
 def test_head_gordon_damping():
     """Ensure the Head-Gordon damping for the treatment of QRRHO is done correctly."""
     assert _thermo._gas._head_gordon_damping(-10.0) == pytest.approx([])
