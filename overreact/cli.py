@@ -9,16 +9,23 @@ import re
 import sys
 
 import numpy as np
+from rich.table import Table
+from rich.table import Column
+from rich.console import Console
+from rich.markdown import Markdown
+from rich import box
 
+from overreact import __version__
 from overreact import api
 from overreact import constants
 from overreact import core
 from overreact import io
 
+console = Console()
 levels = [logging.WARNING, logging.INFO, logging.DEBUG]
 
 
-def summarize_model(
+def print_model(
     model, quantities=None, savepath=None, plot=False, qrrho=True, temperature=298.15
 ):
     """Produce a string describing a model.
@@ -43,74 +50,113 @@ def summarize_model(
     Examples
     --------
     >>> model = api.parse_model("data/ethane/B97-3c/model.jk")
-    >>> print(summarize_model(model))
-    <BLANKLINE>
-                                   (READ) REACTIONS
-    ------------------------------------------------------------------------------
-                                     S -> E‡ -> S
-    <BLANKLINE>
-                                                              (PARSED) REACTIONS
-    --------------------------------------------------------------------------------------------------------------------------------------
-    no                      reactants                          via‡                           products                      half equilib.?
-    -- --------------------------------------------------- ------------ --------------------------------------------------- --------------
-     0                          S                               E‡                               S
-    <BLANKLINE>
-                                                            COMPOUNDS
-    -------------------------------------------------------------------------------------------------------------------------
-    no      compound        elec. energy   spin mult.     smallest vibfreqs                    original logfile
-                                [Eh]                            [cm⁻¹]
-    -- ----------------- ----------------- ---------- ------------------------- ---------------------------------------------
-     0         S          -79.788170457691     1        307.6,   825.4,   826.1           data/ethane/B97-3c/staggered.out
-     1         E‡         -79.783894160233     1       -298.9,   902.2,   902.5            data/ethane/B97-3c/eclipsed.out
-    <BLANKLINE>
-                           CALCULATED THERMOCHEMISTRY (COMPOUNDS)
-    -----------------------------------------------------------------------------------
-    no      compound      mass  Gcorr(298.15K) Ucorr(298.15K) Hcorr(298.15K) S(298.15K)
-                         [amu]    [kcal/mol]     [kcal/mol]     [kcal/mol]   [cal/mol·K]
-    -- ----------------- ------ -------------- -------------- -------------- ----------
-     0         S          30.07          33.01          48.63          49.22      54.40
-     1         E‡         30.07          32.95          48.15          48.74      52.96
-    <BLANKLINE>
-                                                                                   CALCULATED THERMOCHEMISTRY (REACTIONS)
-    ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    no                               reaction                              Δmass‡    ΔG‡        ΔE‡        ΔU‡        ΔH‡         ΔS‡     Δmass°    ΔG°        ΔE°        ΔU°        ΔH°         ΔS°
-                                                                           [amu]  [kcal/mol] [kcal/mol] [kcal/mol] [kcal/mol] [cal/mol·K] [amu]  [kcal/mol] [kcal/mol] [kcal/mol] [kcal/mol] [cal/mol·K]
-    -- ------------------------------------------------------------------- ------ ---------- ---------- ---------- ---------- ----------- ------ ---------- ---------- ---------- ---------- -----------
-     0                                S -> S                                 0.00       2.63       2.68       2.20       2.20       -1.44   0.00       0.00       0.00       0.00       0.00        0.00
-    <BLANKLINE>
-                                                              CALCULATED KINETICS
-    ---------------------------------------------------------------------------------------------------------------------------------------
-    no                               reaction                              half equilib.?      k                 k                  k
-                                                                                          [M⁻ⁿ⁺¹·s⁻¹] [(cm³/particle)ⁿ⁻¹·s⁻¹] [atm⁻ⁿ⁺¹·s⁻¹]
-    -- ------------------------------------------------------------------- -------------- ----------- ----------------------- -------------
-     0                                S -> S                                                8.2e+10           8.2e+10            8.2e+10
+    >>> print_model(model)  # doctest: +SKIP
+    ╔══════════════════════════════════════════════════════════════════════════════╗
+    ║                                overreact 1.0                                 ║
+    ╚══════════════════════════════════════════════════════════════════════════════╝
+
+    Construct precise chemical microkinetic models from first principles            
+
+
+                                Input description                                
+
+                                    (read) reactions                                
+                                                                                    
+                                    S -> E‡ -> S                                  
+                                                                                    
+                                (parsed) reactions                                
+                    ╷          ╷      ╷         ╷                                
+                    no │ reactant │ via‡ │ product │ half equilib.?                 
+                ╶────┼──────────┼──────┼─────────┼────────────────╴               
+                    0 │    S     │  E‡  │    S    │                                
+                    ╵          ╵      ╵         ╵                                
+                                        logfiles                                    
+                    ╷          ╷                                                 
+                    no │ compound │               path                              
+                ╶────┼──────────┼──────────────────────────────────╴              
+                    0 │    S     │ data/ethane/B97-3c/staggered.out                
+                    1 │    E‡    │ data/ethane/B97-3c/eclipsed.out                 
+                    ╵          ╵                                                 
+                                    compounds                                    
+        ╷          ╷                   ╷            ╷                            
+        no │ compound │   elec. energy    │ spin mult. │   smallest vibfreqs        
+        │          │       [Eₕ]        │            │         [cm⁻¹]             
+    ╶────┼──────────┼───────────────────┼────────────┼────────────────────────╴   
+        0 │    S     │  -79.788170457691 │     1      │ +307.6, +825.4, +826.1     
+        1 │    E‡    │  -79.783894160233 │     1      │ -298.9, +902.2, +902.5     
+        ╵          ╵                   ╵            ╵                            
+    Temperature = 298.15 K
+
+                                    Output section                                 
+
+                        calculated thermochemistry (compounds)                     
+        ╷          ╷        ╷             ╷            ╷             ╷             
+    no │ compound │  mass  │    Gᶜᵒʳʳ    │   Uᶜᵒʳʳ    │    Hᶜᵒʳʳ    │     S       
+        │          │ [amu]  │ [kcal/mol]  │ [kcal/mol] │ [kcal/mol]  │ [cal/mol·…  
+    ╶────┼──────────┼────────┼─────────────┼────────────┼─────────────┼────────────╴
+    0 │    S     │  30.07 │          3… │          … │          4… │      54.40  
+    1 │    E‡    │  30.07 │          3… │          … │          4… │      52.96  
+        ╵          ╵        ╵             ╵            ╵             ╵             
+                        calculated thermochemistry (reactions°)                     
+        ╷          ╷        ╷          ╷          ╷          ╷          ╷          
+    no │ reaction │ Δmass° │   ΔG°    │   ΔE°    │   ΔU°    │   ΔH°    │   ΔS°    
+        │          │ [amu]  │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [cal/m…  
+    ╶────┼──────────┼────────┼──────────┼──────────┼──────────┼──────────┼─────────╴
+    0 │  S -> S  │   0.00 │       0… │       0… │       0… │       0… │       …  
+        ╵          ╵        ╵          ╵          ╵          ╵          ╵          
+                        calculated thermochemistry (reactions‡)                     
+        ╷          ╷        ╷          ╷          ╷          ╷          ╷          
+    no │ reaction │ Δmass‡ │   ΔG‡    │   ΔE‡    │   ΔU‡    │   ΔH‡    │   ΔS‡    
+        │          │ [amu]  │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [cal/m…  
+    ╶────┼──────────┼────────┼──────────┼──────────┼──────────┼──────────┼─────────╴
+    0 │  S -> S  │   0.00 │       2… │       2… │       2… │       2… │       …  
+        ╵          ╵        ╵          ╵          ╵          ╵          ╵          
+                                calculated kinetics                               
+        ╷          ╷                ╷             ╷               ╷                
+    no │ reaction │ half equilib.? │      k      │       k       │       k        
+        │          │                │ [M⁻ⁿ⁺¹·s⁻¹] │ [(cm³/partic… │ [atm⁻ⁿ⁺¹·s⁻¹]  
+    ╶────┼──────────┼────────────────┼─────────────┼───────────────┼───────────────╴
+    0 │  S -> S  │                │   8.2e+10   │    8.2e+10    │    8.2e+10     
+        ╵          ╵                ╵             ╵               ╵                
     """
-    sections = []
-    sections.append(_summarize_scheme(model.scheme))
-    sections.append(_summarize_compounds(model.compounds))
-    sections.append(
-        _summarize_thermochemistry(
-            model.scheme, model.compounds, qrrho=qrrho, temperature=temperature
+    console.print(
+        Markdown(
+            f"""
+# overreact {__version__}
+Construct precise chemical microkinetic models from first principles
+
+## Input description
+    """
         )
     )
-    sections.append(
-        _summarize_kinetics(
-            model.scheme,
-            model.compounds,
-            quantities=quantities,
-            savepath=savepath,
-            plot=plot,
-            qrrho=qrrho,
-            temperature=temperature,
-        )
+    console.print()
+
+    _print_scheme(model.scheme)
+    _print_compounds(model.compounds)
+
+    console.print(f"Temperature = {temperature} K")
+
+    console.print(Markdown("## Output section"))
+    console.print()
+
+    _print_thermochemistry(
+        model.scheme, model.compounds, qrrho=qrrho, temperature=temperature
     )
-    return "".join(sections)
+    _print_kinetics(
+        model.scheme,
+        model.compounds,
+        quantities=quantities,
+        savepath=savepath,
+        plot=plot,
+        qrrho=qrrho,
+        temperature=temperature,
+    )
 
 
-def _summarize_scheme(scheme):
+def _print_scheme(scheme):
     """Produce a string describing a reaction scheme.
 
-    This is meant to be used from within `summarize_model`. The returned string
+    This is meant to be used from within `print_model`. The returned string
     contains a final line break.
 
     Parameters
@@ -122,43 +168,43 @@ def _summarize_scheme(scheme):
     str
     """
     scheme = core._check_scheme(scheme)
-    reactions = _format_table(
-        [[row] for row in core.unparse_reactions(scheme).split("\n")],
-        title="(read) reactions",
-        length=[78],
-    )
+
+    raw_table = Table(title="(read) reactions", box=box.MINIMAL, show_header=False)
+    raw_table.add_column(justify="center")
+    for r in core.unparse_reactions(scheme).split("\n"):
+        raw_table.add_row(r)
+    console.print(raw_table, justify="center")
 
     transition_states = core.get_transition_states(
         scheme.A, scheme.B, scheme.is_half_equilibrium
     )
 
-    reaction_rows = [
-        [
-            "no",
-            "reactants".center(51),
-            "via‡".center(12),
-            "products".center(51),
-            "half equilib.?",
-        ]
-    ]
-    reaction_rows.append(["-" * len(field) for field in reaction_rows[0]])
+    parsed_table = Table(
+        Column("no", justify="center"),
+        Column("reactant", justify="center"),
+        Column("via‡", justify="center"),
+        Column("product", justify="center"),
+        Column("half equilib.?", justify="center"),
+        title="(parsed) reactions",
+        box=box.MINIMAL,
+    )
     for i, reaction in enumerate(scheme.reactions):
         reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
+        # TODO(schneiderfelipe): should we use "No" instead of None for
+        # "half-equilib.?"?
         row = [f"{i:2d}", reactants, None, products, None]
         if transition_states[i] is not None:
             row[2] = scheme.compounds[transition_states[i]]
         elif scheme.is_half_equilibrium[i]:
             row[4] = True
-        reaction_rows.append(row)
-    parsed_reactions = _format_table(reaction_rows, title="(parsed) reactions")
-
-    return reactions + parsed_reactions
+        parsed_table.add_row(*row)
+    console.print(parsed_table, justify="center")
 
 
-def _summarize_compounds(compounds):
+def _print_compounds(compounds):
     """Produce a string describing compounds.
 
-    This is meant to be used from within `summarize_model`. The returned string
+    This is meant to be used from within `print_model`. The returned string
     contains a final line break.
 
     Parameters
@@ -181,40 +227,46 @@ def _summarize_compounds(compounds):
     if undefined_compounds:
         raise ValueError(f"undefined compounds: {', '.join(undefined_compounds)}")
 
-    compound_rows = [
-        [
-            "no",
-            "compound".center(17),
-            "elec. energy".center(17),
-            "spin mult.",
-            "smallest vibfreqs".center(25),
-            "original logfile".center(45),
-        ],
-        [None, None, "[Eh]", None, "[cm⁻¹]", None],
-    ]
-    compound_rows.append(["-" * len(field) for field in compound_rows[0]])
+    logfiles_table = Table(
+        Column("no", justify="center"),
+        Column("compound", justify="center"),
+        Column("path", justify="center"),
+        title="logfiles",
+        box=box.MINIMAL,
+    )
+    compounds_table = Table(
+        Column("no", justify="center"),
+        Column("compound", justify="center"),
+        Column("elec. energy\n\[Eₕ]", justify="center"),
+        Column("spin mult.", justify="center"),
+        Column("smallest vibfreqs\n\[cm⁻¹]", justify="center"),
+        title="compounds",
+        box=box.MINIMAL,
+    )
     for i, (name, data) in enumerate(compounds.items()):
-        compound_rows.append(
-            [
-                f"{i:2d}",
-                name,
-                f"{data.energy / (constants.hartree * constants.N_A):17.12f}",
-                data.mult,
-                ", ".join([f"{vibfreq:7.1f}" for vibfreq in data.vibfreqs[:3]]),
-                # TODO(schneiderfelipe): show only the file name and inform
-                # the absolute path to folder (as a bash variable) somewhere
-                # else.
-                data.logfile,
-            ]
+        logfiles_table.add_row(
+            f"{i:2d}",
+            name,
+            # TODO(schneiderfelipe): show only the file name and inform
+            # the absolute path to folder (as a bash variable) somewhere
+            # else.
+            data.logfile,
         )
+        compounds_table.add_row(
+            f"{i:2d}",
+            name,
+            f"{data.energy / (constants.hartree * constants.N_A):17.12f}",
+            f"{data.mult}",
+            ", ".join([f"{vibfreq:+.1f}" for vibfreq in data.vibfreqs[:3]]),
+        )
+    console.print(logfiles_table, justify="center")
+    console.print(compounds_table, justify="center")
 
-    return _format_table(compound_rows, title="compounds")
 
-
-def _summarize_thermochemistry(scheme, compounds, qrrho=True, temperature=298.15):
+def _print_thermochemistry(scheme, compounds, qrrho=True, temperature=298.15):
     """Produce a string describing the thermochemistry of a reaction scheme.
 
-    This is meant to be used from within `summarize_model`. The returned string
+    This is meant to be used from within `print_model`. The returned string
     contains a final line break.
 
     Parameters
@@ -246,34 +298,29 @@ def _summarize_thermochemistry(scheme, compounds, qrrho=True, temperature=298.15
     entropies = api.get_entropies(compounds, qrrho=qrrho, temperature=temperature)
     freeenergies = enthalpies - temperature * entropies
 
-    compound_rows = [
-        [
-            "no",
-            "compound".center(17),
-            "mass".center(6),
-            f"Gcorr({temperature}K)",
-            f"Ucorr({temperature}K)",
-            f"Hcorr({temperature}K)",
-            f"S({temperature}K)",
-        ],
-        [None, None, "[amu]", "[kcal/mol]", "[kcal/mol]", "[kcal/mol]", "[cal/mol·K]"],
-    ]
-    compound_rows.append(["-" * len(field) for field in compound_rows[0]])
-    for i, (name, data) in enumerate(compounds.items()):
-        compound_rows.append(
-            [
-                f"{i:2d}",
-                name,
-                f"{molecular_masses[i]:6.2f}",
-                f"{(freeenergies[i] - data.energy) / constants.kcal:14.2f}",
-                f"{(internal_energies[i] - data.energy) / constants.kcal:14.2f}",
-                f"{(enthalpies[i] - data.energy) / constants.kcal:14.2f}",
-                f"{entropies[i] / constants.calorie:10.2f}",
-            ]
-        )
-    compounds_table = _format_table(
-        compound_rows, title="calculated thermochemistry (compounds)"
+    # TODO(schneiderfelipe): remove repetitive temperature output in table headers
+    compounds_table = Table(
+        Column("no", justify="center"),
+        Column("compound", justify="center"),
+        Column("mass\n\[amu]", justify="center"),
+        Column("Gᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
+        Column("Uᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
+        Column("Hᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
+        Column("S\n\[cal/mol·K]", justify="center"),
+        title="calculated thermochemistry (compounds)",
+        box=box.MINIMAL,
     )
+    for i, (name, data) in enumerate(compounds.items()):
+        compounds_table.add_row(
+            f"{i:2d}",
+            name,
+            f"{molecular_masses[i]:6.2f}",
+            f"{(freeenergies[i] - data.energy) / constants.kcal:14.2f}",
+            f"{(internal_energies[i] - data.energy) / constants.kcal:14.2f}",
+            f"{(enthalpies[i] - data.energy) / constants.kcal:14.2f}",
+            f"{entropies[i] / constants.calorie:10.2f}",
+        )
+    console.print(compounds_table, justify="center")
 
     delta_mass = api.get_delta(scheme.A, molecular_masses)
     delta_energies = api.get_delta(scheme.A, energies)
@@ -289,44 +336,43 @@ def _summarize_thermochemistry(scheme, compounds, qrrho=True, temperature=298.15
     delta_activation_entropies = api.get_delta(scheme.B, entropies)
     delta_activation_freeenergies = api.get_delta(scheme.B, freeenergies)
 
-    reaction_rows = [
-        [
-            "no",
-            "reaction".center(67),
-            "Δmass‡",
-            "ΔG‡".center(10),
-            "ΔE‡".center(10),
-            "ΔU‡".center(10),
-            "ΔH‡".center(10),
-            "ΔS‡".center(11),
-            "Δmass°",
-            "ΔG°".center(10),
-            "ΔE°".center(10),
-            "ΔU°".center(10),
-            "ΔH°".center(10),
-            "ΔS°".center(11),
-        ],
-        [
-            None,
-            None,
-            "[amu]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[cal/mol·K]",
-            "[amu]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[cal/mol·K]",
-        ],
-    ]
-    reaction_rows.append(["-" * len(field) for field in reaction_rows[0]])
+    circ_table = Table(
+        Column("no", justify="center"),
+        Column("reaction", justify="center"),
+        Column("Δmass°\n\[amu]", justify="center"),
+        Column("ΔG°\n\[kcal/mol]", justify="center"),
+        Column("ΔE°\n\[kcal/mol]", justify="center"),
+        Column("ΔU°\n\[kcal/mol]", justify="center"),
+        Column("ΔH°\n\[kcal/mol]", justify="center"),
+        Column("ΔS°\n\[cal/mol·K]", justify="center"),
+        title="calculated thermochemistry (reactions°)",
+        box=box.MINIMAL,
+    )
+    dagger_table = Table(
+        Column("no", justify="center"),
+        Column("reaction", justify="center"),
+        Column("Δmass‡\n\[amu]", justify="center"),
+        Column("ΔG‡\n\[kcal/mol]", justify="center"),
+        Column("ΔE‡\n\[kcal/mol]", justify="center"),
+        Column("ΔU‡\n\[kcal/mol]", justify="center"),
+        Column("ΔH‡\n\[kcal/mol]", justify="center"),
+        Column("ΔS‡\n\[cal/mol·K]", justify="center"),
+        title="calculated thermochemistry (reactions‡)",
+        box=box.MINIMAL,
+    )
     for i, reaction in enumerate(scheme.reactions):
         if scheme.is_half_equilibrium[i]:
-            row = [
+            circ_row = [
+                f"{i:2d}",
+                reaction,
+                f"{delta_mass[i]:6.2f}",
+                f"{delta_freeenergies[i] / constants.kcal:10.2f}",
+                f"{delta_energies[i] / constants.kcal:10.2f}",
+                f"{delta_internal_energies[i] / constants.kcal:10.2f}",
+                f"{delta_enthalpies[i] / constants.kcal:10.2f}",
+                f"{delta_entropies[i] / constants.calorie:11.2f}",
+            ]
+            dagger_row = [
                 f"{i:2d}",
                 reaction,
                 None,
@@ -335,6 +381,11 @@ def _summarize_thermochemistry(scheme, compounds, qrrho=True, temperature=298.15
                 None,
                 None,
                 None,
+            ]
+        else:
+            circ_row = [
+                f"{i:2d}",
+                reaction,
                 f"{delta_mass[i]:6.2f}",
                 f"{delta_freeenergies[i] / constants.kcal:10.2f}",
                 f"{delta_energies[i] / constants.kcal:10.2f}",
@@ -342,8 +393,7 @@ def _summarize_thermochemistry(scheme, compounds, qrrho=True, temperature=298.15
                 f"{delta_enthalpies[i] / constants.kcal:10.2f}",
                 f"{delta_entropies[i] / constants.calorie:11.2f}",
             ]
-        else:
-            row = [
+            dagger_row = [
                 f"{i:2d}",
                 reaction,
                 f"{delta_activation_mass[i]:6.2f}",
@@ -352,23 +402,15 @@ def _summarize_thermochemistry(scheme, compounds, qrrho=True, temperature=298.15
                 f"{delta_activation_internal_energies[i] / constants.kcal:10.2f}",
                 f"{delta_activation_enthalpies[i] / constants.kcal:10.2f}",
                 f"{delta_activation_entropies[i] / constants.calorie:11.2f}",
-                f"{delta_mass[i]:6.2f}",
-                f"{delta_freeenergies[i] / constants.kcal:10.2f}",
-                f"{delta_energies[i] / constants.kcal:10.2f}",
-                f"{delta_internal_energies[i] / constants.kcal:10.2f}",
-                f"{delta_enthalpies[i] / constants.kcal:10.2f}",
-                f"{delta_entropies[i] / constants.calorie:11.2f}",
             ]
 
-        reaction_rows.append(row)
-    reactions_table = _format_table(
-        reaction_rows, title="calculated thermochemistry (REACTIONS)"
-    )
-
-    return compounds_table + reactions_table
+        circ_table.add_row(*circ_row)
+        dagger_table.add_row(*dagger_row)
+    console.print(circ_table, justify="center")
+    console.print(dagger_table, justify="center")
 
 
-def _summarize_kinetics(
+def _print_kinetics(
     scheme,
     compounds,
     quantities=None,
@@ -394,19 +436,25 @@ def _summarize_kinetics(
         ),
     }
 
-    reaction_rows = [
-        ["no", "reaction".center(67), "half equilib.?"]
-        + ["k".center(len(scale) + 2) for scale in k],
-        [None, None, None] + [f"[{scale}]" for scale in k],
-    ]
-    reaction_rows.append(["-" * len(field) for field in reaction_rows[0]])
+    kinetics_table = Table(
+        *(
+            [
+                Column("no", justify="center"),
+                Column("reaction", justify="center"),
+                Column("half equilib.?", justify="center"),
+            ]
+            + [Column(f"k\n\[{scale}]", justify="center") for scale in k]
+        ),
+        title="calculated kinetics",
+        box=box.MINIMAL,
+    )
     for i, reaction in enumerate(scheme.reactions):
         row = [f"{i:2d}", reaction, None] + [f"{k[scale][i]:7.2g}" for scale in k]
         if scheme.is_half_equilibrium[i]:
             row[2] = True
 
-        reaction_rows.append(row)
-    reactions_table = _format_table(reaction_rows, title="calculated kinetics")
+        kinetics_table.add_row(*row)
+    console.print(kinetics_table, justify="center")
 
     if quantities is not None and quantities:
         # TODO(schneiderfelipe): apply post-processing to scheme, k (with functions
@@ -432,7 +480,7 @@ def _summarize_kinetics(
             # TODO(schneiderfelipe): the following is inefficient but probably OK
             y0[scheme.compounds.index(name)] = quantity
 
-        t, y, r = api.get_y(dydt, y0=y0, method="Radau")
+        t, y, _ = api.get_y(dydt, y0=y0, method="Radau")
         if plot:
             import matplotlib.pyplot as plt
 
@@ -454,59 +502,6 @@ def _summarize_kinetics(
             )
 
         # TODO(schneiderfelipe): implement the degree of rate control
-
-    return reactions_table
-
-
-def _create_banner(text, title_char="-", width=78):
-    banner = f"\n\n{text.center(width)}"
-    return banner + f"\n{title_char * width}\n"
-
-
-def _format_table(rows, length=None, sep=" ", title=None):
-    """Format a table for printing.
-
-    The width of each column is taken from the length of the first row. Nones
-    are omitted.
-
-    Parameters
-    ----------
-    rows : sequence of sequence of str
-    length : sequence of int, optional
-    sep : str, optional
-
-    Returns
-    -------
-    str
-
-    Examples
-    --------
-    >>> print(_format_table([["one  ", "two"], [1, 2], ["hello", "world"]]))
-    one    two
-    1      2
-    hello  world
-    """
-    default_length = [len(field) for field in rows[0]]
-    if length is None:
-        length = default_length
-    else:
-        length = [a if a is not None else b for a, b in zip(length, default_length)]
-
-    lines = []
-    for row in rows:
-        line = [
-            str(field).center(length[i]) if field is not None else " " * length[i]
-            for i, field in enumerate(row)
-        ]
-        lines.append(sep.join(line))
-
-    table = "\n".join(lines)
-    if title is not None:
-        return (
-            _create_banner(title.upper(), width=np.sum(length) + len(length) - 1)
-            + table
-        )
-    return table + "\n"
 
 
 def main():
@@ -567,15 +562,13 @@ def main():
         handler.setFormatter(io.InterfaceFormatter("%(message)s"))
 
     model = io.parse_model(args.path, force_compile=args.compile)
-    print(
-        summarize_model(
-            model,
-            quantities=args.quantities,
-            savepath=os.path.splitext(args.path)[0] + ".csv",
-            plot=args.plot,
-            qrrho=args.qrrho,
-            temperature=args.temperature,
-        )
+    print_model(
+        model,
+        quantities=args.quantities,
+        savepath=os.path.splitext(args.path)[0] + ".csv",
+        plot=args.plot,
+        qrrho=args.qrrho,
+        temperature=args.temperature,
     )
 
 

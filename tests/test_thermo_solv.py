@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Tests for solvation using the thermo module."""
+"""Tests for solvation using the `thermo` module."""
 
 import pytest
 
@@ -245,26 +245,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(144.80408548676766, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(94.56871145467743, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(37.36, 5e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(94.56871145467743, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(37.36, 5e-2)
 
     # CH3OH
     data = logfiles["symmetries"]["methanol"]
@@ -283,26 +277,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(151.98582061379608, 1e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(105.02817010903456, 1e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(45.85, 1e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(105.02817010903456, 1e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(45.85, 1e-2)
 
     # C2H5OH
     data = logfiles["symmetries"]["ethanol"]
@@ -321,26 +309,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(156.51420201431782, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(111.58706012673835, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(51.01, 5e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(111.58706012673835, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(51.01, 5e-2)
 
     # 1-C3H7OH
     data = logfiles["symmetries"]["1-propanol"]
@@ -359,26 +341,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(159.8292158120477, 1e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(116.44404809399771, 1e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(55.70, 1e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(116.44404809399771, 1e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(55.70, 1e-2)
 
     # 2-C3H7OH
     data = logfiles["symmetries"]["2-propanol"]
@@ -397,26 +373,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(159.8292158120477, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(116.44717525933929, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(46.81, 1.9e-1)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(116.44717525933929, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(46.81, 1.9e-1)
 
     # 1-C4H9OH
     data = logfiles["symmetries"]["1-butanol"]
@@ -435,26 +405,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(162.4455600896596, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(120.30330699244473, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(59.90, 5e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(120.30330699244473, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(59.90, 5e-2)
 
     # 2-C4H9OH
     data = logfiles["symmetries"]["2-butanol"]
@@ -473,26 +437,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(162.4455600896596, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(120.30491171022815, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(51.64, 1.5e-1)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(120.30491171022815, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(51.64, 1.5e-1)
 
     # i-C4H9OH
     data = logfiles["symmetries"]["2-methyl-2-propanol"]
@@ -511,26 +469,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(162.4455600896596, 1e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(120.29352768299235, 1e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(58.71, 6e-3)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(120.29352768299235, 1e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(58.71, 6e-3)
 
     # HCOOH
     data = logfiles["symmetries"]["formic-acid"]
@@ -549,26 +501,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(156.50228474338718, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(109.8726286196741, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(51.45, 5e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(109.8726286196741, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(51.45, 5e-2)
 
     # CH3COOH
     data = logfiles["symmetries"]["acetic-acid"]
@@ -587,26 +533,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(159.820081168819, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(115.13015825195785, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(56.52, 5e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(115.13015825195785, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(56.52, 5e-2)
 
     # CH3CN
     data = logfiles["symmetries"]["acetonitrile"]
@@ -625,26 +565,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(155.0765105631046, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(109.28222352094771, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(51.25, 5e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(109.28222352094771, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(51.25, 5e-2)
 
     # CH3NO2
     data = logfiles["symmetries"]["nitromethane"]
@@ -663,26 +597,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(160.02360092304738, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(114.90481716308736, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(56.34, 5e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(114.90481716308736, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(56.34, 5e-2)
 
     # Acetone
     data = logfiles["symmetries"]["acetone"]
@@ -701,26 +629,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(159.4036577560442, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(115.54256726917262, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(55.01, 5e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(115.54256726917262, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(55.01, 5e-2)
 
     # DMSO
     data = logfiles["symmetries"]["dimethyl-sulfoxide"]
@@ -739,26 +661,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(163.10201307782876, 1e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(119.86466911598932, 1e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(60.73, 1e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(119.86466911598932, 1e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(60.73, 1e-2)
 
     # THF
     data = logfiles["symmetries"]["tetrahydrofuran"]
@@ -777,26 +693,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(162.10165626567044, 1e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(119.25508474102487, 1e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(57.82, 2e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(119.25508474102487, 1e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(57.82, 2e-2)
 
     # Benzene
     data = logfiles["symmetries"]["benzene"]
@@ -815,26 +725,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(163.09961840530607, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(120.42382713494072, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(74.42, 2e-1)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(120.42382713494072, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(74.42, 2e-1)
 
     # CCl4
     data = logfiles["symmetries"]["tetrachloromethane"]
@@ -853,26 +757,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(171.5508534254953, 5e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(129.19786258624222, 5e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(61.39, 2e-1)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(129.19786258624222, 5e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(61.39, 2e-1)
 
     # C5H12
     data = logfiles["symmetries"]["n-pentane"]
@@ -891,26 +789,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(162.10926422571157, 1e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(120.50548449806315, 1e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(58.84, 1e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(120.50548449806315, 1e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(58.84, 1e-2)
 
     # C6H14
     data = logfiles["symmetries"]["n-hexane"]
@@ -929,26 +821,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(164.3249077891098, 1e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(123.65659036939897, 1e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(61.98, 1e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(123.65659036939897, 1e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(61.98, 1e-2)
 
     # cyc-C6H12
     data = logfiles["symmetries"]["cyclohexane-chair"]
@@ -967,26 +853,20 @@ def test_translational_entropy_liquid_phase():
     assert _thermo.calc_trans_entropy(
         data.atommasses, data.atomnos, data.atomcoords
     ) == pytest.approx(164.02968518741582, 1e-2)
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="garza",
-        )
-        == pytest.approx(122.79118854674996, 1e-2)
-    )
-    assert (
-        _thermo.calc_trans_entropy(
-            data.atommasses,
-            data.atomnos,
-            data.atomcoords,
-            environment="water",
-            method="izato",
-        )
-        == pytest.approx(59.83, 1e-2)
-    )
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="garza",
+    ) == pytest.approx(122.79118854674996, 1e-2)
+    assert _thermo.calc_trans_entropy(
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
+        environment="water",
+        method="izato",
+    ) == pytest.approx(59.83, 1e-2)
 
 
 def test_sackur_tetrode_given_free_volumes():
@@ -1115,37 +995,22 @@ def test_change_reference_state_works_for_gas_to_liquid_standard_states():
 
     # different reference pressures
     temperature = 298.15
-    assert (
-        temperature
-        * _thermo.change_reference_state(
-            1.0 / constants.liter,
-            1.0 / _thermo.molar_volume(temperature, constants.atm),
-            temperature=temperature,
-        )
-        / constants.kcal
-        == pytest.approx(1.89, 1e-2)
-    )
-    assert (
-        temperature
-        * _thermo.change_reference_state(
-            1.0 / constants.liter,
-            1.0 / _thermo.molar_volume(temperature, constants.bar),
-            temperature=temperature,
-        )
-        / constants.kcal
-        == pytest.approx(1.90, 1e-2)
-    )
+    assert temperature * _thermo.change_reference_state(
+        1.0 / constants.liter,
+        1.0 / _thermo.molar_volume(temperature, constants.atm),
+        temperature=temperature,
+    ) / constants.kcal == pytest.approx(1.89, 1e-2)
+    assert temperature * _thermo.change_reference_state(
+        1.0 / constants.liter,
+        1.0 / _thermo.molar_volume(temperature, constants.bar),
+        temperature=temperature,
+    ) / constants.kcal == pytest.approx(1.90, 1e-2)
 
     # volumes instead of concentrations
     temperature = 298.15
-    assert (
-        temperature
-        * _thermo.change_reference_state(
-            constants.liter,
-            _thermo.molar_volume(temperature, constants.atm),
-            sign=-1,
-            temperature=temperature,
-        )
-        / constants.kcal
-        == pytest.approx(1.89, 1e-2)
-    )
+    assert temperature * _thermo.change_reference_state(
+        constants.liter,
+        _thermo.molar_volume(temperature, constants.atm),
+        sign=-1,
+        temperature=temperature,
+    ) / constants.kcal == pytest.approx(1.89, 1e-2)

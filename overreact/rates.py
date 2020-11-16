@@ -13,7 +13,7 @@ from overreact import _thermo
 def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     """Dynamic viscosity of a solvent.
 
-    This function uses the `thermo` package.
+    This function requires the `thermo` package for obtaining property values.
 
     Parameters
     ----------
