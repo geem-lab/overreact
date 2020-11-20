@@ -31,13 +31,14 @@ Now the graph:
 
 >>> import matplotlib.pyplot as plt
 >>> y0 = [1., 1000., 0, 1., 0., 0., 0., 0.]
->>> t, y, r = simulate.get_y(dydt, y0, [0.0, 30 * 60.0], method="BDF")
+>>> y, r = simulate.get_y(dydt, y0, [0.0, 30 * 60.0], method="BDF")
+>>> t = np.linspace(y.t_min, 500.0)
 >>> plt.clf()
 >>> for i, compound in enumerate(scheme.compounds):
 ...    if not compound.endswith("‡"):
-...        plt.plot(t, y[i], label=compound)
+...        plt.plot(t, y(t)[i], label=compound)
 [...]
->>> drc = [derivative(lambda k: simulate.get_dydt(scheme, k)(0.0, y)[-1], np.array(k), 1e-4) for y in y.T]
+>>> drc = [derivative(lambda k: simulate.get_dydt(scheme, k)(0.0, y)[-1], np.array(k), 1e-4) for y in y(t).T]
 >>> plt.plot(t, drc, label="DRC")
 [...]
 >>> plt.legend()

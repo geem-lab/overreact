@@ -15,6 +15,9 @@ setup(
     packages=find_packages(),
     entry_points={"console_scripts": ["overreact = overreact.cli:main"]},
     install_requires=["cclib>=1.6.3", "scipy>=1.4.0"],
-    extras_require={"cli": ["rich>=9.2.0"], "solvents": ["thermo>=0.1.39"],},
+    extras_require={
+        "cli": ["rich>=9.2.0"],
+        "solvents": ["thermo>=0.1.39"],
+    },
     tests_require=["matplotlib>=2.1.1", "pytest>=5.2.1"],
 )

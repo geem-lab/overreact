@@ -46,69 +46,69 @@ class Report:
     ║                                overreact 1.0                                 ║
     ╚══════════════════════════════════════════════════════════════════════════════╝
 
-    Construct precise chemical microkinetic models from first principles            
+    Construct precise chemical microkinetic models from first principles
 
 
-                                Input description                                
+                                Input description
 
-                                    (read) reactions                                
-                                                                                    
-                                    S -> E‡ -> S                                  
-                                                                                    
-                                (parsed) reactions                                
-                    ╷          ╷      ╷         ╷                                
-                    no │ reactant │ via‡ │ product │ half equilib.?                 
-                ╶────┼──────────┼──────┼─────────┼────────────────╴               
-                    0 │    S     │  E‡  │    S    │                                
-                    ╵          ╵      ╵         ╵                                
-                                        logfiles                                    
-                    ╷          ╷                                                 
-                    no │ compound │               path                              
-                ╶────┼──────────┼──────────────────────────────────╴              
-                    0 │    S     │ data/ethane/B97-3c/staggered.out                
-                    1 │    E‡    │ data/ethane/B97-3c/eclipsed.out                 
-                    ╵          ╵                                                 
-                                    compounds                                    
-        ╷          ╷                   ╷            ╷                            
-        no │ compound │   elec. energy    │ spin mult. │   smallest vibfreqs        
-        │          │       [Eₕ]        │            │         [cm⁻¹]             
-    ╶────┼──────────┼───────────────────┼────────────┼────────────────────────╴   
-        0 │    S     │  -79.788170457691 │     1      │ +307.6, +825.4, +826.1     
-        1 │    E‡    │  -79.783894160233 │     1      │ -298.9, +902.2, +902.5     
-        ╵          ╵                   ╵            ╵                            
+                                    (read) reactions
+
+                                    S -> E‡ -> S
+
+                                (parsed) reactions
+                    ╷          ╷      ╷         ╷
+                    no │ reactant │ via‡ │ product │ half equilib.?
+                ╶────┼──────────┼──────┼─────────┼────────────────╴
+                    0 │    S     │  E‡  │    S    │
+                    ╵          ╵      ╵         ╵
+                                        logfiles
+                    ╷          ╷
+                    no │ compound │               path
+                ╶────┼──────────┼──────────────────────────────────╴
+                    0 │    S     │ data/ethane/B97-3c/staggered.out
+                    1 │    E‡    │ data/ethane/B97-3c/eclipsed.out
+                    ╵          ╵
+                                    compounds
+        ╷          ╷                   ╷            ╷
+        no │ compound │   elec. energy    │ spin mult. │   smallest vibfreqs
+        │          │       [Eₕ]        │            │         [cm⁻¹]
+    ╶────┼──────────┼───────────────────┼────────────┼────────────────────────╴
+        0 │    S     │  -79.788170457691 │     1      │ +307.6, +825.4, +826.1
+        1 │    E‡    │  -79.783894160233 │     1      │ -298.9, +902.2, +902.5
+        ╵          ╵                   ╵            ╵
     Temperature = 298.15 K
 
-                                    Output section                                 
+                                    Output section
 
-                        calculated thermochemistry (compounds)                     
-        ╷          ╷        ╷             ╷            ╷             ╷             
-    no │ compound │  mass  │    Gᶜᵒʳʳ    │   Uᶜᵒʳʳ    │    Hᶜᵒʳʳ    │     S       
-        │          │ [amu]  │ [kcal/mol]  │ [kcal/mol] │ [kcal/mol]  │ [cal/mol·…  
+                        calculated thermochemistry (compounds)
+        ╷          ╷        ╷             ╷            ╷             ╷
+    no │ compound │  mass  │    Gᶜᵒʳʳ    │   Uᶜᵒʳʳ    │    Hᶜᵒʳʳ    │     S
+        │          │ [amu]  │ [kcal/mol]  │ [kcal/mol] │ [kcal/mol]  │ [cal/mol·…
     ╶────┼──────────┼────────┼─────────────┼────────────┼─────────────┼────────────╴
-    0 │    S     │  30.07 │          3… │          … │          4… │      54.40  
-    1 │    E‡    │  30.07 │          3… │          … │          4… │      52.96  
-        ╵          ╵        ╵             ╵            ╵             ╵             
-                        calculated thermochemistry (reactions°)                     
-        ╷          ╷        ╷          ╷          ╷          ╷          ╷          
-    no │ reaction │ Δmass° │   ΔG°    │   ΔE°    │   ΔU°    │   ΔH°    │   ΔS°    
-        │          │ [amu]  │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [cal/m…  
+    0 │    S     │  30.07 │          3… │          … │          4… │      54.40
+    1 │    E‡    │  30.07 │          3… │          … │          4… │      52.96
+        ╵          ╵        ╵             ╵            ╵             ╵
+                        calculated thermochemistry (reactions°)
+        ╷          ╷        ╷          ╷          ╷          ╷          ╷
+    no │ reaction │ Δmass° │   ΔG°    │   ΔE°    │   ΔU°    │   ΔH°    │   ΔS°
+        │          │ [amu]  │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [cal/m…
     ╶────┼──────────┼────────┼──────────┼──────────┼──────────┼──────────┼─────────╴
-    0 │  S -> S  │   0.00 │       0… │       0… │       0… │       0… │       …  
-        ╵          ╵        ╵          ╵          ╵          ╵          ╵          
-                        calculated thermochemistry (reactions‡)                     
-        ╷          ╷        ╷          ╷          ╷          ╷          ╷          
-    no │ reaction │ Δmass‡ │   ΔG‡    │   ΔE‡    │   ΔU‡    │   ΔH‡    │   ΔS‡    
-        │          │ [amu]  │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [cal/m…  
+    0 │  S -> S  │   0.00 │       0… │       0… │       0… │       0… │       …
+        ╵          ╵        ╵          ╵          ╵          ╵          ╵
+                        calculated thermochemistry (reactions‡)
+        ╷          ╷        ╷          ╷          ╷          ╷          ╷
+    no │ reaction │ Δmass‡ │   ΔG‡    │   ΔE‡    │   ΔU‡    │   ΔH‡    │   ΔS‡
+        │          │ [amu]  │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [cal/m…
     ╶────┼──────────┼────────┼──────────┼──────────┼──────────┼──────────┼─────────╴
-    0 │  S -> S  │   0.00 │       2… │       2… │       2… │       2… │       …  
-        ╵          ╵        ╵          ╵          ╵          ╵          ╵          
-                                calculated kinetics                               
-        ╷          ╷                ╷             ╷               ╷                
-    no │ reaction │ half equilib.? │      k      │       k       │       k        
-        │          │                │ [M⁻ⁿ⁺¹·s⁻¹] │ [(cm³/partic… │ [atm⁻ⁿ⁺¹·s⁻¹]  
+    0 │  S -> S  │   0.00 │       2… │       2… │       2… │       2… │       …
+        ╵          ╵        ╵          ╵          ╵          ╵          ╵
+                                calculated kinetics
+        ╷          ╷                ╷             ╷               ╷
+    no │ reaction │ half equilib.? │      k      │       k       │       k
+        │          │                │ [M⁻ⁿ⁺¹·s⁻¹] │ [(cm³/partic… │ [atm⁻ⁿ⁺¹·s⁻¹]
     ╶────┼──────────┼────────────────┼─────────────┼───────────────┼───────────────╴
-    0 │  S -> S  │                │   8.2e+10   │    8.2e+10    │    8.2e+10     
-        ╵          ╵                ╵             ╵               ╵                
+    0 │  S -> S  │                │   8.2e+10   │    8.2e+10    │    8.2e+10
+        ╵          ╵                ╵             ╵               ╵
     """
 
     def __init__(
@@ -463,32 +463,30 @@ class Report:
                 # TODO(schneiderfelipe): the following is inefficient but probably OK
                 y0[self.model.scheme.compounds.index(name)] = quantity
 
-            # TODO(schneiderfelipe): be clever and automatically select a
-            # suitable max time for simulation
-            t_span = [0, 1e5 / np.min(k[scale])]
-
-            # TODO(schneiderfelipe): we can use rates as well (third returned value)
-            t, y, _ = api.get_y(dydt, y0=y0, t_span=t_span, method="Radau")
-            if self.savepath is not None:
-                np.savetxt(
-                    self.savepath,
-                    np.block([t[:, np.newaxis], y.T]),
-                    header=f"t,{','.join(self.model.scheme.compounds)}",
-                    delimiter=",",
-                )
-                yield f"CSV file saved to {self.savepath}"
-
+            y, _ = api.get_y(dydt, y0=y0, method="Radau")
+            # TODO(schneiderfelipe): we can get a max time now based on the
+            # changes through time: stop when the graph gets boring.
+            t = np.linspace(y.t_min, y.t_max)
             if self.plot:
                 import matplotlib.pyplot as plt
 
                 for i, name in enumerate(self.model.scheme.compounds):
                     if not core.is_transition_state(name):
-                        plt.plot(t, y[i], label=name)
+                        plt.plot(t, y(t)[i], label=name)
 
                 plt.legend()
                 plt.xlabel("Time (s)")
                 plt.ylabel("Concentration (M)")
                 plt.show()
+
+            if self.savepath is not None:
+                np.savetxt(
+                    self.savepath,
+                    np.block([t[:, np.newaxis], y(t).T]),
+                    header=f"t,{','.join(self.model.scheme.compounds)}",
+                    delimiter=",",
+                )
+                yield f"CSV file saved to {self.savepath}"
 
 
 def main():

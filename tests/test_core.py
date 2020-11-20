@@ -159,25 +159,31 @@ def test_private_functions_work():
     assert list(core._unparse_reactions([(((1, "A"),), ((1, "B"),), True)])) == [
         "A -> B"
     ]
-    assert list(
-        core._unparse_reactions(
-            [
-                (((2, "A"),), ((3, "B"),), True),
-                (((1, "A"),), ((2, "C"),), True),
-                (((50, "A"),), ((1, "D"),), True),
-            ]
+    assert (
+        list(
+            core._unparse_reactions(
+                [
+                    (((2, "A"),), ((3, "B"),), True),
+                    (((1, "A"),), ((2, "C"),), True),
+                    (((50, "A"),), ((1, "D"),), True),
+                ]
+            )
         )
-    ) == ["2 A -> 3 B", "A -> 2 C", "50 A -> D"]
-    assert list(
-        core._unparse_reactions(
-            [
-                (((1, "E"), (1, "S")), ((1, "ES"),), True),
-                (((1, "ES"),), ((1, "E"), (1, "S")), True),
-                (((1, "ES"),), ((1, "ES‡"),), False),
-                (((1, "ES‡"),), ((1, "E"), (1, "P")), False),
-            ]
+        == ["2 A -> 3 B", "A -> 2 C", "50 A -> D"]
+    )
+    assert (
+        list(
+            core._unparse_reactions(
+                [
+                    (((1, "E"), (1, "S")), ((1, "ES"),), True),
+                    (((1, "ES"),), ((1, "E"), (1, "S")), True),
+                    (((1, "ES"),), ((1, "ES‡"),), False),
+                    (((1, "ES‡"),), ((1, "E"), (1, "P")), False),
+                ]
+            )
         )
-    ) == ["E + S -> ES", "ES -> E + S", "ES -> ES‡", "ES‡ -> E + P"]
+        == ["E + S -> ES", "ES -> E + S", "ES -> ES‡", "ES‡ -> E + P"]
+    )
 
     assert list(
         core._unparse_reactions(

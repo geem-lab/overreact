@@ -31,17 +31,19 @@ y0_Cl = 1 / (np.sum(model.compounds["Cl·"].atommasses) * 1e3)
 y0_HCl = 1 / (np.sum(model.compounds["HCl"].atommasses) * 1e3)
 y0 = [y0_CH4, y0_Cl, 0.0, 0.0, y0_HCl]
 print(y0)
-t_span = [0, 3e-3]
+
 dydt = api.get_dydt(model.scheme, k_eck)
-t, y, r = api.get_y(dydt, y0=y0, t_span=t_span, method="Radau")
+y, r = api.get_y(dydt, y0=y0, method="Radau")
 
 print(model.scheme.compounds)
-print(y[:, -1])
+print(y(y.t_max))
+
+t = np.linspace(y.t_min, 5e-3)
 
 fig, ax = plt.subplots()
 for i, name in enumerate(model.scheme.compounds):
     if not api.is_transition_state(name):
-        ax.plot(1e3 * t, 1e3 * y[i], label=f"{name}")
+        ax.plot(1e3 * t, 1e3 * y(t)[i], label=f"{name}")
 
 ax.set_ylabel("Concentration [mM]")
 ax.set_xlabel("Time [ms]")

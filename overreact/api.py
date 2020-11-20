@@ -262,13 +262,14 @@ def get_freeenergies(
     return enthalpies - temperature * entropies + _np.asanyarray(bias)
 
 
+# TODO(schneiderfelipe): this should probably be deprecated but it is very
+# good as a starting point for sensitivity analyses in general.
 def get_drc(
     scheme,
     compounds,
     y0,
-    t_span=(0.0, 10.0),
+    t_span=None,
     method="Radau",
-    num=50,
     qrrho=True,
     scale="l mol-1 s-1",
     temperature=298.15,
@@ -281,10 +282,9 @@ def get_drc(
     --------
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
     """
-    i = 2  # Gi
     x0 = _np.zeros(len(scheme.compounds))
 
-    def func(x, full_output=False):
+    def func(t, x=0.0, i=-1):
         bias = _np.copy(x0)
         bias[i] += x
 
@@ -301,18 +301,18 @@ def get_drc(
             # molecularity=molecularity,
             # volume=volume,
         )
-        t, y, r = get_y(
-            get_dydt(scheme, k), y0=y0, t_span=t_span, method=method, num=num
+        _, r = get_y(get_dydt(scheme, k), y0=y0, t_span=t_span, method=method)
+
+        return _np.log(r(t))
+
+    def drc(t, i=-1):
+        return (
+            -constants.R
+            * temperature
+            * _derivative(lambda x: func(t, x, i), x0=0.0, dx=dx, n=1, order=order)
         )
 
-        if full_output:
-            return t, y, _np.log(r)
-        return _np.log(r)
-
-    drc = (
-        -constants.R * temperature * _derivative(func, x0=0.0, dx=dx, n=1, order=order)
-    )
-    return func(0.0, full_output=True)[0], drc
+    return drc
 
 
 def get_k(

@@ -6,15 +6,17 @@ Here are functions that calculate reaction rates as well, which is needed for
 the time simulations.
 """
 
+import logging
+
 import numpy as np
 from scipy.integrate import solve_ivp as _solve_ivp
 
 from overreact import core as _core
 
+logger = logging.getLogger(__name__)
 
-# TODO(schneiderfelipe): return dense output
-# TODO(schneiderfelipe): make t_span required
-def get_y(dydt, y0, t_span=(0.0, 10.0), method="Radau", num=50):
+
+def get_y(dydt, y0, t_span=None, method="Radau"):
     """Simulate a reaction scheme from its rate function.
 
     This uses scipy's ``solve_ivp`` under the hood.
@@ -27,52 +29,90 @@ def get_y(dydt, y0, t_span=(0.0, 10.0), method="Radau", num=50):
         Initial state.
     t_span : array-like, optional
         Interval of integration (t0, tf). The solver starts with t=t0 and
-        integrates until it reaches t=tf.
+        integrates until it reaches t=tf. If not given, a conservative value
+        is chosen based on the system at hand (the method of choice works for
+        any zeroth-, first- or second-order reactions).
     method : str, optional
         Integration method to use. See `scipy.integrade.solve_ivp` for details.
         If not sure, first try to run "RK45". If it makes unusually many
         iterations, diverges, or fails, your problem is likely to be stiff and
         you should use "BDF" or "Radau" (default).
-    num : int, optional
-        Number of time samples to generate. Must be non-negative.
 
     Returns
     -------
-    t, y, r : array-like
+    y, r : callable
+        Concentrations and reaction rates as functions of time. The y object
+        is an OdeSolution and stores attributes t_min and t_max.
+
 
     Examples
     --------
+    >>> import numpy as np
     >>> from overreact import core
+
+    A toy simulation can be performed in just two lines:
+
     >>> scheme = core.parse_reactions("A <=> B")
-    >>> t, y, r = get_y(get_dydt(scheme, [1, 1]), y0=[1, 0])
-    >>> y
-    array([[1.        , 0.83243215, 0.72104241, 0.64695335, 0.59768619,
-            0.56497874, 0.54317395,        ..., 0.50000039, 0.50000037,
-            0.50000026, 0.50000017, 0.50000011, 0.50000008, 0.50000005],
-           [0.        , 0.16756785, 0.27895759, 0.35304665, 0.40231381,
-            0.43502126, 0.45682605,        ..., 0.49999961, 0.49999963,
-            0.49999974, 0.49999983, 0.49999989, 0.49999992, 0.49999995]])
+    >>> y, r = get_y(get_dydt(scheme, [1, 1]), y0=[1, 0])
+
+    The `y` object stores information about the simulation time, which can be
+    used to produce a suitable vector of timepoints for, e.g., plotting:
+
+    >>> y.t_min, y.t_max
+    (0.0, 10.0)
+    >>> t = np.linspace(y.t_min, y.t_max)
     >>> t
-    array([ 0.        ,  0.20408163,  0.40816327,  0.6122449 ,  0.81632653,
-            1.02040816,  1.2244898 ,         ...,  8.7755102 ,  8.97959184,
-            9.18367347,  9.3877551 ,  9.59183673,  9.79591837, 10.        ])
-    >>> r
-    array([[-1.00000000e+00, -6.64864300e-01, -4.42084817e-01,
-            -2.93906694e-01,             ..., -3.43875637e-07,
-            -2.26132930e-07, -1.50799945e-07, -1.01639971e-07],
-           [ 1.00000000e+00,  6.64864300e-01,  4.42084817e-01,
-             2.93906694e-01,             ...,  3.43875637e-07,
-             2.26132930e-07,  1.50799945e-07,  1.01639971e-07]])
+    array([ 0.        ,  0.20408163,  ...,  9.79591837, 10.        ])
+
+    Both `y` and `r` can be used to check concentrations and rates in any
+    point in time. In particular, both are vectorized:
+
+    >>> y(t)
+    array([[1.        , 0.83243215, ..., 0.50000008, 0.50000005],
+           [0.        , 0.16756785, ..., 0.49999992, 0.49999995]])
+    >>> r(t)
+    array([[-1.00000000e+00, ..., -1.01639971e-07],
+           [ 1.00000000e+00, ...,  1.01639971e-07]])
     """
     # TODO(schneiderfelipe): raise a meaningful error when y0 has the wrong shape.
-    res = _solve_ivp(
-        dydt,
-        t_span,
-        y0,
-        method=method,
-        t_eval=np.linspace(t_span[0], t_span[1], num=num),
-    )
-    return res.t, res.y, np.array([dydt(t, y) for t, y in zip(res.t, res.y.T)]).T
+    y0 = np.asanyarray(y0)
+
+    if t_span is None:
+        n_halflives = 10.0
+
+        halflife_estimate = 1.0
+        if hasattr(dydt, "k"):
+            halflife_estimate = (
+                np.max(
+                    [
+                        np.max(y0) / 2.0,  # zeroth-order half-life
+                        np.log(2.0),  # first-order half-life
+                        1.0 / np.min(y0[np.nonzero(y0)]),  # second-order half-life
+                    ]
+                )
+                / np.min(dydt.k)
+            )
+
+        t_span = [
+            0.0,
+            n_halflives * halflife_estimate,
+        ]
+        logger.info(f"simulation time span = {t_span} s")
+
+    res = _solve_ivp(dydt, t_span, y0, method=method, dense_output=True)
+    y = res.sol
+
+    def r(t):
+        # TODO(schneiderfelipe): this is probably not the best way to
+        # vectorize a function!
+        try:
+            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T)]).T
+        except TypeError:
+            return dydt(t, y(t))
+
+    # TODO(schneiderfelipe): use a flag such as full_output to indicate we
+    # want everything, not just y.
+    return y, r
 
 
 def get_dydt(scheme, k, ef=1.0e3):
@@ -89,7 +129,8 @@ def get_dydt(scheme, k, ef=1.0e3):
     Returns
     -------
     dydt : callable
-        Reaction rate function.
+        Reaction rate function. The actual reaction rate constants employed
+        are stored in the attribute `k` of the returned function.
 
     Warns
     -----
@@ -111,6 +152,12 @@ def get_dydt(scheme, k, ef=1.0e3):
     >>> dydt = get_dydt(scheme, [1, 1])
     >>> dydt(0.0, [1., 1.])
     array([0., 0.])
+
+    The actually used reaction rate constants can be inspected with the `k`
+    attribute of `dydt`:
+
+    >>> dydt.k
+    array([1, 1])
 
     """
     scheme = _core._check_scheme(scheme)
@@ -134,4 +181,5 @@ def get_dydt(scheme, k, ef=1.0e3):
         r = k * np.prod(np.power(y, np.where(A > 0, 0, -A).T), axis=1)
         return np.dot(A, r)
 
+    _dydt.k = k_adj
     return _dydt
