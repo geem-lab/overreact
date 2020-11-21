@@ -165,27 +165,21 @@ def test_liquid_viscosities_are_correct():
 
 def test_conversion_of_rate_constants_work():
     """Ensure converting reaction rate constants work."""
-    assert (
-        rates.convert_rate_constant(
-            12345e5,
-            "cm3 mol-1 s-1",
-            "l mol-1 s-1",
-            molecularity=2,
-            temperature=[200, 298.15, 300, 400],
-        )
-        == pytest.approx(12345e8)
-    )
+    assert rates.convert_rate_constant(
+        12345e5,
+        "cm3 mol-1 s-1",
+        "l mol-1 s-1",
+        molecularity=2,
+        temperature=[200, 298.15, 300, 400],
+    ) == pytest.approx(12345e8)
 
-    assert (
-        rates.convert_rate_constant(
-            12345e10,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=2,
-            temperature=[200, 298.15, 300, 400],
-        )
-        == pytest.approx(13.63e-23 * 12345e10 * np.array([200, 298.15, 300, 400]), 1e-3)
-    )
+    assert rates.convert_rate_constant(
+        12345e10,
+        "cm3 particle-1 s-1",
+        "atm-1 s-1",
+        molecularity=2,
+        temperature=[200, 298.15, 300, 400],
+    ) == pytest.approx(13.63e-23 * 12345e10 * np.array([200, 298.15, 300, 400]), 1e-3)
 
 
 def test_conversion_rates_know_about_reaction_order():
