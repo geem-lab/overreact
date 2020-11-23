@@ -14,11 +14,13 @@ The package, together with the above dependencies, can be installed from
 
    pip install overreact
 
-Optionally, extra functionality is provided by
-`thermo <https://github.com/CalebBell/thermo>`_::
+Optionally, extra functionality is provided such as a command-line interface
+and solvent properties::
 
-    pip install 'overreact[thermo]'
+    pip install 'overreact[cli,solvents]'
 
-This last line installs thermo  as well. thermo is used to calculate the
-dynamic viscosity of solvents in the context of the
+This last line installs `Rich <https://github.com/willmcgugan/rich>`_
+and `thermo <https://github.com/CalebBell/thermo>`_ as well.
+Rich is used in the command-line interface, and thermo is used
+to calculate the dynamic viscosity of solvents in the context of the
 :doc:`tutorials/collins-kimball` for diffusion-limited reactions.

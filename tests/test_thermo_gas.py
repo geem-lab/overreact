@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Tests for gas phase using the thermo module."""
+"""Tests for gas phase using the `thermo` module."""
 
 import numpy as np
 import pytest

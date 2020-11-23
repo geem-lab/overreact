@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Tests for solvation using the thermo module."""
+"""Tests for solvation using the `thermo` module."""
 
 import pytest
 
