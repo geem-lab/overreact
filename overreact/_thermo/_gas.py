@@ -693,11 +693,16 @@ def _vibrational_temperature(vibfreqs=None):
     array([3374.])
     >>> _vibrational_temperature([vibfreq, vibfreq])
     array([3374., 3374.])
-    >>> _vibrational_temperature([0.0, vibfreq])
+
+    This function uses `_check_vibfreqs` and as such employs its default
+    cutoff for imaginary frequencies. This means that positive values are used
+    as expected, but small non-positive values are inverted (sign flipped):
+
+    >>> _vibrational_temperature([-60.0, vibfreq])
     array([3374.])
-    >>> _vibrational_temperature([0.0, 0.0, vibfreq])
+    >>> _vibrational_temperature([-60.0, -60.0, vibfreq])
     array([3374.])
-    >>> _vibrational_temperature([0.0, vibfreq, vibfreq])
+    >>> _vibrational_temperature([-60.0, vibfreq, vibfreq])
     array([3374., 3374.])
     >>> _vibrational_temperature([vibfreq, vibfreq, vibfreq])
     array([3374., 3374., 3374.])
@@ -709,7 +714,7 @@ def _vibrational_temperature(vibfreqs=None):
     return vibrational_temperatures
 
 
-def _check_vibfreqs(vibfreqs=None):
+def _check_vibfreqs(vibfreqs=None, cutoff=-50.0):
     """Check vibrational frequencies and return them.
 
     This is mostly a helper to `_vibrational_temperature` and
@@ -719,10 +724,23 @@ def _check_vibfreqs(vibfreqs=None):
     ----------
     vibfreqs : array-like
         Frequency magnitudes in cm-1.
+    cutoff : float
+        Imaginary frequencies smaller (in magnitude) than this value will be
+        inverted (sign flipped).
 
     Returns
     -------
     array-like
+
+    Notes
+    -----
+    We probably profit from QRRHO in cases where small imaginary vibrational
+    frequencies are present. Obviously, for this to make sense in a the QRRHO
+    context, values are only acceptable when smaller than ~100 cm**-1. More
+    reasonably, values should be smaller than ~50 cm**-1. This is the current
+    default. It is your responsability to ensure reliable values, which
+    broadly means no imaginary frequency larger than this cutoff (unless we
+    are dealing with transition states).
 
     Examples
     --------
@@ -732,23 +750,20 @@ def _check_vibfreqs(vibfreqs=None):
     array([100.])
     >>> _check_vibfreqs([5.0, 10.0])
     array([ 5., 10.])
-    >>> _check_vibfreqs([0.0, 5.0, 10.0])
-    array([ 5., 10.])
-    >>> _check_vibfreqs([-5.0, 0.0, 5.0, 10.0])
-    array([ 5., 10.])
+    >>> _check_vibfreqs([-5.0, 15.0, 100.0])
+    array([  5.,  15., 100.])
+    >>> _check_vibfreqs([-55.0, 15.0, 100.0])
+    array([ 15., 100.])
+    >>> _check_vibfreqs([-55.0, -5.0, 15.0, 100.0])
+    array([  5.,  15., 100.])
     """
     if vibfreqs is None:
         return np.array([])
     vibfreqs = np.atleast_1d(vibfreqs)
-    # TODO(schneiderfelipe): give a warning about negative frequencies.
-    # TODO(schneiderfelipe): we might also profit from QRRHO in cases where
-    # there are small negative vibrational frequencies (obviously, acceptable
-    # values are lower than ~100 cm**-1, more reasonably lower than
-    # ~50 cm**-1). In this case, we will need to keep those small frequencies
-    # (possibly using their absolute figures). Things have to be tested and
-    # this is a possibly important paper/contribution. Notwithstanding, the
-    # largest negative value will have to be left out in transition states.
-    return vibfreqs[vibfreqs > 0]
+    # TODO(schneiderfelipe): give a warning when we have two or more negative
+    # values outside the cutoff, since it is certainly a sign of a bad
+    # structure.
+    return np.abs(vibfreqs[vibfreqs > cutoff])
 
 
 # TODO(schneiderfelipe): B_av chosen as 1.0e-44 / (atomic_mass * angstrom**2)
@@ -818,17 +833,20 @@ def _head_gordon_damping(vibfreqs, omega=103.61231288246945, alpha=4):
     >>> _head_gordon_damping(103.61231288246945)
     array([0.5])
 
-    This function only returns weights for positive values (non-positive values
-    are ignored):
+    This function uses `_check_vibfreqs` and as such employs its default
+    cutoff for imaginary frequencies. This means that weights for positive
+    values are returned as expected, but small non-positive values are
+    inverted (sign flipped):
 
     >>> _head_gordon_damping([5.0, 10.0])
     array([6.e-06, 1.e-04])
-    >>> _head_gordon_damping([0.0, 5.0, 10.0])
-    array([6.e-06, 1.e-04])
-    >>> _head_gordon_damping([-5.0, 0.0, 5.0, 10.0])
-    array([6.e-06, 1.e-04])
+    >>> _head_gordon_damping([-5.0, 5.0, 15.0, 100.0])
+    array([6.e-06, 6.e-06, 4.e-04, 5.e-01])
+    >>> _head_gordon_damping([-55.0, -5.0, 5.0, 15.0, 100.0])
+    array([6.e-06, 6.e-06, 4.e-04, 5.e-01])
     """
-    return 1.0 / (1.0 + (omega / _check_vibfreqs(vibfreqs)) ** alpha)
+    vibfreqs = _check_vibfreqs(vibfreqs)
+    return 1.0 / (1.0 + (omega / vibfreqs) ** alpha)
 
 
 def molar_volume(temperature=298.15, pressure=constants.atm):
