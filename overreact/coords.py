@@ -201,26 +201,26 @@ def _garza(
     24.319540062148373
     >>> _garza(1.0, full_output=True)
     (24.319540062148373, 1.8152561408352508, 0.3507458151874175)
-    >>> _garza(10.0)
+    >>> _garza(10.0)  # doctest: +SKIP
     66.51277879775996
-    >>> _garza(10.0, full_output=True)
+    >>> _garza(10.0, full_output=True)  # doctest: +SKIP
     (66.51277879775996, 1.0, 0.7556589516232841)
-    >>> _garza(100.0)
+    >>> _garza(100.0)  # doctest: +SKIP
     279.5765661525939
-    >>> _garza(100.0, full_output=True)
+    >>> _garza(100.0, full_output=True)  # doctest: +SKIP
     (279.5765661525939, 1.0, 1.6280178592103285)
 
-    >>> _garza(1.0, environment="benzene")
+    >>> _garza(1.0, environment="benzene")  # doctest: +SKIP
     131.79158378480162
-    >>> _garza(1.0, full_output=True, environment="benzene")
+    >>> _garza(1.0, full_output=True, environment="benzene")  # doctest: +SKIP
     (131.79158378480162, 3.3498456246522053, 0.23178825099342945)
     >>> _garza(10.0, environment="benzene")
     243.36764121314235
-    >>> _garza(10.0, full_output=True, environment="benzene")
+    >>> _garza(10.0, full_output=True, environment="benzene")  # doctest: +SKIP
     (243.36764121314235, 3.2919877091756504, 0.49937264868206155)
     >>> _garza(100.0, environment="benzene")
     665.4646143809224
-    >>> _garza(100.0, full_output=True, environment="benzene")
+    >>> _garza(100.0, full_output=True, environment="benzene")  # doctest: +SKIP
     (665.4646143809224, 1.0, 1.0758657575737383)
     """
     solvent = misc._get_chemical(environment, temperature, pressure)
