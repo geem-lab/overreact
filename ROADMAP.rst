@@ -1,7 +1,6 @@
 Initial code idea:
 
 y0 = [1.0, 0.0]
-t_span = [0.0, 100.0]
 freeenergies = [0.0, 20.0, -10.0]
 
 model = parse("A -> A‡ -> B")
@@ -13,8 +12,8 @@ model = parse("A -> A‡ -> B")
 k = eyring(model.B @ freeenergies)
 
 dydt = get_dydt(model, k)
-t, y, r = get_y(dydt, t_span, y0)
-y[:, -1]
+y, r = get_y(dydt, y0)
+y(y.t_max)
 
 In some advanced tutorial, I might show how to create a polymerization model
 (Pn + P -> Pn+1‡ -> Pn+1) using data extrapolated from data on small to

@@ -31,9 +31,9 @@ y0_Cl = 1 / (np.sum(model.compounds["Cl·"].atommasses) * 1e3)
 y0_HCl = 1 / (np.sum(model.compounds["HCl"].atommasses) * 1e3)
 y0 = [y0_CH4, y0_Cl, 0.0, 0.0, y0_HCl]
 print(y0)
-t_span = [0, 3e-3]
+
 dydt = api.get_dydt(model.scheme, k_eck)
-t, y, r = api.get_y(dydt, y0=y0, t_span=t_span, method="Radau")
+t, y, r = api.get_y(dydt, y0=y0, method="Radau")
 
 print(model.scheme.compounds)
 print(y[:, -1])

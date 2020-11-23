@@ -145,8 +145,10 @@ enzyme-substrate complex yet.
 Let's now do a one minute simulation with ``get_y`` (methods Radau or BDF are
 recommended for likely stiff equations such as those):
 
->>> t = 60.0  # seconds
->>> t, y, r = simulate.get_y(dydt, y0, [0.0, t], method="Radau")
+>>> y, r = simulate.get_y(dydt, y0, method="Radau")
+
+>>> import numpy as np
+>>> t = np.linspace(y.t_min, 60.0)  # seconds
 
 We can graph concentrations over time with ``t`` and ``y``:
 
@@ -154,7 +156,7 @@ We can graph concentrations over time with ``t`` and ``y``:
 >>> plt.clf()
 >>> for i, compound in enumerate(scheme.compounds):
 ...    if not compound.endswith("‡"):
-...        plt.plot(t, y[i], label=compound)
+...        plt.plot(t, y(t)[i], label=compound)
 [...]
 >>> plt.legend()
 <...>
@@ -174,7 +176,7 @@ Text(...)
 The simulation time was enough to convert all substrate into products and
 regenerate the initial enzyme molecules:
 
->>> y[:, -1]
+>>> y(y.t_max)
 array([0.05, 0.00, 0.00, 0.00, 1.00])
 
 Getting rates back
@@ -183,7 +185,7 @@ Getting rates back
 From the solution above, we can get the rate of production formation over time:
 
 >>> import numpy as np
->>> dy = np.array([dydt(t, y) for t, y in zip(t, y.T)]).T
+>>> dy = np.array([dydt(t, y) for t, y in zip(t, y(t).T)]).T
 >>> plt.clf()
 >>> plt.plot(t, dy[scheme.compounds.index("P")], label="P")
 [...]
@@ -201,7 +203,7 @@ Text(...)
 
 Furthermore, we can get the turnover frequency (TOF) as:
 
->>> total_enzyme = y[scheme.compounds.index("E"), :] + y[scheme.compounds.index("ES"), :]
+>>> total_enzyme = y(t)[scheme.compounds.index("E"), :] + y(t)[scheme.compounds.index("ES"), :]
 >>> tof = dy[scheme.compounds.index("P")] / total_enzyme
 >>> plt.clf()
 >>> plt.plot(t, tof, label="P")

@@ -29,11 +29,12 @@ Simple concurrent first order reactions using the rates above would be:
 ...     A -> AC‡ -> C
 ... """)
 >>> dydt = simulate.get_dydt(scheme, k)
->>> t, y, r = simulate.get_y(dydt, y0=[1.0, 0.0, 0.0, 0.0, 0.0], method="Radau")
+>>> y, r = simulate.get_y(dydt, y0=[1.0, 0.0, 0.0, 0.0, 0.0], method="Radau")
+>>> t = np.linspace(y.t_min, 5.0)
 >>> plt.clf()
 >>> for i, compound in enumerate(scheme.compounds):
 ...    if not compound.endswith("‡"):
-...        plt.plot(t, y[i], label=compound)
+...        plt.plot(t, y(t)[i], label=compound)
 [...]
 >>> plt.legend()
 <...>

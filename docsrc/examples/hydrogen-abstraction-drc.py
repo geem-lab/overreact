@@ -28,13 +28,11 @@ y0_Cl = 1 / (np.sum(model.compounds["Cl·"].atommasses) * 1e3)
 y0_HCl = 1 / (np.sum(model.compounds["HCl"].atommasses) * 1e3)
 y0 = [y0_CH4, y0_Cl, 0.0, 0.0, y0_HCl]
 print(y0)
-t_span = [0, 3e-3]
 
 t, drc = api.get_drc(
     model.scheme,
     model.compounds,
     y0,
-    t_span,
     scale="M-1 s-1",
     method="BDF",
     num=500,

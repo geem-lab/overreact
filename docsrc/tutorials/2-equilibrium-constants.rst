@@ -21,9 +21,9 @@ So let's check it:
 (['Cd2p', 'MeNH2', '[Cd(MeNH2)4]2p'],
  ['Cd2p + 4 MeNH2 -> [Cd(MeNH2)4]2p', '[Cd(MeNH2)4]2p -> Cd2p + 4 MeNH2'])
 >>> dydt = simulate.get_dydt(scheme, [K, 1.])
->>> t, y, r = simulate.get_y(dydt, y0=[0., 0., 1.])
->>> y[:, -1]
+>>> y, r = simulate.get_y(dydt, y0=[0., 0., 1.])
+>>> y(y.t_max)
 array([0.01608807, 0.06435228, 0.98391193])
->>> Kobs = y[:, -1][2] / (y[:, -1][0] *  y[:, -1][1]**4)
+>>> Kobs = y(y.t_max)[2] / (y(y.t_max)[0] *  y(y.t_max)[1]**4)
 >>> np.log10(Kobs)
 6.55
