@@ -658,6 +658,15 @@ def _prepare_simulation(scheme, k, concentrations):
                 )
                 yield Markdown(f"Simulation data was saved to **{self.savepath}**")
 
+            if self.savepath is not None:
+                np.savetxt(
+                    self.savepath,
+                    np.block([t[:, np.newaxis], y(t).T]),
+                    header=f"t,{','.join(self.model.scheme.compounds)}",
+                    delimiter=",",
+                )
+                yield f"CSV file saved to {self.savepath}"
+
 
 def main():
     """Command-line interface."""
