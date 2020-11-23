@@ -186,8 +186,7 @@ def test_private_functions_work():
                 ]
             )
         )
-        == ["E + S -> ES", "ES -> E + S", "ES -> ES‡", "ES‡ -> E + P"]
-    )
+    ) == ["E + S -> ES", "ES -> E + S", "ES -> ES‡", "ES‡ -> E + P"]
 
     assert list(
         rx.core._unparse_reactions(
