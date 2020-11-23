@@ -28,6 +28,8 @@ else:
 
 logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
 def get_y(
