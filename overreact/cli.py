@@ -9,12 +9,13 @@ import os
 import re
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
-from rich.table import Table
-from rich.table import Column
+from rich import box
 from rich.console import Console
 from rich.markdown import Markdown
-from rich import box
+from rich.table import Table
+from rich.table import Column
 
 from overreact import __version__
 from overreact import api
@@ -468,8 +469,6 @@ class Report:
             # changes through time: stop when the graph gets boring.
             t = np.linspace(y.t_min, y.t_max)
             if self.plot:
-                import matplotlib.pyplot as plt
-
                 for i, name in enumerate(self.model.scheme.compounds):
                     if not core.is_transition_state(name):
                         plt.plot(t, y(t)[i], label=name)
@@ -486,7 +485,7 @@ class Report:
                     header=f"t,{','.join(self.model.scheme.compounds)}",
                     delimiter=",",
                 )
-                yield f"CSV file saved to {self.savepath}"
+                yield Markdown(f"CSV file saved to {self.savepath}")
 
 
 def main():
@@ -563,7 +562,7 @@ Inputs:
 Parsing and calculating…
             """
         ),
-        justify="center",
+        justify="left",
     )
 
     logging.basicConfig(
@@ -581,7 +580,7 @@ Parsing and calculating…
         qrrho=args.qrrho,
         temperature=args.temperature,
     )
-    console.print(report, justify="center")
+    console.print(report, justify="left")
 
 
 if __name__ == "__main__":

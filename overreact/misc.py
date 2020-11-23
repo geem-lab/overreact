@@ -448,7 +448,8 @@ def _get_chemical(
 ):
     """Wrap `thermo.Chemical`.
 
-    This function is used for obtaining property values and requires the `thermo` package.
+    This function is used for obtaining property values and requires the
+    `thermo` package.
 
     All parameters are passed to `thermo.Chemical` and the returned object is
     returned.
