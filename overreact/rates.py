@@ -211,7 +211,8 @@ def convert_rate_constant(
 
     # no need to convert if same units or if molecularity is one
     if old_scale == new_scale or np.all(molecularity == 1):
-        # TODO(schneiderfelipe): probably do something else with array-like molecularity?
+        # TODO(schneiderfelipe): probably do something else with array-like
+        # molecularity?
         return val
 
     # we first convert anything to l mol-1 s-1

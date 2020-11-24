@@ -9,12 +9,15 @@ import os
 import re
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
-from rich.table import Table
-from rich.table import Column
+from rich import box
 from rich.console import Console
 from rich.markdown import Markdown
-from rich import box
+from rich.panel import Panel
+from rich.table import Table
+from rich.table import Column
+from rich.text import Text
 
 from overreact import __version__
 from overreact import api
@@ -114,7 +117,7 @@ class Report:
     def __init__(
         self,
         model,
-        quantities=None,
+        concentrations=None,
         savepath=None,
         plot=False,  # TODO(schneiderfelipe): change to do_plot
         qrrho=True,  # TODO(schneiderfelipe): change to use_qrrho
@@ -122,7 +125,7 @@ class Report:
         box_style=box.SIMPLE,
     ):
         self.model = model
-        self.quantities = quantities
+        self.concentrations = concentrations
         self.savepath = savepath
         self.plot = plot
         self.qrrho = qrrho
@@ -158,20 +161,20 @@ class Report:
         raw_table = Table(
             title="(read) reactions", box=self.box_style, show_header=False
         )
-        raw_table.add_column(justify="center")
+        raw_table.add_column(justify="left")
         for r in core.unparse_reactions(scheme).split("\n"):
             raw_table.add_row(r)
-        yield raw_table
+        yield Panel(raw_table, expand=False)
 
         transition_states = core.get_transition_states(
             scheme.A, scheme.B, scheme.is_half_equilibrium
         )
 
         parsed_table = Table(
-            Column("no", justify="center"),
-            Column("reactant", justify="center"),
-            Column("via‡", justify="center"),
-            Column("product", justify="center"),
+            Column("no", justify="right"),
+            Column("reactant(s)", justify="left"),
+            Column("via‡", justify="left"),
+            Column("product(s)", justify="left"),
             Column("half equilib.?", justify="center"),
             title="(parsed) reactions",
             box=self.box_style,
@@ -180,7 +183,7 @@ class Report:
             reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
             # TODO(schneiderfelipe): should we use "No" instead of None for
             # "half-equilib.?"?
-            row = [f"{i:2d}", reactants, None, products, None]
+            row = [f"{i:d}", reactants, None, products, None]
             if transition_states[i] is not None:
                 row[2] = scheme.compounds[transition_states[i]]
             elif scheme.is_half_equilibrium[i]:
@@ -210,15 +213,15 @@ class Report:
             raise ValueError(f"undefined compounds: {', '.join(undefined_compounds)}")
 
         logfiles_table = Table(
-            Column("no", justify="center"),
-            Column("compound", justify="center"),
-            Column("path", justify="center"),
+            Column("no", justify="right"),
+            Column("compound", justify="left"),
+            Column("path", justify="left"),
             title="logfiles",
             box=self.box_style,
         )
         compounds_table = Table(
-            Column("no", justify="center"),
-            Column("compound", justify="center"),
+            Column("no", justify="right"),
+            Column("compound", justify="left"),
             Column("elec. energy\n\[Eₕ]", justify="center"),
             Column("spin mult.", justify="center"),
             Column("smallest vibfreqs\n\[cm⁻¹]", justify="center"),
@@ -226,20 +229,27 @@ class Report:
             box=self.box_style,
         )
         for i, (name, data) in enumerate(self.model.compounds.items()):
+            path_text = Text(data.logfile)
+            path_text.highlight_regex(r"[^\/]+$", "bright_blue")
             logfiles_table.add_row(
-                f"{i:2d}",
+                f"{i:d}",
                 name,
                 # TODO(schneiderfelipe): show only the file name and inform
                 # the absolute path to folder (as a bash variable) somewhere
                 # else.
-                data.logfile,
+                path_text,
             )
+
+            vibfreqs_text = Text(
+                ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
+            )
+            vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
             compounds_table.add_row(
-                f"{i:2d}",
+                f"{i:d}",
                 name,
                 f"{data.energy / (constants.hartree * constants.N_A):17.12f}",
                 f"{data.mult}",
-                ", ".join([f"{vibfreq:+.1f}" for vibfreq in data.vibfreqs[:3]]),
+                vibfreqs_text,
             )
         yield logfiles_table
         yield compounds_table
@@ -273,10 +283,10 @@ class Report:
         freeenergies = enthalpies - self.temperature * entropies
 
         compounds_table = Table(
-            Column("no", justify="center"),
-            Column("compound", justify="center"),
+            Column("no", justify="right"),
+            Column("compound", justify="left"),
             Column("mass\n\[amu]", justify="center"),
-            Column("Gᶜᵒʳʳ\n\[kcal/mol]", justify="center", style="green"),
+            Column("Gᶜᵒʳʳ\n\[kcal/mol]", justify="center", style="bright_green"),
             Column("Uᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
             Column("Hᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
             Column("S\n\[cal/mol·K]", justify="center"),
@@ -285,7 +295,7 @@ class Report:
         )
         for i, (name, data) in enumerate(self.model.compounds.items()):
             compounds_table.add_row(
-                f"{i:2d}",
+                f"{i:d}",
                 name,
                 f"{molecular_masses[i]:6.2f}",
                 f"{(freeenergies[i] - data.energy) / constants.kcal:14.2f}",
@@ -310,33 +320,33 @@ class Report:
         delta_activation_freeenergies = api.get_delta(scheme.B, freeenergies)
 
         circ_table = Table(
-            Column("no", justify="center"),
-            Column("reaction", justify="center"),
+            Column("no", justify="right"),
+            Column("reaction", justify="left"),
             Column("Δmass°\n\[amu]", justify="center"),
-            Column("ΔG°\n\[kcal/mol]", justify="center", style="green"),
+            Column("ΔG°\n\[kcal/mol]", justify="center", style="bright_green"),
             Column("ΔE°\n\[kcal/mol]", justify="center"),
             Column("ΔU°\n\[kcal/mol]", justify="center"),
             Column("ΔH°\n\[kcal/mol]", justify="center"),
             Column("ΔS°\n\[cal/mol·K]", justify="center"),
-            title="calculated thermochemistry (reactions°)",
+            title="calculated (reaction°) thermochemistry",
             box=self.box_style,
         )
         dagger_table = Table(
-            Column("no", justify="center"),
-            Column("reaction", justify="center"),
+            Column("no", justify="right"),
+            Column("reaction", justify="left"),
             Column("Δmass‡\n\[amu]", justify="center"),
-            Column("ΔG‡\n\[kcal/mol]", justify="center", style="green"),
+            Column("ΔG‡\n\[kcal/mol]", justify="center", style="bright_green"),
             Column("ΔE‡\n\[kcal/mol]", justify="center"),
             Column("ΔU‡\n\[kcal/mol]", justify="center"),
             Column("ΔH‡\n\[kcal/mol]", justify="center"),
             Column("ΔS‡\n\[cal/mol·K]", justify="center"),
-            title="calculated thermochemistry (reactions‡)",
+            title="calculated (activation‡) thermochemistry",
             box=self.box_style,
         )
         for i, reaction in enumerate(scheme.reactions):
             if scheme.is_half_equilibrium[i]:
                 circ_row = [
-                    f"{i:2d}",
+                    f"{i:d}",
                     reaction,
                     f"{delta_mass[i]:6.2f}",
                     f"{delta_freeenergies[i] / constants.kcal:10.2f}",
@@ -346,7 +356,7 @@ class Report:
                     f"{delta_entropies[i] / constants.calorie:11.2f}",
                 ]
                 dagger_row = [
-                    f"{i:2d}",
+                    f"{i:d}",
                     reaction,
                     None,
                     None,
@@ -357,7 +367,7 @@ class Report:
                 ]
             else:
                 circ_row = [
-                    f"{i:2d}",
+                    f"{i:d}",
                     reaction,
                     f"{delta_mass[i]:6.2f}",
                     f"{delta_freeenergies[i] / constants.kcal:10.2f}",
@@ -367,7 +377,7 @@ class Report:
                     f"{delta_entropies[i] / constants.calorie:11.2f}",
                 ]
                 dagger_row = [
-                    f"{i:2d}",
+                    f"{i:d}",
                     reaction,
                     f"{delta_activation_mass[i]:6.2f}",
                     f"{delta_activation_freeenergies[i] / constants.kcal:10.2f}",
@@ -420,24 +430,24 @@ class Report:
         kinetics_table = Table(
             *(
                 [
-                    Column("no", justify="center"),
-                    Column("reaction", justify="center"),
+                    Column("no", justify="right"),
+                    Column("reaction", justify="left"),
                     Column("half equilib.?", justify="center"),
                 ]
                 + [Column(f"k\n\[{scale}]", justify="center") for scale in k]
             ),
-            title="calculated kinetics",
+            title="calculated reaction rate constants",
             box=self.box_style,
         )
         for i, reaction in enumerate(self.model.scheme.reactions):
-            row = [f"{i:2d}", reaction, None] + [f"{k[scale][i]:7.2g}" for scale in k]
+            row = [f"{i:d}", reaction, None] + [f"{k[scale][i]:.3g}" for scale in k]
             if self.model.scheme.is_half_equilibrium[i]:
                 row[2] = True
 
             kinetics_table.add_row(*row)
         yield kinetics_table
 
-        if self.quantities is not None and self.quantities:
+        if self.concentrations is not None and self.concentrations:
             scale = "M⁻ⁿ⁺¹·s⁻¹"
 
             # TODO(schneiderfelipe): apply post-processing to scheme, k (with functions
@@ -450,26 +460,41 @@ class Report:
             dydt = api.get_dydt(self.model.scheme, k[scale])
 
             y0 = np.zeros(len(self.model.scheme.compounds))
-            for spec in self.quantities:
+            for spec in self.concentrations:
                 fields = spec.split(":", 1)
                 name = fields[0]
                 try:
                     quantity = float(fields[1])
                 except (IndexError, ValueError):
                     raise ValueError(
-                        f"badly formatted quantities: '{' '.join(self.quantities)}'"
+                        f"badly formatted concentrations: '{' '.join(self.concentrations)}'"
                     )
 
                 # TODO(schneiderfelipe): the following is inefficient but probably OK
                 y0[self.model.scheme.compounds.index(name)] = quantity
 
             y, _ = api.get_y(dydt, y0=y0, method="Radau")
+            conc_table = Table(
+                Column("no", justify="right"),
+                Column("compound", justify="left"),
+                Column(f"t = {y.t_min:.1g} s", justify="right"),
+                Column(f"t = {y.t_max:.1g} s", justify="right", style="bright_green"),
+                title="initial and final concentrations\n\[M]",
+                box=self.box_style,
+            )
+            for i, (name, _) in enumerate(self.model.compounds.items()):
+                conc_table.add_row(
+                    f"{i:d}",
+                    name,
+                    f"{y(y.t_min)[i]:.3f}",
+                    f"{y(y.t_max)[i]:.3f}",
+                )
+            yield conc_table
+
             # TODO(schneiderfelipe): we can get a max time now based on the
             # changes through time: stop when the graph gets boring.
             t = np.linspace(y.t_min, y.t_max)
             if self.plot:
-                import matplotlib.pyplot as plt
-
                 for i, name in enumerate(self.model.scheme.compounds):
                     if not core.is_transition_state(name):
                         plt.plot(t, y(t)[i], label=name)
@@ -486,7 +511,7 @@ class Report:
                     header=f"t,{','.join(self.model.scheme.compounds)}",
                     delimiter=",",
                 )
-                yield f"CSV file saved to {self.savepath}"
+                yield Markdown(f"Simulation data was saved to **{self.savepath}**")
 
 
 def main():
@@ -500,7 +525,7 @@ def main():
     )
     parser.add_argument("path", help="path to a source (.k) or model file (.jk)")
     parser.add_argument(
-        "quantities",
+        "concentrations",
         help=(
             "optional initial compound concentrations as 'name:quantity' for "
             "a microkinetic simulation"
@@ -551,19 +576,19 @@ def main():
 Construct precise chemical microkinetic models from first principles
 
 Inputs:
-- Path          = {args.path}
-- Quantities    = {args.quantities}
-- Verbose level = {args.verbose}
-- Compile?      = {args.compile}
-- Plot?         = {args.plot}
-- QRRHO?        = {args.qrrho}
-- Temperature   = {args.temperature} K
-- Pressure      = {args.pressure} Pa
+- Path           = {args.path}
+- Concentrations = {args.concentrations}
+- Verbose level  = {args.verbose}
+- Compile?       = {args.compile}
+- Plot?          = {args.plot}
+- QRRHO?         = {args.qrrho}
+- Temperature    = {args.temperature} K
+- Pressure       = {args.pressure} Pa
 
 Parsing and calculating…
             """
         ),
-        justify="center",
+        justify="left",
     )
 
     logging.basicConfig(
@@ -575,13 +600,13 @@ Parsing and calculating…
     model = io.parse_model(args.path, force_compile=args.compile)
     report = Report(
         model,
-        quantities=args.quantities,
+        concentrations=args.concentrations,
         savepath=os.path.splitext(args.path)[0] + ".csv",
         plot=args.plot,
         qrrho=args.qrrho,
         temperature=args.temperature,
     )
-    console.print(report, justify="center")
+    console.print(report, justify="left")
 
 
 if __name__ == "__main__":
