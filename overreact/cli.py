@@ -665,7 +665,7 @@ def _prepare_simulation(scheme, k, concentrations):
                     header=f"t,{','.join(self.model.scheme.compounds)}",
                     delimiter=",",
                 )
-                yield f"CSV file saved to {self.savepath}"
+                yield Markdown(f"Simulation data was saved to **{self.savepath}**")
 
 
 def main():
