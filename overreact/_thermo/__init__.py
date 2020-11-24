@@ -6,6 +6,7 @@ import logging
 
 import numpy as np
 from scipy.misc import derivative as _derivative
+from scipy.special import factorial as _factorial
 
 from overreact import constants
 from overreact._thermo import _gas
@@ -549,7 +550,8 @@ def get_delta(transform, property):
 
     Normally, transformations are given as columns in a matrix:
 
-    >>> get_delta([[-1, -2], [1, 3]], [-5, 12])
+    >>> get_delta([[-1, -2],
+    ...            [ 1,  3]], [-5, 12])
     array([17, 46])
     """
     return np.asanyarray(transform).T @ np.asanyarray(property)
@@ -699,10 +701,49 @@ def change_reference_state(
     -1.56
 
     """
-    temperature = np.asanyarray(temperature)
-
     if old_reference is None:
         if volume is None:
-            volume = molar_volume(temperature=temperature, pressure=pressure)
+            volume = molar_volume(
+                temperature=np.asanyarray(temperature), pressure=pressure
+            )
         old_reference = 1.0 / volume
     return sign * constants.R * np.log(new_reference / old_reference)
+
+
+# TODO(schneiderfelipe): should those functions be plural or singular?
+# TODO(schneiderfelipe): should this function go to api?
+def get_reaction_entropies(transform):
+    """Calculate entropy contributions from the overall reaction structure.
+
+    This function currently implements the reaction translational entropy, a
+    result of the indistinguishability of reactants or products, i.e., a
+    difference in entropy of :math:`R ln 2!` for the reactions
+
+    .. math::
+        \ce{A + B -> C}
+
+    and
+
+    .. math::
+        \ce{2A -> C}
+
+    Parameters
+    ----------
+    transform : array-like
+
+    Returns
+    -------
+    delta_entropy : array-like
+
+    Examples
+    --------
+    >>> from overreact import api
+    >>> scheme = api.parse_reactions("A + B <=> C")
+    >>> get_reaction_entropies(scheme.A)
+    array([0.0, 0.0])
+    >>> scheme = api.parse_reactions("2A <=> C")
+    >>> get_reaction_entropies(scheme.A)
+    array([-5.763, 5.763])
+    """
+    sym = _factorial(np.abs(np.asanyarray(transform)))
+    return np.sum(np.sign(transform) * change_reference_state(sym, 1), axis=0)
