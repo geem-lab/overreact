@@ -217,6 +217,11 @@ class Report:
             point_group = coords.find_point_group(
                 atommasses=data.atommasses, atomcoords=data.atomcoords
             )
+
+            vibfreqs_text = Text(
+                ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
+            )
+            vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
             compounds_table.add_row(
                 f"{i:d}",
                 name,
@@ -651,7 +656,7 @@ def _prepare_simulation(scheme, k, concentrations):
                     header=f"t,{','.join(self.model.scheme.compounds)}",
                     delimiter=",",
                 )
-                yield f"CSV file saved to {self.savepath}"
+                yield Markdown(f"Simulation data was saved to **{self.savepath}**")
 
 
 def main():
