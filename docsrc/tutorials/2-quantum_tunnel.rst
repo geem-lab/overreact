@@ -5,7 +5,7 @@ Transmission coefficients (:math:`\kappa`) take quantum tunneling effects into
 account in reaction rate constants.
 
 >>> from overreact import api, tunnel
->>> from scipy import constants
+>>> from overreact import constants
 >>> tunnel.wigner(266.5144)
 1.069
 >>> kappa = tunnel.wigner(1000.0)
@@ -26,7 +26,7 @@ array([-15.,   0.,  15.])
 Now comes Eyring's equation
 
 >>> T = 298.15
->>> K = np.exp(- delta_gibbs / (constants.R * T / (constants.kilo * constants.calorie)))
+>>> K = np.exp(- delta_gibbs / (constants.R * T / constants.kcal))
 >>> k = kappa * (constants.k * T / constants.h) * K
 >>> K, k
 (array([9.887e+10, 1.000e+00, 1.011e-11]),

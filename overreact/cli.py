@@ -183,11 +183,11 @@ class Report:
             reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
             # TODO(schneiderfelipe): should we use "No" instead of None for
             # "half-equilib.?"?
-            row = [f"{i:d}", reactants, None, products, None]
+            row = [f"{i:d}", reactants, None, products, "NO"]
             if transition_states[i] is not None:
                 row[2] = scheme.compounds[transition_states[i]]
             elif scheme.is_half_equilibrium[i]:
-                row[4] = True
+                row[4] = "YES"
             parsed_table.add_row(*row)
         yield parsed_table
 
@@ -229,8 +229,10 @@ class Report:
             box=self.box_style,
         )
         for i, (name, data) in enumerate(self.model.compounds.items()):
-            path_text = Text(data.logfile)
-            path_text.highlight_regex(r"[^\/]+$", "bright_blue")
+            path_text = None
+            if data.logfile is not None:
+                path_text = Text(data.logfile)
+                path_text.highlight_regex(r"[^\/]+$", "bright_blue")
             logfiles_table.add_row(
                 f"{i:d}",
                 name,
@@ -240,10 +242,12 @@ class Report:
                 path_text,
             )
 
-            vibfreqs_text = Text(
-                ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
-            )
-            vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
+            vibfreqs_text = None
+            if data.vibfreqs is not None:
+                vibfreqs_text = Text(
+                    ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
+                )
+                vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
             compounds_table.add_row(
                 f"{i:d}",
                 name,
@@ -281,6 +285,16 @@ class Report:
             self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
         )
         freeenergies = enthalpies - self.temperature * entropies
+        assert np.allclose(
+            freeenergies,
+            api.get_freeenergies(
+                self.model.compounds,
+                # bias=bias,
+                qrrho=self.qrrho,
+                temperature=self.temperature,
+                # pressure=pressure,
+            ),
+        )
 
         compounds_table = Table(
             Column("no", justify="right"),
@@ -309,24 +323,32 @@ class Report:
         delta_energies = api.get_delta(scheme.A, energies)
         delta_internal_energies = api.get_delta(scheme.A, internal_energies)
         delta_enthalpies = api.get_delta(scheme.A, enthalpies)
-        # TODO(schneiderfelipe): test this implementation of reaction symmetry
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_entropies = api.get_delta(
             scheme.A, entropies
         ) + api.get_reaction_entropies(scheme.A)
         delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
+        assert np.allclose(
+            delta_freeenergies,
+            api.get_delta(scheme.A, freeenergies)
+            - self.temperature * api.get_reaction_entropies(scheme.A),
+        )
 
         delta_activation_mass = api.get_delta(scheme.B, molecular_masses)
         delta_activation_energies = api.get_delta(scheme.B, energies)
         delta_activation_internal_energies = api.get_delta(scheme.B, internal_energies)
         delta_activation_enthalpies = api.get_delta(scheme.B, enthalpies)
-        # TODO(schneiderfelipe): test this implementation of reaction symmetry
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_activation_entropies = api.get_delta(
             scheme.B, entropies
         ) + api.get_reaction_entropies(scheme.B)
         delta_activation_freeenergies = (
             delta_activation_enthalpies - self.temperature * delta_activation_entropies
+        )
+        assert np.allclose(
+            delta_activation_freeenergies,
+            api.get_delta(scheme.B, freeenergies)
+            - self.temperature * api.get_reaction_entropies(scheme.B),
         )
 
         circ_table = Table(
@@ -450,9 +472,9 @@ class Report:
             box=self.box_style,
         )
         for i, reaction in enumerate(self.model.scheme.reactions):
-            row = [f"{i:d}", reaction, None] + [f"{k[scale][i]:.3g}" for scale in k]
+            row = [f"{i:d}", reaction, "NO"] + [f"{k[scale][i]:.3g}" for scale in k]
             if self.model.scheme.is_half_equilibrium[i]:
-                row[2] = True
+                row[2] = "YES"
 
             kinetics_table.add_row(*row)
         yield kinetics_table

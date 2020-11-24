@@ -66,19 +66,19 @@ def test_basic_example_for_chemical_kinetics():
     delta_freeenergy -= (
         temperatures
         * _thermo.change_reference_state(temperature=temperatures)
-        / (constants.kilo * constants.calorie)
+        / constants.kcal
     )  # 1 atm to 1 M
     assert delta_freeenergy == pytest.approx([6.9, 8.4, 8.4, 9.9], 8e-3)
 
     delta_freeenergy += (
         temperatures
         * _thermo.change_reference_state(4, 1, sign=-1, temperature=temperatures)
-        / (constants.kilo * constants.calorie)
+        / constants.kcal
     )  # 4-fold symmetry TS
     assert delta_freeenergy == pytest.approx([6.3, 7.6, 7.6, 8.8], 9e-3)
 
     k = rates.eyring(
-        delta_freeenergy * constants.kilo * constants.calorie,
+        delta_freeenergy * constants.kcal,
         temperature=temperatures,
         molecularity=2,
     )
