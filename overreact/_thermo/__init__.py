@@ -716,7 +716,16 @@ def get_reaction_entropies(transform):
     """Calculate entropy contributions from the overall reaction structure.
 
     This function currently implements the reaction translational entropy, a
-    result of the indistinguishability of reactants or products.
+    result of the indistinguishability of reactants or products, i.e., a
+    difference in entropy of :math:`R ln 2!` for the reactions
+
+    .. math::
+        \ce{A + B -> C}
+
+    and
+
+    .. math::
+        \ce{2A -> C}
 
     Parameters
     ----------
@@ -728,34 +737,13 @@ def get_reaction_entropies(transform):
 
     Examples
     --------
-    >>> get_reaction_entropies([-1, 1])
-    0.0
-    >>> get_reaction_entropies([-2, 1])
-    -5.763
-    >>> get_reaction_entropies([-1, 2])
-    5.763
-    >>> get_reaction_entropies([-3, 1])
-    -14.897
-    >>> get_reaction_entropies([-1, 3])
-    14.897
-
-    You must ensure the transformation is properly defined, as no test is made
-    to ensure, e.g., conservation of matter (TODO(schneiderfelipe): the two
-    following lines should go to a test and not a doctest as in here):
-
-    >>> get_reaction_entropies([-1, 0])
-    0.0
-    >>> get_reaction_entropies([0, 1])
-    0.0
-
-    Normally, transformations are given as columns in a matrix:
-
-    >>> get_reaction_entropies([[-2, -1],
-    ...                         [ 1,  3]])
-    array([-5.763, 14.897])
-    >>> get_reaction_entropies([[-1, -2],
-    ...                         [ 1,  3]])
-    array([0. , 9.134])
+    >>> from overreact import api
+    >>> scheme = api.parse_reactions("A + B <=> C")
+    >>> get_reaction_entropies(scheme.A)
+    array([0.0, 0.0])
+    >>> scheme = api.parse_reactions("2A <=> C")
+    >>> get_reaction_entropies(scheme.A)
+    array([-5.763, 5.763])
     """
     sym = _factorial(np.abs(np.asanyarray(transform)))
     return np.sum(np.sign(transform) * change_reference_state(sym, 1), axis=0)
