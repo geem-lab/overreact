@@ -309,21 +309,24 @@ class Report:
         delta_energies = api.get_delta(scheme.A, energies)
         delta_internal_energies = api.get_delta(scheme.A, internal_energies)
         delta_enthalpies = api.get_delta(scheme.A, enthalpies)
-        delta_entropies = api.get_delta(scheme.A, entropies)
-        delta_freeenergies = api.get_delta(scheme.A, freeenergies)
-        assert np.isclose(
-            delta_freeenergies, delta_enthalpies - self.temperature * delta_entropies
-        )
+        # TODO(schneiderfelipe): test this implementation of reaction symmetry
+        # TODO(schneiderfelipe): log the contribution of reaction symmetry
+        delta_entropies = api.get_delta(
+            scheme.A, entropies
+        ) + api.get_reaction_entropies(scheme.A)
+        delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
 
         delta_activation_mass = api.get_delta(scheme.B, molecular_masses)
         delta_activation_energies = api.get_delta(scheme.B, energies)
         delta_activation_internal_energies = api.get_delta(scheme.B, internal_energies)
         delta_activation_enthalpies = api.get_delta(scheme.B, enthalpies)
-        delta_activation_entropies = api.get_delta(scheme.B, entropies)
-        delta_activation_freeenergies = api.get_delta(scheme.B, freeenergies)
-        assert np.isclose(
-            delta_activation_freeenergies,
-            delta_activation_enthalpies - self.temperature * delta_activation_entropies,
+        # TODO(schneiderfelipe): test this implementation of reaction symmetry
+        # TODO(schneiderfelipe): log the contribution of reaction symmetry
+        delta_activation_entropies = api.get_delta(
+            scheme.B, entropies
+        ) + api.get_reaction_entropies(scheme.B)
+        delta_activation_freeenergies = (
+            delta_activation_enthalpies - self.temperature * delta_activation_entropies
         )
 
         circ_table = Table(

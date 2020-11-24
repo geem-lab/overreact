@@ -25,6 +25,7 @@ from overreact.io import parse_model
 from overreact.simulate import get_dydt
 from overreact.simulate import get_y
 from overreact._thermo import get_delta
+from overreact._thermo import get_reaction_entropies
 
 logger = logging.getLogger(__name__)
 
@@ -407,7 +408,12 @@ def get_k(
             temperature=temperature,
             pressure=pressure,
         )
-        delta_freeenergies = get_delta(scheme.B, freeenergies)
+
+        # TODO(schneiderfelipe): test this implementation of reaction symmetry
+        # TODO(schneiderfelipe): log the contribution of reaction symmetry
+        delta_freeenergies = get_delta(
+            scheme.B, freeenergies
+        ) - temperature * get_reaction_entropies(scheme.B)
 
     if molecularity is None:
         molecularity = _thermo.get_molecularity(scheme.A)

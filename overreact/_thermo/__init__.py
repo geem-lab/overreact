@@ -711,6 +711,7 @@ def change_reference_state(
 
 
 # TODO(schneiderfelipe): should those functions be plural or singular?
+# TODO(schneiderfelipe): should this function go to api?
 def get_reaction_entropies(transform):
     """Calculate entropy contributions from the overall reaction structure.
 
