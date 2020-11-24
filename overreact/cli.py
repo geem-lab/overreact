@@ -311,6 +311,9 @@ class Report:
         delta_enthalpies = api.get_delta(scheme.A, enthalpies)
         delta_entropies = api.get_delta(scheme.A, entropies)
         delta_freeenergies = api.get_delta(scheme.A, freeenergies)
+        assert np.isclose(
+            delta_freeenergies, delta_enthalpies - self.temperature * delta_entropies
+        )
 
         delta_activation_mass = api.get_delta(scheme.B, molecular_masses)
         delta_activation_energies = api.get_delta(scheme.B, energies)
@@ -318,6 +321,10 @@ class Report:
         delta_activation_enthalpies = api.get_delta(scheme.B, enthalpies)
         delta_activation_entropies = api.get_delta(scheme.B, entropies)
         delta_activation_freeenergies = api.get_delta(scheme.B, freeenergies)
+        assert np.isclose(
+            delta_activation_freeenergies,
+            delta_activation_enthalpies - self.temperature * delta_activation_entropies,
+        )
 
         circ_table = Table(
             Column("no", justify="right"),

@@ -6,6 +6,7 @@ import logging
 
 import numpy as np
 from scipy.misc import derivative as _derivative
+from scipy.special import factorial as _factorial
 
 from overreact import constants
 from overreact._thermo import _gas
@@ -549,7 +550,8 @@ def get_delta(transform, property):
 
     Normally, transformations are given as columns in a matrix:
 
-    >>> get_delta([[-1, -2], [1, 3]], [-5, 12])
+    >>> get_delta([[-1, -2],
+    ...            [ 1,  3]], [-5, 12])
     array([17, 46])
     """
     return np.asanyarray(transform).T @ np.asanyarray(property)
@@ -699,10 +701,60 @@ def change_reference_state(
     -1.56
 
     """
-    temperature = np.asanyarray(temperature)
-
     if old_reference is None:
         if volume is None:
-            volume = molar_volume(temperature=temperature, pressure=pressure)
+            volume = molar_volume(
+                temperature=np.asanyarray(temperature), pressure=pressure
+            )
         old_reference = 1.0 / volume
     return sign * constants.R * np.log(new_reference / old_reference)
+
+
+# TODO(schneiderfelipe): should those functions be plural or singular?
+def get_reaction_entropies(transform):
+    """Calculate entropy contributions from the overall reaction structure.
+
+    This function currently implements the reaction translational entropy, a
+    result of the indistinguishability of reactants or products.
+
+    Parameters
+    ----------
+    transform : array-like
+
+    Returns
+    -------
+    delta_entropy : array-like
+
+    Examples
+    --------
+    >>> get_reaction_entropies([-1, 1])
+    0.0
+    >>> get_reaction_entropies([-2, 1])
+    -5.763
+    >>> get_reaction_entropies([-1, 2])
+    5.763
+    >>> get_reaction_entropies([-3, 1])
+    -14.897
+    >>> get_reaction_entropies([-1, 3])
+    14.897
+
+    You must ensure the transformation is properly defined, as no test is made
+    to ensure, e.g., conservation of matter (TODO(schneiderfelipe): the two
+    following lines should go to a test and not a doctest as in here):
+
+    >>> get_reaction_entropies([-1, 0])
+    0.0
+    >>> get_reaction_entropies([0, 1])
+    0.0
+
+    Normally, transformations are given as columns in a matrix:
+
+    >>> get_reaction_entropies([[-2, -1],
+    ...                         [ 1,  3]])
+    array([-5.763, 14.897])
+    >>> get_reaction_entropies([[-1, -2],
+    ...                         [ 1,  3]])
+    array([0. , 9.134])
+    """
+    sym = _factorial(np.abs(np.asanyarray(transform)))
+    return np.sum(np.sign(transform) * change_reference_state(sym, 1), axis=0)

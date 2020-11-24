@@ -205,6 +205,7 @@ def get_entropies(compounds, qrrho=True, temperature=298.15, pressure=constants.
 
         if compounds[name].symmetry is not None:
             entropy += _thermo.change_reference_state(compounds[name].symmetry, 1)
+
         entropies.append(entropy)
     return _np.array(entropies)
 
