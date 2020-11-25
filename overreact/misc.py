@@ -5,13 +5,14 @@
 Ideally, the functions here will be transfered to other modules in the future.
 """
 
-from functools import lru_cache
+from functools import lru_cache as cache
 
 import numpy as np
 from scipy.stats import cauchy as _cauchy
 from scipy.stats import norm as _norm
 
 from overreact import constants
+from overreact import core as _core
 
 
 def _find_package(package):
@@ -562,6 +563,39 @@ def broaden_spectrum(
     return s
 
 
+# https://stackoverflow.com/a/10016613
+def totuple(a):
+    """Convert a numpy.array into nested tuples.
+
+    Parameters
+    ----------
+    a : array-like
+
+    Returns
+    -------
+    tuple
+
+    Examples
+    --------
+    >>> array = np.array(((2,2),(2,-2)))
+    >>> totuple(array)
+    ((2, 2), (2, -2))
+    """
+    # we don't touch some types, and this includes namedtuples
+    if isinstance(a, (int, float, str, _core.Scheme)):
+        return a
+
+    try:
+        a = a.tolist()
+    except AttributeError:
+        pass
+
+    try:
+        return tuple(totuple(i) for i in a)
+    except TypeError:
+        return a
+
+
 def halton(num, dim=None, jump=1, cranley_patterson=True):
     """Calculate Halton low-discrepancy sequences.
 
@@ -677,7 +711,7 @@ def _first_primes(size):
     return primes
 
 
-@lru_cache(maxsize=1000000)
+@cache(maxsize=1000000)
 def _vdc(n, b=2):
     """Help haltonspace."""
     res, denom = 0, 1

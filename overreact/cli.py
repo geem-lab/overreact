@@ -60,7 +60,7 @@ class Report:
     <BLANKLINE>
     ...
     <BLANKLINE>
-    Only in the table above, all Gibbs free energies were biased by0.0 J/mol.
+    Only in the table above, all Gibbs free energies were biased by 0.0 J/mol.
     For half-equilibria, only ratios make sense.
     """
 
@@ -436,7 +436,7 @@ class Report:
             kinetics_table.add_row(*row)
         yield kinetics_table
         yield Markdown(
-            "Only in the table above, all Gibbs free energies were biased by"
+            "Only in the table above, all Gibbs free energies were biased by "
             f"{self.bias} J/mol."
         )
         yield Markdown("For **half-equilibria**, only ratios make sense.")

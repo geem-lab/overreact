@@ -12,9 +12,9 @@ Here we try to reproduce the analysis on the Langmuir-Hinshelwood mechanism of
 ... AB* <=> AB + *  # fast to equilibrium
 ... """)
 >>> scheme.compounds
-['A', '*', 'A*', 'B', 'B*', 'AB*‡', 'AB*', 'AB']
+('A', '*', 'A*', 'B', 'B*', 'AB*‡', 'AB*', 'AB')
 >>> scheme.reactions
-['A + * -> A*', 'A* -> A + *', 'B + * -> B*', 'B* -> B + *', 'A* + B* -> AB* + *', 'AB* -> AB + *', 'AB + * -> AB*']
+('A + * -> A*', 'A* -> A + *', 'B + * -> B*', 'B* -> B + *', 'A* + B* -> AB* + *', 'AB* -> AB + *', 'AB + * -> AB*')
 
 where ``*`` denotes a free surface site.
 

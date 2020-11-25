@@ -27,6 +27,7 @@ from overreact.simulate import get_y
 from overreact._thermo import get_delta
 from overreact._thermo import get_reaction_entropies
 from overreact._thermo import change_reference_state
+from overreact.misc import cache
 
 logger = logging.getLogger(__name__)
 
@@ -266,6 +267,7 @@ def get_freeenergies(
     return enthalpies - temperature * entropies + _np.asanyarray(bias)
 
 
+# @cache
 def get_k(
     scheme,
     compounds=None,

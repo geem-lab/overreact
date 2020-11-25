@@ -10,22 +10,22 @@ from overreact import core
 def test_parse_works():
     """Test parsing of reactions."""
     scheme = core.parse_reactions("A -> B  // a direct reaction")
-    assert ["A", "B"] == scheme[0]
-    assert ["A -> B"] == scheme[1]
-    assert [False] == scheme[2]
+    assert ("A", "B") == scheme[0]
+    assert ("A -> B",) == scheme[1]
+    assert (False,) == scheme[2]
     assert np.all(scheme[3] == scheme[4])
     assert np.all(np.array([[-1], [1]]) == scheme[3])
 
     scheme = core.parse_reactions("B <- A  // reverse reaction of the above")
-    assert ["A", "B"] == scheme[0]
-    assert ["A -> B"] == scheme[1]
-    assert [False] == scheme[2]
+    assert ("A", "B") == scheme[0]
+    assert ("A -> B",) == scheme[1]
+    assert (False,) == scheme[2]
     assert np.all(scheme[3] == scheme[4])
     assert np.all(np.array([[-1], [1]]) == scheme[3])
 
     scheme = core.parse_reactions("A <=> B  // an equilibrium")
-    assert ["A", "B"] == scheme[0]
-    assert ["A -> B", "B -> A"] == scheme[1]
+    assert ("A", "B") == scheme[0]
+    assert ("A -> B", "B -> A") == scheme[1]
     assert np.all(np.array([True, True]) == scheme[2])
     assert np.all(np.array([[-1.0, 1.0], [1.0, -1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0, 0.0], [1.0, 0.0]]) == scheme[4])
@@ -36,25 +36,25 @@ def test_parse_works():
         A  -> B <-  A     // reactions
         B <-  A  -> B"""
     )
-    assert ["A", "B"] == scheme[0]
-    assert ["A -> B", "B -> A"] == scheme[1]
+    assert ("A", "B") == scheme[0]
+    assert ("A -> B", "B -> A") == scheme[1]
     assert np.all(np.array([True, True]) == scheme[2])
     assert np.all(np.array([[-1.0, 1.0], [1.0, -1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0, 0.0], [1.0, 0.0]]) == scheme[4])
 
     scheme = core.parse_reactions("A -> A‡ -> B  // a transition state")
-    assert ["A", "A‡", "B"] == scheme[0]
-    assert ["A -> B"] == scheme[1]
-    assert [False] == scheme[2]
+    assert ("A", "A‡", "B") == scheme[0]
+    assert ("A -> B",) == scheme[1]
+    assert (False,) == scheme[2]
     assert np.all(np.array([[-1.0], [0.0], [1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0], [1.0], [0.0]]) == scheme[4])
 
     scheme = core.parse_reactions(
         "A -> A‡ -> B <- A‡ <- A  // (should be) same as above"
     )
-    assert ["A", "A‡", "B"] == scheme[0]
-    assert ["A -> B"] == scheme[1]
-    assert [False] == scheme[2]
+    assert ("A", "A‡", "B") == scheme[0]
+    assert ("A -> B",) == scheme[1]
+    assert (False,) == scheme[2]
     assert np.all(np.array([[-1.0], [0.0], [1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0], [1.0], [0.0]]) == scheme[4])
 
@@ -66,8 +66,8 @@ def test_parse_works():
         A  -> B‡
     """
     )
-    assert ["B", "B‡", "C", "D", "B'‡", "E", "A"] == scheme[0]
-    assert ["B -> C", "B -> D", "B -> E", "A -> C", "A -> D"] == scheme[1]
+    assert ("B", "B‡", "C", "D", "B'‡", "E", "A") == scheme[0]
+    assert ("B -> C", "B -> D", "B -> E", "A -> C", "A -> D") == scheme[1]
     assert np.all(np.array([False, False, False, False, False]) == scheme[2])
     assert np.all(
         np.array(
@@ -103,8 +103,8 @@ def test_parse_works():
         A -> A‡ -> B  // this is a tricky example
         A -> B        // but it's better to be explicit"""
     )
-    assert ["A", "A‡", "B"] == scheme[0]
-    assert ["A -> B", "A -> B"] == scheme[1]
+    assert ("A", "A‡", "B") == scheme[0]
+    assert ("A -> B", "A -> B") == scheme[1]
     assert np.all(np.array([False, False]) == scheme[2])
     assert np.all(np.array([[-1.0, -1.0], [0.0, 0.0], [1.0, 1.0]]) == scheme[3])
     assert np.all(np.array([[-1.0, -1.0], [1.0, 0.0], [0.0, 1.0]]) == scheme[4])
@@ -114,9 +114,9 @@ def test_parse_works():
         // the policy is to not chain transition states
         A -> A‡ -> A'‡ -> B  // this is weird"""
     )
-    assert ["A", "A‡", "A'‡", "B"] == scheme[0]
-    assert ["A -> A'‡"] == scheme[1]
-    assert [False] == scheme[2]
+    assert ("A", "A‡", "A'‡", "B") == scheme[0]
+    assert ("A -> A'‡",) == scheme[1]
+    assert (False,) == scheme[2]
     assert np.all(np.array([[-1.0], [0.0], [1.0], [0.0]]) == scheme[3])
     assert np.all(np.array([[-1.0], [1.0], [0.0], [0.0]]) == scheme[4])
 
