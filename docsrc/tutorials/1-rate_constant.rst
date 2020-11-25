@@ -5,9 +5,9 @@ There are functions for calculating reaction rate constants from energy deltas.
 But first we need an energy barrier:
 
 >>> import numpy as np
->>> from scipy.constants import kilo, calorie
+>>> from overreact import constants
 >>> # TODO(schneiderfelipe): transform all "delta" into "delta_freeenergy"
->>> delta = np.array([17.26, 18.86]) * kilo * calorie
+>>> delta = np.array([17.26, 18.86]) * constants.kcal
 >>> delta  # J/mol
 array([72215.8, 78910.2])
 

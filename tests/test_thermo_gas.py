@@ -1283,3 +1283,11 @@ def test_can_calculate_reaction_entropies():
         )
         * np.array([1, -1])
     )
+
+    assert _thermo.get_reaction_entropies(
+        core.parse_reactions("2A(g) + 3B(g) + 4C(g) <=> 5D(g) + 6E(g) + 7F(g").A
+    ) == pytest.approx(
+        _thermo.get_reaction_entropies(
+            core.parse_reactions("2A(w) + 3B(w) + 4C(w) <=> 5D(w) + 6E(w) + 7F(w").A
+        )
+    )

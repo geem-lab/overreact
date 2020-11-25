@@ -26,6 +26,7 @@ from overreact.simulate import get_dydt
 from overreact.simulate import get_y
 from overreact._thermo import get_delta
 from overreact._thermo import get_reaction_entropies
+from overreact._thermo import change_reference_state
 
 logger = logging.getLogger(__name__)
 
@@ -409,7 +410,6 @@ def get_k(
             pressure=pressure,
         )
 
-        # TODO(schneiderfelipe): test this implementation of reaction symmetry
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_freeenergies = get_delta(
             scheme.B, freeenergies

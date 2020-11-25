@@ -769,7 +769,7 @@ def _parse_side(side):
     '2 *A*1* + 40 B1 + chlorophyll'
 
     """
-    for token in re.split(r"\s*\+\s*", side):
+    for token in re.split(r"\s+\+\s+", side):
         token = re.match(
             r"\s*(?P<coefficient>\d+)?\s*(?P<compound>[^\s]+)\s*", token
         ).groupdict(1)
