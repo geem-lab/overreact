@@ -20,8 +20,8 @@ where ``*`` denotes a free surface site.
 
 >>> import numpy as np
 >>> from scipy.misc import derivative
->>> from scipy.constants import kilo, calorie
->>> k = rates.eyring(kilo * calorie * api.get_delta(scheme.B, [0, 0, -2.5, 0, -2.5, 15.0, 0.0, -2.5]))
+>>> from overreact import constants
+>>> k = rates.eyring(constants.kcal * api.get_delta(scheme.B, [0, 0, -2.5, 0, -2.5, 15.0, 0.0, -2.5]))
 >>> k
 array([4.2245e+14, 6.2124e+12, 4.2245e+14, 6.2124e+12,
        1.3588e-02, 4.2245e+14, 6.2124e+12])

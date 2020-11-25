@@ -172,9 +172,9 @@
 <p>There are functions for calculating reaction rate constants from energy deltas.
 But first we need an energy barrier:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.constants</span> <span class="kn">import</span> <span class="n">kilo</span><span class="p">,</span> <span class="n">calorie</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">overreact</span> <span class="kn">import</span> <span class="n">constants</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># TODO(schneiderfelipe): transform all &quot;delta&quot; into &quot;delta_freeenergy&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">17.26</span><span class="p">,</span> <span class="mf">18.86</span><span class="p">])</span> <span class="o">*</span> <span class="n">kilo</span> <span class="o">*</span> <span class="n">calorie</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">17.26</span><span class="p">,</span> <span class="mf">18.86</span><span class="p">])</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">kcal</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">delta</span>  <span class="c1"># J/mol</span>
 <span class="go">array([72215.8, 78910.2])</span>
 </pre></div>
