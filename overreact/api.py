@@ -262,60 +262,8 @@ def get_freeenergies(
     """
     enthalpies = get_enthalpies(compounds, qrrho=qrrho, temperature=temperature)
     entropies = get_entropies(compounds, qrrho=qrrho, temperature=temperature)
+    # TODO(schneiderfelipe): log the contribution of bias
     return enthalpies - temperature * entropies + _np.asanyarray(bias)
-
-
-# TODO(schneiderfelipe): this should probably be deprecated but it is very
-# good as a starting point for sensitivity analyses in general.
-def get_drc(
-    scheme,
-    compounds,
-    y0,
-    t_span=None,
-    method="Radau",
-    qrrho=True,
-    scale="l mol-1 s-1",
-    temperature=298.15,
-    dx=1.5e3,  # joules
-    order=3,
-):
-    """Calculate the degree of rate control for a single compound.
-
-    Examples
-    --------
-    >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
-    """
-    x0 = _np.zeros(len(scheme.compounds))
-
-    def func(t, x=0.0, i=-1):
-        bias = _np.copy(x0)
-        bias[i] += x
-
-        k = get_k(
-            scheme,
-            compounds=compounds,
-            bias=bias,
-            # tunneling=tunneling,
-            qrrho=qrrho,
-            scale=scale,
-            temperature=temperature,
-            # pressure=pressure,
-            # delta_freeenergies=delta_freeenergies,
-            # molecularity=molecularity,
-            # volume=volume,
-        )
-        _, r = get_y(get_dydt(scheme, k), y0=y0, t_span=t_span, method=method)
-
-        return _np.log(r(t))
-
-    def drc(t, i=-1):
-        return (
-            -constants.R
-            * temperature
-            * _derivative(lambda x: func(t, x, i), x0=0.0, dx=dx, n=1, order=order)
-        )
-
-    return drc
 
 
 def get_k(
@@ -544,3 +492,56 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
         f"{', '.join([f'{kappa:7.3g}' for kappa in kappas])}"
     )
     return kappas
+
+
+# TODO(schneiderfelipe): this should probably be deprecated but it is very
+# good as a starting point for sensitivity analyses in general.
+def get_drc(
+    scheme,
+    compounds,
+    y0,
+    t_span=None,
+    method="Radau",
+    qrrho=True,
+    scale="l mol-1 s-1",
+    temperature=298.15,
+    dx=1.5e3,  # joules
+    order=3,
+):
+    """Calculate the degree of rate control for a single compound.
+
+    Examples
+    --------
+    >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
+    """
+    x0 = _np.zeros(len(scheme.compounds))
+
+    def func(t, x=0.0, i=-1):
+        bias = _np.copy(x0)
+        bias[i] += x
+
+        k = get_k(
+            scheme,
+            compounds=compounds,
+            bias=bias,
+            # tunneling=tunneling,
+            qrrho=qrrho,
+            scale=scale,
+            temperature=temperature,
+            # pressure=pressure,
+            # delta_freeenergies=delta_freeenergies,
+            # molecularity=molecularity,
+            # volume=volume,
+        )
+        _, r = get_y(get_dydt(scheme, k), y0=y0, t_span=t_span, method=method)
+
+        return _np.log(r(t))
+
+    def drc(t, i=-1):
+        return (
+            -constants.R
+            * temperature
+            * _derivative(lambda x: func(t, x, i), x0=0.0, dx=dx, n=1, order=order)
+        )
+
+    return drc
