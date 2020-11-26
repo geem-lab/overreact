@@ -503,7 +503,7 @@ def get_drc(
     compounds,
     y0,
     t_span=None,
-    method="Radau",
+    method="BDF",
     qrrho=True,
     scale="l mol-1 s-1",
     temperature=298.15,

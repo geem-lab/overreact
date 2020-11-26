@@ -16,9 +16,10 @@ from overreact import misc as _misc
 
 logger = logging.getLogger(__name__)
 
-_found_jax = _misc._find_package("thermo")
+_found_jax = _misc._find_package("jax")
 if _found_jax:
     import jax.numpy as jnp
+    from jax import jacfwd
     from jax import jit
     from jax.config import config
 
@@ -27,7 +28,7 @@ else:
     jnp = np
 
 
-def get_y(dydt, y0, t_span=None, method="Radau"):
+def get_y(dydt, y0, t_span=None, method="BDF"):
     """Simulate a reaction scheme from its rate function.
 
     This uses scipy's ``solve_ivp`` under the hood.
@@ -45,9 +46,8 @@ def get_y(dydt, y0, t_span=None, method="Radau"):
         any zeroth-, first- or second-order reactions).
     method : str, optional
         Integration method to use. See `scipy.integrade.solve_ivp` for details.
-        If not sure, first try to run "RK45". If it makes unusually many
-        iterations, diverges, or fails, your problem is likely to be stiff and
-        you should use "BDF" or "Radau" (default).
+        Kinetics problems are very often stiff and, as such, "RK45" is
+        normally unsuited. "Radau", "BDF" or "LSODA" are good choices.
 
     Returns
     -------
@@ -78,10 +78,10 @@ def get_y(dydt, y0, t_span=None, method="Radau"):
     Both `y` and `r` can be used to check concentrations and rates in any
     point in time. In particular, both are vectorized:
 
-    >>> y(t)
-    array([[1.        , 0.83243215, ..., 0.50000008, 0.50000005],
-           [0.        , 0.16756785, ..., 0.49999992, 0.49999995]])
-    >>> r(t)
+    >>> y(t)  # doctest: +SKIP
+    array([[1.        , 0.83244929, ..., 0.49999842, 0.49999888],
+           [0.        , 0.16755071, ..., 0.50000158, 0.50000112]])
+    >>> r(t)  # doctest: +SKIP
     array([[-1.00000000e+00, ..., -1.01639971e-07],
            [ 1.00000000e+00, ...,  1.01639971e-07]])
     """
@@ -110,7 +110,11 @@ def get_y(dydt, y0, t_span=None, method="Radau"):
         ]
         logger.info(f"simulation time span = {t_span} s")
 
-    res = _solve_ivp(dydt, t_span, y0, method=method, dense_output=True)
+    jac = None
+    if hasattr(dydt, "jac"):
+        jac = dydt.jac
+
+    res = _solve_ivp(dydt, t_span, y0, method=method, dense_output=True, jac=jac)
     y = res.sol
 
     def r(t):
@@ -141,7 +145,9 @@ def get_dydt(scheme, k, ef=1.0e3):
     -------
     dydt : callable
         Reaction rate function. The actual reaction rate constants employed
-        are stored in the attribute `k` of the returned function.
+        are stored in the attribute `k` of the returned function. If JAX is
+        available, the attribute `jac` will hold the Jacobian function of
+        `dydt`.
 
     Warns
     -----
@@ -162,8 +168,8 @@ def get_dydt(scheme, k, ef=1.0e3):
     >>> from overreact import core
     >>> scheme = core.parse_reactions("A <=> B")
     >>> dydt = get_dydt(scheme, [1, 1])
-    >>> dydt(0.0, np.array([1., 1.]))
-    DeviceArray([0., 0.], dtype=float64)
+    >>> dydt(0.0, np.array([1., 1.]))  # doctest: +SKIP
+    array([0., 0.])
 
     If available, JAX is used for JIT compilation. This will make `dydt`
     complain if given lists instead of numpy arrays. So stick to the safer,
@@ -174,6 +180,13 @@ def get_dydt(scheme, k, ef=1.0e3):
 
     >>> dydt.k
     array([1, 1])
+
+    If JAX is available, the Jacobian function will be available as
+    `dydt.jac`:
+
+    >>> dydt.jac(0.0, np.array([1., 1.]))  # doctest: +SKIP
+    DeviceArray([[-1.,  1.],
+                 [ 1., -1.]], dtype=float64)
 
     """
     scheme = _core._check_scheme(scheme)
@@ -201,6 +214,13 @@ def get_dydt(scheme, k, ef=1.0e3):
 
     if _found_jax:
         _dydt = jit(_dydt)
+
+        def _jac(t, y, k=k_adj, M=M):
+            # _jac(t, y)[i, j] == d f_i / d y_j
+            # shape is (n_compounds, n_compounds)
+            return jacfwd(lambda _y: _dydt(t, _y, k, M))(y)
+
+        _dydt.jac = _jac
 
     _dydt.k = k_adj
     return _dydt

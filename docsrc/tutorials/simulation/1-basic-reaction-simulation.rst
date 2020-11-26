@@ -136,15 +136,14 @@ Fortunately, overreact is able to give you a function that, giving time and
 concentrations, calculates the derivative with respect to time:
 
 >>> dydt = simulate.get_dydt(scheme, k)
->>> dydt(0.0, y0)  # t = 0.0
-DeviceArray([-83333.3, -83333.3, 83333.3, 0. , 0. ], dtype=float64)
+>>> dydt(0.0, y0)  # t = 0.0  # doctest: +SKIP
+array([-83333.3, -83333.3, 83333.3, 0. , 0. ])
 
 From the above we see that the equilibrium will likely be rapidly satisfied,
 while no product is being created at time zero, since there's no
 enzyme-substrate complex yet.
 
-Let's now do a one minute simulation with ``get_y`` (methods Radau or BDF are
-recommended for likely stiff equations such as those):
+Let's now do a one minute simulation with ``get_y``:
 
 >>> y, r = simulate.get_y(dydt, y0)
 >>> t = np.linspace(y.t_min, 60.0)  # seconds
@@ -167,15 +166,15 @@ Text(...)
 
 .. figure:: ../../_static/michaelis-menten.png
 
-   A one minute simulation of the Michaelis-Menten model for the enzyme Pepsin,
+   A one-minute simulation of the Michaelis-Menten model for the enzyme Pepsin,
    an endopeptidase that breaks down proteins into smaller peptides. Observe
-   that the rapid equilibrium justifies the commonly applied steady state
+   that the rapid equilibrium justifies the commonly applied steady-state
    approximation.
 
 The simulation time was enough to convert all substrate into products and
 regenerate the initial enzyme molecules:
 
->>> y(y.t_max)
+>>> y(y.t_max)  # doctest: +SKIP
 array([0.05, 0.00, 0.00, 0.00, 1.00])
 
 Getting rates back
@@ -198,7 +197,7 @@ Text(...)
 
 .. figure:: ../../_static/michaelis-menten-dydt.png
 
-   Time derivative of concentrations for the one minute simulation of the Michaelis-Menten model for the enzyme Pepsin above.
+   The time derivative of concentrations for the one-minute simulation of the Michaelis-Menten model for the enzyme Pepsin above.
 
 Furthermore, we can get the turnover frequency (TOF) as:
 
@@ -217,4 +216,4 @@ Text(...)
 
 .. figure:: ../../_static/michaelis-menten-tof.png
 
-   Turnover frequency for the enzyme Pepsin above, in the one minute simulation of the Michaelis-Menten model.
+   The turnover frequency for the enzyme Pepsin above, in the one-minute simulation of the Michaelis-Menten model.
