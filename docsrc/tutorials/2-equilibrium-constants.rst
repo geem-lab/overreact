@@ -18,8 +18,8 @@ So let's check it:
 ...     Cd2p + 4 MeNH2 <=> [Cd(MeNH2)4]2p
 ... """)
 >>> scheme.compounds, scheme.reactions
-(['Cd2p', 'MeNH2', '[Cd(MeNH2)4]2p'],
- ['Cd2p + 4 MeNH2 -> [Cd(MeNH2)4]2p', '[Cd(MeNH2)4]2p -> Cd2p + 4 MeNH2'])
+(('Cd2p', 'MeNH2', '[Cd(MeNH2)4]2p'),
+ ('Cd2p + 4 MeNH2 -> [Cd(MeNH2)4]2p', '[Cd(MeNH2)4]2p -> Cd2p + 4 MeNH2'))
 >>> dydt = simulate.get_dydt(scheme, [K, 1.])
 >>> y, r = simulate.get_y(dydt, y0=[0., 0., 1.])
 >>> y(y.t_max)
