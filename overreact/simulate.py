@@ -20,7 +20,6 @@ _found_jax = _misc._find_package("jax")
 if _found_jax:
     import jax.numpy as jnp
     from jax import jacfwd
-    from jax import jit
     from jax.config import config
 
     config.update("jax_enable_x64", True)
@@ -28,7 +27,7 @@ else:
     jnp = np
 
 
-def get_y(dydt, y0, t_span=None, method="BDF"):
+def get_y(dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-9):
     """Simulate a reaction scheme from its rate function.
 
     This uses scipy's ``solve_ivp`` under the hood.
@@ -48,6 +47,8 @@ def get_y(dydt, y0, t_span=None, method="BDF"):
         Integration method to use. See `scipy.integrade.solve_ivp` for details.
         Kinetics problems are very often stiff and, as such, "RK45" is
         normally unsuited. "Radau", "BDF" or "LSODA" are good choices.
+    rtol, atol : array-like
+        See `scipy.integrade.solve_ivp` for details.
 
     Returns
     -------
@@ -114,7 +115,17 @@ def get_y(dydt, y0, t_span=None, method="BDF"):
     if hasattr(dydt, "jac"):
         jac = dydt.jac
 
-    res = _solve_ivp(dydt, t_span, y0, method=method, dense_output=True, jac=jac)
+    # TODO(schneiderfelipe): log solve_ivp stuff.
+    res = _solve_ivp(
+        dydt,
+        t_span,
+        y0,
+        method=method,
+        dense_output=True,
+        rtol=rtol,
+        atol=atol,
+        jac=jac,
+    )
     y = res.sol
 
     def r(t):
@@ -213,7 +224,7 @@ def get_dydt(scheme, k, ef=1.0e3):
         return jnp.dot(A, r)
 
     if _found_jax:
-        _dydt = jit(_dydt)
+        _dydt = _dydt
 
         def _jac(t, y, k=k_adj, M=M):
             # _jac(t, y)[i, j] == d f_i / d y_j
