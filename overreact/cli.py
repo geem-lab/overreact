@@ -468,7 +468,7 @@ class Report:
                 # TODO(schneiderfelipe): the following is inefficient but probably OK
                 y0[self.model.scheme.compounds.index(name)] = quantity
 
-            y, _ = api.get_y(dydt, y0=y0, method="Radau")
+            y, r = api.get_y(dydt, y0=y0)
             conc_table = Table(
                 Column("no", justify="right"),
                 Column("compound", justify="left"),

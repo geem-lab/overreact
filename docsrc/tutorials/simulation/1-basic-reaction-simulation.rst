@@ -145,7 +145,7 @@ enzyme-substrate complex yet.
 Let's now do a one minute simulation with ``get_y`` (methods Radau or BDF are
 recommended for likely stiff equations such as those):
 
->>> y, r = simulate.get_y(dydt, y0, method="Radau")
+>>> y, r = simulate.get_y(dydt, y0)
 
 >>> import numpy as np
 >>> t = np.linspace(y.t_min, 60.0)  # seconds

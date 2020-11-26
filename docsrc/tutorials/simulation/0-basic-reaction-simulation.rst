@@ -56,7 +56,7 @@ We are going to simulate 10 seconds, starting with an initial concentration of
 1 molar of A (the concentration units evidently depend on the units of the
 reaction rate constant).
 
->>> y, r = simulate.get_y(dydt, y0=[1., 0.], method="Radau")
+>>> y, r = simulate.get_y(dydt, y0=[1., 0.])
 
 >>> import numpy as np
 >>> t = np.linspace(y.t_min, 5.0)

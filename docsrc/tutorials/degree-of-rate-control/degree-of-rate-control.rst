@@ -31,7 +31,7 @@ Now the graph:
 
 >>> import matplotlib.pyplot as plt
 >>> y0 = [1., 1000., 0, 1., 0., 0., 0., 0.]
->>> y, r = simulate.get_y(dydt, y0, [0.0, 30 * 60.0], method="BDF")
+>>> y, r = simulate.get_y(dydt, y0, [0.0, 30 * 60.0])
 >>> t = np.linspace(y.t_min, 500.0)
 >>> plt.clf()
 >>> for i, compound in enumerate(scheme.compounds):
