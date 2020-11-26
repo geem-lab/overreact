@@ -43,75 +43,25 @@ class Report:
 
     Examples
     --------
+    >>> from rich import print
     >>> model = api.parse_model("data/ethane/B97-3c/model.jk")
-    >>> Report(model)  # doctest: +SKIP
-    ╔══════════════════════════════════════════════════════════════════════════════╗
-    ║                                overreact 1.0                                 ║
-    ╚══════════════════════════════════════════════════════════════════════════════╝
-
-    Construct precise chemical microkinetic models from first principles
-
-
-                                Input description
-
-                                    (read) reactions
-
-                                    S -> E‡ -> S
-
-                                (parsed) reactions
-                    ╷          ╷      ╷         ╷
-                    no │ reactant │ via‡ │ product │ half equilib.?
-                ╶────┼──────────┼──────┼─────────┼────────────────╴
-                    0 │    S     │  E‡  │    S    │
-                    ╵          ╵      ╵         ╵
-                                        logfiles
-                    ╷          ╷
-                    no │ compound │               path
-                ╶────┼──────────┼──────────────────────────────────╴
-                    0 │    S     │ data/ethane/B97-3c/staggered.out
-                    1 │    E‡    │ data/ethane/B97-3c/eclipsed.out
-                    ╵          ╵
-                                    compounds
-        ╷          ╷                   ╷            ╷
-        no │ compound │   elec. energy    │ spin mult. │   smallest vibfreqs
-        │          │       [Eₕ]        │            │         [cm⁻¹]
-    ╶────┼──────────┼───────────────────┼────────────┼────────────────────────╴
-        0 │    S     │  -79.788170457691 │     1      │ +307.6, +825.4, +826.1
-        1 │    E‡    │  -79.783894160233 │     1      │ -298.9, +902.2, +902.5
-        ╵          ╵                   ╵            ╵
-    Temperature = 298.15 K
-
-                                    Output section
-
-                        calculated thermochemistry (compounds)
-        ╷          ╷        ╷             ╷            ╷             ╷
-    no │ compound │  mass  │    Gᶜᵒʳʳ    │   Uᶜᵒʳʳ    │    Hᶜᵒʳʳ    │     S
-        │          │ [amu]  │ [kcal/mol]  │ [kcal/mol] │ [kcal/mol]  │ [cal/mol·…
-    ╶────┼──────────┼────────┼─────────────┼────────────┼─────────────┼────────────╴
-    0 │    S     │  30.07 │          3… │          … │          4… │      54.40
-    1 │    E‡    │  30.07 │          3… │          … │          4… │      52.96
-        ╵          ╵        ╵             ╵            ╵             ╵
-                        calculated thermochemistry (reactions°)
-        ╷          ╷        ╷          ╷          ╷          ╷          ╷
-    no │ reaction │ Δmass° │   ΔG°    │   ΔE°    │   ΔU°    │   ΔH°    │   ΔS°
-        │          │ [amu]  │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [cal/m…
-    ╶────┼──────────┼────────┼──────────┼──────────┼──────────┼──────────┼─────────╴
-    0 │  S -> S  │   0.00 │       0… │       0… │       0… │       0… │       …
-        ╵          ╵        ╵          ╵          ╵          ╵          ╵
-                        calculated thermochemistry (reactions‡)
-        ╷          ╷        ╷          ╷          ╷          ╷          ╷
-    no │ reaction │ Δmass‡ │   ΔG‡    │   ΔE‡    │   ΔU‡    │   ΔH‡    │   ΔS‡
-        │          │ [amu]  │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [kcal/m… │ [cal/m…
-    ╶────┼──────────┼────────┼──────────┼──────────┼──────────┼──────────┼─────────╴
-    0 │  S -> S  │   0.00 │       2… │       2… │       2… │       2… │       …
-        ╵          ╵        ╵          ╵          ╵          ╵          ╵
-                                calculated kinetics
-        ╷          ╷                ╷             ╷               ╷
-    no │ reaction │ half equilib.? │      k      │       k       │       k
-        │          │                │ [M⁻ⁿ⁺¹·s⁻¹] │ [(cm³/partic… │ [atm⁻ⁿ⁺¹·s⁻¹]
-    ╶────┼──────────┼────────────────┼─────────────┼───────────────┼───────────────╴
-    0 │  S -> S  │                │   8.2e+10   │    8.2e+10    │    8.2e+10
-        ╵          ╵                ╵             ╵               ╵
+    >>> print(Report(model))
+    ╭──────────────────╮
+    │ (read) reactions │
+    │                  │
+    │   S -> E‡ -> S   │
+    │                  │
+    ╰──────────────────╯
+                       (parsed) reactions
+    <BLANKLINE>
+      no   reactant(s)   via‡   product(s)   half equilib.?
+     ───────────────────────────────────────────────────────
+       0   S             E‡     S                  No
+    <BLANKLINE>
+    ...
+    <BLANKLINE>
+    Only in the table above, all Gibbs free energies were biased by 0.0 J/mol.
+    For half-equilibria, only ratios make sense.
     """
 
     def __init__(
@@ -122,6 +72,7 @@ class Report:
         plot=False,  # TODO(schneiderfelipe): change to do_plot
         qrrho=True,  # TODO(schneiderfelipe): change to use_qrrho
         temperature=298.15,
+        bias=0.0,
         box_style=box.SIMPLE,
     ):
         self.model = model
@@ -130,6 +81,7 @@ class Report:
         self.plot = plot
         self.qrrho = qrrho
         self.temperature = temperature
+        self.bias = bias
         self.box_style = box_style
 
     def __rich_console__(self, console, options):
@@ -183,11 +135,11 @@ class Report:
             reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
             # TODO(schneiderfelipe): should we use "No" instead of None for
             # "half-equilib.?"?
-            row = [f"{i:d}", reactants, None, products, "NO"]
+            row = [f"{i:d}", reactants, None, products, "No"]
             if transition_states[i] is not None:
                 row[2] = scheme.compounds[transition_states[i]]
             elif scheme.is_half_equilibrium[i]:
-                row[4] = "YES"
+                row[4] = "Yes"
             parsed_table.add_row(*row)
         yield parsed_table
 
@@ -289,7 +241,6 @@ class Report:
             freeenergies,
             api.get_freeenergies(
                 self.model.compounds,
-                # bias=bias,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 # pressure=pressure,
@@ -434,11 +385,15 @@ class Report:
         renderable
         """
         # TODO(schneiderfelipe): apply other corrections to k (such as
-        # diffusion control)
+        # diffusion control).
+        # TODO(schneiderfelipe): use pressure.
+        # TODO(schneiderfelipe): support changing the type of tunneling
+        # correction.
         k = {
             "M⁻ⁿ⁺¹·s⁻¹": api.get_k(
                 self.model.scheme,
                 self.model.compounds,
+                bias=self.bias,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="l mol-1 s-1",
@@ -446,6 +401,7 @@ class Report:
             "(cm³/particle)ⁿ⁻¹·s⁻¹": api.get_k(
                 self.model.scheme,
                 self.model.compounds,
+                bias=self.bias,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="cm3 particle-1 s-1",
@@ -453,6 +409,7 @@ class Report:
             "atm⁻ⁿ⁺¹·s⁻¹": api.get_k(
                 self.model.scheme,
                 self.model.compounds,
+                bias=self.bias,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="atm-1 s-1",
@@ -472,12 +429,17 @@ class Report:
             box=self.box_style,
         )
         for i, reaction in enumerate(self.model.scheme.reactions):
-            row = [f"{i:d}", reaction, "NO"] + [f"{k[scale][i]:.3g}" for scale in k]
+            row = [f"{i:d}", reaction, "No"] + [f"{k[scale][i]:.3g}" for scale in k]
             if self.model.scheme.is_half_equilibrium[i]:
-                row[2] = "YES"
+                row[2] = "Yes"
 
             kinetics_table.add_row(*row)
         yield kinetics_table
+        yield Markdown(
+            "Only in the table above, all Gibbs free energies were biased by "
+            f"{self.bias} J/mol."
+        )
+        yield Markdown("For **half-equilibria**, only ratios make sense.")
 
         if self.concentrations is not None and self.concentrations:
             scale = "M⁻ⁿ⁺¹·s⁻¹"
@@ -499,7 +461,8 @@ class Report:
                     quantity = float(fields[1])
                 except (IndexError, ValueError):
                     raise ValueError(
-                        f"badly formatted concentrations: '{' '.join(self.concentrations)}'"
+                        "badly formatted concentrations: "
+                        f"'{' '.join(self.concentrations)}'"
                     )
 
                 # TODO(schneiderfelipe): the following is inefficient but probably OK
@@ -552,6 +515,7 @@ def main():
     levels = [logging.WARNING, logging.INFO, logging.DEBUG]
 
     # TODO(schneiderfelipe): test and docs
+    # TODO(schneiderfelipe): improve help page
     parser = argparse.ArgumentParser(
         description="Interface for building and modifying models."
     )
@@ -564,6 +528,7 @@ def main():
         ),
         nargs="*",
     )
+    parser.add_argument("-b", "--bias", type=float, default=0.0)
     parser.add_argument("-T", "--temperature", type=float, default=298.15)
     # TODO(schneiderfelipe): support pressure specification!
     parser.add_argument("-p", "--pressure", type=float, default=constants.atm)
@@ -616,6 +581,7 @@ Inputs:
 - QRRHO?         = {args.qrrho}
 - Temperature    = {args.temperature} K
 - Pressure       = {args.pressure} Pa
+- Bias           = {args.bias / constants.kcal} kcal/mol
 
 Parsing and calculating…
             """
@@ -637,6 +603,7 @@ Parsing and calculating…
         plot=args.plot,
         qrrho=args.qrrho,
         temperature=args.temperature,
+        bias=args.bias,
     )
     console.print(report, justify="left")
 

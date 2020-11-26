@@ -7,9 +7,9 @@ any thinkable reaction model:
 >>> from overreact import api
 >>> scheme = api.parse_reactions("S -> E‡ -> S")
 >>> scheme
-Scheme(compounds=['S', 'E‡'],
-       reactions=['S -> S'],
-       is_half_equilibrium=[False],
+Scheme(compounds=('S', 'E‡'),
+       reactions=('S -> S',),
+       is_half_equilibrium=(False,),
        ...)
 
 The "‡" symbol is used to indicate transition states (but the "#" symbol is

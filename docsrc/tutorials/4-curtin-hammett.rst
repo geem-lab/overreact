@@ -18,7 +18,7 @@ The selectivity is defined as the ratio between both products:
    S = \frac{c_{\ce{P_1}}}{c_{\ce{P_2}}}
 
 >>> scheme.compounds
-['I1', 'I2', 'T1‡', 'P1', 'T2‡', 'P2']
+('I1', 'I2', 'T1‡', 'P1', 'T2‡', 'P2')
 >>> freeenergy = [0.0, -0.5, 10.0, 1.0, 11.0, 1.0]
 >>> k = rates.eyring(constants.kcal * api.get_delta(scheme.B, freeenergy))
 >>> k

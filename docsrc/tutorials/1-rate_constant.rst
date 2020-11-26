@@ -58,11 +58,11 @@ is a transformation from absolute state energies to deltas of energy relative
 to the reactions in the model:
 
 >>> scheme.B
-[[-1., -1.],
- [1.,  0.],
- [0.,  0.],
- [0.,  1.],
- [0.,  0.]]
+((-1., -1.),
+ (1.,  0.),
+ (0.,  0.),
+ (0.,  1.),
+ (0.,  0.))
 >>> api.get_delta(scheme.B, [1.92, 19.18, 2.15, 20.78, 3.40])
 array([17.26, 18.86])
 

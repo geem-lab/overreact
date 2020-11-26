@@ -18,11 +18,11 @@ The above model translates to the following in overreact:
 Among the return values we have compounds and reactions:
 
 >>> scheme.compounds
-['E', 'S', 'ES', 'ES‡', 'P']
+('E', 'S', 'ES', 'ES‡', 'P')
 >>> scheme.reactions
-['E + S -> ES',
+('E + S -> ES',
  'ES -> E + S',
- 'ES -> E + P']
+ 'ES -> E + P')
 
 All compounds and reactions are parsed in the order they appear in the model.
 Observe that the :math:`\ce{ES^{\ddagger}}` transition state was correctly
@@ -90,11 +90,11 @@ matrix, whose entry :math:`A_{ij}` stores the coefficient of the i-th compound
 in the j-th reaction:
 
 >>> scheme.A
-[[-1.,  1.,  1.],
- [-1.,  1.,  0.],
- [1., -1., -1.],
- [0.,  0.,  0.],
- [0.,  0.,  1.]]
+((-1.,  1.,  1.),
+ (-1.,  1.,  0.),
+ (1., -1., -1.),
+ (0.,  0.,  0.),
+ (0.,  0.,  1.))
 
 Observe that negative (positive) entries represent reactants (products) and a
 line full of zeros represents transition states (which is to say that they are
