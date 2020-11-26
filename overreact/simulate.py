@@ -12,8 +12,19 @@ import numpy as np
 from scipy.integrate import solve_ivp as _solve_ivp
 
 from overreact import core as _core
+from overreact import misc as _misc
 
 logger = logging.getLogger(__name__)
+
+_found_jax = _misc._find_package("thermo")
+if _found_jax:
+    import jax.numpy as jnp
+    from jax import jit
+    from jax.config import config
+
+    config.update("jax_enable_x64", True)
+else:
+    jnp = np
 
 
 def get_y(dydt, y0, t_span=None, method="Radau"):
@@ -147,11 +158,16 @@ def get_dydt(scheme, k, ef=1.0e3):
 
     Examples
     --------
+    >>> import numpy as np
     >>> from overreact import core
     >>> scheme = core.parse_reactions("A <=> B")
     >>> dydt = get_dydt(scheme, [1, 1])
-    >>> dydt(0.0, [1., 1.])
-    array([0., 0.])
+    >>> dydt(0.0, np.array([1., 1.]))
+    DeviceArray([0., 0.], dtype=float64)
+
+    If available, JAX is used for JIT compilation. This will make `dydt`
+    complain if given lists instead of numpy arrays. So stick to the safer,
+    faster side as above.
 
     The actually used reaction rate constants can be inspected with the `k`
     attribute of `dydt`:
@@ -177,9 +193,14 @@ def get_dydt(scheme, k, ef=1.0e3):
             k_adj[~is_half_equilibrium].max() / k_adj[is_half_equilibrium].min()
         )
 
-    def _dydt(t, y, k=k_adj, A=A):
-        r = k * np.prod(np.power(y, np.where(A > 0, 0, -A).T), axis=1)
-        return np.dot(A, r)
+    M = np.where(A > 0, 0, -A).T
+
+    def _dydt(t, y, k=k_adj, M=M):
+        r = k * jnp.prod(jnp.power(y, M), axis=1)
+        return jnp.dot(A, r)
+
+    if _found_jax:
+        _dydt = jit(_dydt)
 
     _dydt.k = k_adj
     return _dydt

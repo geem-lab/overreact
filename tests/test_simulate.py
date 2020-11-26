@@ -21,10 +21,13 @@ def test_get_dydt_calculates_reaction_rate():
 
     dydt = simulate.get_dydt(scheme, [2.0])
 
-    assert dydt(0.0, [1.0, 0.0]) == pytest.approx([-2.0, 2.0])
-    assert dydt(5.0, [1.0, 0.0]) == pytest.approx([-2.0, 2.0])
-    assert dydt(0.0, [1.0, 1.0]) == pytest.approx([-2.0, 2.0])
-    assert dydt(0.0, [10.0, 0.0]) == pytest.approx([-20.0, 20.0])
+    # TODO(schneiderfelipe): if jax is used, dydt won't accept lists, only
+    # ndarrays. Should we wrap the jitted code and use np.asanyarray in the
+    # wrapping function?
+    assert dydt(0.0, np.array([1.0, 0.0])) == pytest.approx([-2.0, 2.0])
+    assert dydt(5.0, np.array([1.0, 0.0])) == pytest.approx([-2.0, 2.0])
+    assert dydt(0.0, np.array([1.0, 1.0])) == pytest.approx([-2.0, 2.0])
+    assert dydt(0.0, np.array([10.0, 0.0])) == pytest.approx([-20.0, 20.0])
 
 
 def test_get_y_propagates_reaction_automatically():
@@ -44,7 +47,7 @@ def test_get_y_propagates_reaction_automatically():
     assert y.t_max == 1000.0
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx(
-        [1.668212890625, 0.6728515625, 0.341787109375], 7e-5
+        [1.668212890625, 0.6728515625, 0.341787109375], 9e-5
     )
     assert r(y.t_min) == pytest.approx([-31.99, -127.96, 31.99])
     assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=2e-4)
@@ -85,9 +88,9 @@ def test_get_y_conservation_in_equilibria():
     assert y.t_min == 0.0
     assert y.t_max == 10.0
     assert y(y.t_min) == pytest.approx(y0)
-    assert y(y.t_max) == pytest.approx([0.5, 0.5])
+    assert y(y.t_max) == pytest.approx([0.5, 0.5], 3e-5)
     assert r(y.t_min) == pytest.approx([-1, 1])
-    assert r(y.t_max) == pytest.approx([0.0, 0.0], abs=2e-7)
+    assert r(y.t_max) == pytest.approx([0.0, 0.0], abs=3e-5)
 
     assert y.t_min == t[0]
     assert y.t_max == t[-1]

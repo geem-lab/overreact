@@ -239,7 +239,7 @@ def test_translational_entropy_liquid_phase():
         data.atomnos, data.atomcoords, method="izato"
     )
     assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
-        0.0993, 1.12847e-1
+        0.0993, 1.13105e-1
     )
 
     assert _thermo.calc_trans_entropy(

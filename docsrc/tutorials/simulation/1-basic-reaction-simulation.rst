@@ -83,7 +83,8 @@ units, as long as they match with the reaction rate constants) and solve the
 initial value problem. Below we set the substrate to one molar and the enzyme
 to 5% of it:
 
->>> y0 = [0.05, 1.00, 0.00, 0.00, 0.00]
+>>> import numpy as np
+>>> y0 = np.array([0.05, 1.00, 0.00, 0.00, 0.00])
 
 One return value that ``core.parse_reactions`` has given us was the :math:`A`
 matrix, whose entry :math:`A_{ij}` stores the coefficient of the i-th compound
@@ -136,7 +137,7 @@ concentrations, calculates the derivative with respect to time:
 
 >>> dydt = simulate.get_dydt(scheme, k)
 >>> dydt(0.0, y0)  # t = 0.0
-array([-83333.3, -83333.3, 83333.3, 0. , 0. ])
+DeviceArray([-83333.3, -83333.3, 83333.3, 0. , 0. ], dtype=float64)
 
 From the above we see that the equilibrium will likely be rapidly satisfied,
 while no product is being created at time zero, since there's no
@@ -146,8 +147,6 @@ Let's now do a one minute simulation with ``get_y`` (methods Radau or BDF are
 recommended for likely stiff equations such as those):
 
 >>> y, r = simulate.get_y(dydt, y0)
-
->>> import numpy as np
 >>> t = np.linspace(y.t_min, 60.0)  # seconds
 
 We can graph concentrations over time with ``t`` and ``y``:
