@@ -375,6 +375,14 @@ def get_k(
         pressure=pressure,
         volume=volume,
     )
+
+    # make reaction rate constants for equilibria as close as possible to one
+    for i, _ihe in enumerate(scheme.is_half_equilibrium):
+        # loop over pairs of equilibria
+        if _ihe and i % 2 == 0:
+            pair = k[i : i + 2]
+            k[i : i + 2] = pair / pair.min()
+
     logger.info(
         "(classical) reaction rate constants: "
         f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹"

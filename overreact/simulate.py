@@ -141,7 +141,7 @@ def get_y(dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-9):
     return y, r
 
 
-def get_dydt(scheme, k, ef=1.0e3):
+def get_dydt(scheme, k, ef=1e3):
     """Generate a rate function that models a reaction scheme.
 
     Parameters
@@ -159,12 +159,6 @@ def get_dydt(scheme, k, ef=1.0e3):
         are stored in the attribute `k` of the returned function. If JAX is
         available, the attribute `jac` will hold the Jacobian function of
         `dydt`.
-
-    Warns
-    -----
-    RuntimeWarning
-        If the slowest half equilibrium is slower than the fastest non half
-        equilibrium.
 
     Notes
     -----
@@ -189,8 +183,8 @@ def get_dydt(scheme, k, ef=1.0e3):
     The actually used reaction rate constants can be inspected with the `k`
     attribute of `dydt`:
 
-    >>> dydt.k
-    array([1, 1])
+    >>> dydt.k  # doctest: +SKIP
+    array([1., 1.])
 
     If JAX is available, the Jacobian function will be available as
     `dydt.jac`:
@@ -201,22 +195,8 @@ def get_dydt(scheme, k, ef=1.0e3):
 
     """
     scheme = _core._check_scheme(scheme)
-    is_half_equilibrium = np.asanyarray(scheme.is_half_equilibrium)
-    k_adj = np.asanyarray(k).copy()
     A = np.asanyarray(scheme.A)
-
-    # TODO(schneiderfelipe): this test for equilibria should go to get_k since
-    # equilibria must obey the Collins-Kimball maximum reaction rate rule as
-    # well.
-    # TODO(schneiderfelipe): check whether we should filter RuntimeWarning.
-    # TODO(schneiderfelipe): if there's only equilibria, should I want the
-    # smallest one to be equal to one?
-    if np.any(is_half_equilibrium) and np.any(~is_half_equilibrium):
-        # TODO(schneiderfelipe): test those conditions
-        k_adj[is_half_equilibrium] *= ef * (
-            k_adj[~is_half_equilibrium].max() / k_adj[is_half_equilibrium].min()
-        )
-
+    k_adj = _adjust_k(scheme, k, ef=ef)
     M = np.where(A > 0, 0, -A).T
 
     def _dydt(t, y, k=k_adj, M=M):
@@ -235,3 +215,79 @@ def get_dydt(scheme, k, ef=1.0e3):
 
     _dydt.k = k_adj
     return _dydt
+
+
+def _adjust_k(scheme, k, ef=1e3):
+    """Adjust reaction rate constants so that equilibria are equilibria.
+
+    Parameters
+    ----------
+    scheme : Scheme
+    k : array-like
+        Reaction rate constant(s). Units match the concentration units given to
+        the returned function ``dydt``.
+    ef : float, optional
+
+    Returns
+    -------
+    k : array-like
+        Adjusted constants.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from overreact import api, core
+
+    >>> scheme = core.parse_reactions("A <=> B")
+    >>> _adjust_k(scheme, [1, 1])  # doctest: +SKIP
+    array([1., 1.])
+
+    >>> model = api.parse_model("data/ethane/B97-3c/model.k")
+    >>> _adjust_k(model.scheme, api.get_k(model.scheme, model.compounds))
+    array([8.15810511e+10])
+
+    >>> model = api.parse_model("data/acetate/model.k")
+    >>> _adjust_k(model.scheme, api.get_k(model.scheme, model.compounds))
+    array([1.00000000e+00, 3.43865350e+04, 6.58693442e+05, 1.00000000e+00,
+           6.36388893e+54, 1.00000000e+00])
+
+    >>> model = api.parse_model("data/perez-soto2020/RI/BLYP-D4/def2-TZVP/model.k")  # doctest: +SKIP
+    >>> _adjust_k(model.scheme, api.get_k(model.scheme, model.compounds))  # doctest: +SKIP
+    array([1.02300196e+11, 3.08436461e+15, 1.02300196e+11, 1.25048767e+20,
+           2.50281559e+12, 3.08378146e+19, 2.50281559e+12, 2.49786052e+22,
+           2.50281559e+12, 6.76606575e+18, 2.99483252e-08, 1.31433415e-09,
+           3.20122447e+01, 5.43065970e+01, 3.36730955e+03, 2.06802748e+04,
+           1.63458719e+04, 1.02300196e+08, 3.92788711e+12, 1.02300196e+11,
+           2.65574047e+17, 2.50281559e+12, 2.00892034e+14, 1.02300196e+11,
+           8.69343596e+17, 2.50281559e+12, 3.31477037e+15, 1.02300196e+11])
+
+    """
+    scheme = _core._check_scheme(scheme)
+    is_half_equilibrium = np.asanyarray(scheme.is_half_equilibrium)
+    k = np.asanyarray(k).copy()
+
+    # TODO(schneiderfelipe): this test for equilibria should go to get_k since
+    # equilibria must obey the Collins-Kimball maximum reaction rate rule as
+    # well.
+
+    if np.any(is_half_equilibrium):
+        # at least one equilibrium
+        if np.any(~is_half_equilibrium):
+            # at least one true reaction
+
+            k_slowest_equil = k[is_half_equilibrium].min()
+            k_fastest_react = k[~is_half_equilibrium].max()
+            adjustment = ef * (k_fastest_react / k_slowest_equil)
+
+            k[is_half_equilibrium] *= adjustment
+            logger.warning(f"equilibria adjustment = {adjustment}")
+        else:
+            # only equilibria
+
+            # set the smallest one to be equal to one
+            k = k / k.min()
+    # else:
+    #     # only zero or more true reactions (no equilibria)
+    #     pass
+
+    return k
