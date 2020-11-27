@@ -73,8 +73,9 @@ class Report:
         qrrho=True,  # TODO(schneiderfelipe): change to use_qrrho
         temperature=298.15,
         bias=0.0,
+        method="Radau",
         rtol=1e-5,
-        atol=1e-9,
+        atol=1e-11,
         box_style=box.SIMPLE,
     ):
         self.model = model
@@ -84,6 +85,7 @@ class Report:
         self.qrrho = qrrho
         self.temperature = temperature
         self.bias = bias
+        self.method = method
         self.rtol = rtol
         self.atol = atol
         self.box_style = box_style
@@ -546,8 +548,14 @@ def main():
         ),
         action="store_false",
     )
+    parser.add_argument(
+        "--method",
+        help="integrator",
+        choices=["BDF", "LSODA", "Radau"],
+        default="Radau",
+    )
     parser.add_argument("--rtol", type=float, default=1e-5)
-    parser.add_argument("--atol", type=float, default=1e-9)
+    parser.add_argument("--atol", type=float, default=1e-11)
     parser.add_argument(
         "--plot",
         help=(
@@ -587,6 +595,7 @@ Inputs:
 - QRRHO?         = {args.qrrho}
 - Temperature    = {args.temperature} K
 - Pressure       = {args.pressure} Pa
+- Integrator     = {args.method}
 - Rel. Tol.      = {args.rtol}
 - Abs. Tol.      = {args.atol}
 - Bias           = {args.bias / constants.kcal} kcal/mol
@@ -612,6 +621,7 @@ Parsing and calculating…
         qrrho=args.qrrho,
         temperature=args.temperature,
         bias=args.bias,
+        method=args.method,
         rtol=args.rtol,
         atol=args.atol,
     )

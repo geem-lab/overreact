@@ -27,7 +27,7 @@ else:
     jnp = np
 
 
-def get_y(dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-9):
+def get_y(dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11):
     """Simulate a reaction scheme from its rate function.
 
     This uses scipy's ``solve_ivp`` under the hood.
