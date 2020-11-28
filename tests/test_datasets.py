@@ -23,7 +23,7 @@ def test_logfiles():
         if isinstance(data1[key], str):
             assert data1[key] == data2[key]
         else:
-            assert np.asanyarray(data1[key]) == pytest.approx(np.asanyarray(data2[key]))
+            assert np.asarray(data1[key]) == pytest.approx(np.asarray(data2[key]))
 
     data1 = io.read_logfile(
         os.path.join(datasets.data_path, "symmetries", "ferrocene-staggered.out")
@@ -33,4 +33,4 @@ def test_logfiles():
         if isinstance(data1[key], str):
             assert data1[key] == data2[key]
         else:
-            assert np.asanyarray(data1[key]) == pytest.approx(np.asanyarray(data2[key]))
+            assert np.asarray(data1[key]) == pytest.approx(np.asarray(data2[key]))

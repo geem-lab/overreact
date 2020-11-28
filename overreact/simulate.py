@@ -20,6 +20,7 @@ _found_jax = _misc._find_package("jax")
 if _found_jax:
     import jax.numpy as jnp
     from jax import jacfwd
+    from jax import jit
     from jax.config import config
 
     config.update("jax_enable_x64", True)
@@ -27,7 +28,9 @@ else:
     jnp = np
 
 
-def get_y(dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11):
+def get_y(
+    dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11, max_time=5 * 60
+):
     """Simulate a reaction scheme from its rate function.
 
     This uses scipy's ``solve_ivp`` under the hood.
@@ -49,6 +52,9 @@ def get_y(dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11):
         normally unsuited. "Radau", "BDF" or "LSODA" are good choices.
     rtol, atol : array-like
         See `scipy.integrade.solve_ivp` for details.
+    max_time : float, optional
+        If `t_span` is not given, an interval will be estimated, but it can't
+        be larger than this parameter.
 
     Returns
     -------
@@ -65,16 +71,16 @@ def get_y(dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11):
     A toy simulation can be performed in just two lines:
 
     >>> scheme = core.parse_reactions("A <=> B")
-    >>> y, r = get_y(get_dydt(scheme, [1, 1]), y0=[1, 0])
+    >>> y, r = get_y(get_dydt(scheme, np.array([1, 1])), y0=[1, 0])
 
     The `y` object stores information about the simulation time, which can be
     used to produce a suitable vector of timepoints for, e.g., plotting:
 
     >>> y.t_min, y.t_max
-    (0.0, 10.0)
+    (0.0, 5.0)
     >>> t = np.linspace(y.t_min, y.t_max)
     >>> t
-    array([ 0.        ,  0.20408163,  ...,  9.79591837, 10.        ])
+    array([..., 0.20408163, ..., 4.89795918, ...])
 
     Both `y` and `r` can be used to check concentrations and rates in any
     point in time. In particular, both are vectorized:
@@ -87,29 +93,30 @@ def get_y(dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11):
            [ 1.00000000e+00, ...,  1.01639971e-07]])
     """
     # TODO(schneiderfelipe): raise a meaningful error when y0 has the wrong shape.
-    y0 = np.asanyarray(y0)
+    y0 = np.asarray(y0)
 
     if t_span is None:
-        n_halflives = 10.0
+        n_halflives = 5.0  # ensure < 5% remaining material in the worst case
 
         halflife_estimate = 1.0
         if hasattr(dydt, "k"):
             halflife_estimate = (
                 np.max(
                     [
-                        np.max(y0) / 2.0,  # zeroth-order half-life
-                        np.log(2.0),  # first-order half-life
-                        1.0 / np.min(y0[np.nonzero(y0)]),  # second-order half-life
+                        np.max(y0) / 2.0,  # zeroth-order halflife
+                        np.log(2.0),  # first-order halflife
+                        1.0 / np.min(y0[np.nonzero(y0)]),  # second-order halflife
                     ]
                 )
                 / np.min(dydt.k)
             )
+            logger.info(f"largest halflife guess = {halflife_estimate} s")
 
         t_span = [
             0.0,
-            n_halflives * halflife_estimate,
+            min(n_halflives * halflife_estimate, max_time),
         ]
-        logger.info(f"simulation time span = {t_span} s")
+        logger.info(f"simulation time span   = {t_span} s")
 
     jac = None
     if hasattr(dydt, "jac"):
@@ -195,21 +202,22 @@ def get_dydt(scheme, k, ef=1e3):
 
     """
     scheme = _core._check_scheme(scheme)
-    A = np.asanyarray(scheme.A)
+    A = jnp.asarray(scheme.A)
+    M = jnp.where(A > 0, 0, -A).T
     k_adj = _adjust_k(scheme, k, ef=ef)
-    M = np.where(A > 0, 0, -A).T
 
-    def _dydt(t, y, k=k_adj, M=M):
+    def _dydt(t, y):
         r = k * jnp.prod(jnp.power(y, M), axis=1)
         return jnp.dot(A, r)
 
     if _found_jax:
-        _dydt = _dydt
+        _dydt = jit(_dydt)
 
-        def _jac(t, y, k=k_adj, M=M):
+        def _jac(t, y):
             # _jac(t, y)[i, j] == d f_i / d y_j
             # shape is (n_compounds, n_compounds)
-            return jacfwd(lambda _y: _dydt(t, _y, k, M))(y)
+            res = jacfwd(lambda _y: _dydt(t, _y))(y)
+            return res
 
         _dydt.jac = _jac
 
@@ -235,7 +243,6 @@ def _adjust_k(scheme, k, ef=1e3):
 
     Examples
     --------
-    >>> import numpy as np
     >>> from overreact import api, core
 
     >>> scheme = core.parse_reactions("A <=> B")
@@ -243,16 +250,20 @@ def _adjust_k(scheme, k, ef=1e3):
     array([1., 1.])
 
     >>> model = api.parse_model("data/ethane/B97-3c/model.k")
-    >>> _adjust_k(model.scheme, api.get_k(model.scheme, model.compounds))
+    >>> _adjust_k(model.scheme,
+    ...           api.get_k(model.scheme, model.compounds))  # doctest: +SKIP
     array([8.15810511e+10])
 
     >>> model = api.parse_model("data/acetate/model.k")
-    >>> _adjust_k(model.scheme, api.get_k(model.scheme, model.compounds))
-    array([1.00000000e+00, 3.43865350e+04, 6.58693442e+05, 1.00000000e+00,
-           6.36388893e+54, 1.00000000e+00])
-
-    >>> model = api.parse_model("data/perez-soto2020/RI/BLYP-D4/def2-TZVP/model.k")  # doctest: +SKIP
     >>> _adjust_k(model.scheme, api.get_k(model.scheme, model.compounds))  # doctest: +SKIP
+    array([1.00000000e+00, 3.43865350e+04, 6.58693442e+05,
+           1.00000000e+00, 6.36388893e+54, 1.00000000e+00])
+
+    >>> model = api.parse_model(
+    ...     "data/perez-soto2020/RI/BLYP-D4/def2-TZVP/model.k"
+    ... )  # doctest: +SKIP
+    >>> _adjust_k(model.scheme,
+    ...           api.get_k(model.scheme, model.compounds))  # doctest: +SKIP
     array([1.02300196e+11, 3.08436461e+15, 1.02300196e+11, 1.25048767e+20,
            2.50281559e+12, 3.08378146e+19, 2.50281559e+12, 2.49786052e+22,
            2.50281559e+12, 6.76606575e+18, 2.99483252e-08, 1.31433415e-09,
@@ -263,8 +274,8 @@ def _adjust_k(scheme, k, ef=1e3):
 
     """
     scheme = _core._check_scheme(scheme)
-    is_half_equilibrium = np.asanyarray(scheme.is_half_equilibrium)
-    k = np.asanyarray(k).copy()
+    is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
+    k = np.asarray(k).copy()
 
     # TODO(schneiderfelipe): this test for equilibria should go to get_k since
     # equilibria must obey the Collins-Kimball maximum reaction rate rule as
@@ -290,4 +301,4 @@ def _adjust_k(scheme, k, ef=1e3):
     #     # only zero or more true reactions (no equilibria)
     #     pass
 
-    return k
+    return jnp.asarray(k)

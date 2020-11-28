@@ -111,7 +111,7 @@ def get_transition_states(A, B, is_half_equilibrium):
     (None, None, 3)
 
     """
-    tau = np.asanyarray(B) - np.asanyarray(A) > 0  # transition state matrix
+    tau = np.asarray(B) - np.asarray(A) > 0  # transition state matrix
     return tuple(
         x if not is_half_equilibrium[i] and tau[:, i].any() else None
         for i, x in enumerate(np.argmax(tau, axis=0))

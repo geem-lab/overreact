@@ -100,9 +100,9 @@ def smoluchowski(
     >>> smoluchowski(radii, viscosity=8.91e-4) / constants.liter  # doctest: +SKIP
     3.6e9
     """
-    radii = np.asanyarray(radii)
-    temperature = np.asanyarray(temperature)
-    pressure = np.asanyarray(pressure)  # TODO(schneiderfelipe): do we need this?
+    radii = np.asarray(radii)
+    temperature = np.asarray(temperature)
+    pressure = np.asarray(pressure)  # TODO(schneiderfelipe): do we need this?
 
     if mutual_diff_coef is None:
         if callable(viscosity):
@@ -110,7 +110,7 @@ def smoluchowski(
         elif isinstance(viscosity, str):
             viscosity = liquid_viscosity(viscosity, temperature, pressure)
         mutual_diff_coef = (
-            constants.k * temperature / (6.0 * np.pi * np.asanyarray(viscosity))
+            constants.k * temperature / (6.0 * np.pi * np.asarray(viscosity))
         ) * np.sum(1.0 / radii)
 
     if reactive_radius is None:
@@ -309,8 +309,8 @@ def eyring(
     >>> eyring(18.86 * constants.kcal)  # unimolecular, s-1
     0.093
     """
-    temperature = np.asanyarray(temperature)
-    delta_freeenergy = np.asanyarray(delta_freeenergy)
+    temperature = np.asarray(temperature)
+    delta_freeenergy = np.asarray(delta_freeenergy)
     delta_moles = 1 - molecularity
     return (
         _thermo.equilibrium_constant(

@@ -72,8 +72,9 @@ values from the table:
 We need one reaction rate constant per reaction, in a
 list with the same ordering as the ``scheme.reactions`` variable obtained above.
 
+>>> import numpy as np
 >>> k_f = (k_r + k_cat) / K_M  # using the equation above
->>> k = [k_f, k_r, k_cat]
+>>> k = np.array([k_f, k_r, k_cat])
 
 Solving the initial value problem
 ---------------------------------
@@ -83,7 +84,6 @@ units, as long as they match with the reaction rate constants) and solve the
 initial value problem. Below we set the substrate to one molar and the enzyme
 to 5% of it:
 
->>> import numpy as np
 >>> y0 = np.array([0.05, 1.00, 0.00, 0.00, 0.00])
 
 One return value that ``core.parse_reactions`` has given us was the :math:`A`

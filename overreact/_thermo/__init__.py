@@ -510,7 +510,7 @@ def get_molecularity(transform):
     >>> get_molecularity([[0.], [0.]])
     array([1])
     """
-    res = np.sum(np.asanyarray(transform) < 0, axis=0)
+    res = np.sum(np.asarray(transform) < 0, axis=0)
     return np.where(res > 0, res, 1)
 
 
@@ -554,7 +554,7 @@ def get_delta(transform, property):
     ...            [ 1,  3]], [-5, 12])
     array([17, 46])
     """
-    return np.asanyarray(transform).T @ np.asanyarray(property)
+    return np.asarray(transform).T @ np.asarray(property)
 
 
 # TODO(schneiderfelipe): further test the usage of delta_moles with values
@@ -614,13 +614,13 @@ def equilibrium_constant(
     >>> equilibrium_constant(64187.263215698644, delta_moles=-2, temperature=745.0)
     0.118e-6
     """
-    temperature = np.asanyarray(temperature)
+    temperature = np.asarray(temperature)
 
     if volume is None:
         volume = molar_volume(temperature=temperature, pressure=pressure)
 
     equilibrium_constant = (
-        np.exp(-np.asanyarray(delta_freeenergy) / (constants.R * temperature))
+        np.exp(-np.asarray(delta_freeenergy) / (constants.R * temperature))
         * (volume) ** -delta_moles
     )
     logger.info(f"equilibrium constant = {equilibrium_constant}")
@@ -704,7 +704,7 @@ def change_reference_state(
     if old_reference is None:
         if volume is None:
             volume = molar_volume(
-                temperature=np.asanyarray(temperature), pressure=pressure
+                temperature=np.asarray(temperature), pressure=pressure
             )
         old_reference = 1.0 / volume
     return sign * constants.R * np.log(new_reference / old_reference)
@@ -745,5 +745,5 @@ def get_reaction_entropies(transform):
     >>> get_reaction_entropies(scheme.A)
     array([-5.763, 5.763])
     """
-    sym = _factorial(np.abs(np.asanyarray(transform)))
+    sym = _factorial(np.abs(np.asarray(transform)))
     return np.sum(np.sign(transform) * change_reference_state(sym, 1), axis=0)

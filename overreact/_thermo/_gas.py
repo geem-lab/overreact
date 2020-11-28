@@ -95,7 +95,7 @@ def calc_elec_energy(energy=0.0, degeneracy=1, temperature=298.15):
     321.00
 
     """
-    min_energy = np.asanyarray(energy).min()
+    min_energy = np.asarray(energy).min()
     if np.isclose(temperature, 0.0):
         logger.warning("assuming ground state as electronic energy at zero temperature")
         return min_energy
@@ -176,7 +176,7 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
         logger.warning("assuming electronic entropy zero at zero temperature")
         return 0.0
 
-    min_energy = np.asanyarray(energy).min()
+    min_energy = np.asarray(energy).min()
     energy = energy - min_energy
 
     q_elec_terms = degeneracy * np.exp(-energy / (constants.R * temperature))
@@ -880,6 +880,6 @@ def molar_volume(temperature=298.15, pressure=constants.atm):
     >>> molar_volume() / (constants.angstrom ** 3 * constants.N_A)
     40625.758632362515
     """
-    molar_volume = constants.R * np.asanyarray(temperature) / np.asanyarray(pressure)
+    molar_volume = constants.R * np.asarray(temperature) / np.asarray(pressure)
     logger.debug(f"molar volume = {molar_volume} Å³")
     return molar_volume
