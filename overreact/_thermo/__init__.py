@@ -15,8 +15,6 @@ from overreact._thermo import _solv
 
 logger = logging.getLogger(__name__)
 
-# TODO(schneiderfelipe): implement frequency scaling factors.
-
 
 def calc_trans_entropy(
     atommasses,
@@ -83,7 +81,7 @@ def calc_trans_entropy(
     # certainly wrong (https://physics.stackexchange.com/a/400431/77366).
     # See https://physics.stackexchange.com/a/468649/77366 and
     # https://physics.stackexchange.com/a/335828/77366 for further details on what we
-    # should do (disclaimer: no Sackur-Tetrode!).
+    # should do (disclaimer: no Sackur-Tetrode at 0 K!).
     if np.isclose(temperature, 0.0):
         logger.warning("assuming translational entropy zero at zero temperature")
         return 0.0
@@ -111,8 +109,8 @@ def calc_trans_entropy(
     return translational_entropy
 
 
-# TODO(schneiderfelipe): "energy" has potentially two meanings here. Solve for
-# the whole package.
+# TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
+# naming for the whole package?
 def calc_internal_energy(
     energy=0.0,
     degeneracy=1,
@@ -178,8 +176,8 @@ def calc_internal_energy(
     return internal_energy
 
 
-# TODO(schneiderfelipe): "energy" has potentially two meanings here. Solve for
-# the whole package.
+# TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
+# naming for the whole package?
 def calc_enthalpy(
     energy=0.0,
     degeneracy=1,
@@ -251,11 +249,8 @@ def calc_enthalpy(
     return enthalpy
 
 
-# TODO(schneiderfelipe): this function should probably go to _gas.py, but it
-# still calls a function from _thermo._solv. As such, we need to separate
-# things and make a transfer.
-# TODO(schneiderfelipe): "energy" has potentially two meanings here. Solve for
-# the whole package.
+# TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
+# naming for the whole package?
 def calc_entropy(
     atommasses,
     atomnos=None,

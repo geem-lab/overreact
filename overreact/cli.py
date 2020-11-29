@@ -69,8 +69,8 @@ class Report:
         model,
         concentrations=None,
         savepath=None,
-        plot=False,  # TODO(schneiderfelipe): change to do_plot
-        qrrho=True,  # TODO(schneiderfelipe): change to use_qrrho
+        plot=False,
+        qrrho=True,
         temperature=298.15,
         bias=0.0,
         method="Radau",
@@ -141,8 +141,6 @@ class Report:
         )
         for i, reaction in enumerate(scheme.reactions):
             reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
-            # TODO(schneiderfelipe): should we use "No" instead of None for
-            # "half-equilib.?"?
             row = [f"{i:d}", reactants, None, products, "No"]
             if transition_states[i] is not None:
                 row[2] = scheme.compounds[transition_states[i]]
@@ -196,9 +194,6 @@ class Report:
             logfiles_table.add_row(
                 f"{i:d}",
                 name,
-                # TODO(schneiderfelipe): show only the file name and inform
-                # the absolute path to folder (as a bash variable) somewhere
-                # else.
                 path_text,
             )
 
@@ -473,7 +468,6 @@ class Report:
                         f"'{' '.join(self.concentrations)}'"
                     )
 
-                # TODO(schneiderfelipe): the following is inefficient but probably OK
                 y0[self.model.scheme.compounds.index(name)] = quantity
 
             y, r = api.get_y(
@@ -533,8 +527,6 @@ def main():
     console = Console(width=max(105, shutil.get_terminal_size()[0]))
     levels = [logging.WARNING, logging.INFO, logging.DEBUG]
 
-    # TODO(schneiderfelipe): test and docs
-    # TODO(schneiderfelipe): improve help page
     parser = argparse.ArgumentParser(
         description="Interface for building and modifying models."
     )
@@ -586,9 +578,8 @@ def main():
     parser.add_argument(
         "-v", "--verbose", help="increase output verbosity", action="count", default=0
     )
-    # TODO(schneiderfelipe): --dry-run|-n for testing purposes (useful
-    # usage together with --compile|-c --- or should we consider --compile|-c
-    # always as a do-nothing (no analysis)?).
+    # TODO(schneiderfelipe): should we consider --compile|-c always as a
+    # do-nothing (no analysis)?
     # TODO(schneiderfelipe): some commands for concatenating/summing .k/.jk
     # files. This might be useful for some of the more complex operations I
     # want to be able to do in the future.
@@ -641,6 +632,8 @@ Parsing and calculating…
         rtol=args.rtol,
         atol=args.atol,
     )
+    # TODO(schneiderfelipe): use a progress bar to inform about the
+    # simulation and show the time it took to simulate.
     console.print(report, justify="left")
 
 

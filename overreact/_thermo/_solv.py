@@ -18,17 +18,17 @@ logger = logging.getLogger(__name__)
 # associated with this (see doi:10.1021/jp9716997 and references therein, e.g.,
 # doi:10.1016/0009-2614(96)00349-1, doi:10.1021/cr60304a002,
 # doi:10.1002/jcc.540100504). As such, including this in the total free energy
-# might overcount energy contributions. As an alternative, I might:
-# a. want to remove this contribution,
-# b. want to keep this and remove the contribution from the cavity enthalpy,
+# might overcount energy contributions. As an alternative, I might want to
+# a. remove this contribution,
+# b. keep this and remove the contribution from the cavity enthalpy,
 #    either by
 #    i.  doing a similar calculation as here and removing from the enthalpy or
 #    ii. by actually implementing the original method of C-PCM and excluding
 #        it from the enthalpy.
-# c. want to implement something closer to the original and do one of the
+# c. implement something closer to the original and do one of the
 #    cited in b. above.
 #
-# TODO(schneiderfelipe): see doi:10.1021/cr60304a002.
+# See doi:10.1021/cr60304a002.
 def calc_cav_entropy(
     atomnos,
     atomcoords,
@@ -88,7 +88,7 @@ def calc_cav_entropy(
 
     def func(temperature, solvent):
         # TODO(schneiderfelipe): allow passing a "solvent" object everywhere so
-        # that we don't repeat ourselves.
+        # that we don't repeat ourselves?
         _, _, ratio = coords._garza(
             vdw_volume,
             solvent,
@@ -242,13 +242,8 @@ def molar_free_volume(
         r_M, r_cav = np.cbrt(vdw_volume), np.cbrt(cav_volume)
         molar_free_volume = (r_cav - r_M) ** 3 * constants.angstrom ** 3 * constants.N_A
     elif method == "garza":
-        # TODO(schneiderfelipe): test for the following solvents at the
-        # following temperatures:
-        # - water: 274 K -- 373 K
-        # - pentane: 144 K -- 308 K
-        # - hexane: 178 K -- 340 K
-        # - heptane: 183 K -- 370 K
-        # - octane: 217 K -- 398 K
+        # TODO(schneiderfelipe): test for the following solvents: water,
+        # pentane, hexane, heptane and octane.
         cav_volume, N_cav, _ = coords._garza(
             coords.get_molecular_volume(atomnos, atomcoords),
             environment,

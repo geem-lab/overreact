@@ -33,7 +33,10 @@ def get_y(
 ):
     """Simulate a reaction scheme from its rate function.
 
-    This uses scipy's ``solve_ivp`` under the hood.
+    This function provides two functions that calculate the concentrations and
+    the rates of formation at any point in time for any compound. It does that
+    by solving an initial value problem (IVP) through scipy's ``solve_ivp``
+    under the hood.
 
     Parameters
     ----------
@@ -143,8 +146,6 @@ def get_y(
         except TypeError:
             return dydt(t, y(t))
 
-    # TODO(schneiderfelipe): use a flag such as full_output to indicate we
-    # want everything, not just y.
     return y, r
 
 
@@ -216,8 +217,7 @@ def get_dydt(scheme, k, ef=1e3):
         def _jac(t, y):
             # _jac(t, y)[i, j] == d f_i / d y_j
             # shape is (n_compounds, n_compounds)
-            res = jacfwd(lambda _y: _dydt(t, _y))(y)
-            return res
+            return jacfwd(lambda _y: _dydt(t, _y))(y)
 
         _dydt.jac = _jac
 
@@ -255,7 +255,8 @@ def _adjust_k(scheme, k, ef=1e3):
     array([8.15810511e+10])
 
     >>> model = api.parse_model("data/acetate/model.k")
-    >>> _adjust_k(model.scheme, api.get_k(model.scheme, model.compounds))  # doctest: +SKIP
+    >>> _adjust_k(model.scheme,
+    ...           api.get_k(model.scheme, model.compounds))  # doctest: +SKIP
     array([1.00000000e+00, 3.43865350e+04, 6.58693442e+05,
            1.00000000e+00, 6.36388893e+54, 1.00000000e+00])
 
@@ -276,10 +277,6 @@ def _adjust_k(scheme, k, ef=1e3):
     scheme = _core._check_scheme(scheme)
     is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
     k = np.asarray(k).copy()
-
-    # TODO(schneiderfelipe): this test for equilibria should go to get_k since
-    # equilibria must obey the Collins-Kimball maximum reaction rate rule as
-    # well.
 
     if np.any(is_half_equilibrium):
         # at least one equilibrium

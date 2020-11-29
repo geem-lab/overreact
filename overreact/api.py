@@ -403,7 +403,7 @@ def get_k(
         )
 
     # TODO(schneiderfelipe): ensure diffusional limit for reactions in
-    # solvation using Collins-Kimball theory.
+    # solvation using Collins-Kimball theory. This includes half-equilibria.
     return rates.convert_rate_constant(
         k, scale, molecularity=molecularity, temperature=temperature, pressure=pressure
     )
