@@ -136,7 +136,75 @@ def test_smoluchowski_calculates_diffusion_limited_reaction_rates():
 
 
 def test_liquid_viscosities_are_correct():
-    """Ensure water viscosity values agree with doi:10.1002/9781118131473."""
+    """Ensure viscosity values agree with the literature.
+
+    The following data were collected from many different sources, whose DOIs
+    or ISBNs are to be found in the comments.
+    """
+    # - pentane (isbn:978-1138561632):
+    # TODO(schneiderfelipe): pentane: 144 K -- 308 K
+    temperature = 273.15 + np.array([25])
+    viscosity = 1e-3 * np.array([2.24e-1])
+    assert rates.liquid_viscosity("pentane", temperature) == pytest.approx(
+        viscosity, 4e-3
+    )
+
+    # - hexane (doi:10.1063/1.555943):
+    # TODO(schneiderfelipe): hexane: 178 K -- 340 K
+    temperature = 273.15 + np.array([25])
+    viscosity = 1e-3 * np.array([0.295])
+    assert rates.liquid_viscosity("hexane", temperature) == pytest.approx(
+        viscosity, 5e-3
+    )
+
+    # - acetone (doi:10.1021/je00017a031):
+    temperature = 273.15 + np.array([25])
+    viscosity = 1e-3 * np.array([0.302])
+    assert rates.liquid_viscosity("acetone", temperature) == pytest.approx(
+        viscosity, 2e-2
+    )
+
+    # - heptane (doi:10.1063/1.555943):
+    # TODO(schneiderfelipe): heptane: 183 K -- 370 K
+    temperature = 273.15 + np.array([25])
+    viscosity = 1e-3 * np.array([0.389])
+    assert rates.liquid_viscosity("heptane", temperature) == pytest.approx(
+        viscosity, 9e-5
+    )
+
+    # - octane (doi:10.1063/1.555943):
+    # TODO(schneiderfelipe): octane: 217 K -- 398 K
+    temperature = 273.15 + np.array([25])
+    viscosity = 1e-3 * np.array([0.509])
+    assert rates.liquid_viscosity("octane", temperature) == pytest.approx(
+        viscosity, 2e-3
+    )
+
+    # - benzene (isbn:978-1138561632):
+    temperature = 273.15 + np.array([25])
+    viscosity = 1e-3 * np.array([0.604])
+    assert rates.liquid_viscosity("benzene", temperature) == pytest.approx(
+        viscosity, 7e-3
+    )
+
+    # - water (isbn:978-1138561632):
+    temperature = 273.15 + np.array([10, 20, 25, 30, 50, 70, 90])
+    viscosity = 1e-3 * np.array(
+        [
+            1.3059,
+            1.0016,
+            8.90e-1,
+            0.79722,
+            0.54652,
+            0.40355,
+            0.31417,
+        ]
+    )
+    assert rates.liquid_viscosity("water", temperature) == pytest.approx(
+        viscosity, 3e-2
+    )
+
+    # - water (doi:10.1002/9781118131473):
     temperature = 273.15 + np.array(
         [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100]
     )
@@ -160,6 +228,20 @@ def test_liquid_viscosities_are_correct():
     )
     assert rates.liquid_viscosity("water", temperature) == pytest.approx(
         viscosity, 6e-2
+    )
+
+    # - ethanol (isbn:978-1138561632):
+    temperature = 273.15 + np.array([25])
+    viscosity = 1e-3 * np.array([1.074])
+    assert rates.liquid_viscosity("ethanol", temperature) == pytest.approx(
+        viscosity, 4e-3
+    )
+
+    # - 2-propanol (doi:10.1021/je00058a025):
+    temperature = 273.15 + np.array([25])
+    viscosity = 1e-3 * np.array([2.052])
+    assert rates.liquid_viscosity("2-propanol", temperature) == pytest.approx(
+        viscosity, 1e-3
     )
 
 
