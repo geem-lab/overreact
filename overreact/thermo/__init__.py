@@ -788,7 +788,7 @@ def change_reference_state(
     if old_reference is None:
         if volume is None:
             volume = molar_volume(
-                temperature=np.asanyarray(temperature), pressure=pressure
+                temperature=np.asarray(temperature), pressure=pressure
             )
         old_reference = 1.0 / volume
 

@@ -33,7 +33,7 @@ y0 = [y0_CH4, y0_Cl, 0.0, 0.0, y0_HCl]
 print(y0)
 
 dydt = api.get_dydt(model.scheme, k_eck)
-y, r = api.get_y(dydt, y0=y0, method="Radau")
+y, r = api.get_y(dydt, y0=y0)
 
 print(model.scheme.compounds)
 print(y(y.t_max))

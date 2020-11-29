@@ -30,6 +30,12 @@ logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 
+_found_jax = _misc._find_package("jax")
+if _found_jax:
+    import jax.numpy as jnp
+    from jax import jacfwd
+    from jax import jit
+    from jax.config import config
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
 def get_y(

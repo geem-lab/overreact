@@ -34,7 +34,6 @@ t, drc = api.get_drc(
     model.compounds,
     y0,
     scale="M-1 s-1",
-    method="BDF",
     num=500,
     dx=2000.0,
     order=5,
