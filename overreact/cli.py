@@ -74,7 +74,7 @@ class Report:
         temperature=298.15,
         bias=0.0,
         method="Radau",
-        max_time=5 * 60,
+        max_time=24 * 60 * 60,
         rtol=1e-5,
         atol=1e-11,
         box_style=box.SIMPLE,
@@ -559,7 +559,7 @@ def main():
         choices=["BDF", "LSODA", "Radau"],
         default="Radau",
     )
-    parser.add_argument("--max-time", type=float, default=5 * 60)
+    parser.add_argument("--max-time", type=float, default=24 * 60 * 60)
     parser.add_argument("--rtol", type=float, default=1e-5)
     parser.add_argument("--atol", type=float, default=1e-11)
     parser.add_argument(

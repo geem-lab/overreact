@@ -29,7 +29,7 @@ else:
 
 
 def get_y(
-    dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11, max_time=5 * 60
+    dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11, max_time=24 * 60 * 60
 ):
     """Simulate a reaction scheme from its rate function.
 
