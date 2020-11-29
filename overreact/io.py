@@ -4,7 +4,6 @@
 
 from collections.abc import MutableMapping
 from collections import defaultdict
-from copy import deepcopy as _deepcopy
 import json
 import logging
 import os
