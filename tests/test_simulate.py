@@ -19,12 +19,14 @@ def test_get_dydt_calculates_reaction_rate():
         B=np.array([[-1.0], [1.0]]),
     )
 
-    dydt = simulate.get_dydt(scheme, [2.0])
+    # with jitted dydt, we need to use np.ndarray
+    dydt = simulate.get_dydt(scheme, np.array([2.0]))
 
-    assert dydt(0.0, [1.0, 0.0]) == pytest.approx([-2.0, 2.0])
-    assert dydt(5.0, [1.0, 0.0]) == pytest.approx([-2.0, 2.0])
-    assert dydt(0.0, [1.0, 1.0]) == pytest.approx([-2.0, 2.0])
-    assert dydt(0.0, [10.0, 0.0]) == pytest.approx([-20.0, 20.0])
+    # if JAX is used, dydt won't accept lists, only np.ndarray
+    assert dydt(0.0, np.array([1.0, 0.0])) == pytest.approx([-2.0, 2.0])
+    assert dydt(5.0, np.array([1.0, 0.0])) == pytest.approx([-2.0, 2.0])
+    assert dydt(0.0, np.array([1.0, 1.0])) == pytest.approx([-2.0, 2.0])
+    assert dydt(0.0, np.array([10.0, 0.0])) == pytest.approx([-20.0, 20.0])
 
 
 def test_get_y_propagates_reaction_automatically():
@@ -38,13 +40,14 @@ def test_get_y_propagates_reaction_automatically():
     )
     y0 = [2.00, 2.00, 0.01]
 
-    y, r = simulate.get_y(simulate.get_dydt(scheme, [1.0, 1.0]), y0=y0)
+    # with jitted dydt, we need to use np.ndarray
+    y, r = simulate.get_y(simulate.get_dydt(scheme, np.array([1.0, 1.0])), y0=y0)
 
     assert y.t_min == 0.0
-    assert y.t_max == 1000.0
+    assert y.t_max == 300.0
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx(
-        [1.668212890625, 0.6728515625, 0.341787109375], 7e-5
+        [1.668212890625, 0.6728515625, 0.341787109375], 9e-5
     )
     assert r(y.t_min) == pytest.approx([-31.99, -127.96, 31.99])
     assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=2e-4)
@@ -62,7 +65,10 @@ def test_get_y_propagates_reaction_with_fixed_time():
     y0 = [2.00, 2.00, 0.01]
     t_span = [0.0, 200.0]
 
-    y, r = simulate.get_y(simulate.get_dydt(scheme, [1.0, 1.0]), y0=y0, t_span=t_span)
+    # with jitted dydt, we need to use np.ndarray
+    y, r = simulate.get_y(
+        simulate.get_dydt(scheme, np.array([1.0, 1.0])), y0=y0, t_span=t_span
+    )
 
     assert y.t_min == t_span[0]
     assert y.t_max == t_span[-1]
@@ -71,7 +77,7 @@ def test_get_y_propagates_reaction_with_fixed_time():
         [1.668212890625, 0.6728515625, 0.341787109375], 9e-5
     )
     assert r(y.t_min) == pytest.approx([-31.99, -127.96, 31.99])
-    assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=3e-6)
+    assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=4e-5)
 
 
 def test_get_y_conservation_in_equilibria():
@@ -79,15 +85,16 @@ def test_get_y_conservation_in_equilibria():
     scheme = core.parse_reactions("A <=> B")
     y0 = [1, 0]
 
-    y, r = simulate.get_y(simulate.get_dydt(scheme, [1, 1]), y0=y0)
+    # with jitted dydt, we need to use np.ndarray
+    y, r = simulate.get_y(simulate.get_dydt(scheme, np.array([1, 1])), y0=y0)
     t = np.linspace(y.t_min, y.t_max, num=100)
 
     assert y.t_min == 0.0
-    assert y.t_max == 10.0
+    assert y.t_max == 5.0
     assert y(y.t_min) == pytest.approx(y0)
-    assert y(y.t_max) == pytest.approx([0.5, 0.5])
+    assert y(y.t_max) == pytest.approx([0.5, 0.5], 5e-5)
     assert r(y.t_min) == pytest.approx([-1, 1])
-    assert r(y.t_max) == pytest.approx([0.0, 0.0], abs=2e-7)
+    assert r(y.t_max) == pytest.approx([0.0, 0.0], abs=5e-5)
 
     assert y.t_min == t[0]
     assert y.t_max == t[-1]

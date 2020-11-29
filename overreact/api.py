@@ -19,7 +19,6 @@ from overreact import tunnel
 from overreact.core import get_transition_states
 from overreact.core import is_transition_state
 from overreact.core import parse_reactions
-from overreact.datasets import data_path
 from overreact.io import parse_compounds
 from overreact.io import parse_model
 from overreact.simulate import get_dydt
@@ -27,7 +26,6 @@ from overreact.simulate import get_y
 from overreact._thermo import get_delta
 from overreact._thermo import get_reaction_entropies
 from overreact._thermo import change_reference_state
-from overreact.misc import cache
 
 logger = logging.getLogger(__name__)
 
@@ -264,10 +262,9 @@ def get_freeenergies(
     enthalpies = get_enthalpies(compounds, qrrho=qrrho, temperature=temperature)
     entropies = get_entropies(compounds, qrrho=qrrho, temperature=temperature)
     # TODO(schneiderfelipe): log the contribution of bias
-    return enthalpies - temperature * entropies + _np.asanyarray(bias)
+    return enthalpies - temperature * entropies + _np.asarray(bias)
 
 
-# @cache
 def get_k(
     scheme,
     compounds=None,
@@ -375,6 +372,14 @@ def get_k(
         pressure=pressure,
         volume=volume,
     )
+
+    # make reaction rate constants for equilibria as close as possible to one
+    for i, _ihe in enumerate(scheme.is_half_equilibrium):
+        # loop over pairs of equilibria
+        if _ihe and i % 2 == 0:
+            pair = k[i : i + 2]
+            k[i : i + 2] = pair / pair.min()
+
     logger.info(
         "(classical) reaction rate constants: "
         f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹"

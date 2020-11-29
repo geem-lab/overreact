@@ -72,8 +72,9 @@ values from the table:
 We need one reaction rate constant per reaction, in a
 list with the same ordering as the ``scheme.reactions`` variable obtained above.
 
+>>> import numpy as np
 >>> k_f = (k_r + k_cat) / K_M  # using the equation above
->>> k = [k_f, k_r, k_cat]
+>>> k = np.array([k_f, k_r, k_cat])
 
 Solving the initial value problem
 ---------------------------------
@@ -83,7 +84,7 @@ units, as long as they match with the reaction rate constants) and solve the
 initial value problem. Below we set the substrate to one molar and the enzyme
 to 5% of it:
 
->>> y0 = [0.05, 1.00, 0.00, 0.00, 0.00]
+>>> y0 = np.array([0.05, 1.00, 0.00, 0.00, 0.00])
 
 One return value that ``core.parse_reactions`` has given us was the :math:`A`
 matrix, whose entry :math:`A_{ij}` stores the coefficient of the i-th compound
@@ -135,19 +136,16 @@ Fortunately, overreact is able to give you a function that, giving time and
 concentrations, calculates the derivative with respect to time:
 
 >>> dydt = simulate.get_dydt(scheme, k)
->>> dydt(0.0, y0)  # t = 0.0
+>>> dydt(0.0, y0)  # t = 0.0  # doctest: +SKIP
 array([-83333.3, -83333.3, 83333.3, 0. , 0. ])
 
 From the above we see that the equilibrium will likely be rapidly satisfied,
 while no product is being created at time zero, since there's no
 enzyme-substrate complex yet.
 
-Let's now do a one minute simulation with ``get_y`` (methods Radau or BDF are
-recommended for likely stiff equations such as those):
+Let's now do a one minute simulation with ``get_y``:
 
->>> y, r = simulate.get_y(dydt, y0, method="Radau")
-
->>> import numpy as np
+>>> y, r = simulate.get_y(dydt, y0)
 >>> t = np.linspace(y.t_min, 60.0)  # seconds
 
 We can graph concentrations over time with ``t`` and ``y``:
@@ -168,15 +166,15 @@ Text(...)
 
 .. figure:: ../../_static/michaelis-menten.png
 
-   A one minute simulation of the Michaelis-Menten model for the enzyme Pepsin,
+   A one-minute simulation of the Michaelis-Menten model for the enzyme Pepsin,
    an endopeptidase that breaks down proteins into smaller peptides. Observe
-   that the rapid equilibrium justifies the commonly applied steady state
+   that the rapid equilibrium justifies the commonly applied steady-state
    approximation.
 
 The simulation time was enough to convert all substrate into products and
 regenerate the initial enzyme molecules:
 
->>> y(y.t_max)
+>>> y(y.t_max)  # doctest: +SKIP
 array([0.05, 0.00, 0.00, 0.00, 1.00])
 
 Getting rates back
@@ -199,7 +197,7 @@ Text(...)
 
 .. figure:: ../../_static/michaelis-menten-dydt.png
 
-   Time derivative of concentrations for the one minute simulation of the Michaelis-Menten model for the enzyme Pepsin above.
+   The time derivative of concentrations for the one-minute simulation of the Michaelis-Menten model for the enzyme Pepsin above.
 
 Furthermore, we can get the turnover frequency (TOF) as:
 
@@ -218,4 +216,4 @@ Text(...)
 
 .. figure:: ../../_static/michaelis-menten-tof.png
 
-   Turnover frequency for the enzyme Pepsin above, in the one minute simulation of the Michaelis-Menten model.
+   The turnover frequency for the enzyme Pepsin above, in the one-minute simulation of the Michaelis-Menten model.

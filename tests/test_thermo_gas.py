@@ -274,7 +274,7 @@ def test_enthalpy_ideal_gases():
     # C6H6
     data = logfiles["symmetries"]["benzene"]
     moments = coords.inertia(data.atommasses, data.atomcoords)[0]
-    vibfreqs = np.asanyarray(data.vibfreqs)
+    vibfreqs = np.asarray(data.vibfreqs)
     internal_energy = _thermo.calc_internal_energy(
         moments=moments, vibfreqs=vibfreqs, temperature=temperature
     )
@@ -857,7 +857,7 @@ def test_entropy_ideal_polyatomic_gases():
     point_group = coords.find_point_group(data.atommasses, data.atomcoords)
     assert point_group == "D6h"
     symmetry_number = coords.symmetry_number(point_group)
-    vibfreqs = np.asanyarray(data.vibfreqs)
+    vibfreqs = np.asarray(data.vibfreqs)
     assert (
         _thermo.calc_entropy(
             data.atommasses,
@@ -1001,7 +1001,7 @@ def test_internal_energy_ideal_polyatomic_gases():
     # C6H6
     data = logfiles["symmetries"]["benzene"]
     moments = coords.inertia(data.atommasses, data.atomcoords)[0]
-    vibfreqs = np.asanyarray(data.vibfreqs)
+    vibfreqs = np.asarray(data.vibfreqs)
     assert _thermo.calc_internal_energy(
         moments=moments, vibfreqs=vibfreqs, temperature=temperature
     ) == pytest.approx(267700.49, 2e-4)

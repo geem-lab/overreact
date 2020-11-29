@@ -728,8 +728,8 @@ def _get_proper_axes(
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
         return list()
 
-    axes = np.asanyarray(axes)
-    atomcoords = np.asanyarray(atomcoords)
+    axes = np.asarray(axes)
+    atomcoords = np.asarray(atomcoords)
     orders = _guess_orders(groups, rotor_class)
 
     found_axes = list()
@@ -944,8 +944,8 @@ def _get_improper_axes(
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
         return list()
 
-    axes = np.asanyarray(axes)
-    atomcoords = np.asanyarray(atomcoords)
+    axes = np.asarray(axes)
+    atomcoords = np.asarray(atomcoords)
 
     if proper_axes is None:
         proper_axes = _get_proper_axes(
@@ -1089,8 +1089,8 @@ def _get_mirror_planes(
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
         return list()
 
-    axes = np.asanyarray(axes)
-    atomcoords = np.asanyarray(atomcoords)
+    axes = np.asarray(axes)
+    atomcoords = np.asarray(atomcoords)
 
     if proper_axes is None:
         proper_axes = _get_proper_axes(
@@ -1192,7 +1192,7 @@ def _has_inversion_center(atomcoords, groups, rtol=0.0, atol=1.0e-2, slack=1.888
     """
     rtol, atol = slack * rtol, slack * atol
 
-    atomcoords = np.asanyarray(atomcoords)
+    atomcoords = np.asarray(atomcoords)
     return all(
         _is_symmetric(atomcoords[group], _operation("i"), rtol=rtol, atol=atol)
         for group in groups[::-1]
@@ -1332,7 +1332,7 @@ def _operation(name, order=2, axis=None):
     elif name == "e":
         return np.eye(3)
     elif name in {"c", "σ", "sigma", "s"}:  # normalize axis
-        axis = np.asanyarray(axis)
+        axis = np.asarray(axis)
         axis = axis / np.linalg.norm(axis)
 
         if name in {"c", "s"}:
@@ -1424,7 +1424,7 @@ def _classify_rotor(moments, rtol=0.0, atol=1.0e-2, slack=0.870):
 
     if np.isclose(moments[2], 0.0, rtol=inner_slack * rtol, atol=inner_slack * atol):
         return "spheric", "atomic"
-    moments = np.asanyarray(moments) / moments[2]
+    moments = np.asarray(moments) / moments[2]
 
     # basic tests for tops
     is_oblate = np.isclose(
@@ -1645,7 +1645,7 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
             -0.01313383, -0.00678954,  0.25045664,  0.29443748]])
     """
     dof = 3 * len(atommasses)
-    L_cart = np.asanyarray(vibdisps).reshape((len(vibfreqs), dof)).T
+    L_cart = np.asarray(vibdisps).reshape((len(vibfreqs), dof)).T
     # correct until here
     L_cart = np.linalg.qr(L_cart, mode="complete")[0]
 
@@ -1657,7 +1657,7 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     assert np.allclose(M @ D @ L, L_cart)
 
     # correct from here
-    nu = np.asanyarray(vibfreqs) * constants.c / constants.centi
+    nu = np.asarray(vibfreqs) * constants.c / constants.centi
     eigenvalues = (
         (2.0 * np.pi * nu) ** 2
         * (constants.atomic_mass * constants.bohr ** 2)
@@ -1701,7 +1701,7 @@ def calc_vibfreqs(hessian, atommasses):
     atommasses_sqrt = np.sqrt([mass for mass in atommasses for _ in range(3)])
 
     # mass-weighted Hessian
-    hessian = np.asanyarray(hessian) / np.outer(atommasses_sqrt, atommasses_sqrt)
+    hessian = np.asarray(hessian) / np.outer(atommasses_sqrt, atommasses_sqrt)
 
     eigenvalues = np.linalg.eigvals(hessian)
     # TODO(schneiderfelipe): the following probably misses some linear
@@ -1772,7 +1772,7 @@ def eckart_transform(atommasses, atomcoords):
              2.94635849e-01, -3.12654446e-01,  5.71869440e-01,
              5.73721626e-01, -1.13019078e-01,  3.00863871e-01]])
     """
-    atommasses = np.asanyarray(atommasses)
+    atommasses = np.asarray(atommasses)
     natom = len(atommasses)
     dof = 3 * natom
 

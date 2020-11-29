@@ -17,6 +17,7 @@ setup(
     install_requires=["cclib>=1.6.3", "scipy>=1.4.0"],
     extras_require={
         "cli": ["rich>=9.2.0"],
+        "fast": ["jax>=0.2.6", "jaxlib>=0.1.57"],
         "solvents": ["thermo>=0.1.39"],
     },
     tests_require=["matplotlib>=2.1.1", "pytest>=5.2.1"],

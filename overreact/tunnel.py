@@ -49,7 +49,7 @@ def wigner(vibfreq, temperature=298.15):
         raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
 
     nu = _np.abs(vibfreq) * constants.c / constants.centi
-    temperature = _np.asanyarray(temperature)
+    temperature = _np.asarray(temperature)
     u = constants.h * _np.abs(nu) / (constants.k * temperature)
 
     kappa = 1.0 + u ** 2 / 24.0
@@ -108,7 +108,7 @@ def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
         raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
 
     nu = _np.abs(vibfreq) * constants.c / constants.centi
-    temperature = _np.asanyarray(temperature)
+    temperature = _np.asarray(temperature)
     u = constants.h * _np.abs(nu) / (constants.k * temperature)
 
     if delta_backward is None:

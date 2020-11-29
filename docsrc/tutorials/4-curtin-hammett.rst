@@ -24,7 +24,7 @@ The selectivity is defined as the ratio between both products:
 >>> k
 array([1.445e+13, 6.212e+12, 2.905e+05, 2.310e+04])
 
->>> y, r = simulate.get_y(simulate.get_dydt(scheme, k), y0=[1.0, 0.0, 0.0, 0.0, 0.0, 0.0], method="BDF")
+>>> y, r = simulate.get_y(simulate.get_dydt(scheme, k), y0=[1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 >>> S = y(y.t_max)[scheme.compounds.index("P1")] / y(y.t_max)[scheme.compounds.index("P2")]
 >>> S
 5.408

@@ -73,6 +73,10 @@ class Report:
         qrrho=True,  # TODO(schneiderfelipe): change to use_qrrho
         temperature=298.15,
         bias=0.0,
+        method="Radau",
+        max_time=5 * 60,
+        rtol=1e-5,
+        atol=1e-11,
         box_style=box.SIMPLE,
     ):
         self.model = model
@@ -82,6 +86,10 @@ class Report:
         self.qrrho = qrrho
         self.temperature = temperature
         self.bias = bias
+        self.method = method
+        self.max_time = max_time
+        self.rtol = rtol
+        self.atol = atol
         self.box_style = box_style
 
     def __rich_console__(self, console, options):
@@ -468,7 +476,14 @@ class Report:
                 # TODO(schneiderfelipe): the following is inefficient but probably OK
                 y0[self.model.scheme.compounds.index(name)] = quantity
 
-            y, _ = api.get_y(dydt, y0=y0, method="Radau")
+            y, r = api.get_y(
+                dydt,
+                y0=y0,
+                method=self.method,
+                rtol=self.rtol,
+                atol=self.atol,
+                max_time=self.max_time,
+            )
             conc_table = Table(
                 Column("no", justify="right"),
                 Column("compound", justify="left"),
@@ -486,9 +501,13 @@ class Report:
                 )
             yield conc_table
 
-            # TODO(schneiderfelipe): we can get a max time now based on the
-            # changes through time: stop when the graph gets boring.
-            t = np.linspace(y.t_min, y.t_max)
+            t_max = y.t_max
+            factor = y(y.t_max).max()
+            reference = y(y.t_max) / factor
+            while np.allclose(y(t_max) / factor, reference, atol=1e-2):
+                t_max = 0.95 * t_max
+
+            t = np.linspace(y.t_min, t_max, num=100)
             if self.plot:
                 for i, name in enumerate(self.model.scheme.compounds):
                     if not core.is_transition_state(name):
@@ -543,6 +562,15 @@ def main():
         action="store_false",
     )
     parser.add_argument(
+        "--method",
+        help="integrator",
+        choices=["BDF", "LSODA", "Radau"],
+        default="Radau",
+    )
+    parser.add_argument("--max-time", type=float, default=5 * 60)
+    parser.add_argument("--rtol", type=float, default=1e-5)
+    parser.add_argument("--atol", type=float, default=1e-11)
+    parser.add_argument(
         "--plot",
         help=(
             "plot concentrations as a function of time in a microkinetics simulation"
@@ -581,6 +609,10 @@ Inputs:
 - QRRHO?         = {args.qrrho}
 - Temperature    = {args.temperature} K
 - Pressure       = {args.pressure} Pa
+- Integrator     = {args.method}
+- Max. Time      = {args.max_time}
+- Rel. Tol.      = {args.rtol}
+- Abs. Tol.      = {args.atol}
 - Bias           = {args.bias / constants.kcal} kcal/mol
 
 Parsing and calculating…
@@ -604,6 +636,10 @@ Parsing and calculating…
         qrrho=args.qrrho,
         temperature=args.temperature,
         bias=args.bias,
+        method=args.method,
+        max_time=args.max_time,
+        rtol=args.rtol,
+        atol=args.atol,
     )
     console.print(report, justify="left")
 

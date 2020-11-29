@@ -42,8 +42,9 @@ The above model translates to the following in overreact:
 overreact helps us to define the equations and solve the initial value problem.
 First, let's define the system of ordinary differential equations:
 
+>>> import numpy as np
 >>> from overreact import simulate
->>> dydt = simulate.get_dydt(scheme, [kf])
+>>> dydt = simulate.get_dydt(scheme, np.array([kf]))
 
 The returned object above is a function of concentrations and time that defines
 a set of ordinary differential equations in time:
@@ -56,9 +57,7 @@ We are going to simulate 10 seconds, starting with an initial concentration of
 1 molar of A (the concentration units evidently depend on the units of the
 reaction rate constant).
 
->>> y, r = simulate.get_y(dydt, y0=[1., 0.], method="Radau")
-
->>> import numpy as np
+>>> y, r = simulate.get_y(dydt, y0=[1., 0.])
 >>> t = np.linspace(y.t_min, 5.0)
 
 The simulation data is stored in `t` (points in time) and `y` (concentrations).
@@ -84,4 +83,4 @@ We can see that the reaction went to full completion by checking the final
 concentrations:
 
 >>> y(y.t_max)
-array([0.0000, 1.0000])
+array([0.00, 1.00])
