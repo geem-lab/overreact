@@ -70,8 +70,7 @@ class Report:
         model,
         concentrations=None,
         savepath=None,
-        plot=False,
-        plot_inactive=False,
+        plot=None,
         qrrho=True,
         temperature=298.15,
         bias=0.0,
@@ -86,7 +85,6 @@ class Report:
         self.concentrations = concentrations
         self.savepath = savepath
         self.plot = plot
-        self.plot_inactive = plot_inactive
         self.qrrho = qrrho
         self.temperature = temperature
         self.bias = bias
@@ -502,7 +500,7 @@ class Report:
             yield conc_table
 
             active = ~np.isclose(y(y.t_min), y(y.t_max), rtol=1e-2)
-            if self.plot_inactive or not np.any(active):
+            if self.plot == "all" or not np.any(active):
                 active = np.array([True for _ in self.model.compounds])
 
             factor = y(y.t_max)[active].max()
@@ -534,10 +532,16 @@ class Report:
 
             t.update(np.geomspace(np.min([_t for _t in t if _t > 0.0]), t_max, num=num))
             t = np.array(sorted(t))
-            if self.plot:
-                for i, name in enumerate(self.model.scheme.compounds):
-                    if active[i] and not core.is_transition_state(name):
-                        plt.plot(t, y(t)[i], label=name)
+            if self.plot not in {"none", None}:
+                if self.plot not in {"all", "active"}:
+                    name = self.plot
+                    plt.plot(
+                        t, y(t)[self.model.scheme.compounds.index(name)], label=name
+                    )
+                else:
+                    for i, name in enumerate(self.model.scheme.compounds):
+                        if active[i] and not core.is_transition_state(name):
+                            plt.plot(t, y(t)[i], label=name)
 
                 plt.legend()
                 plt.xlabel("Time (s)")
@@ -603,17 +607,15 @@ def main():
     parser.add_argument(
         "--plot",
         help=(
-            "plot concentrations as a function of time in a microkinetics simulation"
+            "plot concentrations as a function of time in a microkinetics "
+            "simulation for 'none', 'all', 'active' species only (i.e., the "
+            "ones that actually change concentration) or a compound name for "
+            "a single compound (e.g. 'NH3(w)')"
         ),
-        action="store_true",
-    )
-    parser.add_argument(
-        "--plot-inactive",
-        help=(
-            "only plot active species (i.e., the ones that actually change "
-            "concentration)"
-        ),
-        action="store_true",
+        # TODO(schneiderfelipe): validate inputs to avoid "ValueError:
+        # tuple.index(x): x not in tuple"
+        # choices=["active", "all", "none"],
+        default="none",
     )
     parser.add_argument(
         "-c",
@@ -643,7 +645,6 @@ Inputs:
 - Verbose level  = {args.verbose}
 - Compile?       = {args.compile}
 - Plot?          = {args.plot}
-- Plot inactive? = {args.plot_inactive}
 - QRRHO?         = {args.qrrho}
 - Temperature    = {args.temperature} K
 - Pressure       = {args.pressure} Pa
@@ -672,7 +673,6 @@ Parsing and calculating…
         concentrations=args.concentrations,
         savepath=os.path.splitext(args.path)[0] + ".csv",
         plot=args.plot,
-        plot_inactive=args.plot_inactive,
         qrrho=args.qrrho,
         temperature=args.temperature,
         bias=args.bias,
