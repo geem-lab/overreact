@@ -70,6 +70,7 @@ class Report:
         concentrations=None,
         savepath=None,
         plot=False,
+        plot_inactive=False,
         qrrho=True,
         temperature=298.15,
         bias=0.0,
@@ -83,6 +84,7 @@ class Report:
         self.concentrations = concentrations
         self.savepath = savepath
         self.plot = plot
+        self.plot_inactive = plot_inactive
         self.qrrho = qrrho
         self.temperature = temperature
         self.bias = bias
@@ -495,16 +497,27 @@ class Report:
                 )
             yield conc_table
 
-            t_max = y.t_max
-            factor = y(y.t_max).max()
-            reference = y(y.t_max) / factor
-            while np.allclose(y(t_max) / factor, reference, atol=1e-2):
-                t_max = 0.95 * t_max
+            active = ~np.isclose(y(y.t_min), y(y.t_max), rtol=1e-2)
+            if self.plot_inactive or not np.any(active):
+                active = np.array([True for _ in self.model.compounds])
+
+            factor = y(y.t_max)[active].max()
+            reference = y(y.t_max)[active] / factor
+
+            alpha = 0.9
+            n_max = np.log(1e-8) / np.log(alpha)
+
+            t_max, i = y.t_max, 0
+            while i < n_max and np.allclose(
+                y(t_max)[active] / factor, reference, atol=1e-2
+            ):
+                t_max = alpha * t_max
+                i += 1
 
             t = np.linspace(y.t_min, t_max, num=100)
             if self.plot:
                 for i, name in enumerate(self.model.scheme.compounds):
-                    if not core.is_transition_state(name):
+                    if active[i] and not core.is_transition_state(name):
                         plt.plot(t, y(t)[i], label=name)
 
                 plt.legend()
@@ -570,6 +583,14 @@ def main():
         action="store_true",
     )
     parser.add_argument(
+        "--plot-inactive",
+        help=(
+            "only plot active species (i.e., the ones that actually change "
+            "concentration)"
+        ),
+        action="store_true",
+    )
+    parser.add_argument(
         "-c",
         "--compile",
         help="only compile a source file (.k) into a model file (.jk)",
@@ -597,6 +618,7 @@ Inputs:
 - Verbose level  = {args.verbose}
 - Compile?       = {args.compile}
 - Plot?          = {args.plot}
+- Plot inactive? = {args.plot_inactive}
 - QRRHO?         = {args.qrrho}
 - Temperature    = {args.temperature} K
 - Pressure       = {args.pressure} Pa
@@ -624,6 +646,7 @@ Parsing and calculating…
         concentrations=args.concentrations,
         savepath=os.path.splitext(args.path)[0] + ".csv",
         plot=args.plot,
+        plot_inactive=args.plot_inactive,
         qrrho=args.qrrho,
         temperature=args.temperature,
         bias=args.bias,
