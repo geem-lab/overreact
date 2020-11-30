@@ -75,6 +75,7 @@ class Report:
         qrrho=True,
         temperature=298.15,
         bias=0.0,
+        tunneling="eckart",
         method="Radau",
         max_time=24 * 60 * 60,
         rtol=1e-5,
@@ -89,6 +90,7 @@ class Report:
         self.qrrho = qrrho
         self.temperature = temperature
         self.bias = bias
+        self.tunneling = tunneling
         self.method = method
         self.max_time = max_time
         self.rtol = rtol
@@ -393,13 +395,12 @@ class Report:
         # TODO(schneiderfelipe): apply other corrections to k (such as
         # diffusion control).
         # TODO(schneiderfelipe): use pressure.
-        # TODO(schneiderfelipe): support changing the type of tunneling
-        # correction.
         k = {
             "M⁻ⁿ⁺¹·s⁻¹": api.get_k(
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
+                tunneling=self.tunneling,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="l mol-1 s-1",
@@ -408,6 +409,7 @@ class Report:
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
+                tunneling=self.tunneling,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="cm3 particle-1 s-1",
@@ -416,6 +418,7 @@ class Report:
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
+                tunneling=self.tunneling,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="atm-1 s-1",
@@ -569,6 +572,12 @@ def main():
         nargs="*",
     )
     parser.add_argument("-b", "--bias", type=float, default=0.0)
+    parser.add_argument(
+        "--tunneling",
+        help="tunneling method",
+        choices=["eckart", "wigner", "none"],
+        default="eckart",
+    )
     parser.add_argument("-T", "--temperature", type=float, default=298.15)
     # TODO(schneiderfelipe): support pressure specification!
     parser.add_argument("-p", "--pressure", type=float, default=constants.atm)
@@ -643,6 +652,7 @@ Inputs:
 - Rel. Tol.      = {args.rtol}
 - Abs. Tol.      = {args.atol}
 - Bias           = {args.bias / constants.kcal} kcal/mol
+- Tunneling      = {args.tunneling}
 
 Parsing and calculating…
             """
@@ -666,6 +676,7 @@ Parsing and calculating…
         qrrho=args.qrrho,
         temperature=args.temperature,
         bias=args.bias,
+        tunneling=args.tunneling,
         method=args.method,
         max_time=args.max_time,
         rtol=args.rtol,
