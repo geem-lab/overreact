@@ -11,6 +11,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import minimize_scalar
 from rich import box
 from rich.console import Console
 from rich.markdown import Markdown
@@ -514,7 +515,22 @@ class Report:
                 t_max = alpha * t_max
                 i += 1
 
-            t = np.linspace(y.t_min, t_max, num=100)
+            num = 100
+            t = set(np.linspace(y.t_min, t_max, num=num))
+            for i, name in enumerate(self.model.scheme.compounds):
+                if not core.is_transition_state(name):
+                    res = minimize_scalar(
+                        lambda t: -r(t)[i],
+                        bounds=(y.t_min, (t_max + y.t_max) / 2),
+                        method="bounded",
+                    )
+                    if y.t_min < res.x < t_max:
+                        t.update(np.linspace(y.t_min, res.x, num=num // 2))
+                        t.update(np.linspace(res.x, t_max, num=num // 2))
+                        active[i] = True
+
+            t.update(np.geomspace(np.min([_t for _t in t if _t > 0.0]), t_max, num=num))
+            t = np.array(sorted(t))
             if self.plot:
                 for i, name in enumerate(self.model.scheme.compounds):
                     if active[i] and not core.is_transition_state(name):
