@@ -563,74 +563,119 @@ def main():
     console = Console(width=max(105, shutil.get_terminal_size()[0]))
     levels = [logging.WARNING, logging.INFO, logging.DEBUG]
 
+    # TODO(schneiderfelipe): some commands for concatenating/summing .k/.jk
+    # files. This might be useful for some of the more complex operations I
+    # want to be able to do in the future.
     parser = argparse.ArgumentParser(
-        description="Interface for building and modifying models."
+        description="Interface for building and modifying models.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("path", help="path to a source (.k) or model file (.jk)")
+    parser.add_argument(
+        "path",
+        help="path to a source (.k) or compiled (.jk) model file (if a source "
+        "file is given, but there is a compiled file available, the compiled "
+        "file will be used; use --compile|-c to force recompilation of the "
+        "source file instead)",
+    )
     parser.add_argument(
         "concentrations",
-        help=(
-            "optional initial compound concentrations as 'name:quantity' for "
-            "a microkinetic simulation"
-        ),
+        help="(optional) initial compound concentrations (in moles per liter) "
+        "in the form 'name:quantity' (if present, a microkinetic simulation "
+        "will be performed; more than one entry can be given)",
         nargs="*",
     )
-    parser.add_argument("-b", "--bias", type=float, default=0.0)
     parser.add_argument(
-        "--tunneling",
-        help="tunneling method",
-        choices=["eckart", "wigner", "none"],
-        default="eckart",
-    )
-    parser.add_argument("-T", "--temperature", type=float, default=298.15)
-    # TODO(schneiderfelipe): support pressure specification!
-    parser.add_argument("-p", "--pressure", type=float, default=constants.atm)
-    parser.add_argument(
-        "--no-qrrho",
-        dest="qrrho",
-        help=(
-            "disable the quasi-rigid rotor harmonic oscilator (QRRHO) "
-            "approximations to enthalpies and entropies "
-            "(see doi:10.1021/jp509921r and doi:10.1002/chem.201200497)"
-        ),
-        action="store_false",
+        "-v",
+        "--verbose",
+        help="increase output verbosity (can be given many times, each time "
+        "the amount of logged data is increased)",
+        action="count",
+        default=0,
     )
     parser.add_argument(
-        "--method",
-        help="integrator",
-        choices=["BDF", "LSODA", "Radau"],
-        default="Radau",
+        "-c",
+        "--compile",
+        # TODO(schneiderfelipe): should we consider --compile|-c always as a
+        # do-nothing (no analysis)?
+        help="force recompile a source (.k) into a compiled (.jk) model file",
+        action="store_true",
     )
-    parser.add_argument("--max-time", type=float, default=24 * 60 * 60)
-    parser.add_argument("--rtol", type=float, default=1e-5)
-    parser.add_argument("--atol", type=float, default=1e-11)
     parser.add_argument(
         "--plot",
-        help=(
-            "plot concentrations as a function of time in a microkinetics "
-            "simulation for 'none', 'all', 'active' species only (i.e., the "
-            "ones that actually change concentration) or a compound name for "
-            "a single compound (e.g. 'NH3(w)')"
-        ),
+        help="plot the concentrations as a function of time from the "
+        "performed microkinetics simulation: can be either 'none', 'all', "
+        "'active' species only (i.e., the ones that actually change "
+        "concentration during the simulation) or a single compound name (e.g. "
+        "'NH3(w)')",
         # TODO(schneiderfelipe): validate inputs to avoid "ValueError:
         # tuple.index(x): x not in tuple"
         # choices=["active", "all", "none"],
         default="none",
     )
     parser.add_argument(
-        "-c",
-        "--compile",
-        help="only compile a source file (.k) into a model file (.jk)",
-        action="store_true",
+        "-b",
+        "--bias",
+        help="an energy value (in joules per mole) to be added to each "
+        "indiviual compound in order to mitigate eventual systematic errors",
+        type=float,
+        default=0.0,
     )
     parser.add_argument(
-        "-v", "--verbose", help="increase output verbosity", action="count", default=0
+        "--tunneling",
+        help="specify the tunneling method employed (use --tunneling=none for "
+        "no tunneling correction)",
+        choices=["eckart", "wigner", "none"],
+        default="eckart",
     )
-    # TODO(schneiderfelipe): should we consider --compile|-c always as a
-    # do-nothing (no analysis)?
-    # TODO(schneiderfelipe): some commands for concatenating/summing .k/.jk
-    # files. This might be useful for some of the more complex operations I
-    # want to be able to do in the future.
+    parser.add_argument(
+        "--no-qrrho",
+        help="disable the quasi-rigid rotor harmonic oscilator (QRRHO) "
+        "approximations to both enthalpies and entropies (see "
+        "[doi:10.1021/jp509921r] and [doi:10.1002/chem.201200497])",
+        dest="qrrho",
+        action="store_false",
+    )
+    parser.add_argument(
+        "-T",
+        "--temperature",
+        help="set working temperature (in kelvins) to be used in "
+        "thermochemistry and microkinetics",
+        type=float,
+        default=298.15,
+    )
+    # TODO(schneiderfelipe): support pressure specification!
+    parser.add_argument(
+        "-p",
+        "--pressure",
+        help="set working pressure (in pascals) to be used in " "thermochemistry",
+        type=float,
+        default=constants.atm,
+    )
+    parser.add_argument(
+        "--method",
+        help="integrator used in solving the ODE system of the microkinetic "
+        "simulation",
+        choices=["Radau", "BDF", "LSODA"],
+        default="Radau",
+    )
+    parser.add_argument(
+        "--max-time",
+        help="maximum microkinetic simulation time (in s) allowed",
+        type=float,
+        default=24 * 60 * 60,
+    )
+    parser.add_argument(
+        "--rtol",
+        help="relative local error of the ODE system integrator",
+        type=float,
+        default=1e-5,
+    )
+    parser.add_argument(
+        "--atol",
+        help="absolute local error of the ODE system integrator",
+        type=float,
+        default=1e-11,
+    )
     args = parser.parse_args()
 
     console.print(
