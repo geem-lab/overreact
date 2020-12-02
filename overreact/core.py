@@ -118,8 +118,8 @@ def get_transition_states(A, B, is_half_equilibrium):
     )
 
 
-# TODO(schneiderfelipe): some of the more esoteric doctests should become real
-# tests in test_core.py.
+# TODO(schneiderfelipe): some of the more esoteric doctests should become
+# real tests.
 def unparse_reactions(scheme):
     """Unparse a kinetic model.
 
@@ -551,8 +551,6 @@ def parse_reactions(text):
            A=((-1.,), (0.,), (1.,), (0.,)),
            B=((-1.,), (1.,), (0.,), (0.,)))
     """
-    # TODO(schneiderfelipe): we rely on the ordering of compounds and, as such,
-    # we can only support Python 3.6 and onward.
     compounds = dict()
     reactions = dict()
     A = list()  # coefficients between reactants and products
@@ -786,7 +784,6 @@ def _parse_side(side):
         token = re.match(
             r"\s*(?P<coefficient>\d+)?\s*(?P<compound>[^\s]+)\s*", token
         ).groupdict(1)
-        # TODO(schneiderfelipe): should coefficient be float?
         yield int(token["coefficient"]), token["compound"]
 
 

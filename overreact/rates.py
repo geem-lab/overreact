@@ -33,16 +33,10 @@ def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     >>> liquid_viscosity("water", temperature=299.26)
     8.90e-4
     """
-    # TODO(schneiderfelipe): test viscosities for the following solvents at
-    # the following temperatures:
-    # - water: 274 K -- 373 K
-    # - pentane: 144 K -- 308 K
-    # - hexane: 178 K -- 340 K
-    # - heptane: 183 K -- 370 K
-    # - octane: 217 K -- 398 K
     return misc._get_chemical(id, temperature, pressure).mul
 
 
+# TODO(schneiderfelipe): log the calculated diffusional reaction rate limit.
 def smoluchowski(
     radii,
     viscosity=None,
@@ -102,7 +96,6 @@ def smoluchowski(
     """
     radii = np.asarray(radii)
     temperature = np.asarray(temperature)
-    pressure = np.asarray(pressure)  # TODO(schneiderfelipe): do we need this?
 
     if mutual_diff_coef is None:
         if callable(viscosity):
@@ -211,8 +204,6 @@ def convert_rate_constant(
 
     # no need to convert if same units or if molecularity is one
     if old_scale == new_scale or np.all(molecularity == 1):
-        # TODO(schneiderfelipe): probably do something else with array-like
-        # molecularity?
         return val
 
     # we first convert anything to l mol-1 s-1

@@ -278,7 +278,7 @@ def get_k(
     molecularity=None,
     volume=None,
 ):
-    """Obtain reaction rate constants.
+    r"""Obtain reaction rate constants.
 
     Parameters
     ----------
@@ -287,7 +287,7 @@ def get_k(
     bias : array-like, optional
         Energy to be added to free energies.
     tunneling : str or None, optional
-        Choose between "eckart", "wigner" or None.
+        Choose between "eckart", "wigner" or None (or "none").
     qrrho : bool, optional
         Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
         approximations of M. Head-Gordon (enthalpy correction, see
@@ -337,6 +337,9 @@ def get_k(
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
     >>> get_k(model.scheme, model.compounds, tunneling=None)
     array([14820222.69476697])
+    >>> get_k(model.scheme, model.compounds, tunneling="none") \
+    ... == get_k(model.scheme, model.compounds, tunneling=None)
+    array([ True])
     >>> get_k(model.scheme, model.compounds, tunneling=None, scale="atm-1 s-1")
     array([605762.44228638])
     >>> get_k(model.scheme, model.compounds, tunneling=None,
@@ -384,7 +387,7 @@ def get_k(
         "(classical) reaction rate constants: "
         f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹"
     )
-    if tunneling is not None:
+    if tunneling not in {"none", None}:
         if compounds is not None:
             kappa = get_kappa(
                 scheme, compounds, method=tunneling, temperature=temperature
@@ -403,7 +406,7 @@ def get_k(
         )
 
     # TODO(schneiderfelipe): ensure diffusional limit for reactions in
-    # solvation using Collins-Kimball theory.
+    # solvation using Collins-Kimball theory. This includes half-equilibria.
     return rates.convert_rate_constant(
         k, scale, molecularity=molecularity, temperature=temperature, pressure=pressure
     )
@@ -421,8 +424,8 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
     ----------
     scheme : Scheme
     compounds : dict-like
-    tunneling : str or None, optional
-        Choose between "eckart" or "wigner".
+    method : str or None, optional
+        Choose between "eckart", "wigner" or None (or "none").
     temperature : array-like, optional
         Absolute temperature in Kelvin.
 
@@ -442,8 +445,13 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
     >>> kappa = get_kappa(model.scheme, model.compounds)
     >>> kappa
     array([1.10949425])
+    >>> get_kappa(model.scheme, model.compounds, method="none")
+    array([1.0])
     >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
     array([8.e+10])
+    >>> get_kappa(model.scheme, model.compounds, method="none") \
+    ... == get_kappa(model.scheme, model.compounds, method=None)
+    array([ True])
 
     Beware that the values below have not been validated yet:
 
@@ -486,6 +494,8 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
                         kappa = tunnel.wigner(vibfreq, temperature=temperature)
             elif method == "wigner":
                 kappa = tunnel.wigner(vibfreq, temperature=temperature)
+            elif method in {"none", None}:
+                kappa = 1.0
             else:
                 raise ValueError(f"unavailable method: '{method}'")
 

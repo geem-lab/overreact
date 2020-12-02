@@ -19,8 +19,7 @@ from overreact import misc
 logger = logging.getLogger(__name__)
 
 
-# TODO(schneiderfelipe): thoroughly test
-# TODO(schneiderfelipe): I believe alpha should depend on temperature.
+# TODO(schneiderfelipe): alpha should depend on temperature?
 def get_molecular_volume(
     atomnos,
     atomcoords,
@@ -147,13 +146,8 @@ def get_molecular_volume(
             logger.debug(f"Izato cavity volume = {cav_volume} ± {cav_err} Å³")
             return (vdw_volume, cav_volume, max(vdw_err, cav_err))
         elif method == "garza":
-            # TODO(schneiderfelipe): test for the following solvents at the
-            # following temperatures:
-            # - water: 274 K -- 373 K
-            # - pentane: 144 K -- 308 K
-            # - hexane: 178 K -- 340 K
-            # - heptane: 183 K -- 370 K
-            # - octane: 217 K -- 398 K
+            # TODO(schneiderfelipe): test for the following solvents: water,
+            # pentane, hexane, heptane and octane.
 
             cav_volume = _garza(
                 vdw_volume, environment, temperature=temperature, pressure=pressure
@@ -165,7 +159,6 @@ def get_molecular_volume(
     return vdw_volume
 
 
-# TODO(schneiderfelipe): thoroughly test
 def _garza(
     vdw_volume,
     environment="water",
@@ -225,11 +218,11 @@ def _garza(
     """
     solvent = misc._get_chemical(environment, temperature, pressure)
 
-    # TODO(schneiderfelipe): things to do TODAY:
-    # 1. check correctness of this function
-    # 2. check it is called correctly everywhere
+    # TODO(schneiderfelipe): things to do:
+    # 1. check correctness of this function,
+    # 2. check it is called correctly everywhere,
     # 3. transfer the following commented code to get_chemical (it will become
-    # a complete abstraction of the solvent/molecular properties).
+    # a complete abstraction of the solvent/molecular properties):
     #
     # data_S = datasets.logfiles[solvent.name]
     # solvent_volume = coords.get_molecular_volume(data_S.atomnos,
@@ -990,15 +983,9 @@ def _update_mirror_axes(
             return axes
         ax = ax / norm
 
-    if (
-        not all(np.isclose(ax @ v, 0.0, rtol=rtol, atol=atol) for v in nondeg_axes)
-        # or not all(  # TODO(schneiderfelipe): improve this filter
-        #     np.isclose(ax @ v, 0.0, rtol=rtol, atol=atol)
-        #     or np.isclose(np.abs(ax @ v), 1.0, rtol=rtol, atol=atol)
-        #     for n, v in proper_axes
-        # )
-        or any(np.isclose(np.abs(ax @ v), 1.0, rtol=rtol, atol=atol) for c, v in axes)
-    ):
+    if not all(
+        np.isclose(ax @ v, 0.0, rtol=rtol, atol=atol) for v in nondeg_axes
+    ) or any(np.isclose(np.abs(ax @ v), 1.0, rtol=rtol, atol=atol) for c, v in axes):
         return axes
 
     if all(
@@ -1591,10 +1578,10 @@ def inertia(atommasses, atomcoords, align=True):
     return moments, axes, atomcoords
 
 
-# TODO(schneiderfelipe): correct this
+# TODO(schneiderfelipe): this needs rework, see
 # https://chemistry.stackexchange.com/questions/74639/how-to-calculate-wavenumbers-of-normal-modes-from-the-eigenvalues-of-the-cartesi/74923#74923
-# This needs rework. Ideally, the same Eckart transformation that make this
-# work will also work in calc_vibfreqs, so one thing leads to the other.
+# Ideally, the same Eckart transformation that make this work will also work
+# in calc_vibfreqs, so one thing leads to the other.
 def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     """Compute the Hessian matrix from normal modes and frequencies.
 
@@ -1646,17 +1633,18 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     """
     dof = 3 * len(atommasses)
     L_cart = np.asarray(vibdisps).reshape((len(vibfreqs), dof)).T
-    # correct until here
+    # this function is correct until here
+
     L_cart = np.linalg.qr(L_cart, mode="complete")[0]
 
     atommasses_sqrt = np.sqrt([mass for mass in atommasses for _ in range(3)])
     D = eckart_transform(atommasses, atomcoords)
     M = np.diag(1.0 / atommasses_sqrt)
     L = np.linalg.solve(M @ D, L_cart)
-    # TODO(schneiderfelipe): transform the following in a warning?
+
     assert np.allclose(M @ D @ L, L_cart)
 
-    # correct from here
+    # this function is correct from here
     nu = np.asarray(vibfreqs) * constants.c / constants.centi
     eigenvalues = (
         (2.0 * np.pi * nu) ** 2
@@ -1670,8 +1658,8 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     return f_mwc * np.outer(atommasses_sqrt, atommasses_sqrt)
 
 
-# TODO(schneiderfelipe): correct this
-# TODO(schneiderfelipe): project out translations and rotations
+# TODO(schneiderfelipe): correct this function and project out translations
+# and rotations, see
 # https://chemistry.stackexchange.com/questions/74639/how-to-calculate-wavenumbers-of-normal-modes-from-the-eigenvalues-of-the-cartesi/74923#74923
 def calc_vibfreqs(hessian, atommasses):
     """Calculate vibrational frequencies.
@@ -1704,6 +1692,7 @@ def calc_vibfreqs(hessian, atommasses):
     hessian = np.asarray(hessian) / np.outer(atommasses_sqrt, atommasses_sqrt)
 
     eigenvalues = np.linalg.eigvals(hessian)
+
     # TODO(schneiderfelipe): the following probably misses some linear
     # molecules and transition states.
     eigenvalues = np.real(eigenvalues[eigenvalues > 0])[::-1]
@@ -1897,13 +1886,11 @@ def _equivalent_atoms(
         sigma = np.std(D, axis=0)
         delta = np.sqrt(np.sum(D ** 2, axis=0))
 
-        criteria = np.block(
-            [[omega], [sigma], [delta]]
-        ).T  # TODO(schneiderfelipe): use xy plane?
+        criteria = np.block([[omega], [sigma], [delta]]).T
         Z = _linkage(_pdist(criteria), method="single")
         clusters = _fcluster(Z, thresh, criterion="distance")
 
-        # TODO(schneiderfelipe): this is for debug and should evtl. be removed.
+        # TODO(schneiderfelipe): this was for debug and should evtl. be removed.
         if plot:
             import matplotlib.pyplot as plt
 

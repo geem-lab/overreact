@@ -11,6 +11,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import minimize_scalar
 from rich import box
 from rich.console import Console
 from rich.markdown import Markdown
@@ -69,12 +70,13 @@ class Report:
         model,
         concentrations=None,
         savepath=None,
-        plot=False,  # TODO(schneiderfelipe): change to do_plot
-        qrrho=True,  # TODO(schneiderfelipe): change to use_qrrho
+        plot=None,
+        qrrho=True,
         temperature=298.15,
         bias=0.0,
+        tunneling="eckart",
         method="Radau",
-        max_time=5 * 60,
+        max_time=24 * 60 * 60,
         rtol=1e-5,
         atol=1e-11,
         box_style=box.SIMPLE,
@@ -86,6 +88,7 @@ class Report:
         self.qrrho = qrrho
         self.temperature = temperature
         self.bias = bias
+        self.tunneling = tunneling
         self.method = method
         self.max_time = max_time
         self.rtol = rtol
@@ -141,8 +144,6 @@ class Report:
         )
         for i, reaction in enumerate(scheme.reactions):
             reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
-            # TODO(schneiderfelipe): should we use "No" instead of None for
-            # "half-equilib.?"?
             row = [f"{i:d}", reactants, None, products, "No"]
             if transition_states[i] is not None:
                 row[2] = scheme.compounds[transition_states[i]]
@@ -196,9 +197,6 @@ class Report:
             logfiles_table.add_row(
                 f"{i:d}",
                 name,
-                # TODO(schneiderfelipe): show only the file name and inform
-                # the absolute path to folder (as a bash variable) somewhere
-                # else.
                 path_text,
             )
 
@@ -395,13 +393,12 @@ class Report:
         # TODO(schneiderfelipe): apply other corrections to k (such as
         # diffusion control).
         # TODO(schneiderfelipe): use pressure.
-        # TODO(schneiderfelipe): support changing the type of tunneling
-        # correction.
         k = {
             "M⁻ⁿ⁺¹·s⁻¹": api.get_k(
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
+                tunneling=self.tunneling,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="l mol-1 s-1",
@@ -410,6 +407,7 @@ class Report:
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
+                tunneling=self.tunneling,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="cm3 particle-1 s-1",
@@ -418,6 +416,7 @@ class Report:
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
+                tunneling=self.tunneling,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
                 scale="atm-1 s-1",
@@ -473,7 +472,6 @@ class Report:
                         f"'{' '.join(self.concentrations)}'"
                     )
 
-                # TODO(schneiderfelipe): the following is inefficient but probably OK
                 y0[self.model.scheme.compounds.index(name)] = quantity
 
             y, r = api.get_y(
@@ -501,17 +499,49 @@ class Report:
                 )
             yield conc_table
 
-            t_max = y.t_max
-            factor = y(y.t_max).max()
-            reference = y(y.t_max) / factor
-            while np.allclose(y(t_max) / factor, reference, atol=1e-2):
-                t_max = 0.95 * t_max
+            active = ~np.isclose(y(y.t_min), y(y.t_max), rtol=1e-2)
+            if self.plot == "all" or not np.any(active):
+                active = np.array([True for _ in self.model.compounds])
 
-            t = np.linspace(y.t_min, t_max, num=100)
-            if self.plot:
-                for i, name in enumerate(self.model.scheme.compounds):
-                    if not core.is_transition_state(name):
-                        plt.plot(t, y(t)[i], label=name)
+            factor = y(y.t_max)[active].max()
+            reference = y(y.t_max)[active] / factor
+
+            alpha = 0.9
+            n_max = np.log(1e-8) / np.log(alpha)
+
+            t_max, i = y.t_max, 0
+            while i < n_max and np.allclose(
+                y(t_max)[active] / factor, reference, atol=1e-2
+            ):
+                t_max = alpha * t_max
+                i += 1
+
+            num = 100
+            t = set(np.linspace(y.t_min, t_max, num=num))
+            for i, name in enumerate(self.model.scheme.compounds):
+                if not core.is_transition_state(name):
+                    res = minimize_scalar(
+                        lambda t: -r(t)[i],
+                        bounds=(y.t_min, (t_max + y.t_max) / 2),
+                        method="bounded",
+                    )
+                    if y.t_min < res.x < t_max:
+                        t.update(np.linspace(y.t_min, res.x, num=num // 2))
+                        t.update(np.linspace(res.x, t_max, num=num // 2))
+                        active[i] = True
+
+            t.update(np.geomspace(np.min([_t for _t in t if _t > 0.0]), t_max, num=num))
+            t = np.array(sorted(t))
+            if self.plot not in {"none", None}:
+                if self.plot not in {"all", "active"}:
+                    name = self.plot
+                    plt.plot(
+                        t, y(t)[self.model.scheme.compounds.index(name)], label=name
+                    )
+                else:
+                    for i, name in enumerate(self.model.scheme.compounds):
+                        if active[i] and not core.is_transition_state(name):
+                            plt.plot(t, y(t)[i], label=name)
 
                 plt.legend()
                 plt.xlabel("Time (s)")
@@ -533,65 +563,119 @@ def main():
     console = Console(width=max(105, shutil.get_terminal_size()[0]))
     levels = [logging.WARNING, logging.INFO, logging.DEBUG]
 
-    # TODO(schneiderfelipe): test and docs
-    # TODO(schneiderfelipe): improve help page
+    # TODO(schneiderfelipe): some commands for concatenating/summing .k/.jk
+    # files. This might be useful for some of the more complex operations I
+    # want to be able to do in the future.
     parser = argparse.ArgumentParser(
-        description="Interface for building and modifying models."
+        description="Interface for building and modifying models.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("path", help="path to a source (.k) or model file (.jk)")
+    parser.add_argument(
+        "path",
+        help="path to a source (.k) or compiled (.jk) model file (if a source "
+        "file is given, but there is a compiled file available, the compiled "
+        "file will be used; use --compile|-c to force recompilation of the "
+        "source file instead)",
+    )
     parser.add_argument(
         "concentrations",
-        help=(
-            "optional initial compound concentrations as 'name:quantity' for "
-            "a microkinetic simulation"
-        ),
+        help="(optional) initial compound concentrations (in moles per liter) "
+        "in the form 'name:quantity' (if present, a microkinetic simulation "
+        "will be performed; more than one entry can be given)",
         nargs="*",
     )
-    parser.add_argument("-b", "--bias", type=float, default=0.0)
-    parser.add_argument("-T", "--temperature", type=float, default=298.15)
-    # TODO(schneiderfelipe): support pressure specification!
-    parser.add_argument("-p", "--pressure", type=float, default=constants.atm)
     parser.add_argument(
-        "--no-qrrho",
-        dest="qrrho",
-        help=(
-            "disable the quasi-rigid rotor harmonic oscilator (QRRHO) "
-            "approximations to enthalpies and entropies "
-            "(see doi:10.1021/jp509921r and doi:10.1002/chem.201200497)"
-        ),
-        action="store_false",
-    )
-    parser.add_argument(
-        "--method",
-        help="integrator",
-        choices=["BDF", "LSODA", "Radau"],
-        default="Radau",
-    )
-    parser.add_argument("--max-time", type=float, default=5 * 60)
-    parser.add_argument("--rtol", type=float, default=1e-5)
-    parser.add_argument("--atol", type=float, default=1e-11)
-    parser.add_argument(
-        "--plot",
-        help=(
-            "plot concentrations as a function of time in a microkinetics simulation"
-        ),
-        action="store_true",
+        "-v",
+        "--verbose",
+        help="increase output verbosity (can be given many times, each time "
+        "the amount of logged data is increased)",
+        action="count",
+        default=0,
     )
     parser.add_argument(
         "-c",
         "--compile",
-        help="only compile a source file (.k) into a model file (.jk)",
+        # TODO(schneiderfelipe): should we consider --compile|-c always as a
+        # do-nothing (no analysis)?
+        help="force recompile a source (.k) into a compiled (.jk) model file",
         action="store_true",
     )
     parser.add_argument(
-        "-v", "--verbose", help="increase output verbosity", action="count", default=0
+        "--plot",
+        help="plot the concentrations as a function of time from the "
+        "performed microkinetics simulation: can be either 'none', 'all', "
+        "'active' species only (i.e., the ones that actually change "
+        "concentration during the simulation) or a single compound name (e.g. "
+        "'NH3(w)')",
+        # TODO(schneiderfelipe): validate inputs to avoid "ValueError:
+        # tuple.index(x): x not in tuple"
+        # choices=["active", "all", "none"],
+        default="none",
     )
-    # TODO(schneiderfelipe): --dry-run|-n for testing purposes (useful
-    # usage together with --compile|-c --- or should we consider --compile|-c
-    # always as a do-nothing (no analysis)?).
-    # TODO(schneiderfelipe): some commands for concatenating/summing .k/.jk
-    # files. This might be useful for some of the more complex operations I
-    # want to be able to do in the future.
+    parser.add_argument(
+        "-b",
+        "--bias",
+        help="an energy value (in joules per mole) to be added to each "
+        "indiviual compound in order to mitigate eventual systematic errors",
+        type=float,
+        default=0.0,
+    )
+    parser.add_argument(
+        "--tunneling",
+        help="specify the tunneling method employed (use --tunneling=none for "
+        "no tunneling correction)",
+        choices=["eckart", "wigner", "none"],
+        default="eckart",
+    )
+    parser.add_argument(
+        "--no-qrrho",
+        help="disable the quasi-rigid rotor harmonic oscilator (QRRHO) "
+        "approximations to both enthalpies and entropies (see "
+        "[doi:10.1021/jp509921r] and [doi:10.1002/chem.201200497])",
+        dest="qrrho",
+        action="store_false",
+    )
+    parser.add_argument(
+        "-T",
+        "--temperature",
+        help="set working temperature (in kelvins) to be used in "
+        "thermochemistry and microkinetics",
+        type=float,
+        default=298.15,
+    )
+    # TODO(schneiderfelipe): support pressure specification!
+    parser.add_argument(
+        "-p",
+        "--pressure",
+        help="set working pressure (in pascals) to be used in " "thermochemistry",
+        type=float,
+        default=constants.atm,
+    )
+    parser.add_argument(
+        "--method",
+        help="integrator used in solving the ODE system of the microkinetic "
+        "simulation",
+        choices=["Radau", "BDF", "LSODA"],
+        default="Radau",
+    )
+    parser.add_argument(
+        "--max-time",
+        help="maximum microkinetic simulation time (in s) allowed",
+        type=float,
+        default=24 * 60 * 60,
+    )
+    parser.add_argument(
+        "--rtol",
+        help="relative local error of the ODE system integrator",
+        type=float,
+        default=1e-5,
+    )
+    parser.add_argument(
+        "--atol",
+        help="absolute local error of the ODE system integrator",
+        type=float,
+        default=1e-11,
+    )
     args = parser.parse_args()
 
     console.print(
@@ -614,6 +698,7 @@ Inputs:
 - Rel. Tol.      = {args.rtol}
 - Abs. Tol.      = {args.atol}
 - Bias           = {args.bias / constants.kcal} kcal/mol
+- Tunneling      = {args.tunneling}
 
 Parsing and calculating…
             """
@@ -636,11 +721,14 @@ Parsing and calculating…
         qrrho=args.qrrho,
         temperature=args.temperature,
         bias=args.bias,
+        tunneling=args.tunneling,
         method=args.method,
         max_time=args.max_time,
         rtol=args.rtol,
         atol=args.atol,
     )
+    # TODO(schneiderfelipe): use a progress bar to inform about the
+    # simulation and show the time it took to simulate.
     console.print(report, justify="left")
 
 

@@ -170,8 +170,6 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     13.175
 
     """
-    # TODO(schneiderfelipe): This is probably an ugly hack for zero temperature and
-    # probably wrong.
     if np.isclose(temperature, 0.0):
         logger.warning("assuming electronic entropy zero at zero temperature")
         return 0.0
@@ -361,8 +359,6 @@ def calc_rot_entropy(
     ...                  atomcoords=data.atomcoords)
     47.1
     """
-    # TODO(schneiderfelipe): This is probably an ugly hack for zero temperature and
-    # probably wrong.
     if np.isclose(temperature, 0.0):
         logger.warning("assuming rotational entropy zero at zero temperature")
         return 0.0
@@ -548,8 +544,6 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
     0.0
 
     """
-    # TODO(schneiderfelipe): This is probably an ugly hack for zero temperature and
-    # probably wrong.
     if np.isclose(temperature, 0.0):
         logger.warning("assuming vibrational entropy zero at zero temperature")
         return 0.0
@@ -766,7 +760,7 @@ def _check_vibfreqs(vibfreqs=None, cutoff=-50.0):
     return np.abs(vibfreqs[vibfreqs > cutoff])
 
 
-# TODO(schneiderfelipe): B_av chosen as 1.0e-44 / (atomic_mass * angstrom**2)
+# B_av was chosen as 1.0e-44 / (atomic_mass * angstrom**2)
 def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):
     """Calculate moments of inertia for a free rotors with the same frequencies.
 
@@ -795,11 +789,11 @@ def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):
     """
     # TODO(schneiderfelipe): should we receive vibrational temperatures and
     # avoid calling it twice when calling calc_vib_entropy?
-    # TODO(schneiderfelipe): I sincerely have absolutely no clue as to why we
-    # should divide by np.pi and not by 2 * np.pi. The original paper says
-    # nothing about it (and the equation 4 there is probably wrong), but the
-    # expression below reproduces both figure 2 of the original paper and the
-    # results returned by ORCA.
+
+    # I sincerely have absolutely no clue as to why we should divide by np.pi
+    # and not by 2 * np.pi. The original paper says nothing about it (and the
+    # equation 4 there is probably wrong), but the expression below reproduces
+    # both Figure 2 of the original paper and the results returned by ORCA.
     moments = constants.hbar ** 2 / (
         2.0 * constants.k * _vibrational_temperature(vibfreqs) / np.pi
     )
@@ -807,7 +801,7 @@ def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):
     return moments * B_av / (moments + B_av)
 
 
-# TODO(schneiderfelipe): omega chosen as (k * 298.15 / (2.0 * h)) * centi / c
+# omega was chosen as (k * 298.15 / (2.0 * h)) * centi / c
 def _head_gordon_damping(vibfreqs, omega=103.61231288246945, alpha=4):
     """Calculate the Head-Gordon damping function.
 

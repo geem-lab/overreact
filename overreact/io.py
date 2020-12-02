@@ -103,7 +103,6 @@ def parse_model(path, force_compile=False):
         logger.info(f"writing jk-file in {path_jk}")
         f.write(_unparse_model(model))
 
-    # TODO(schneiderfelipe): maybe log the output of io.summarize_model(model) here?
     return model
 
 
@@ -537,7 +536,6 @@ def _check_compounds(compounds):
     return dict(compounds)
 
 
-# TODO(schneiderfelipe): test and docs
 def parse_compounds(text, path=("",), select=None):
     """Parse a set of compounds.
 
@@ -719,10 +717,6 @@ def read_logfile(path):
             "vibfreqs": _misc.totuple(ccdata.vibfreqs),
             "vibdisps": _misc.totuple(ccdata.vibdisps),
         }
-        # TODO(schneiderfelipe): only run the code below if we know it is an
-        # ORCA logfile. I want the code in this final section to be very
-        # specific in supplying *only* things cclib is not (yet) able to.
-        #
         # This properly parses the final single point energy from ORCA files.
         data.update(_read_orca_logfile(path))
     except AttributeError:
@@ -730,6 +724,10 @@ def read_logfile(path):
         # parse much more than small pieces of information, as at this point
         # cclib has failed.
         try:
+            # TODO(schneiderfelipe): only run the code below if we know it is
+            # an ORCA logfile. The code in this final section should be very
+            # specific in supplying *only* things cclib is not (yet) able to
+            # parse.
             data = _read_orca_logfile(path, minimal=False)
         except FileNotFoundError:
             raise FileNotFoundError(f"could not parse logfile: '{path}'")
@@ -841,7 +839,6 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
      'atommasses': (35.453,),
      'vibfreqs': ()}
     """
-    # TODO(schneiderfelipe): return an empty dict-like on error.
     atomcoords = None
     atommasses = None
     vibfreqs = None
@@ -909,7 +906,6 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
                             vibfreqs.append(float(line.split()[1]))
                             line = next(file).strip()
 
-                        # TODO(schneiderfelipe): should we remove almost zeros?
                         nonzero = np.nonzero(vibfreqs)[0]
                         first_mode = nonzero[0]
                         vibfreqs = vibfreqs[first_mode:]
@@ -948,8 +944,8 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
     )
 
     if atommasses is None:
-        # TODO(schneiderfelipe): show a warning about guessing masses from the
-        # periodic table.
+        # TODO(schneiderfelipe): warn about guessing masses from the periodic
+        # table.
         atommasses = []
         for n in atomnos:
             atommasses.append(_misc.atomic_mass[n])

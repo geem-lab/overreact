@@ -483,10 +483,8 @@ def _get_chemical(
     0.00091272
     """
     _check_package("thermo", _found_thermo)
-    # TODO(schneiderfelipe): transform this in a perfect wrapper by returning a
-    # named tuple with only the required data.
+    # TODO(schneiderfelipe): return a named tuple with only the required data.
     # TODO(schneiderfelipe): support logging the retrieval of data.
-    # TODO(schneiderfelipe): cache results.
     # TODO(schneiderfelipe): test returned parameters.
     return _Chemical(identifier, temperature, pressure, *args, **kwargs)
 
