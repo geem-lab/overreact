@@ -449,30 +449,40 @@ class Report:
         yield Markdown("For **half-equilibria**, only ratios make sense.")
 
         if self.concentrations is not None and self.concentrations:
-            scale = "M⁻ⁿ⁺¹·s⁻¹"
+            k = k["M⁻ⁿ⁺¹·s⁻¹"]
 
-            # TODO(schneiderfelipe): apply post-processing to scheme, k (with functions
-            # that receive a scheme, k and return a scheme, k). One that solves the pH
-            # problem is welcome: get a scheme, k and, for each reaction in it, remove
-            # the H+ and multiplies the reaction rate constants by the proper
-            # concentration if there is H+ in the reactants.
-            # TODO(schneiderfelipe): encapsulate everything in a function that depends
-            # on the freeenergies as first parameter
-            dydt = api.get_dydt(self.model.scheme, k[scale])
-
-            y0 = np.zeros(len(self.model.scheme.compounds))
+            free_y0 = {}
+            fixed_y0 = {}
             for spec in self.concentrations:
                 fields = spec.split(":", 1)
-                name = fields[0]
+                name, quantity = fields[0].strip(), fields[1].strip()
+
+                if quantity.startswith("!"):
+                    d = fixed_y0
+                    quantity = quantity[1:]
+                else:
+                    d = free_y0
+
                 try:
-                    quantity = float(fields[1])
+                    quantity = float(quantity)
                 except (IndexError, ValueError):
                     raise ValueError(
                         "badly formatted concentrations: "
                         f"'{' '.join(self.concentrations)}'"
                     )
 
-                y0[self.model.scheme.compounds.index(name)] = quantity
+                d[name] = quantity
+
+            # TODO(schneiderfelipe): log stuff related to get_fixed_scheme
+            scheme, k = api.get_fixed_scheme(self.model.scheme, k, fixed_y0)
+
+            y0 = np.zeros(len(scheme.compounds))
+            for compound in free_y0:
+                y0[scheme.compounds.index(compound)] = free_y0[compound]
+
+            # TODO(schneiderfelipe): encapsulate everything in a function that depends
+            # on the freeenergies as first parameter
+            dydt = api.get_dydt(scheme, k)
 
             y, r = api.get_y(
                 dydt,
@@ -490,7 +500,7 @@ class Report:
                 title="initial and final concentrations\n\[M]",
                 box=self.box_style,
             )
-            for i, (name, _) in enumerate(self.model.compounds.items()):
+            for i, name in enumerate(scheme.compounds):
                 conc_table.add_row(
                     f"{i:d}",
                     name,
@@ -501,7 +511,7 @@ class Report:
 
             active = ~np.isclose(y(y.t_min), y(y.t_max), rtol=1e-2)
             if self.plot == "all" or not np.any(active):
-                active = np.array([True for _ in self.model.compounds])
+                active = np.array([True for _ in scheme.compounds])
 
             factor = y(y.t_max)[active].max()
             reference = y(y.t_max)[active] / factor
@@ -518,7 +528,7 @@ class Report:
 
             num = 100
             t = set(np.linspace(y.t_min, t_max, num=num))
-            for i, name in enumerate(self.model.scheme.compounds):
+            for i, name in enumerate(scheme.compounds):
                 if not core.is_transition_state(name):
                     res = minimize_scalar(
                         lambda t: -r(t)[i],
@@ -535,11 +545,9 @@ class Report:
             if self.plot not in {"none", None}:
                 if self.plot not in {"all", "active"}:
                     name = self.plot
-                    plt.plot(
-                        t, y(t)[self.model.scheme.compounds.index(name)], label=name
-                    )
+                    plt.plot(t, y(t)[scheme.compounds.index(name)], label=name)
                 else:
-                    for i, name in enumerate(self.model.scheme.compounds):
+                    for i, name in enumerate(scheme.compounds):
                         if active[i] and not core.is_transition_state(name):
                             plt.plot(t, y(t)[i], label=name)
 
@@ -552,7 +560,7 @@ class Report:
                 np.savetxt(
                     self.savepath,
                     np.block([t[:, np.newaxis], y(t).T]),
-                    header=f"t,{','.join(self.model.scheme.compounds)}",
+                    header=f"t,{','.join(scheme.compounds)}",
                     delimiter=",",
                 )
                 yield Markdown(f"Simulation data was saved to **{self.savepath}**")

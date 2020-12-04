@@ -276,7 +276,7 @@ def _adjust_k(scheme, k, ef=1e3):
     """
     scheme = _core._check_scheme(scheme)
     is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
-    k = np.asarray(k).copy()
+    k = np.asarray(k, dtype=float).copy()
 
     if np.any(is_half_equilibrium):
         # at least one equilibrium
@@ -299,3 +299,208 @@ def _adjust_k(scheme, k, ef=1e3):
     #     pass
 
     return jnp.asarray(k)
+
+
+def get_fixed_scheme(scheme, k, fixed_y0):
+    """Generate an alternative scheme with some concentrations fixed.
+
+    This function returns data that allow the microkinetic simulation of a
+    reaction network under constraints, namely when some compounds have fixed
+    concentrations. This works by 1. removing all references to the fixed
+    compounds and by 2. properly multiplying the reaction rate constants by
+    the respective concentrations.
+
+    Parameters
+    ----------
+    scheme : Scheme
+    k : array-like
+        Reaction rate constant(s). Units match the concentration units given to
+        the returned function ``dydt``.
+    fixed_y0 : dict-like
+        Fixed initial state. Units match the concentration units given to
+        the returned function ``dydt``.
+
+    Returns
+    -------
+    scheme : Scheme
+        Associated reaction scheme with all references to fixed compounds
+        removed.
+    k : array-like
+        Associated (effective) reaction rate constants that model the fixed
+        concentrations.
+
+    Notes
+    -----
+    Keep in mind that when a compound get its concentration fixed, the
+    reaction scheme no longer conserves matter. You can think of it as
+    reacting close to an infinite source of the compound, but it accumulates
+    in the milleu at the given concentration.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from overreact import core
+
+    Equilibria under a specific pH can be easily modeled:
+
+    >>> pH = 7
+    >>> scheme = core.parse_reactions("AH <=> A- + H+")
+    >>> k = np.array([1, 1])
+    >>> scheme, k = get_fixed_scheme(scheme, k, {"H+": 10**-pH})
+    >>> scheme
+    Scheme(compounds=('AH', 'A-'),
+           reactions=('AH -> A-',
+                      'A- -> AH'),
+           is_half_equilibrium=(True, True),
+           A=((-1.0, 1.0),
+              (1.0, -1.0)),
+           B=((-1.0, 0.0),
+              (1.0, 0.0)))
+    >>> k
+    array([1.e+00, 1.e-07])
+
+    It is also possible to model the fixed activity of a solvent, for
+    instance:
+
+    >>> scheme = core.parse_reactions("A + 2H2O -> B")
+    >>> k = np.array([1.0])
+    >>> scheme, k = get_fixed_scheme(scheme, k, {"H2O": 55.6})
+    >>> scheme
+    Scheme(compounds=('A', 'B'),
+           reactions=('A -> B',),
+           is_half_equilibrium=(False,),
+           A=((-1.0,),
+              (1.0,)),
+           B=((-1.0,),
+              (1.0,)))
+    >>> k
+    array([3091.36])
+
+    Multiple reactions work fine, see both examples below:
+
+    >>> pH = 12
+    >>> scheme = core.parse_reactions("B <- AH <=> A- + H+")
+    >>> k = np.array([10.0, 1, 1])
+    >>> scheme, k = get_fixed_scheme(scheme, k, {"H+": 10**-pH})
+    >>> scheme
+    Scheme(compounds=('AH', 'B', 'A-'),
+           reactions=('AH -> B',
+                      'AH -> A-',
+                      'A- -> AH'),
+           is_half_equilibrium=(False, True, True),
+           A=((-1.0, -1.0, 1.0),
+              (1.0, 0.0, 0.0),
+              (0.0, 1.0, -1.0)),
+           B=((-1.0, -1.0, 0.0),
+              (1.0, 0.0, 0.0),
+              (0.0, 1.0, 0.0)))
+    >>> k
+    array([1.e+01, 1.e+00, 1.e-12])
+
+    >>> pH = 2
+    >>> scheme = core.parse_reactions(["AH <=> A- + H+", "B- + H+ <=> BH"])
+    >>> k = np.array([1, 1, 2, 2])
+    >>> scheme, k = get_fixed_scheme(scheme, k, {"H+": 10**-pH})
+    >>> scheme
+    Scheme(compounds=('AH', 'A-', 'B-', 'BH'),
+           reactions=('AH -> A-',
+                      'A- -> AH',
+                      'B- -> BH',
+                      'BH -> B-'),
+           is_half_equilibrium=(True, True, True, True),
+           A=((-1.0, 1.0, 0.0, 0.0),
+              (1.0, -1.0, 0.0, 0.0),
+              (0.0, 0.0, -1.0, 1.0),
+              (0.0, 0.0, 1.0, -1.0)),
+           B=((-1.0, 0.0, 0.0, 0.0),
+              (1.0, 0.0, 0.0, 0.0),
+              (0.0, 0.0, -1.0, 0.0),
+              (0.0, 0.0, 1.0, 0.0)))
+    >>> k
+    array([1. , 0.01, 0.02, 2. ])
+
+    Multiple fixed compounds also work fine:
+
+    >>> pH = 6
+    >>> scheme = core.parse_reactions("A + H2O -> B <=> B- + H+")
+    >>> k = np.array([1.0, 100.0, 2.0])
+    >>> scheme, k = get_fixed_scheme(scheme, k, {"H+": 10**-pH, "H2O": 55.6})
+    >>> scheme
+    Scheme(compounds=('A', 'B', 'B-'),
+           reactions=('A -> B',
+                      'B -> B-',
+                      'B- -> B'),
+           is_half_equilibrium=(False, True, True),
+           A=((-1.0, 0.0, 0.0),
+              (1.0, -1.0, 1.0),
+              (0.0, 1.0, -1.0)),
+           B=((-1.0, 0.0, 0.0),
+              (1.0, -1.0, 0.0),
+              (0.0, 1.0, 0.0)))
+    >>> k
+    array([5.56e+01, 1.00e+02, 2.00e-06])
+
+    This function is a no-op if `fixed_y0` is empty, which is very important
+    for overall code consistency:
+
+    >>> scheme = core.parse_reactions(["AH <=> A- + H+", "B- + H+ <=> BH"])
+    >>> k = np.array([1, 1, 2, 2])
+    >>> new_scheme, new_k = get_fixed_scheme(scheme, k, {})
+    >>> new_scheme == scheme
+    True
+    >>> np.allclose(new_k, k)
+    True
+
+    """
+    new_k = np.asarray(k, dtype=float).copy()
+    new_reactions = []
+    for i, (reaction, is_half_equilibrium) in enumerate(
+        zip(scheme.reactions, scheme.is_half_equilibrium)
+    ):
+        for reactants, products, _ in _core._parse_reactions(reaction):
+            new_reactants = tuple(
+                (coeff, compound)
+                for (coeff, compound) in reactants
+                if compound not in fixed_y0
+            )
+            new_products = tuple(
+                (coeff, compound)
+                for (coeff, compound) in products
+                if compound not in fixed_y0
+            )
+
+            for fixed_compound in fixed_y0:
+                for coeff, compound in reactants:
+                    if fixed_compound == compound:
+                        new_k[i] *= fixed_y0[fixed_compound] ** coeff
+
+            new_reactions.append((new_reactants, new_products, is_half_equilibrium))
+
+    new_reactions = tuple(r for r in _core._unparse_reactions(new_reactions))
+    new_is_half_equilibrium = scheme.is_half_equilibrium
+
+    new_A = []
+    new_B = []
+    new_compounds = []
+    for i, (compound, row_A, row_B) in enumerate(
+        zip(scheme.compounds, scheme.A, scheme.B)
+    ):
+        if compound not in fixed_y0:
+            new_compounds.append(compound)
+            new_A.append(row_A)
+            new_B.append(row_B)
+
+    new_compounds = tuple(new_compounds)
+    new_A = tuple(new_A)
+    new_B = tuple(new_B)
+
+    return (
+        _core.Scheme(
+            compounds=new_compounds,
+            reactions=new_reactions,
+            is_half_equilibrium=new_is_half_equilibrium,
+            A=new_A,
+            B=new_B,
+        ),
+        new_k,
+    )

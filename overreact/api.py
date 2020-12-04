@@ -22,6 +22,7 @@ from overreact.core import parse_reactions
 from overreact.io import parse_compounds
 from overreact.io import parse_model
 from overreact.simulate import get_dydt
+from overreact.simulate import get_fixed_scheme
 from overreact.simulate import get_y
 from overreact._thermo import get_delta
 from overreact._thermo import get_reaction_entropies
@@ -534,7 +535,7 @@ def get_drc(
     x0 = _np.zeros(len(scheme.compounds))
 
     def func(t, x=0.0, i=-1):
-        bias = _np.copy(x0)
+        bias = _np.asarray(x0).copy()
         bias[i] += x
 
         k = get_k(
