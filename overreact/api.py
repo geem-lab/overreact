@@ -305,6 +305,11 @@ def get_k(
     delta_freeenergies : array-like, optional
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
+        If set, this is used to calculate `delta_moles` for
+        `equilibrium_constant`, which effectively calculates a solution
+        equilibrium constant between reactants and the transition state for
+        gas phase data. You should set this to `None` if your free energies
+        were already adjusted for solution Gibbs free energies.
     volume : float, optional
         Molar volume.
 
@@ -412,7 +417,13 @@ def get_k(
     # TODO(schneiderfelipe): ensure diffusional limit for reactions in
     # solvation using Collins-Kimball theory. This includes half-equilibria.
     return rates.convert_rate_constant(
-        k, scale, molecularity=molecularity, temperature=temperature, pressure=pressure
+        k,
+        new_scale=scale,
+        # the following are the units delivered by eyring
+        old_scale="l mol-1 s-1",
+        molecularity=molecularity,
+        temperature=temperature,
+        pressure=pressure,
     )
 
 

@@ -576,7 +576,7 @@ def equilibrium_constant(
     ----------
     delta_freeenergy : array-like
         Delta Gibbs reaction free energies. This assumes values were already
-        corrected to a one molar reference state.
+        corrected for a one molar reference state.
     delta_moles : array-like, optional
         Difference in moles between products and reactants. If set, this
         multiplies the end result by

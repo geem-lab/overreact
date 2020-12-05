@@ -256,7 +256,7 @@ def convert_rate_constant(
 
 def eyring(
     delta_freeenergy,
-    molecularity=1,
+    molecularity=None,
     temperature=298.15,
     pressure=constants.atm,
     volume=None,
@@ -279,38 +279,64 @@ def eyring(
     ----------
     delta_freeenergy : array-like
         Delta Gibbs activation free energies. This assumes values were already
-        corrected to a one molar reference state.
+        corrected for a one molar reference state.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
+        If set, this is used to calculate `delta_moles` for
+        `equilibrium_constant`, which effectively calculates a solution
+        equilibrium constant between reactants and the transition state for
+        gas phase data. You should set this to `None` if your free energies
+        were already adjusted for solution Gibbs free energies.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
         Reference gas pressure.
     volume : float, optional
-        Molar volume.
+        Molar volume. This is passed on to `equilibrium_constant`.
 
     Returns
     -------
     k : array-like
-        Reaction rate constant(s). Units assume atm as the base for
-        concentration units.
+        Reaction rate constant(s). By giving energies in one molar reference
+        state, returned units are then accordingly given, e.g. "l mol-1 s-1"
+        if second-order, etc.
 
     Notes
     -----
-    The end result is multiplied by :math:`\left( \frac{p}{R T} \right)^{\Delta n}` (for
-    one atmosphere and chosen temperature), where the difference in moles is calculated
-    from the reaction molecularity.
+    This function uses `equilibrium_constant` internally.
 
     Examples
     --------
-    >>> eyring(17.26 * constants.kcal)  # unimolecular, s-1
+    The following are examples from <https://gaussian.com/thermo/>, in which
+    the kinetic isotope effect of a bimolecular reaction is analyzed:
+
+    >>> eyring(17.26 * constants.kcal)
     1.38
-    >>> eyring(18.86 * constants.kcal)  # unimolecular, s-1
+    >>> eyring(18.86 * constants.kcal)
     0.093
+
+    It is well known that, at room temperature, when you decrease a reaction
+    barrier by 1.4 kcal/mol, the reaction becomes ten times faster:
+
+    >>> dG = np.random.uniform(1.0, 100.0) * constants.kcal
+    >>> eyring(dG - 1.4 * constants.kcal) / eyring(dG)
+    10.
+
+    A similar relationship is found for a twofold increase in speed and a
+    0.4 kcal/mol decrease in the reaction barrier (again, at room
+    temperature):
+
+    >>> eyring(dG - 0.4 * constants.kcal) / eyring(dG)
+    2.0
+
     """
     temperature = np.asarray(temperature)
     delta_freeenergy = np.asarray(delta_freeenergy)
-    delta_moles = 1 - np.asarray(molecularity)
+
+    delta_moles = None
+    if molecularity is not None:
+        delta_moles = 1 - np.asarray(molecularity)
+
     return (
         _thermo.equilibrium_constant(
             delta_freeenergy, delta_moles, temperature, pressure, volume

@@ -295,6 +295,24 @@ def test_conversion_rates_know_about_reaction_order():
     )
 
 
+def test_second_order_conversion_rate_example():
+    """Test a simple example from a set of lecture notes.
+
+    The example can be found at
+    <https://cefrc.princeton.edu/sites/cefrc/files/Files/2015%20Lecture%20Notes/Wang/Lecture-4-Bimolecular-Reaction-Rate-Coefficients.pdf>.
+    """
+    assert (
+        rates.convert_rate_constant(
+            2e-14,
+            "cm3 mol-1 s-1",
+            "cm3 particle-1 s-1",
+            molecularity=2,
+            temperature=300.0,
+        )
+        == pytest.approx(1.2e10, 4e-3)
+    )
+
+
 # TODO(schneiderfelipe):
 # <https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf> has a
 # corresponding table for third order rate constant conversion factors. Test
