@@ -2,11 +2,15 @@
 
 """Module dedicated to the calculation of reaction rate constants."""
 
+import logging
+
 import numpy as np
 
 from overreact import constants
 from overreact import misc as misc
 from overreact import _thermo
+
+logger = logging.getLogger(__name__)
 
 
 @np.vectorize
@@ -245,7 +249,9 @@ def convert_rate_constant(
     else:
         raise ValueError(f"unit not recognized: {new_scale}")
 
-    return val * factor ** (molecularity - 1)
+    factor = factor ** (molecularity - 1)
+    logger.info(f"conversion factor ({old_scale} to {new_scale}) = {factor}")
+    return val * factor
 
 
 def eyring(

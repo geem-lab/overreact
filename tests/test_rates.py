@@ -253,20 +253,20 @@ def test_conversion_of_rate_constants_work():
             "cm3 mol-1 s-1",
             "l mol-1 s-1",
             molecularity=2,
-            temperature=[200, 298.15, 300, 400],
+            temperature=[200.0, 273.15, 298.15, 300.0, 373.15, 400.0],
         )
         == pytest.approx(12345e8)
     )
 
-    assert (
-        rates.convert_rate_constant(
-            12345e10,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=2,
-            temperature=[200, 298.15, 300, 400],
-        )
-        == pytest.approx(13.63e-23 * 12345e10 * np.array([200, 298.15, 300, 400]), 1e-3)
+    assert rates.convert_rate_constant(
+        12345e10,
+        "cm3 particle-1 s-1",
+        "atm-1 s-1",
+        molecularity=2,
+        temperature=[200.0, 273.15, 298.15, 300.0, 373.15, 400.0],
+    ) == pytest.approx(
+        13.63e-23 * 12345e10 * np.array([200.0, 273.15, 298.15, 300.0, 373.15, 400.0]),
+        3e-4,
     )
 
 
@@ -295,124 +295,556 @@ def test_conversion_rates_know_about_reaction_order():
     )
 
 
-def test_conversion_rates_match_literature():
-    """Ensure calculated factors are the same as in doi:10.1021/ed046p54."""
-    # to cm3 mol-1 s-1
-    assert rates.convert_rate_constant(
-        1.0, "cm3 mol-1 s-1", "cm3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(1.0)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 mol-1 s-1", "l mol-1 s-1", molecularity=2
-    ) == pytest.approx(1e3)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 mol-1 s-1", "m3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(1e6)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 mol-1 s-1", "cm3 particle-1 s-1", molecularity=2
-    ) == pytest.approx(6.023e23, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 mol-1 s-1", "mmHg-1 s-1", molecularity=2
-    ) == pytest.approx(62.40e3 * 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 mol-1 s-1", "atm-1 s-1", molecularity=2
-    ) == pytest.approx(82.10 * 298.15, 1e-3)
+# TODO(schneiderfelipe):
+# <https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf> has a
+# corresponding table for third order rate constant conversion factors. Test
+# those as well.
+def test_second_order_conversion_rates_match_literature():
+    """Ensure calculated second order factors are correct.
 
-    # to l mol-1 s-1
-    assert rates.convert_rate_constant(
-        1.0, "l mol-1 s-1", "cm3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "l mol-1 s-1", "l mol-1 s-1", molecularity=2
-    ) == pytest.approx(1.0)
-    assert rates.convert_rate_constant(
-        1.0, "l mol-1 s-1", "m3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(1e3)
-    assert rates.convert_rate_constant(
-        1.0, "l mol-1 s-1", "cm3 particle-1 s-1", molecularity=2
-    ) == pytest.approx(6.023e20, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "l mol-1 s-1", "mmHg-1 s-1", molecularity=2
-    ) == pytest.approx(62.40 * 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "l mol-1 s-1", "atm-1 s-1", molecularity=2
-    ) == pytest.approx(82.10e-3 * 298.15, 1e-3)
+    References are given in the comments."""
+    for temperature in [200.0, 273.15, 298.15, 300.0, 373.15, 400.0]:
+        # to cm3 mol-1 s-1 (doi:10.1021/ed046p54)
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 mol-1 s-1",
+                "cm3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.0)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 mol-1 s-1",
+                "l mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1e3)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 mol-1 s-1",
+                "m3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1e6)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 mol-1 s-1",
+                "cm3 particle-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(6.023e23, 2e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 mol-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(62.40e3 * temperature, 6e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 mol-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(82.10 * temperature, 6e-4)
+        )
+        # Next values are from
+        # <https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf>.
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 mol-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(6.236e4 * temperature, 6e-5)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 mol-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(82.06 * temperature, 4e-5)
+        )
 
-    # to m3 mol-1 s-1
-    assert rates.convert_rate_constant(
-        1.0, "m3 mol-1 s-1", "cm3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(1e-6)
-    assert rates.convert_rate_constant(
-        1.0, "m3 mol-1 s-1", "l mol-1 s-1", molecularity=2
-    ) == pytest.approx(1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "m3 mol-1 s-1", "m3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(1.0)
-    assert rates.convert_rate_constant(
-        1.0, "m3 mol-1 s-1", "cm3 particle-1 s-1", molecularity=2
-    ) == pytest.approx(6.023e17, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "m3 mol-1 s-1", "mmHg-1 s-1", molecularity=2
-    ) == pytest.approx(62.40e-3 * 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "m3 mol-1 s-1", "atm-1 s-1", molecularity=2
-    ) == pytest.approx(82.10e-6 * 298.15, 1e-3)
+        # to l mol-1 s-1 (doi:10.1021/ed046p54)
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "l mol-1 s-1",
+                "cm3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1e-3)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "l mol-1 s-1",
+                "l mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.0)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "l mol-1 s-1",
+                "m3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1e3)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "l mol-1 s-1",
+                "cm3 particle-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(6.023e20, 2e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "l mol-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(62.40 * temperature, 6e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "l mol-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(82.10e-3 * temperature, 6e-4)
+        )
+        # Next values are from
+        # <https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf>.
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "l mol-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(62.36 * temperature, 6e-5)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "l mol-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(8.206e-2 * temperature, 4e-5)
+        )
 
-    # to cm3 particle-1 s-1
-    assert rates.convert_rate_constant(
-        1.0, "cm3 particle-1 s-1", "cm3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(0.1660e-23)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 particle-1 s-1", "l mol-1 s-1", molecularity=2
-    ) == pytest.approx(0.1660e-20)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 particle-1 s-1", "m3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(0.1660e-17)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 particle-1 s-1", "cm3 particle-1 s-1", molecularity=2
-    ) == pytest.approx(1.0)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 particle-1 s-1", "mmHg-1 s-1", molecularity=2
-    ) == pytest.approx(10.23e-20 * 298.15)
-    assert rates.convert_rate_constant(
-        1.0, "cm3 particle-1 s-1", "atm-1 s-1", molecularity=2
-    ) == pytest.approx(13.63e-23 * 298.15)
+        # to m3 mol-1 s-1 (doi:10.1021/ed046p54)
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "m3 mol-1 s-1",
+                "cm3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1e-6)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "m3 mol-1 s-1",
+                "l mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1e-3)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "m3 mol-1 s-1",
+                "m3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.0)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "m3 mol-1 s-1",
+                "cm3 particle-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(6.023e17, 2e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "m3 mol-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(62.40e-3 * temperature, 6e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "m3 mol-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(82.10e-6 * temperature, 6e-4)
+        )
+        # Next values are from
+        # <https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf>.
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "m3 mol-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(6.236e-2 * temperature, 6e-5)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "m3 mol-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(8.206e-5 * temperature, 4e-5)
+        )
 
-    # to mmHg-1 s-1
-    assert rates.convert_rate_constant(
-        1.0, "mmHg-1 s-1", "cm3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(16.03e-6 / 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "mmHg-1 s-1", "l mol-1 s-1", molecularity=2
-    ) == pytest.approx(16.03e-3 / 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "mmHg-1 s-1", "m3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(16.03 / 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "mmHg-1 s-1", "cm3 particle-1 s-1", molecularity=2
-    ) == pytest.approx(96.53e17 / 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "mmHg-1 s-1", "mmHg-1 s-1", molecularity=2
-    ) == pytest.approx(1.0)
-    assert rates.convert_rate_constant(
-        1.0, "mmHg-1 s-1", "atm-1 s-1", molecularity=2
-    ) == pytest.approx(1.316e-3, 1e-3)
+        # to cm3 particle-1 s-1 (doi:10.1021/ed046p54)
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 particle-1 s-1",
+                "cm3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(0.1660e-23)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 particle-1 s-1",
+                "l mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(0.1660e-20)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 particle-1 s-1",
+                "m3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(0.1660e-17)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 particle-1 s-1",
+                "cm3 particle-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.0)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 particle-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(10.23e-20 * temperature)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 particle-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(13.63e-23 * temperature)
+        )
+        # Next values are from
+        # <https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf>.
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 particle-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.035e-19 * temperature)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "cm3 particle-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.362e-22 * temperature)
+        )
 
-    # to atm-1 s-1
-    assert rates.convert_rate_constant(
-        1.0, "atm-1 s-1", "cm3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(12.18e-3 / 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "atm-1 s-1", "l mol-1 s-1", molecularity=2
-    ) == pytest.approx(12.18 / 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "atm-1 s-1", "m3 mol-1 s-1", molecularity=2
-    ) == pytest.approx(12.18e3 / 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "atm-1 s-1", "cm3 particle-1 s-1", molecularity=2
-    ) == pytest.approx(73.36e20 / 298.15, 1e-3)
-    assert rates.convert_rate_constant(
-        1.0, "atm-1 s-1", "mmHg-1 s-1", molecularity=2
-    ) == pytest.approx(760)
-    assert rates.convert_rate_constant(
-        1.0, "atm-1 s-1", "atm-1 s-1", molecularity=2
-    ) == pytest.approx(1.0)
+        # to mmHg-1 s-1 (doi:10.1021/ed046p54)
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "cm3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(16.03e-6 / temperature, 4e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "l mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(16.03e-3 / temperature, 4e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "m3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(16.03 / temperature, 4e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "cm3 particle-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(96.53e17 / temperature, 4e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.0)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.316e-3, 2e-4)
+        )
+        # Next values are from
+        # <https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf>.
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "cm3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.604e-5 / temperature, 4e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "l mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.604e-2 / temperature, 4e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "m3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(16.04 / temperature, 4e-4)
+        )
+        # the following has a wrong exponent in the reference
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "mmHg-1 s-1",
+                "cm3 particle-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(9.658e18 / temperature, 2e-4)
+        )
+
+        # to atm-1 s-1 (doi:10.1021/ed046p54)
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "cm3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(12.18e-3 / temperature, 6e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "l mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(12.18 / temperature, 6e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "m3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(12.18e3 / temperature, 6e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "cm3 particle-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(73.36e20 / temperature, 5e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "mmHg-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(760)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "atm-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.0)
+        )
+        # Next values are from
+        # <https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf>.
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "cm3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.219e-2 / temperature, 3e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "l mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(12.19 / temperature, 3e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "m3 mol-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(1.219e4 / temperature, 3e-4)
+        )
+        assert (
+            rates.convert_rate_constant(
+                1.0,
+                "atm-1 s-1",
+                "cm3 particle-1 s-1",
+                molecularity=2,
+                temperature=temperature,
+            )
+            == pytest.approx(7.34e21 / temperature, 2e-4)
+        )
