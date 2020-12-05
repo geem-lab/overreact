@@ -246,22 +246,9 @@ collins-kimball for diffusion limit
 Marcus theory for electron transfer
 molar fractions for pH
 
-Roadmap
--------
-
-The following is what I think how overreact will soon be:
-
-io
-  # standard structure-energy data <- many sources
-  # read gibbs freeenergies and electronic energies, symmetry numbers, IRC potential energy surface, etc. from logfiles
-  # databases? this might be a very simple set of utilities if tutorials are well written
-rates:
-  def eyring(delta_freeenergy : np.ndarray, temperature : float) -> np.ndarray
-
 Things I which cclib could read from ORCA logfiles
 --------------------------------------------------
 - Absolute free and electronic energies
-- Symmetry numbers
 
 Approximations per paper
 ------------------------

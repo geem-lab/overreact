@@ -249,7 +249,7 @@ def convert_rate_constant(
     else:
         raise ValueError(f"unit not recognized: {new_scale}")
 
-    factor = factor ** (molecularity - 1)
+    factor **= molecularity - 1
     logger.info(f"conversion factor ({old_scale} to {new_scale}) = {factor}")
     return val * factor
 
@@ -278,6 +278,8 @@ def eyring(
     Parameters
     ----------
     delta_freeenergy : array-like
+        Delta Gibbs activation free energies. This assumes values were already
+        corrected to a one molar reference state.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
     temperature : array-like, optional
@@ -308,7 +310,7 @@ def eyring(
     """
     temperature = np.asarray(temperature)
     delta_freeenergy = np.asarray(delta_freeenergy)
-    delta_moles = 1 - molecularity
+    delta_moles = 1 - np.asarray(molecularity)
     return (
         _thermo.equilibrium_constant(
             delta_freeenergy, delta_moles, temperature, pressure, volume

@@ -371,7 +371,7 @@ def get_k(
 
     k = rates.eyring(
         delta_freeenergies,
-        molecularity,
+        molecularity=molecularity,
         temperature=temperature,
         pressure=pressure,
         volume=volume,
@@ -382,7 +382,10 @@ def get_k(
         # loop over pairs of equilibria
         if _ihe and i % 2 == 0:
             pair = k[i : i + 2]
+            _K = pair[0] / pair[1]
+
             k[i : i + 2] = pair / pair.min()
+            assert _np.isclose(_K, k[i] / k[i + 1])
 
     logger.info(
         "(classical) reaction rate constants: "
@@ -402,7 +405,7 @@ def get_k(
                 "compound data"
             )
         logger.info(
-            "(adjusted) reaction rate constants: "
+            "(tunneling) reaction rate constants: "
             f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹"
         )
 
