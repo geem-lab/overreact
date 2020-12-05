@@ -5,7 +5,7 @@
 import logging
 import warnings
 
-import numpy as _np
+import numpy as np
 from scipy.misc import derivative as _derivative
 
 from overreact import constants
@@ -55,8 +55,6 @@ def get_internal_energies(compounds, qrrho=True, temperature=298.15):
     >>> internal_energies - internal_energies.min()
     array([   0.        , 9207.05855504])
 
-    Beware that the values below have not been validated yet:
-
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
     >>> internal_energies = get_internal_energies(model.compounds)
     >>> internal_energies - internal_energies.min()
@@ -82,7 +80,7 @@ def get_internal_energies(compounds, qrrho=True, temperature=298.15):
             temperature=temperature,
         )
         internal_energes.append(internal_energy)
-    return _np.array(internal_energes)
+    return np.array(internal_energes)
 
 
 def get_enthalpies(compounds, qrrho=True, temperature=298.15):
@@ -109,8 +107,6 @@ def get_enthalpies(compounds, qrrho=True, temperature=298.15):
     >>> enthalpies - enthalpies.min()
     array([   0.        , 9207.05855504])
 
-    Beware that the values below have not been validated yet:
-
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
     >>> enthalpies = get_enthalpies(model.compounds)
     >>> enthalpies - enthalpies.min()
@@ -136,7 +132,7 @@ def get_enthalpies(compounds, qrrho=True, temperature=298.15):
             temperature=temperature,
         )
         enthalpies.append(enthalpy)
-    return _np.array(enthalpies)
+    return np.array(enthalpies)
 
 
 def get_entropies(compounds, qrrho=True, temperature=298.15, pressure=constants.atm):
@@ -164,8 +160,6 @@ def get_entropies(compounds, qrrho=True, temperature=298.15, pressure=constants.
     >>> entropies = get_entropies(model.compounds)
     >>> entropies - entropies.min()
     array([6.00745174, 0.        ])
-
-    Beware that the values below have not been validated yet:
 
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
     >>> entropies = get_entropies(model.compounds)
@@ -209,7 +203,7 @@ def get_entropies(compounds, qrrho=True, temperature=298.15, pressure=constants.
             entropy += _thermo.change_reference_state(compounds[name].symmetry, 1)
 
         entropies.append(entropy)
-    return _np.array(entropies)
+    return np.array(entropies)
 
 
 def get_freeenergies(
@@ -243,27 +237,26 @@ def get_freeenergies(
     >>> freeenergies - freeenergies.min()
     array([    0.        , 10998.18028986])
 
-    You can set a simple energy bias, either as a constant or compound-wise:
-
-    >>> get_freeenergies(model.compounds, bias=1.0) - freeenergies
-    array([1.0, 1.0])
-    >>> get_freeenergies(model.compounds, bias=-1.0) - freeenergies
-    array([-1.0, -1.0])
-    >>> get_freeenergies(model.compounds, bias=[1.0, -1.0]) - freeenergies
-    array([ 1., -1.])
-
-    Beware that the values below have not been validated yet:
-
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
     >>> freeenergies = get_freeenergies(model.compounds)
     >>> freeenergies - freeenergies.min()
     array([1.20692709e+09, 1.06049111e+08, 0.00000000e+00, 1.20866376e+09,
            1.04304792e+08])
+
+    You can set a simple energy bias, either as a constant or compound-wise:
+
+    >>> get_freeenergies(model.compounds, bias=1.0) - freeenergies
+    array([1., 1., 1., 1., 1.])
+    >>> get_freeenergies(model.compounds, bias=-1.0) - freeenergies
+    array([-1., -1., -1., -1., -1.])
+    >>> get_freeenergies(model.compounds,
+    ...                  bias=[1.0, -1.0, 0.0, 2.0, 0.0]) - freeenergies
+    array([ 1., -1., 0., 2., 0.])
     """
     enthalpies = get_enthalpies(compounds, qrrho=qrrho, temperature=temperature)
     entropies = get_entropies(compounds, qrrho=qrrho, temperature=temperature)
     # TODO(schneiderfelipe): log the contribution of bias
-    return enthalpies - temperature * entropies + _np.asarray(bias)
+    return enthalpies - temperature * entropies + np.asarray(bias)
 
 
 def get_k(
@@ -324,35 +317,57 @@ def get_k(
 
     Examples
     --------
+    Below is an example of a rotating ethane. How many turns it does per
+    second? We use Eckart tunneling by default, but this can be changed (check
+    doi:10.1126/science.1132178 to see which is closest to the experiment):
+
     >>> model = parse_model("data/ethane/B97-3c/model.k")
+    >>> get_k(model.scheme, model.compounds)
+    array([8.16e+10])
+    >>> get_k(model.scheme, model.compounds, tunneling="wigner")
+    array([7.99e+10])
     >>> get_k(model.scheme, model.compounds, tunneling=None)
-    array([7.35299453e+10])
+    array([7.35e+10])
 
-    You can set a simple energy bias, either as a constant or compound-wise:
-
-    >>> get_k(model.scheme, model.compounds, bias=100.0, tunneling=None)
-    array([7.35299453e+10])
-    >>> get_k(model.scheme, model.compounds, bias=-100.0, tunneling=None)
-    array([7.35299453e+10])
-    >>> get_k(model.scheme, model.compounds, bias=[100.0, -100.0], tunneling=None)
-    array([7.97081495e+10])
-
-    The units of the returned reaction rate constants can be selected (beware
-    that the values below have not been validated yet):
+    The units of the returned reaction rate constants can be selected for
+    non-unimolecular processes:
 
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
-    >>> get_k(model.scheme, model.compounds, tunneling=None)
-    array([14820222.69476697])
+    >>> get_k(model.scheme, model.compounds, temperature=300.0,
+    ...       scale="atm-1 s-1")
+    array([2.61e+06])
+    >>> get_k(model.scheme, model.compounds, temperature=300.0,
+    ...       scale="cm3 particle-1 s-1")
+    array([1.06e-13])
+
+    (By the way, the experimental reaction rate constant for this reaction is
+    :math:`1.03 \times 10^{-13} \text{cm}^3 \text{particle}^{-1} \text{s}^{-1}`.)
+    The returned units are "l mol-1 s-1" by default:
+
+    >>> get_k(model.scheme, model.compounds, temperature=300.0)
+    array([6.41e+07])
+    >>> get_k(model.scheme, model.compounds) \
+    ... == get_k(model.scheme, model.compounds, scale="l mol-1 s-1")
+    array([ True])
+
+    You can also turn the tunneling correction off by using the string "none":
+
+    >>> get_k(model.scheme, model.compounds, tunneling="none",
+    ...       temperature=300.0, scale="cm3 particle-1 s-1")
+    array([4.22e-14])
     >>> get_k(model.scheme, model.compounds, tunneling="none") \
     ... == get_k(model.scheme, model.compounds, tunneling=None)
     array([ True])
-    >>> get_k(model.scheme, model.compounds, tunneling=None, scale="atm-1 s-1")
-    array([605762.44228638])
-    >>> get_k(model.scheme, model.compounds, tunneling=None,
-    ...       scale="cm3 particle-1 s-1")
-    array([2.46095588e-14])
-    >>> get_k(model.scheme, model.compounds, scale="cm3 particle-1 s-1")
-    array([6.26670474e-14])
+
+    You can set a simple energy bias, either as a constant or compound-wise:
+
+    >>> get_k(model.scheme, model.compounds, bias=1.0 * constants.kcal,
+    ...       temperature=300.0, scale="cm3 particle-1 s-1")
+    array([5.7e-13])
+    >>> get_k(model.scheme, model.compounds,
+    ...       bias=np.array([0.0, 0.0, -1.4, 0.0, 0.0]) * constants.kcal,
+    ...       temperature=300.0, scale="cm3 particle-1 s-1")
+    array([1.1e-12])
     """
     scheme = _core._check_scheme(scheme)
     if compounds is not None:
@@ -371,9 +386,10 @@ def get_k(
             scheme.B, freeenergies
         ) - temperature * get_reaction_entropies(scheme.B)
 
-    if molecularity is None:
-        molecularity = _thermo.get_molecularity(scheme.A)
-
+    # NOTE(schneiderfelipe): Assuming delta_freeenergies already take
+    # solvation into account, there is no need to actually set molecularity
+    # to eyring: this is taken care of by convert_rate_constant. This
+    # behaviour naturally changes if molecularity is explictly given.
     k = rates.eyring(
         delta_freeenergies,
         molecularity=molecularity,
@@ -381,6 +397,9 @@ def get_k(
         pressure=pressure,
         volume=volume,
     )
+
+    if molecularity is None:
+        molecularity = _thermo.get_molecularity(scheme.A)
 
     # make reaction rate constants for equilibria as close as possible to one
     for i, _ihe in enumerate(scheme.is_half_equilibrium):
@@ -390,7 +409,7 @@ def get_k(
             _K = pair[0] / pair[1]
 
             k[i : i + 2] = pair / pair.min()
-            assert _np.isclose(_K, k[i] / k[i + 1])
+            assert np.isclose(_K, k[i] / k[i + 1])
 
     logger.info(
         "(classical) reaction rate constants: "
@@ -468,7 +487,7 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
     ... == get_kappa(model.scheme, model.compounds, method=None)
     array([ True])
 
-    Beware that the values below have not been validated yet:
+    Now another reaction:
 
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
     >>> get_kappa(model.scheme, model.compounds)
@@ -518,7 +537,7 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
 
     # TODO(schneiderfelipe): is this correct? shouldn't we correct shapes
     # somewhere else?
-    kappas = _np.array(kappas).flatten()
+    kappas = np.array(kappas).flatten()
     logger.info(
         "(quantum) tunneling coefficients: "
         f"{', '.join([f'{kappa:7.3g}' for kappa in kappas])}"
@@ -546,10 +565,10 @@ def get_drc(
     --------
     >>> model = parse_model("data/tanaka1996/UMP2/6-311G(2df,2pd)/model.jk")
     """
-    x0 = _np.zeros(len(scheme.compounds))
+    x0 = np.zeros(len(scheme.compounds))
 
     def func(t, x=0.0, i=-1):
-        bias = _np.asarray(x0).copy()
+        bias = np.asarray(x0).copy()
         bias[i] += x
 
         k = get_k(
@@ -567,7 +586,7 @@ def get_drc(
         )
         _, r = get_y(get_dydt(scheme, k), y0=y0, t_span=t_span, method=method)
 
-        return _np.log(r(t))
+        return np.log(r(t))
 
     def drc(t, i=-1):
         return (
