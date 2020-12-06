@@ -402,14 +402,18 @@ def get_k(
         molecularity = _thermo.get_molecularity(scheme.A)
 
     # make reaction rate constants for equilibria as close as possible to one
-    for i, _ihe in enumerate(scheme.is_half_equilibrium):
-        # loop over pairs of equilibria
-        if _ihe and i % 2 == 0:
+    i = 0
+    while i < len(scheme.is_half_equilibrium):
+        if scheme.is_half_equilibrium[i]:
             pair = k[i : i + 2]
             _K = pair[0] / pair[1]
 
             k[i : i + 2] = pair / pair.min()
             assert np.isclose(_K, k[i] / k[i + 1])
+
+            # loop over pairs of equilibria
+            i += 1
+        i += 1
 
     logger.info(
         "(classical) reaction rate constants: "
