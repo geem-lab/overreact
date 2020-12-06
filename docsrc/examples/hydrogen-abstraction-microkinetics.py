@@ -10,6 +10,7 @@ import numpy as np
 import seaborn as sns
 
 from overreact import api
+from overreact import datasets
 
 sns.set(style="white", palette="colorblind")
 
@@ -20,7 +21,7 @@ if len(sys.argv) > 1:
     basisset = sys.argv[1]
 
 model = api.parse_model(
-    os.path.join(api.data_path, f"tanaka1996/UMP2/{basisset}/model.k")
+    os.path.join(datasets.data_path, f"tanaka1996/UMP2/{basisset}/model.k")
 )
 k_eck = api.get_k(
     model.scheme, model.compounds, temperature=temperature, scale="M-1 s-1"

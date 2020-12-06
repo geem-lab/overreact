@@ -539,7 +539,7 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
 
     # TODO(schneiderfelipe): is this correct? shouldn't we correct shapes
     # somewhere else?
-    kappas = np.array(kappas).flatten()
+    kappas = np.asarray(kappas).flatten()
     logger.info(
         "(quantum) tunneling coefficients: "
         f"{', '.join([f'{kappa:7.3g}' for kappa in kappas])}"

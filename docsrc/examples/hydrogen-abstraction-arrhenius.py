@@ -11,6 +11,7 @@ import seaborn as sns
 from scipy import stats
 
 from overreact import api
+from overreact import datasets
 
 sns.set(style="white", palette="colorblind")
 
@@ -33,7 +34,7 @@ if len(sys.argv) > 1:
     basisset = sys.argv[1]
 
 model = api.parse_model(
-    os.path.join(api.data_path, f"tanaka1996/UMP2/{basisset}/model.k")
+    os.path.join(datasets.data_path, f"tanaka1996/UMP2/{basisset}/model.k")
 )
 k_cla = []
 k_wig = []
@@ -70,7 +71,7 @@ linregress_eck = stats.linregress(np.log10(k_eck).flatten(), np.log10(k_exp))
 
 ax.set_ylabel(r"log(k [cm$^3$ molecule$^{-1}$ s$^{-1}$])")
 ax.set_ylabel(r"log(k [cm$^3$ molecule$^{-1}$ s$^{-1}$])")
-print("Classic ~", stats.linregress(np.log10(k_cla).flatten(), np.log(k_exp)))
+print("Classic ~", stats.linregress(np.log10(k_cla).flatten(), np.log10(k_exp)))
 print("Wigner  ~", stats.linregress(np.log10(k_wig).flatten(), np.log10(k_exp)))
 print("Eckart  ~", linregress_eck)
 

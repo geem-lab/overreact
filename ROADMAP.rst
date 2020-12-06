@@ -256,45 +256,19 @@ Items with an * are not necessary in our present approach, or are
 incorporated in chunks compatible with our methodology, but the effects are
 still taken in consideration.
 
-doi:10.1002/qua.25686 (EyringPy):
-- Partition function* (we read from logfiles)
-- Transition state theory (TST)
-- Gas to solution equilibrium constant correction
-- Gas to solution standard state correction
-- Reaction symmetry
-- Tunneling corrections:
-  - Wigner
-  - Eckart
-- Pre-reactive and product complexes* (we simulate kinetics)
+doi:10.1002/qua.25686:
 - Corrections for reactions in solution:
   - Diffusion effect through Collins-Kimball theory
   - Electron transfer through Marcus theory
-  - Effect of pH (maybe solved by simulation)
   - Some of the above are from QM-ORSA for reactions in solution*
 
 doi:10.1039/C5CP00628G:
-- Gas to solution standard state correction
-- Molecular symmetry numbers
-- Anharmonicity and low frequency modes
-- Conformations* (solved by simulation)
-- Molecular charge and pH
-- Solvation thermodynamics
-
-doi:10.1016/0301-0104(94)00069-7:
-- Transition state theory
-- Eckart tunneling correction
-
-doi:10.1021/acs.orglett.0c00367:
-- Sistematic adjustment of free energies
+- Anharmonicity
+- Molecular charge
 
 doi:10.1021/acs.jpca.8b06092:
-- High level calculation
 - Variational transition state theory
 - Small curvature tunneling
-
-doi:10.1021/jp8012464:
-- High level calculation
-- Wigner tunneling correction
 
 doi:10.1021/acscatal.7b00115:
 - Degree of rate control
@@ -305,7 +279,6 @@ doi:10.1021/acscatal.7b00115:
 - Use of degree of rate control for screening catalysts
 
 doi:10.1039/c8cs00398j (lots of interesting things, some highlighted below):
-- Microkinetic modeling
 - Apparent activation energy
 - Degree of rate control
 - Linear free energy relationships

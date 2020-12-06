@@ -40,51 +40,16 @@ def test_sanity_for_chemical_kinetics():
     k_H = api.get_k(
         scheme,
         delta_freeenergies=delta_freeenergies_H * constants.hartree * constants.N_A,
-        volume=1.0,
-        scale="atm-1 s-1",
     )
     k_D = api.get_k(
         scheme,
         delta_freeenergies=delta_freeenergies_D * constants.hartree * constants.N_A,
-        volume=1.0,
-        scale="atm-1 s-1",
     )
     assert k_H == pytest.approx(1.38, 4e-4)
     assert k_D == pytest.approx(0.0928, 5e-3)
 
     kie = k_H / k_D
     assert kie == pytest.approx(1.38 / 0.0928, 4e-3)
-
-
-def test_basic_example_for_chemical_kinetics():
-    """Ensure we can reproduce a basic example from doi:10.1002/qua.25686.
-
-    This uses raw data and no calls from overreact.api.
-    """
-    temperatures = np.array([200, 298.15, 300, 400])
-    delta_freeenergy = np.array([8.0, 10.3, 10.3, 12.6])
-    delta_freeenergy -= (
-        temperatures
-        * _thermo.change_reference_state(temperature=temperatures)
-        / constants.kcal
-    )  # 1 atm to 1 M
-    assert delta_freeenergy == pytest.approx([6.9, 8.4, 8.4, 9.9], 8e-3)
-
-    delta_freeenergy += (
-        temperatures
-        * _thermo.change_reference_state(4, 1, sign=-1, temperature=temperatures)
-        / constants.kcal
-    )  # 4-fold symmetry TS
-    assert delta_freeenergy == pytest.approx([6.3, 7.6, 7.6, 8.8], 9e-3)
-
-    k = rates.eyring(
-        delta_freeenergy * constants.kcal,
-        temperature=temperatures,
-    )
-    k = rates.convert_rate_constant(k, "cm3 particle-1 s-1", molecularity=2)
-    assert np.log10(k) == pytest.approx(
-        [-15.65757732, -14.12493874, -14.10237291, -13.25181197], 4.1e-2
-    )
 
 
 def test_eyring_calculates_reaction_barrier():
@@ -227,6 +192,13 @@ def test_liquid_viscosities_are_correct():
     )
     assert rates.liquid_viscosity("water", temperature) == pytest.approx(
         viscosity, 6e-2
+    )
+
+    # - water (doi:10.1002/qua.25686):
+    temperature = np.array([298.15, 300, 310, 320, 330, 340, 350])
+    viscosity = 1e-4 * np.array([8.90, 8.54, 6.94, 5.77, 4.90, 4.22, 3.69])
+    assert rates.liquid_viscosity("water", temperature) == pytest.approx(
+        viscosity, 2e-2
     )
 
     # - ethanol (isbn:978-1138561632):

@@ -773,7 +773,9 @@ def change_reference_state(
                 temperature=np.asarray(temperature), pressure=pressure
             )
         old_reference = 1.0 / volume
-    return sign * constants.R * np.log(new_reference / old_reference)
+
+    res = sign * constants.R * np.log(new_reference / old_reference)
+    return res
 
 
 # TODO(schneiderfelipe): should those functions be plural or singular?

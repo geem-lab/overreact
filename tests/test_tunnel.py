@@ -36,11 +36,6 @@ def test_eckart_tunneling_corrections_are_correct():
     assert tunnel.eckart(59, 15781.6) == pytest.approx(1.01679385)
     assert tunnel.eckart(158, 56813.61, 94689.35) == pytest.approx(1.02392807)
 
-    # values below match doi:10.1002/qua.25686
-    assert tunnel.eckart(
-        1218, 13672.624, 24527.729644, temperature=[200, 298.15, 300, 400]
-    ) == pytest.approx([17.1, 4.0, 3.9, 2.3], 2.2e-2)
-
     # a selection for testing higher precision from doi:10.1021/j100809a040
     assert tunnel.eckart(414.45, 15781.6, 15781.6) == pytest.approx(1.2, 9e-3)
     assert tunnel.eckart(414.45, 1578.16, 1578.16) == pytest.approx(1.32, 2e-3)
