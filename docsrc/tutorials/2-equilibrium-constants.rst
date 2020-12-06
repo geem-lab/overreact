@@ -10,7 +10,7 @@ It's known that the stability constant of :math:`\require{mhchem}\ce{Cd(MeNH2)4^
 >>> from scipy import constants
 >>> K = _thermo.equilibrium_constant(-37.4 * constants.kilo)
 >>> np.log10(K)
-6.55
+array([6.55])
 
 So let's check it:
 
@@ -20,7 +20,7 @@ So let's check it:
 >>> scheme.compounds, scheme.reactions
 (('Cd2p', 'MeNH2', '[Cd(MeNH2)4]2p'),
  ('Cd2p + 4 MeNH2 -> [Cd(MeNH2)4]2p', '[Cd(MeNH2)4]2p -> Cd2p + 4 MeNH2'))
->>> dydt = simulate.get_dydt(scheme, np.array([K, 1.]))
+>>> dydt = simulate.get_dydt(scheme, np.array([K[0], 1.]))
 >>> y, r = simulate.get_y(dydt, y0=[0., 0., 1.])
 >>> y(y.t_max)
 array([0.01608807, 0.06435228, 0.98391193])

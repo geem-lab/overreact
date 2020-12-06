@@ -627,13 +627,13 @@ def equilibrium_constant(
     >>> temperature = 298.15
     >>> dG = -constants.R * temperature * np.log(Kc)
     >>> equilibrium_constant(dG)
-    24.5
+    array([24.5])
 
     By giving a `delta_moles` value (in this case, :math:`2 - 2 - 1 = -1`),
     we can calculate the corresponding `K_p`:
 
     >>> equilibrium_constant(dG, delta_moles=-1)
-    1.002
+    array([1.002])
 
     (It makes sense for gases to favor the most entropic side of the
     equilibrium.) The example above clearly used "solution-based" data (our
@@ -644,13 +644,13 @@ def equilibrium_constant(
 
     >>> dG += temperature * change_reference_state()
     >>> equilibrium_constant(dG)
-    1.002
+    array([1.002])
 
     Having gas phase information, the inverse path can be taken just by
     inverting the sign of `delta_moles`:
 
     >>> equilibrium_constant(dG, delta_moles=1)
-    24.5
+    array([24.5])
 
     The following example is from Wikipedia
     (<https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect>).
@@ -660,10 +660,10 @@ def equilibrium_constant(
 
     >>> dG1 = -37.4e3
     >>> np.log10(equilibrium_constant(dG1))
-    6.55
+    array([6.55])
     >>> dG2 = -60.67e3
     >>> np.log10(equilibrium_constant(dG2))
-    10.62
+    array([10.62])
 
     The above are thus :math:`log_{10}(K_c)`. Since we are talking about a
     mono- and a bidendate ligands, the `delta_moles` are -4 and -2,
@@ -671,16 +671,16 @@ def equilibrium_constant(
     way:
 
     >>> np.log10(equilibrium_constant(dG1, delta_moles=-4))
-    0.998
+    array([0.998])
     >>> np.log10(equilibrium_constant(dG2, delta_moles=-2))
-    7.85
+    array([7.85])
 
     You can easily check that the above values are correct.
 
     """
     temperature = np.asarray(temperature)
     equilibrium_constant = np.exp(
-        -np.asarray(delta_freeenergy) / (constants.R * temperature)
+        -np.atleast_1d(delta_freeenergy) / (constants.R * temperature)
     )
 
     if delta_moles is not None:

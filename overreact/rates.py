@@ -320,23 +320,23 @@ def eyring(
     the kinetic isotope effect of a bimolecular reaction is analyzed:
 
     >>> eyring(17.26 * constants.kcal)
-    1.38
+    array([1.38])
     >>> eyring(18.86 * constants.kcal)
-    0.093
+    array([0.093])
 
     It is well known that, at room temperature, when you decrease a reaction
     barrier by 1.4 kcal/mol, the reaction becomes ten times faster:
 
     >>> dG = np.random.uniform(1.0, 100.0) * constants.kcal
     >>> eyring(dG - 1.4 * constants.kcal) / eyring(dG)
-    10.
+    array([10.])
 
     A similar relationship is found for a twofold increase in speed and a
     0.4 kcal/mol decrease in the reaction barrier (again, at room
     temperature):
 
     >>> eyring(dG - 0.4 * constants.kcal) / eyring(dG)
-    2.0
+    array([2.0])
 
     """
     temperature = np.asarray(temperature)
