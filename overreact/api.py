@@ -339,6 +339,9 @@ def get_k(
     >>> get_k(model.scheme, model.compounds, temperature=300.0,
     ...       scale="cm3 particle-1 s-1")
     array([1.06e-13])
+    >>> get_k(model.scheme, model.compounds, temperature=200.0,
+    ...       scale="cm3 particle-1 s-1")
+    array([1.0e-14])
 
     (By the way, the experimental reaction rate constant for this reaction is
     :math:`1.03 \times 10^{-13} \text{cm}^3 \text{particle}^{-1} \text{s}^{-1}`.)
@@ -386,10 +389,9 @@ def get_k(
             scheme.B, freeenergies
         ) - temperature * get_reaction_entropies(scheme.B)
 
-    # NOTE(schneiderfelipe): Assuming delta_freeenergies already take
-    # solvation into account, there is no need to actually set molecularity
-    # to eyring: this is taken care of by convert_rate_constant. This
-    # behaviour naturally changes if molecularity is explictly given.
+    if molecularity is None:
+        molecularity = _thermo.get_molecularity(scheme.A)
+
     k = rates.eyring(
         delta_freeenergies,
         molecularity=molecularity,
@@ -397,9 +399,6 @@ def get_k(
         pressure=pressure,
         volume=volume,
     )
-
-    if molecularity is None:
-        molecularity = _thermo.get_molecularity(scheme.A)
 
     # make reaction rate constants for equilibria as close as possible to one
     i = 0
@@ -442,6 +441,9 @@ def get_k(
     return rates.convert_rate_constant(
         k,
         new_scale=scale,
+        # NOTE(schneiderfelipe): we took measures to ensure the current units
+        # are the following (so we can convert back now):
+        old_scale="atm-1 s-1",
         molecularity=molecularity,
         temperature=temperature,
         pressure=pressure,
@@ -449,7 +451,7 @@ def get_k(
 
 
 # TODO(schneiderfelipe): accept deltas and make compounds optional.
-def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
+def get_kappa(scheme, compounds, method="eckart", qrrho=True, temperature=298.15):
     r"""Obtain tunneling transmission coefficients.
 
     One tunneling transmission coefficient is calculated for each reaction. If
@@ -462,6 +464,11 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
     compounds : dict-like
     method : str or None, optional
         Choose between "eckart", "wigner" or None (or "none").
+    qrrho : bool, optional
+        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
+        approximations of M. Head-Gordon (enthalpy correction, see
+        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
+        doi:10.1002/chem.201200497) on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
 
@@ -480,7 +487,7 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
     >>> model = parse_model("data/ethane/B97-3c/model.k")
     >>> kappa = get_kappa(model.scheme, model.compounds)
     >>> kappa
-    array([1.10949425])
+    array([1.110])
     >>> get_kappa(model.scheme, model.compounds, method="none")
     array([1.0])
     >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
@@ -499,7 +506,7 @@ def get_kappa(scheme, compounds, method="eckart", temperature=298.15):
     compounds = _io._check_compounds(compounds)
 
     if method == "eckart":
-        energies = [compounds[name].energy for name in scheme.compounds]
+        energies = get_enthalpies(compounds, qrrho=qrrho, temperature=0.0)
         delta_forward = get_delta(scheme.B, energies)  # B - A
         delta_backward = delta_forward - get_delta(
             scheme.A, energies

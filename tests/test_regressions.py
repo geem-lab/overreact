@@ -70,7 +70,7 @@ def test_basic_example_for_gas_phase_kinetics():
     overreact.api.
     """
     temperatures = np.array([200, 298.15, 300, 400])
-    delta_freeenergy = np.array([8.0, 10.3, 10.3, 12.6])
+    delta_freeenergies = np.array([8.0, 10.3, 10.3, 12.6])
 
     # 4-fold symmetry TS
     sym_correction = (
@@ -78,20 +78,20 @@ def test_basic_example_for_gas_phase_kinetics():
         * _thermo.change_reference_state(4, 1, sign=-1, temperature=temperatures)
         / constants.kcal
     )
-    assert delta_freeenergy + sym_correction == pytest.approx(
+    assert delta_freeenergies + sym_correction == pytest.approx(
         [7.4, 9.4, 9.5, 11.5], 9e-3
     )
 
-    delta_freeenergy -= (
+    delta_freeenergies -= (
         temperatures
         * _thermo.change_reference_state(temperature=temperatures)
         / constants.kcal
     )  # 1 atm to 1 M
-    assert delta_freeenergy == pytest.approx([6.9, 8.4, 8.4, 9.9], 8e-3)
+    assert delta_freeenergies == pytest.approx([6.9, 8.4, 8.4, 9.9], 8e-3)
 
     # only concentration correction, no symmetry and no tunneling
     k = rates.eyring(
-        delta_freeenergy * constants.kcal,
+        delta_freeenergies * constants.kcal,
         temperature=temperatures,
     )
     k = rates.convert_rate_constant(k, "cm3 particle-1 s-1", molecularity=2)
@@ -100,12 +100,12 @@ def test_basic_example_for_gas_phase_kinetics():
         np.log10([2.2e-16, 7.5e-15, 7.9e-15, 5.6e-14]), 2e-3
     )
 
-    delta_freeenergy += sym_correction
-    assert delta_freeenergy == pytest.approx([6.3, 7.6, 7.6, 8.8], 9e-3)
+    delta_freeenergies += sym_correction
+    assert delta_freeenergies == pytest.approx([6.3, 7.6, 7.6, 8.8], 9e-3)
 
     # only concentration correction and symmetry, no tunneling
     k = rates.eyring(
-        delta_freeenergy * constants.kcal,
+        delta_freeenergies * constants.kcal,
         temperature=temperatures,
     )
     k = rates.convert_rate_constant(k, "cm3 particle-1 s-1", molecularity=2)
@@ -113,6 +113,10 @@ def test_basic_example_for_gas_phase_kinetics():
     assert np.log10(k) == pytest.approx(
         np.log10([8.8e-16, 3.0e-14, 3.1e-14, 2.2e-13]), 3e-3
     )
+
+    kappa = tunnel.wigner(1218, temperature=temperatures)
+    assert kappa[0] == pytest.approx(4.2, 3e-4)
+    assert kappa[2] == pytest.approx(2.4, 1e-2)
 
     kappa = tunnel.eckart(
         1218, 4.1 * constants.kcal, 3.4 * constants.kcal, temperature=temperatures
@@ -125,69 +129,6 @@ def test_basic_example_for_gas_phase_kinetics():
     assert k == pytest.approx([1.5e-14, 1.2e-13, 1.2e-13, 5.1e-13])
     assert np.log10(k) == pytest.approx(
         np.log10([1.5e-14, 1.2e-13, 1.2e-13, 5.1e-13]), 3e-3
-    )
-
-
-def test_basic_example_for_solvation_phase_kinetics():
-    """Ensure we can reproduce a basic solvation phase example.
-
-    This uses raw data from from doi:10.1002/qua.25686 and no calls from
-    overreact.api.
-    """
-    temperatures = np.array([298.15, 300, 310, 320, 330, 340, 350])
-    delta_freeenergy = np.array([10.5, 10.5, 10.8, 11.1, 11.4, 11.7, 11.9])
-
-    # 3-fold symmetry TS
-    sym_correction = (
-        temperatures
-        * _thermo.change_reference_state(3, 1, sign=-1, temperature=temperatures)
-        / constants.kcal
-    )
-    assert delta_freeenergy + sym_correction == pytest.approx(
-        [9.8, 9.9, 10.1, 10.4, 10.6, 10.9, 11.2], 8e-3
-    )
-
-    delta_freeenergy -= (
-        temperatures
-        * _thermo.change_reference_state(temperature=temperatures)
-        / constants.kcal
-    )  # 1 atm to 1 M
-    assert delta_freeenergy == pytest.approx([8.6, 8.6, 8.8, 9.0, 9.2, 9.4, 9.6], 6e-3)
-
-    # only concentration correction, no symmetry and no tunneling
-    k = rates.eyring(
-        delta_freeenergy * constants.kcal,
-        temperature=temperatures,
-    )
-    assert k == pytest.approx([3.3e6, 3.4e6, 4.0e6, 4.7e6, 5.5e6, 6.4e6, 7.3e6], 8e-2)
-    assert np.log10(k) == pytest.approx(
-        np.log10([3.3e6, 3.4e6, 4.0e6, 4.7e6, 5.5e6, 6.4e6, 7.3e6]), 6e-3
-    )
-
-    delta_freeenergy += sym_correction
-    assert delta_freeenergy == pytest.approx([7.9, 7.9, 8.1, 8.3, 8.5, 8.7, 8.8], 7e-3)
-
-    # only concentration correction and symmetry, no tunneling
-    k = rates.eyring(
-        delta_freeenergy * constants.kcal,
-        temperature=temperatures,
-    )
-    assert k == pytest.approx([9.8e6, 1.0e7, 1.2e7, 1.4e7, 1.7e7, 1.9e7, 2.2e7], 8e-2)
-    assert np.log10(k) == pytest.approx(
-        np.log10([9.8e6, 1.0e7, 1.2e7, 1.4e7, 1.7e7, 1.9e7, 2.2e7]), 5e-3
-    )
-
-    kappa = tunnel.eckart(
-        986.79, 3.3 * constants.kcal, 16.4 * constants.kcal, temperature=temperatures
-    )
-    assert kappa == pytest.approx([2.3, 2.3, 2.2, 2.1, 2.0, 1.9, 1.9], 9e-2)
-
-    k *= kappa
-
-    # concentration correction, symmetry and tunneling included
-    assert k == pytest.approx([2.3e7, 2.4e7, 2.7e7, 3.0e7, 3.3e7, 3.7e7, 4.1e7], 1.1e-1)
-    assert np.log10(k) == pytest.approx(
-        np.log10([2.3e7, 2.4e7, 2.7e7, 3.0e7, 3.3e7, 3.7e7, 4.1e7]), 6e-3
     )
 
 
@@ -490,7 +431,7 @@ def test_tanaka1996():
     )
 
     assert k_eck == pytest.approx(k_exp)
-    assert np.log10(k_eck) == pytest.approx(np.log10(k_exp), 4e-2)
+    assert np.log10(k_eck) == pytest.approx(np.log10(k_exp), 3e-2)
 
     # doi:10.1002/qua.25686
     assert k_eck[-1] == pytest.approx(1.24e-13)
@@ -501,3 +442,70 @@ def test_tanaka1996():
     # doi:10.1007/BF00058703
     assert k_eck[-1] == pytest.approx(2.17e-13)
     assert np.log10(k_eck[-1]) == pytest.approx(np.log10(2.17e-13), 3e-2)
+
+
+def test_basic_example_for_solvation_phase_kinetics():
+    """Ensure we can reproduce a basic solvation phase example.
+
+    This uses raw data from from doi:10.1002/qua.25686 and no calls from
+    overreact.api.
+    """
+    temperatures = np.array([298.15, 300, 310, 320, 330, 340, 350])
+    delta_freeenergies = np.array([10.5, 10.5, 10.8, 11.1, 11.4, 11.7, 11.9])
+
+    # 3-fold symmetry TS
+    sym_correction = (
+        temperatures
+        * _thermo.change_reference_state(3, 1, sign=-1, temperature=temperatures)
+        / constants.kcal
+    )
+    assert delta_freeenergies + sym_correction == pytest.approx(
+        [9.8, 9.9, 10.1, 10.4, 10.6, 10.9, 11.2], 8e-3
+    )
+
+    delta_freeenergies -= (
+        temperatures
+        * _thermo.change_reference_state(temperature=temperatures)
+        / constants.kcal
+    )  # 1 atm to 1 M
+    assert delta_freeenergies == pytest.approx(
+        [8.6, 8.6, 8.8, 9.0, 9.2, 9.4, 9.6], 6e-3
+    )
+
+    # only concentration correction, no symmetry and no tunneling
+    k = rates.eyring(
+        delta_freeenergies * constants.kcal,
+        temperature=temperatures,
+    )
+    assert k == pytest.approx([3.3e6, 3.4e6, 4.0e6, 4.7e6, 5.5e6, 6.4e6, 7.3e6], 8e-2)
+    assert np.log10(k) == pytest.approx(
+        np.log10([3.3e6, 3.4e6, 4.0e6, 4.7e6, 5.5e6, 6.4e6, 7.3e6]), 6e-3
+    )
+
+    delta_freeenergies += sym_correction
+    assert delta_freeenergies == pytest.approx(
+        [7.9, 7.9, 8.1, 8.3, 8.5, 8.7, 8.8], 7e-3
+    )
+
+    # only concentration correction and symmetry, no tunneling
+    k = rates.eyring(
+        delta_freeenergies * constants.kcal,
+        temperature=temperatures,
+    )
+    assert k == pytest.approx([9.8e6, 1.0e7, 1.2e7, 1.4e7, 1.7e7, 1.9e7, 2.2e7], 8e-2)
+    assert np.log10(k) == pytest.approx(
+        np.log10([9.8e6, 1.0e7, 1.2e7, 1.4e7, 1.7e7, 1.9e7, 2.2e7]), 5e-3
+    )
+
+    kappa = tunnel.eckart(
+        986.79, 3.3 * constants.kcal, 16.4 * constants.kcal, temperature=temperatures
+    )
+    assert kappa == pytest.approx([2.3, 2.3, 2.2, 2.1, 2.0, 1.9, 1.9], 9e-2)
+
+    k *= kappa
+
+    # concentration correction, symmetry and tunneling included
+    assert k == pytest.approx([2.3e7, 2.4e7, 2.7e7, 3.0e7, 3.3e7, 3.7e7, 4.1e7], 1.1e-1)
+    assert np.log10(k) == pytest.approx(
+        np.log10([2.3e7, 2.4e7, 2.7e7, 3.0e7, 3.3e7, 3.7e7, 4.1e7]), 6e-3
+    )

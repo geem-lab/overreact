@@ -34,7 +34,7 @@ Similarly, compound data is retrieved from logfiles using `parse_compounds`:
 After both two line above, we can start analyzing our complete model:
 
 >>> api.get_k(scheme, compounds)
-array([8.15810511e+10])
+array([8.16e+10])
 
 Even with a rather simple level of theory (B97-3c :cite:`Brandenburg_2018`),
 this result compares well with the experimentally determined value

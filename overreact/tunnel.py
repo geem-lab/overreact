@@ -13,6 +13,39 @@ from overreact import constants
 logger = logging.getLogger(__name__)
 
 
+def _check_nu(vibfreq):
+    """Convert vibrational frequencies in cm-1 to s-1.
+
+    Parameters
+    ----------
+    vibfreq : array-like
+        Magnitude of the imaginary frequency in cm-1. Only the absolute value
+        is used.
+
+    Returns
+    -------
+    nu : array-like
+
+    Raises
+    ------
+    ValueError
+        If vibfreq is zero.
+
+    Examples
+    --------
+    >>> vibfreq = 1000.0
+    >>> _check_nu(vibfreq)
+    2.99792458e13
+    >>> _check_nu(2.0 * vibfreq) / _check_nu(vibfreq)
+    2.0
+    >>> _check_nu(vibfreq) == _check_nu(-vibfreq)
+    True
+    """
+    if _np.isclose(vibfreq, 0.0).any():
+        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
+    return _np.abs(vibfreq) * constants.c / constants.centi
+
+
 def wigner(vibfreq, temperature=298.15):
     """Calculate the Wigner correction to quantum tunneling.
 
@@ -45,14 +78,11 @@ def wigner(vibfreq, temperature=298.15):
     1.02776
 
     """
-    if _np.isclose(vibfreq, 0.0).any():
-        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
-
-    nu = _np.abs(vibfreq) * constants.c / constants.centi
+    nu = _check_nu(vibfreq)
     temperature = _np.asarray(temperature)
-    u = constants.h * _np.abs(nu) / (constants.k * temperature)
+    u = constants.h * nu / (constants.k * temperature)
 
-    kappa = 1.0 + u ** 2 / 24.0
+    kappa = 1.0 + (u ** 2) / 24.0
     logger.info(f"Wigner tunneling coefficient: {kappa}")
     return kappa
 
@@ -104,12 +134,9 @@ def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
     array(3.3)
 
     """
-    if _np.isclose(vibfreq, 0.0).any():
-        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
-
-    nu = _np.abs(vibfreq) * constants.c / constants.centi
+    nu = _check_nu(vibfreq)
     temperature = _np.asarray(temperature)
-    u = constants.h * _np.abs(nu) / (constants.k * temperature)
+    u = constants.h * nu / (constants.k * temperature)
 
     if delta_backward is None:
         delta_backward = delta_forward
