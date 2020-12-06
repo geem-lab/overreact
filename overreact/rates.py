@@ -132,7 +132,8 @@ def collins_kimball(k_tst, k_diff):
 def convert_rate_constant(
     val,
     new_scale,
-    old_scale="atm-1 s-1",
+    # the following are the units delivered by rates.eyring
+    old_scale="l mol-1 s-1",
     molecularity=1,
     temperature=298.15,
     pressure=constants.atm,
@@ -169,28 +170,36 @@ def convert_rate_constant(
 
     Examples
     --------
-    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", "m3 mol-1 s-1", molecularity=2)
+    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", "m3 mol-1 s-1",
+    ...                       molecularity=2)
     0.1660e-17
 
-    If `old_scale` is not given, it defaults to ``"atm-1 s-1"``:
+    If `old_scale` is not given, it defaults to ``"l mol-1 s-1"``:
 
-    >>> convert_rate_constant(1.0, "m3 mol-1 s-1", molecularity=2, temperature=1.0)
+    >>> convert_rate_constant(1.0, "m3 mol-1 s-1", molecularity=2)
+    0.001
+
+    There are many options for `old_scale` and `new_scale`:
+
+    >>> convert_rate_constant(1.0, "m3 mol-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=1.0)
     8.21e-5
-    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", molecularity=2,
-    ...                       temperature=1.0)
+    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=1.0)
     13.63e-23
-    >>> convert_rate_constant(1e3, "l mol-1 s-1", molecularity=2, temperature=273.15)
+    >>> convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=273.15)
     22414.
 
     If `old_scale` is the same as `new_scale`, or if the molecularity is one,
     the received value is returned:
 
-    >>> convert_rate_constant(1e3, "atm-1 s-1", "atm-1 s-1", molecularity=2)
-    1e3
-    >>> convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1", molecularity=1)
-    1e3
+    >>> convert_rate_constant(12345, "atm-1 s-1", "atm-1 s-1", molecularity=2)
+    12345
+    >>> convert_rate_constant(67890, "l mol-1 s-1", "atm-1 s-1", molecularity=1)
+    67890
 
-    Below are some examples regarding the accepted alternative symbols:
+    Below are some examples regarding some accepted alternative symbols:
 
     >>> convert_rate_constant(1.0, "M-1 s-1", molecularity=2) \
     ...     == convert_rate_constant(1.0, "l mol-1 s-1", molecularity=2)
@@ -210,7 +219,7 @@ def convert_rate_constant(
     if old_scale == new_scale or np.all(molecularity == 1):
         return val
 
-    # we first convert anything to l mol-1 s-1
+    # we first convert to l mol-1 s-1
     if old_scale == "cm3 mol-1 s-1":
         factor = 1.0 / constants.kilo
     elif old_scale == "l mol-1 s-1":
@@ -231,7 +240,7 @@ def convert_rate_constant(
     else:
         raise ValueError(f"unit not recognized: {old_scale}")
 
-    # now we convert l mol-1 s-1 to anything
+    # now we convert l mol-1 s-1 to what we need
     if new_scale == "cm3 mol-1 s-1":
         factor *= constants.kilo
     elif new_scale == "l mol-1 s-1":

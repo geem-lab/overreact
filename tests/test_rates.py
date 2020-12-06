@@ -80,7 +80,6 @@ def test_basic_example_for_chemical_kinetics():
     k = rates.eyring(
         delta_freeenergy * constants.kcal,
         temperature=temperatures,
-        molecularity=2,
     )
     k = rates.convert_rate_constant(k, "cm3 particle-1 s-1", molecularity=2)
     assert np.log10(k) == pytest.approx(

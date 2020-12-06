@@ -438,8 +438,6 @@ def get_k(
     return rates.convert_rate_constant(
         k,
         new_scale=scale,
-        # the following are the units delivered by eyring
-        old_scale="l mol-1 s-1",
         molecularity=molecularity,
         temperature=temperature,
         pressure=pressure,
