@@ -8,11 +8,11 @@ Ideally, the functions here will be transfered to other modules in the future.
 from functools import lru_cache as cache
 
 import numpy as np
-from scipy.stats import cauchy as _cauchy
-from scipy.stats import norm as _norm
+from scipy.stats import cauchy
+from scipy.stats import norm
 
+import overreact as rx
 from overreact import constants
-from overreact import core as _core
 
 
 def _find_package(package):
@@ -42,9 +42,11 @@ def _find_package(package):
     return module_spec is not None and module_spec.loader is not None
 
 
+_found_jax = _find_package("jax")
+_found_seaborn = _find_package("seaborn")
 _found_thermo = _find_package("thermo")
 if _found_thermo:
-    from thermo.chemical import Chemical as _Chemical
+    from thermo.chemical import Chemical
 
 # Inspired by
 # https://github.com/cclib/cclib/blob/master/cclib/parser/utils.py#L159
@@ -430,7 +432,8 @@ def _check_package(package, found_package):
 
     Raises
     ------
-    ImportError if the package could not be imported.
+    ImportError
+        If the package could not be imported.
 
     Examples
     --------
@@ -444,6 +447,8 @@ def _check_package(package, found_package):
         raise ImportError(f"You must install `{package}` to use this function")
 
 
+# TODO(schneiderfelipe): what does this function returns for identifier="gas"
+# or identifier="solvent"?
 def _get_chemical(
     identifier, temperature=298.15, pressure=constants.atm, *args, **kwargs
 ):
@@ -486,7 +491,7 @@ def _get_chemical(
     # TODO(schneiderfelipe): return a named tuple with only the required data.
     # TODO(schneiderfelipe): support logging the retrieval of data.
     # TODO(schneiderfelipe): test returned parameters.
-    return _Chemical(identifier, temperature, pressure, *args, **kwargs)
+    return Chemical(identifier, temperature, pressure, *args, **kwargs)
 
 
 def broaden_spectrum(
@@ -541,9 +546,9 @@ def broaden_spectrum(
 
     """
     if distribution in {"gaussian", "norm"}:
-        distribution = _norm
+        distribution = norm
     elif distribution in {"lorentzian", "cauchy"}:
-        distribution = _cauchy
+        distribution = cauchy
 
     s = np.sum(
         [
@@ -580,7 +585,7 @@ def totuple(a):
     ((2, 2), (2, -2))
     """
     # we don't touch some types, and this includes namedtuples
-    if isinstance(a, (int, float, str, _core.Scheme)):
+    if isinstance(a, (int, float, str, rx.Scheme)):
         return a
 
     try:
@@ -614,17 +619,17 @@ def halton(num, dim=None, jump=1, cranley_patterson=True):
 
     Examples
     --------
-    >>> halton(10, 3)  # doctest: +SKIP
-    array([[0.48274151, 0.3651573 , 0.3713145 ],
-           [0.98274151, 0.69849064, 0.5713145 ],
-           [0.73274151, 0.03182397, 0.7713145 ],
-           [0.23274151, 0.47626841, 0.9713145 ],
-           [0.60774151, 0.80960175, 0.1713145 ],
-           [0.10774151, 0.14293508, 0.4113145 ],
-           [0.85774151, 0.58737953, 0.6113145 ],
-           [0.35774151, 0.92071286, 0.8113145 ],
-           [0.54524151, 0.25404619, 0.0113145 ],
-           [0.04524151, 0.40219434, 0.2113145 ]])
+    >>> halton(10, 3)  # random  # doctest: +SKIP
+    array([[0.82232931, 0.38217312, 0.01170043],
+           [0.57232931, 0.71550646, 0.21170043],
+           [0.07232931, 0.1599509 , 0.41170043],
+           [0.44732931, 0.49328423, 0.61170043],
+           [0.94732931, 0.82661757, 0.85170043],
+           [0.69732931, 0.27106201, 0.05170043],
+           [0.19732931, 0.60439534, 0.25170043],
+           [0.38482931, 0.93772868, 0.45170043],
+           [0.88482931, 0.08587683, 0.65170043],
+           [0.63482931, 0.41921016, 0.89170043]])
     >>> halton(10, 3, cranley_patterson=False)
     array([[0.5       , 0.33333333, 0.2       ],
            [0.25      , 0.66666667, 0.4       ],

@@ -3,12 +3,12 @@
 """Module dedicated to parsing and modeling of chemical reaction networks."""
 
 from collections import namedtuple
-import itertools as _itertools
+import itertools
 import re
 
 import numpy as np
 
-from overreact import misc as _misc
+import overreact as rx
 
 Scheme = namedtuple("Scheme", "compounds reactions is_half_equilibrium A B")
 
@@ -606,7 +606,7 @@ def parse_reactions(text):
         ) in reactions:
             continue
 
-        for _, compound in _itertools.chain(reactants, products):
+        for _, compound in itertools.chain(reactants, products):
             if compound not in compounds:
                 # found new compound
                 compounds[compound] = len(compounds)
@@ -643,13 +643,13 @@ def parse_reactions(text):
     return Scheme(
         compounds=tuple(compounds),
         reactions=tuple(_unparse_reactions(reactions)),
-        is_half_equilibrium=_misc.totuple([reaction[2] for reaction in reactions]),
-        A=_misc.totuple(
+        is_half_equilibrium=rx.misc.totuple([reaction[2] for reaction in reactions]),
+        A=rx.misc.totuple(
             np.block(
                 [[vector, np.zeros(len(compounds) - len(vector))] for vector in A]
             ).T
         ),
-        B=_misc.totuple(
+        B=rx.misc.totuple(
             np.block(
                 [[vector, np.zeros(len(compounds) - len(vector))] for vector in B]
             ).T

@@ -35,6 +35,8 @@ def calc_trans_energy(temperature=298.15):
     4653.
 
     """
+    temperature = np.asarray(temperature)
+
     translational_energy = 1.5 * constants.R * temperature
     logger.info(f"translational energy = {translational_energy} J/mol")
     return translational_energy
@@ -95,6 +97,8 @@ def calc_elec_energy(energy=0.0, degeneracy=1, temperature=298.15):
     321.00
 
     """
+    temperature = np.asarray(temperature)
+
     min_energy = np.asarray(energy).min()
     if np.isclose(temperature, 0.0):
         logger.warning("assuming ground state as electronic energy at zero temperature")
@@ -170,6 +174,8 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     13.175
 
     """
+    temperature = np.asarray(temperature)
+
     if np.isclose(temperature, 0.0):
         logger.warning("assuming electronic entropy zero at zero temperature")
         return 0.0
@@ -233,6 +239,8 @@ def calc_rot_energy(moments=None, independent=False, weights=1.0, temperature=29
     0.0
 
     """
+    temperature = np.asarray(temperature)
+
     if np.isclose(temperature, 0.0):
         logger.warning("assuming rotational energy zero at zero temperature")
         return 0.0
@@ -345,8 +353,9 @@ def calc_rot_entropy(
     >>> calc_rot_entropy()
     0.0
 
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["water"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     >>> calc_rot_entropy(moments=moments)
     50.03250369082377
@@ -359,6 +368,8 @@ def calc_rot_entropy(
     ...                  atomcoords=data.atomcoords)
     47.1
     """
+    temperature = np.asarray(temperature)
+
     if np.isclose(temperature, 0.0):
         logger.warning("assuming rotational entropy zero at zero temperature")
         return 0.0
@@ -390,10 +401,10 @@ def calc_rot_entropy(
         gamma += np.log(np.pi)
 
     rotational_entropy = constants.R * gamma / 2.0
-    if environment == "gas" or method == "standard":
+    if environment in {"gas", None} or method == "standard":
         pass
     elif environment == "solid":
-        raise ValueError(f"environment not recognized: {environment}")
+        raise ValueError(f"environment not yet implemented: {environment}")
     else:
         assert atomnos is not None
         assert atomcoords is not None
@@ -481,7 +492,9 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
     else:
         weights = 1.0
 
-    gamma = np.sum(weights * vibrational_temperature) / 2.0  # ZPE
+    # the zero point energy (ZPE) is given below
+    gamma = np.sum(weights * vibrational_temperature) / 2.0
+
     if np.isclose(temperature, 0.0):
         logger.warning("assuming zero point as vibrational energy at zero temperature")
     else:
@@ -529,6 +542,8 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
 
     Examples
     --------
+    >>> import overreact as rx
+
     >>> calc_vib_entropy(3374 \
     ...     * constants.k * constants.centi \
     ...     / (constants.h * constants.c))  # nitrogen molecule
@@ -537,6 +552,12 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
     ...     * constants.k * constants.centi / (constants.h * constants.c)
     >>> calc_vib_entropy(vibfreqs)  # CO2
     3.06
+
+    A molecule can be loaded and its vibrational entropy calculated right away:
+
+    >>> data = rx.io.read_logfile("data/hickel1992/UM06-2X/6-311++G(d,p)/NH3·OH.out")
+    >>> 298.15 * calc_vib_entropy(data.vibfreqs) / constants.kcal
+    1.89
 
     If no frequencies are given, an ideal monoatomic gas is assumed:
 
@@ -602,6 +623,8 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
     >>> _sackur_tetrode(18.01528, 0.0993e-30 * constants.N_A)  # water est. free volume
     37.36
     """
+    temperature = np.asarray(temperature)
+
     total_mass = np.sum(atommasses) * constants.atomic_mass
     debroglie_wavelength = constants.h / np.sqrt(
         2.0 * np.pi * total_mass * constants.k * temperature
@@ -874,6 +897,8 @@ def molar_volume(temperature=298.15, pressure=constants.atm):
     >>> molar_volume() / (constants.angstrom ** 3 * constants.N_A)
     40625.758632362515
     """
-    molar_volume = constants.R * np.asarray(temperature) / np.asarray(pressure)
+    temperature = np.asarray(temperature)
+
+    molar_volume = constants.R * temperature / np.asarray(pressure)
     logger.debug(f"molar volume = {molar_volume} Å³")
     return molar_volume

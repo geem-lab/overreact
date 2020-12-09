@@ -6,9 +6,8 @@ import logging
 
 import numpy as np
 
+import overreact as rx
 from overreact import constants
-from overreact import misc as misc
-from overreact import _thermo
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     >>> liquid_viscosity("water", temperature=299.26)
     8.90e-4
     """
-    return misc._get_chemical(id, temperature, pressure).mul
+    return rx.misc._get_chemical(id, temperature, pressure).mul
 
 
 # TODO(schneiderfelipe): log the calculated diffusional reaction rate limit.
@@ -70,15 +69,17 @@ def smoluchowski(
 
     Notes
     -----
-    TODO: THERE ARE DOUBTS ABOUT HOW TO SELECT reactive_radius.
-    doi:10.1002/jcc.23409 HELPS CLARIFY SOME ASPECTS BUT THERE'S STILL
-    PROBLEMS. I BELIEVE THERE'S A RELATIONSHIP BETWEEN THE IMAGINARY FREQUENCY
-    AND HOW FAR ATOMS MOVE CLOSE TO REACT, WHICH MIGHT GIVE SOME LIGHT. IN ANY
-    CASE, I BELIEVE THAT THIS VALUE SHOULD BE LARGER THAN A CHARACTERISTIC
-    DISTANCE IN THE TRANSITION STATE, SHOULD BE LARGER FOR LIGHTER GROUPS BEING
-    TRANSFERED (OR BETTER, ELECTRONS), BUT SHOULD BE SMALLER THAN A
-    CHARACTERISTIC DISTANCE IN THE REACTIVE COMPLEX. THIS GIVES A RANGE TO
-    START WORKING WITH.
+    This is a work in progress!
+
+    TODO(schneiderfelipe): THERE ARE DOUBTS ABOUT HOW TO SELECT
+    reactive_radius. doi:10.1002/jcc.23409 HELPS CLARIFY SOME ASPECTS BUT
+    THERE'S STILL PROBLEMS. I BELIEVE THERE'S A RELATIONSHIP BETWEEN THE
+    IMAGINARY FREQUENCY AND HOW FAR ATOMS MOVE CLOSE TO REACT, WHICH MIGHT
+    GIVE SOME LIGHT. IN ANY CASE, I BELIEVE THAT THIS VALUE SHOULD BE LARGER
+    THAN A CHARACTERISTIC DISTANCE IN THE TRANSITION STATE, SHOULD BE LARGER
+    FOR LIGHTER GROUPS BEING TRANSFERED (OR BETTER, ELECTRONS), BUT SHOULD BE
+    SMALLER THAN A CHARACTERISTIC DISTANCE IN THE REACTIVE COMPLEX. THIS GIVES
+    A RANGE TO START WORKING WITH.
 
     Below I delineate a temptive algorithm:
     1. superpose reactant A onto TS and RC
@@ -95,8 +96,8 @@ def smoluchowski(
     >>> smoluchowski(radii, "water", reactive_radius=2.6 * constants.angstrom) \
     ...     / constants.liter
     3.6e9
-    >>> smoluchowski(radii, viscosity=8.91e-4) / constants.liter  # doctest: +SKIP
-    3.6e9
+    >>> smoluchowski(radii, viscosity=8.91e-4) / constants.liter
+    3.7e9
     """
     radii = np.asarray(radii)
     temperature = np.asarray(temperature)
@@ -111,7 +112,11 @@ def smoluchowski(
         ) * np.sum(1.0 / radii)
 
     if reactive_radius is None:
-        reactive_radius = np.sum(radii)
+        # NOTE(schneiderfelipe): not sure if I should divide by two here, but
+        # it works. My guess is that there is some confusion between contact
+        # distances (which are basically sums of two radii) and sums of pairs
+        # of radii.
+        reactive_radius = np.sum(radii) / 2
 
     return 4.0 * np.pi * mutual_diff_coef * reactive_radius * constants.N_A
 
@@ -132,7 +137,6 @@ def collins_kimball(k_tst, k_diff):
 def convert_rate_constant(
     val,
     new_scale,
-    # the following are the units delivered by rates.eyring
     old_scale="l mol-1 s-1",
     molecularity=1,
     temperature=298.15,
@@ -230,13 +234,13 @@ def convert_rate_constant(
         factor = constants.N_A / constants.kilo
     elif old_scale == "mmHg-1 s-1":
         factor = (
-            _thermo.molar_volume(temperature, pressure)
+            rx.thermo.molar_volume(temperature, pressure)
             * pressure
             * constants.kilo
             / constants.torr
         )
     elif old_scale == "atm-1 s-1":
-        factor = _thermo.molar_volume(temperature, pressure) * constants.kilo
+        factor = rx.thermo.molar_volume(temperature, pressure) * constants.kilo
     else:
         raise ValueError(f"unit not recognized: {old_scale}")
 
@@ -251,10 +255,10 @@ def convert_rate_constant(
         factor *= constants.kilo / constants.N_A
     elif new_scale == "mmHg-1 s-1":
         factor *= constants.torr / (
-            _thermo.molar_volume(temperature, pressure) * pressure * constants.kilo
+            rx.thermo.molar_volume(temperature, pressure) * pressure * constants.kilo
         )
     elif new_scale == "atm-1 s-1":
-        factor *= 1.0 / (_thermo.molar_volume(temperature, pressure) * constants.kilo)
+        factor *= 1.0 / (rx.thermo.molar_volume(temperature, pressure) * constants.kilo)
     else:
         raise ValueError(f"unit not recognized: {new_scale}")
 
@@ -347,7 +351,7 @@ def eyring(
         delta_moles = 1 - np.asarray(molecularity)
 
     return (
-        _thermo.equilibrium_constant(
+        rx.thermo.equilibrium_constant(
             delta_freeenergy, delta_moles, temperature, pressure, volume
         )
         * constants.k

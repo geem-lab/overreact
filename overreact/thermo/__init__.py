@@ -5,13 +5,19 @@
 import logging
 
 import numpy as np
-from scipy.misc import derivative as _derivative
-from scipy.special import factorial as _factorial
+from scipy.misc import derivative
+from scipy.special import factorial
 
+import overreact as rx
 from overreact import constants
-from overreact._thermo import _gas
-from overreact._thermo._gas import molar_volume
-from overreact._thermo import _solv
+from overreact.thermo._gas import calc_elec_energy
+from overreact.thermo._gas import calc_elec_entropy
+from overreact.thermo._gas import calc_rot_energy
+from overreact.thermo._gas import calc_rot_entropy
+from overreact.thermo._gas import calc_trans_energy
+from overreact.thermo._gas import calc_vib_energy
+from overreact.thermo._gas import calc_vib_entropy
+from overreact.thermo._gas import molar_volume
 
 logger = logging.getLogger(__name__)
 
@@ -86,14 +92,14 @@ def calc_trans_entropy(
         logger.warning("assuming translational entropy zero at zero temperature")
         return 0.0
 
-    if environment == "gas" or method == "standard":
+    if environment in {"gas", None} or method == "standard":
         volume = molar_volume(temperature=temperature, pressure=pressure)
     elif environment == "solid":
-        raise ValueError(f"environment not recognized: {environment}")
+        raise ValueError(f"environment not yet implemented: {environment}")
     else:
         assert atomnos is not None
         assert atomcoords is not None
-        volume = _solv.molar_free_volume(
+        volume = rx.thermo._solv.molar_free_volume(
             atomnos=atomnos,
             atomcoords=atomcoords,
             environment=environment,
@@ -102,7 +108,7 @@ def calc_trans_entropy(
             pressure=pressure,
         )
 
-    translational_entropy = _gas._sackur_tetrode(
+    translational_entropy = rx.thermo._gas._sackur_tetrode(
         atommasses, volume, temperature=temperature
     )
     logger.info(f"translational entropy = {translational_entropy} J/mol·K")
@@ -167,10 +173,10 @@ def calc_internal_energy(
 
     """
     internal_energy = (
-        _gas.calc_trans_energy(temperature=temperature)
-        + _gas.calc_elec_energy(energy, degeneracy, temperature=temperature)
-        + _gas.calc_rot_energy(moments, temperature=temperature)
-        + _gas.calc_vib_energy(vibfreqs, qrrho=qrrho, temperature=temperature)
+        calc_trans_energy(temperature=temperature)
+        + calc_elec_energy(energy, degeneracy, temperature=temperature)
+        + calc_rot_energy(moments, temperature=temperature)
+        + calc_vib_energy(vibfreqs, qrrho=qrrho, temperature=temperature)
     )
     logger.info(f"internal energy = {internal_energy} J/mol")
     return internal_energy
@@ -230,10 +236,12 @@ def calc_enthalpy(
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
     >>> calc_enthalpy(energy=energy * 100 * constants.h * constants.c * constants.N_A,
-    ...             degeneracy=degeneracy)  # F
+    ...               degeneracy=degeneracy)  # F
     6518.
 
     """
+    temperature = np.asarray(temperature)
+
     enthalpy = (
         calc_internal_energy(
             energy=energy,
@@ -315,6 +323,10 @@ def calc_entropy(
     float
         Entropy in J/mol·K.
 
+    Notes
+    -----
+    The improved solvation entropy model is a work in progress!
+
     Examples
     --------
     >>> calc_entropy(18.998)  # F
@@ -350,10 +362,10 @@ def calc_entropy(
             temperature=temperature,
             pressure=pressure,
         )
-        + _gas.calc_elec_entropy(
+        + calc_elec_entropy(
             energy=energy, degeneracy=degeneracy, temperature=temperature
         )
-        + _gas.calc_rot_entropy(
+        + calc_rot_entropy(
             atommasses=atommasses,
             atomnos=atomnos,
             atomcoords=atomcoords,
@@ -364,16 +376,16 @@ def calc_entropy(
             temperature=temperature,
             pressure=pressure,
         )
-        + _gas.calc_vib_entropy(vibfreqs=vibfreqs, qrrho=qrrho, temperature=temperature)
+        + calc_vib_entropy(vibfreqs=vibfreqs, qrrho=qrrho, temperature=temperature)
     )
 
-    if environment == "gas":
+    if environment in {"gas", None}:
         pass
     elif environment == "solid":
-        raise ValueError(f"environment not recognized: {environment}")
+        raise ValueError(f"environment not yet implemented: {environment}")
     else:
-        concentration_correction = change_reference_state(
-            sign=-1.0, temperature=temperature, pressure=pressure
+        concentration_correction = -change_reference_state(
+            temperature=temperature, pressure=pressure
         )
         logger.debug(f"concentration correction = {concentration_correction} J/mol·K")
         entropy = entropy + concentration_correction
@@ -384,7 +396,7 @@ def calc_entropy(
             assert atomcoords is not None
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
-            entropy = entropy + _solv.calc_cav_entropy(
+            entropy = entropy + rx.thermo._solv.calc_cav_entropy(
                 atomnos=atomnos,
                 atomcoords=atomcoords,
                 environment=environment,
@@ -467,7 +479,7 @@ def calc_heat_capacity(
             temperature=temperature,
         )
 
-    heat_capacity = _derivative(func, x0=temperature, dx=dx, n=1, order=order)
+    heat_capacity = derivative(func, x0=temperature, dx=dx, n=1, order=order)
     logger.info(f"heat capacity = {heat_capacity} J/mol·K")
     return heat_capacity
 
@@ -642,7 +654,7 @@ def equilibrium_constant(
     same result, by change the reference state (in this case, from one molar
     to one atmosphere):
 
-    >>> dG += temperature * change_reference_state()
+    >>> dG += temperature * rx.change_reference_state()
     >>> equilibrium_constant(dG)
     array([1.002])
 
@@ -679,6 +691,7 @@ def equilibrium_constant(
 
     """
     temperature = np.asarray(temperature)
+
     equilibrium_constant = np.exp(
         -np.atleast_1d(delta_freeenergy) / (constants.R * temperature)
     )
@@ -696,7 +709,7 @@ def equilibrium_constant(
 def change_reference_state(
     new_reference=1.0 / constants.liter,
     old_reference=None,
-    sign=1.0,
+    sign=1,
     temperature=298.15,
     pressure=constants.atm,
     volume=None,
@@ -745,42 +758,44 @@ def change_reference_state(
     The only drawback is that, sometimes, those corrections are written with a
     minus sign in front of them (this implies switching the roles of
     `old_reference` and `new_reference`). The easiest way to accomplish this is
-    by using ``sign=-1``.
+    by using ``sign=-1`` or multiplying the result by ``-1``.
 
     Examples
     --------
     By default, the correction returns a change in concentration from the gas
     phase standard concentration to the solvated state standard concentration:
 
-    >>> change_reference_state(sign=-1.0) / constants.calorie
+    >>> -rx.change_reference_state() / constants.calorie
     -6.4
-    >>> 298.15 * change_reference_state() / constants.kcal
+    >>> 298.15 * rx.change_reference_state() / constants.kcal
     1.89
-    >>> 273.15 * change_reference_state(temperature=273.15) / constants.kcal
+    >>> 273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal
     1.69
 
     This function can also be used to adjust symmetry effects from C1
     calculations (symmetry number equals to one). For D7h, for instance, the
     symmetry number is 14:
 
-    >>> 298.15 * change_reference_state(14, 1, sign=-1) / constants.kcal
+    >>> -298.15 * rx.change_reference_state(14, 1) / constants.kcal
     -1.56
 
+    >>> rx.change_reference_state(sign=-1) == -rx.change_reference_state()
+    True
+
     """
+    temperature = np.asarray(temperature)
+
     if old_reference is None:
         if volume is None:
-            volume = molar_volume(
-                temperature=np.asarray(temperature), pressure=pressure
-            )
+            volume = molar_volume(temperature=temperature, pressure=pressure)
         old_reference = 1.0 / volume
 
     res = sign * constants.R * np.log(new_reference / old_reference)
     return res
 
 
-# TODO(schneiderfelipe): should those functions be plural or singular?
-# TODO(schneiderfelipe): should this function go to api?
-def get_reaction_entropies(transform):
+# TODO(schneiderfelipe): we need a concrete example of this for testing.
+def get_reaction_entropies(transform, temperature=298.15, pressure=constants.atm):
     """Calculate entropy contributions from the overall reaction structure.
 
     This function currently implements the reaction translational entropy, a
@@ -798,6 +813,10 @@ def get_reaction_entropies(transform):
     Parameters
     ----------
     transform : array-like
+    temperature : array-like, optional
+        Absolute temperature in Kelvin.
+    pressure : array-like, optional
+        Reference gas pressure.
 
     Returns
     -------
@@ -805,13 +824,38 @@ def get_reaction_entropies(transform):
 
     Examples
     --------
-    >>> from overreact import api
-    >>> scheme = api.parse_reactions("A + B <=> C")
+    >>> import overreact as rx
+
+    >>> scheme = rx.parse_reactions("A + B <=> C")
     >>> get_reaction_entropies(scheme.A)
     array([0.0, 0.0])
-    >>> scheme = api.parse_reactions("2A <=> C")
+    >>> scheme = rx.parse_reactions("2A <=> C")
     >>> get_reaction_entropies(scheme.A)
     array([-5.763, 5.763])
+    >>> get_reaction_entropies(scheme.A, temperature=400.0)
+    array([-5.763, 5.763])
+
+    >>> scheme = rx.parse_reactions("A <=> B + C")
+    >>> get_reaction_entropies(scheme.A)
+    array([0.0, 0.0])
+    >>> scheme = rx.parse_reactions("A <=> 2B")
+    >>> get_reaction_entropies(scheme.A)
+    array([ 5.763, -5.763])
+
+    >>> scheme = rx.parse_reactions("A + B -> E# -> C")
+    >>> get_reaction_entropies(scheme.A)
+    array([0.0])
+    >>> get_reaction_entropies(scheme.B)
+    array([0.0])
+    >>> scheme = rx.parse_reactions("2A -> E# -> C")
+    >>> get_reaction_entropies(scheme.A)
+    array([-5.763])
+    >>> get_reaction_entropies(scheme.B)
+    array([-5.763])
     """
-    sym = _factorial(np.abs(np.asarray(transform)))
-    return np.sum(np.sign(transform) * change_reference_state(sym, 1), axis=0)
+    sym = factorial(np.abs(np.asarray(transform)))
+    return np.sum(
+        np.sign(transform)
+        * change_reference_state(sym, 1, temperature=temperature, pressure=pressure),
+        axis=0,
+    )

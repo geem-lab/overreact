@@ -4,7 +4,7 @@
 
 import os
 
-from overreact import io
+import overreact as rx
 
 data_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "../data/"))
 
@@ -13,8 +13,8 @@ logfiles = {}
 for name in os.listdir(data_path):
     walk_dir = os.path.join(data_path, name)
     if os.path.isdir(walk_dir):
-        logfiles[name] = io._LazyDict()
-        logfiles[name]._function = io.read_logfile
+        logfiles[name] = rx.io._LazyDict()
+        logfiles[name]._function = rx.io.read_logfile
         for root, _, files in os.walk(walk_dir):
             for filename in files:
                 if filename.endswith(".out"):

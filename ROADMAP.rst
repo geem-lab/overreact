@@ -39,12 +39,6 @@ I use flake8 to ensure style. The following plugins are used:
 I use black to ensure formatting. flake8 configuration is such that it is
 minimally compatible with black.
 
-TODO
-----
-
-[ ] Ensure raises are correct and documented.
-[ ] Select which functions are exposed in the final API.
-
 Extras #1
 ---------
 
@@ -58,17 +52,6 @@ citation here).
 - I believe the slowest rate constant of an equilibrium should probably be 10
   to 1000 times faster than the fastest reaction constant, but this might
   depend on a case-by-case basis, so the user should have some freedom here
-
-Extras #2
----------
-
-TODO: promote reproducible science and get citations at the same time:
-generate a state file (checkpoint? choose a pretty name) that has all the
-basic data to reproduce anything. Things can be remade, retested, shared, etc
-with it. Furthermore, it might be useful locally as well if, as we override
-it by doing a similar calculation (e.g. in the same folder), we first check
-if files have changed (by, say, a hash) and only reread what has changed
-(say, because it has been recalculated).
 
 The future CLI
 --------------
@@ -158,7 +141,7 @@ in the future.
 
     // All compound below will be read and the analysis will be made for all of
     // common temperatures in the logfiles. Logfiles are check for having the
-    // same level of theory if possible (here MP2/6-311G(3d,2p)).
+    // same level of theory if possible (here UMP2/6-311G(3d,2p)).
     $compounds
      [H3C·H·Cl]‡:
        logfile=ch4cl_ts_mp2_3d2p.out
