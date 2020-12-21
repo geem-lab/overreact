@@ -3,18 +3,18 @@
 """Module dedicated to classifying molecules into point groups."""
 
 import logging
-import re as _re
+import re
 
 import numpy as np
-from scipy.cluster.hierarchy import fcluster as _fcluster
-from scipy.cluster.hierarchy import linkage as _linkage
-from scipy.spatial import cKDTree as _KDTree
-from scipy.spatial.distance import pdist as _pdist
-from scipy.spatial.distance import squareform as _squareform
-from scipy.spatial.transform import Rotation as _Rotation
+from scipy.cluster.hierarchy import fcluster
+from scipy.cluster.hierarchy import linkage
+from scipy.spatial import cKDTree as KDTree
+from scipy.spatial.distance import pdist
+from scipy.spatial.distance import squareform
+from scipy.spatial.transform import Rotation
 
+import overreact as rx
 from overreact import constants
-from overreact import misc
 
 logger = logging.getLogger(__name__)
 
@@ -70,9 +70,9 @@ def get_molecular_volume(
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
+    >>> from overreact import datasets
 
-    >>> data = logfiles["symmetries"]["dihydrogen"]
+    >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
     8.4
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
@@ -81,7 +81,7 @@ def get_molecular_volume(
     >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)
     (8.4, 61., 0.1)
 
-    >>> data = logfiles["symmetries"]["water"]
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
     18.
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
@@ -93,11 +93,11 @@ def get_molecular_volume(
     ...                      environment="benzene")
     (18., 301., 0.1)
 
-    >>> data = logfiles["symmetries"]["benzene"]
+    >>> data = datasets.logfiles["symmetries"]["benzene"]
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
     80.
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
-    ...                      full_output=True)  # doctest: +SKIP
+    ...                      full_output=True)
     (80., 115., 0.1)
     >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)
     (80., 240., 0.1)
@@ -118,9 +118,9 @@ def get_molecular_volume(
     if full_output and method == "izato":
         cav_volumes = []
     for _ in range(trials):
-        points = misc.halton(n, 3)
+        points = rx.misc.halton(n, 3)
         points = v1 + points * (v2 - v1)
-        tree = _KDTree(points)
+        tree = KDTree(points)
 
         within_vdw = set()
         if full_output and method == "izato":
@@ -194,29 +194,29 @@ def _garza(
     24.319540062148373
     >>> _garza(1.0, full_output=True)
     (24.319540062148373, 1.8152561408352508, 0.3507458151874175)
-    >>> _garza(10.0)  # doctest: +SKIP
+    >>> _garza(10.0)
     66.51277879775996
-    >>> _garza(10.0, full_output=True)  # doctest: +SKIP
+    >>> _garza(10.0, full_output=True)
     (66.51277879775996, 1.0, 0.7556589516232841)
-    >>> _garza(100.0)  # doctest: +SKIP
+    >>> _garza(100.0)
     279.5765661525939
-    >>> _garza(100.0, full_output=True)  # doctest: +SKIP
+    >>> _garza(100.0, full_output=True)
     (279.5765661525939, 1.0, 1.6280178592103285)
 
-    >>> _garza(1.0, environment="benzene")  # doctest: +SKIP
+    >>> _garza(1.0, environment="benzene")
     131.79158378480162
-    >>> _garza(1.0, full_output=True, environment="benzene")  # doctest: +SKIP
+    >>> _garza(1.0, full_output=True, environment="benzene")
     (131.79158378480162, 3.3498456246522053, 0.23178825099342945)
     >>> _garza(10.0, environment="benzene")
     243.36764121314235
-    >>> _garza(10.0, full_output=True, environment="benzene")  # doctest: +SKIP
+    >>> _garza(10.0, full_output=True, environment="benzene")
     (243.36764121314235, 3.2919877091756504, 0.49937264868206155)
     >>> _garza(100.0, environment="benzene")
     665.4646143809224
-    >>> _garza(100.0, full_output=True, environment="benzene")  # doctest: +SKIP
+    >>> _garza(100.0, full_output=True, environment="benzene")
     (665.4646143809224, 1.0, 1.0758657575737383)
     """
-    solvent = misc._get_chemical(environment, temperature, pressure)
+    solvent = rx.misc._get_chemical(environment, temperature, pressure)
 
     # TODO(schneiderfelipe): things to do:
     # 1. check correctness of this function,
@@ -310,7 +310,7 @@ def symmetry_number(point_group):
     elif point_group in {"c60", "c60v", "c60h", "d30", "d30d", "d30h", "s120", "ih"}:
         symmetry_number = 60
     else:
-        pieces = _re.match(
+        pieces = re.match(
             r"(?P<letter>[^\s]+)(?P<number>\d+)(?P<type>[^\s]+)?", point_group
         ).groupdict()
 
@@ -706,8 +706,9 @@ def _get_proper_axes(
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["diborane"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["diborane"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
@@ -922,8 +923,9 @@ def _get_improper_axes(
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["tanaka1996"]["methane@UMP2/6-311G(2df,2pd)"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["tanaka1996"]["methane@UMP2/cc-pVTZ"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
@@ -1063,8 +1065,9 @@ def _get_mirror_planes(
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["1-iodo-2-chloroethylene"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["1-iodo-2-chloroethylene"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
@@ -1246,7 +1249,7 @@ def _is_symmetric(atomcoords, op, rtol=0.0, atol=1.0e-2, slack=10.256):
     rtol, atol = slack * rtol, slack * atol
     inner_slack = 1.055
 
-    tree = _KDTree(atomcoords)
+    tree = KDTree(atomcoords)
     d, i = tree.query(atomcoords @ op.T)
 
     return (
@@ -1323,7 +1326,7 @@ def _operation(name, order=2, axis=None):
         axis = axis / np.linalg.norm(axis)
 
         if name in {"c", "s"}:
-            rotation = _Rotation.from_rotvec(2.0 * np.pi * axis / order).as_matrix()
+            rotation = Rotation.from_rotvec(2.0 * np.pi * axis / order).as_matrix()
         if name in {"σ", "sigma", "s"}:
             reflection = np.eye(3) - 2.0 * np.outer(axis, axis)
         if name == "c":
@@ -1471,14 +1474,15 @@ def gyradius(atommasses, atomcoords, method="iupac"):
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["tanaka1996"]["CH3·@UMP2/6-311G(2df,2pd)"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["tanaka1996"]["CH3·@UMP2/cc-pVTZ"]
     >>> gyradius(data.atommasses, data.atomcoords)
     0.481
     >>> gyradius(data.atommasses, data.atomcoords, method="mean")
     0.93
 
-    >>> data = logfiles["symmetries"]["water"]
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> gyradius(data.atommasses, data.atomcoords)
     0.31915597673891866
     >>> gyradius(np.ones_like(data.atommasses), data.atomcoords)
@@ -1604,10 +1608,15 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     array-like
         Complete Hessian matrix in cartesian coordinates.
 
+    Notes
+    -----
+    This is a work in progress!
+
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["water"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> H = calc_hessian(data.atommasses, data.atomcoords, data.vibfreqs, data.vibdisps)
     >>> calc_vibfreqs(H, data.atommasses)  # doctest: +SKIP
     array([1619.1, 3671.7, 3769.1])
@@ -1681,8 +1690,9 @@ def calc_vibfreqs(hessian, atommasses):
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["water"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> calc_vibfreqs(data.hessian, data.atommasses)
     array([1619.1, 3671.7, 3769.1])
     """
@@ -1722,16 +1732,17 @@ def eckart_transform(atommasses, atomcoords):
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["tanaka1996"]["Cl·@UMP2/6-311G(2df,2pd)"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["tanaka1996"]["Cl·@UMP2/cc-pVTZ"]
     >>> eckart_transform(data.atommasses, data.atomcoords)
     array([[1., 0., 0.],
            [0., 1., 0.],
            [0., 0., 1.]])
-    >>> data = logfiles["symmetries"]["dihydrogen"]
+    >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
     >>> eckart_transform(data.atommasses, data.atomcoords)
     array([[...]])
-    >>> data = logfiles["symmetries"]["water"]
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> eckart_transform(data.atommasses, data.atomcoords)
     array([[-9.42386999e-01,  0.00000000e+00,  0.00000000e+00,
              2.99716727e-01, -2.86166258e-06, -7.42376895e-02,
@@ -1876,7 +1887,7 @@ def _equivalent_atoms(
         return groups
 
     if method == "cluster":
-        D = _squareform(_pdist(atomcoords))
+        D = squareform(pdist(atomcoords))
         # mu = np.outer(atommasses, atommasses) / np.add.outer(
         #     atommasses, atommasses
         # )  # reduced masses
@@ -1887,8 +1898,8 @@ def _equivalent_atoms(
         delta = np.sqrt(np.sum(D ** 2, axis=0))
 
         criteria = np.block([[omega], [sigma], [delta]]).T
-        Z = _linkage(_pdist(criteria), method="single")
-        clusters = _fcluster(Z, thresh, criterion="distance")
+        Z = linkage(pdist(criteria), method="single")
+        clusters = fcluster(Z, thresh, criterion="distance")
 
         # TODO(schneiderfelipe): this was for debug and should evtl. be removed.
         if plot:

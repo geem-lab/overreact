@@ -2,11 +2,14 @@
 
 """Module dedicated to the calculation of reaction rate constants."""
 
+import logging
+
 import numpy as np
 
+import overreact as rx
 from overreact import constants
-from overreact import misc as misc
-from overreact import _thermo
+
+logger = logging.getLogger(__name__)
 
 
 @np.vectorize
@@ -33,7 +36,7 @@ def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     >>> liquid_viscosity("water", temperature=299.26)
     8.90e-4
     """
-    return misc._get_chemical(id, temperature, pressure).mul
+    return rx.misc._get_chemical(id, temperature, pressure).mul
 
 
 # TODO(schneiderfelipe): log the calculated diffusional reaction rate limit.
@@ -66,15 +69,17 @@ def smoluchowski(
 
     Notes
     -----
-    TODO: THERE ARE DOUBTS ABOUT HOW TO SELECT reactive_radius.
-    doi:10.1002/jcc.23409 HELPS CLARIFY SOME ASPECTS BUT THERE'S STILL
-    PROBLEMS. I BELIEVE THERE'S A RELATIONSHIP BETWEEN THE IMAGINARY FREQUENCY
-    AND HOW FAR ATOMS MOVE CLOSE TO REACT, WHICH MIGHT GIVE SOME LIGHT. IN ANY
-    CASE, I BELIEVE THAT THIS VALUE SHOULD BE LARGER THAN A CHARACTERISTIC
-    DISTANCE IN THE TRANSITION STATE, SHOULD BE LARGER FOR LIGHTER GROUPS BEING
-    TRANSFERED (OR BETTER, ELECTRONS), BUT SHOULD BE SMALLER THAN A
-    CHARACTERISTIC DISTANCE IN THE REACTIVE COMPLEX. THIS GIVES A RANGE TO
-    START WORKING WITH.
+    This is a work in progress!
+
+    TODO(schneiderfelipe): THERE ARE DOUBTS ABOUT HOW TO SELECT
+    reactive_radius. doi:10.1002/jcc.23409 HELPS CLARIFY SOME ASPECTS BUT
+    THERE'S STILL PROBLEMS. I BELIEVE THERE'S A RELATIONSHIP BETWEEN THE
+    IMAGINARY FREQUENCY AND HOW FAR ATOMS MOVE CLOSE TO REACT, WHICH MIGHT
+    GIVE SOME LIGHT. IN ANY CASE, I BELIEVE THAT THIS VALUE SHOULD BE LARGER
+    THAN A CHARACTERISTIC DISTANCE IN THE TRANSITION STATE, SHOULD BE LARGER
+    FOR LIGHTER GROUPS BEING TRANSFERED (OR BETTER, ELECTRONS), BUT SHOULD BE
+    SMALLER THAN A CHARACTERISTIC DISTANCE IN THE REACTIVE COMPLEX. THIS GIVES
+    A RANGE TO START WORKING WITH.
 
     Below I delineate a temptive algorithm:
     1. superpose reactant A onto TS and RC
@@ -91,8 +96,8 @@ def smoluchowski(
     >>> smoluchowski(radii, "water", reactive_radius=2.6 * constants.angstrom) \
     ...     / constants.liter
     3.6e9
-    >>> smoluchowski(radii, viscosity=8.91e-4) / constants.liter  # doctest: +SKIP
-    3.6e9
+    >>> smoluchowski(radii, viscosity=8.91e-4) / constants.liter
+    3.7e9
     """
     radii = np.asarray(radii)
     temperature = np.asarray(temperature)
@@ -107,7 +112,11 @@ def smoluchowski(
         ) * np.sum(1.0 / radii)
 
     if reactive_radius is None:
-        reactive_radius = np.sum(radii)
+        # NOTE(schneiderfelipe): not sure if I should divide by two here, but
+        # it works. My guess is that there is some confusion between contact
+        # distances (which are basically sums of two radii) and sums of pairs
+        # of radii.
+        reactive_radius = np.sum(radii) / 2
 
     return 4.0 * np.pi * mutual_diff_coef * reactive_radius * constants.N_A
 
@@ -128,7 +137,7 @@ def collins_kimball(k_tst, k_diff):
 def convert_rate_constant(
     val,
     new_scale,
-    old_scale="atm-1 s-1",
+    old_scale="l mol-1 s-1",
     molecularity=1,
     temperature=298.15,
     pressure=constants.atm,
@@ -165,28 +174,36 @@ def convert_rate_constant(
 
     Examples
     --------
-    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", "m3 mol-1 s-1", molecularity=2)
+    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", "m3 mol-1 s-1",
+    ...                       molecularity=2)
     0.1660e-17
 
-    If `old_scale` is not given, it defaults to ``"atm-1 s-1"``:
+    If `old_scale` is not given, it defaults to ``"l mol-1 s-1"``:
 
-    >>> convert_rate_constant(1.0, "m3 mol-1 s-1", molecularity=2, temperature=1.0)
+    >>> convert_rate_constant(1.0, "m3 mol-1 s-1", molecularity=2)
+    0.001
+
+    There are many options for `old_scale` and `new_scale`:
+
+    >>> convert_rate_constant(1.0, "m3 mol-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=1.0)
     8.21e-5
-    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", molecularity=2,
-    ...                       temperature=1.0)
+    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=1.0)
     13.63e-23
-    >>> convert_rate_constant(1e3, "l mol-1 s-1", molecularity=2, temperature=273.15)
+    >>> convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=273.15)
     22414.
 
     If `old_scale` is the same as `new_scale`, or if the molecularity is one,
     the received value is returned:
 
-    >>> convert_rate_constant(1e3, "atm-1 s-1", "atm-1 s-1", molecularity=2)
-    1e3
-    >>> convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1", molecularity=1)
-    1e3
+    >>> convert_rate_constant(12345, "atm-1 s-1", "atm-1 s-1", molecularity=2)
+    12345
+    >>> convert_rate_constant(67890, "l mol-1 s-1", "atm-1 s-1", molecularity=1)
+    67890
 
-    Below are some examples regarding the accepted alternative symbols:
+    Below are some examples regarding some accepted alternative symbols:
 
     >>> convert_rate_constant(1.0, "M-1 s-1", molecularity=2) \
     ...     == convert_rate_constant(1.0, "l mol-1 s-1", molecularity=2)
@@ -206,7 +223,7 @@ def convert_rate_constant(
     if old_scale == new_scale or np.all(molecularity == 1):
         return val
 
-    # we first convert anything to l mol-1 s-1
+    # we first convert to l mol-1 s-1
     if old_scale == "cm3 mol-1 s-1":
         factor = 1.0 / constants.kilo
     elif old_scale == "l mol-1 s-1":
@@ -217,17 +234,17 @@ def convert_rate_constant(
         factor = constants.N_A / constants.kilo
     elif old_scale == "mmHg-1 s-1":
         factor = (
-            _thermo.molar_volume(temperature, pressure)
+            rx.thermo.molar_volume(temperature, pressure)
             * pressure
             * constants.kilo
             / constants.torr
         )
     elif old_scale == "atm-1 s-1":
-        factor = _thermo.molar_volume(temperature, pressure) * constants.kilo
+        factor = rx.thermo.molar_volume(temperature, pressure) * constants.kilo
     else:
         raise ValueError(f"unit not recognized: {old_scale}")
 
-    # now we convert l mol-1 s-1 to anything
+    # now we convert l mol-1 s-1 to what we need
     if new_scale == "cm3 mol-1 s-1":
         factor *= constants.kilo
     elif new_scale == "l mol-1 s-1":
@@ -238,19 +255,21 @@ def convert_rate_constant(
         factor *= constants.kilo / constants.N_A
     elif new_scale == "mmHg-1 s-1":
         factor *= constants.torr / (
-            _thermo.molar_volume(temperature, pressure) * pressure * constants.kilo
+            rx.thermo.molar_volume(temperature, pressure) * pressure * constants.kilo
         )
     elif new_scale == "atm-1 s-1":
-        factor *= 1.0 / (_thermo.molar_volume(temperature, pressure) * constants.kilo)
+        factor *= 1.0 / (rx.thermo.molar_volume(temperature, pressure) * constants.kilo)
     else:
         raise ValueError(f"unit not recognized: {new_scale}")
 
-    return val * factor ** (molecularity - 1)
+    factor **= molecularity - 1
+    logger.info(f"conversion factor ({old_scale} to {new_scale}) = {factor}")
+    return val * factor
 
 
 def eyring(
     delta_freeenergy,
-    molecularity=1,
+    molecularity=None,
     temperature=298.15,
     pressure=constants.atm,
     volume=None,
@@ -272,39 +291,67 @@ def eyring(
     Parameters
     ----------
     delta_freeenergy : array-like
+        Delta Gibbs activation free energies. This assumes values were already
+        corrected for a one molar reference state.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
+        If set, this is used to calculate `delta_moles` for
+        `equilibrium_constant`, which effectively calculates a solution
+        equilibrium constant between reactants and the transition state for
+        gas phase data. You should set this to `None` if your free energies
+        were already adjusted for solution Gibbs free energies.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
         Reference gas pressure.
     volume : float, optional
-        Molar volume.
+        Molar volume. This is passed on to `equilibrium_constant`.
 
     Returns
     -------
     k : array-like
-        Reaction rate constant(s). Units assume atm as the base for
-        concentration units.
+        Reaction rate constant(s). By giving energies in one molar reference
+        state, returned units are then accordingly given, e.g. "l mol-1 s-1"
+        if second-order, etc.
 
     Notes
     -----
-    The end result is multiplied by :math:`\left( \frac{p}{R T} \right)^{\Delta n}` (for
-    one atmosphere and chosen temperature), where the difference in moles is calculated
-    from the reaction molecularity.
+    This function uses `equilibrium_constant` internally.
 
     Examples
     --------
-    >>> eyring(17.26 * constants.kcal)  # unimolecular, s-1
-    1.38
-    >>> eyring(18.86 * constants.kcal)  # unimolecular, s-1
-    0.093
+    The following are examples from <https://gaussian.com/thermo/>, in which
+    the kinetic isotope effect of a bimolecular reaction is analyzed:
+
+    >>> eyring(17.26 * constants.kcal)
+    array([1.38])
+    >>> eyring(18.86 * constants.kcal)
+    array([0.093])
+
+    It is well known that, at room temperature, when you decrease a reaction
+    barrier by 1.4 kcal/mol, the reaction becomes ten times faster:
+
+    >>> dG = np.random.uniform(1.0, 100.0) * constants.kcal
+    >>> eyring(dG - 1.4 * constants.kcal) / eyring(dG)
+    array([10.])
+
+    A similar relationship is found for a twofold increase in speed and a
+    0.4 kcal/mol decrease in the reaction barrier (again, at room
+    temperature):
+
+    >>> eyring(dG - 0.4 * constants.kcal) / eyring(dG)
+    array([2.0])
+
     """
     temperature = np.asarray(temperature)
     delta_freeenergy = np.asarray(delta_freeenergy)
-    delta_moles = 1 - molecularity
+
+    delta_moles = None
+    if molecularity is not None:
+        delta_moles = 1 - np.asarray(molecularity)
+
     return (
-        _thermo.equilibrium_constant(
+        rx.thermo.equilibrium_constant(
             delta_freeenergy, delta_moles, temperature, pressure, volume
         )
         * constants.k

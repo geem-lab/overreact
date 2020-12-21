@@ -4,8 +4,8 @@
 
 import pytest
 
+import overreact as rx
 from overreact import constants
-from overreact import _thermo
 
 
 def test_reference_raw_constants():
@@ -22,7 +22,7 @@ def test_reference_raw_constants():
     assert constants.hartree == pytest.approx(4.35974434e-18)
     assert constants.c / constants.centi == pytest.approx(2.99792458e10)
     assert constants.k == pytest.approx(1.3806488e-23)
-    assert _thermo.molar_volume(
+    assert rx.thermo.molar_volume(
         temperature=273.15, pressure=constants.bar
     ) == pytest.approx(0.022710953)
 

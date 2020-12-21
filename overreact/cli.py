@@ -20,14 +20,17 @@ from rich.table import Table
 from rich.table import Column
 from rich.text import Text
 
-from overreact import __version__
-from overreact import api
+import overreact as rx
+from overreact import coords
 from overreact import constants
-from overreact import core
-from overreact import io
+from overreact.misc import _found_seaborn
+
+if _found_seaborn:
+    import seaborn as sns
+
+    sns.set(style="white", palette="colorblind")
 
 
-# TODO(schneiderfelipe): test this class
 class Report:
     """Produce a report object based on a model.
 
@@ -45,7 +48,7 @@ class Report:
     Examples
     --------
     >>> from rich import print
-    >>> model = api.parse_model("data/ethane/B97-3c/model.jk")
+    >>> model = rx.parse_model("data/ethane/B97-3c/model.jk")
     >>> print(Report(model))
     ╭──────────────────╮
     │ (read) reactions │
@@ -73,6 +76,7 @@ class Report:
         plot=None,
         qrrho=True,
         temperature=298.15,
+        pressure=constants.atm,
         bias=0.0,
         tunneling="eckart",
         method="Radau",
@@ -87,6 +91,8 @@ class Report:
         self.plot = plot
         self.qrrho = qrrho
         self.temperature = temperature
+        # TODO(schneiderfelipe): use pressure throughout
+        self.pressure = pressure
         self.bias = bias
         self.tunneling = tunneling
         self.method = method
@@ -119,17 +125,17 @@ class Report:
         ------
         renderable
         """
-        scheme = core._check_scheme(self.model.scheme)
+        scheme = rx.core._check_scheme(self.model.scheme)
 
         raw_table = Table(
             title="(read) reactions", box=self.box_style, show_header=False
         )
         raw_table.add_column(justify="left")
-        for r in core.unparse_reactions(scheme).split("\n"):
+        for r in rx.core.unparse_reactions(scheme).split("\n"):
             raw_table.add_row(r)
         yield Panel(raw_table, expand=False)
 
-        transition_states = core.get_transition_states(
+        transition_states = rx.core.get_transition_states(
             scheme.A, scheme.B, scheme.is_half_equilibrium
         )
 
@@ -186,6 +192,7 @@ class Report:
             Column("elec. energy\n\[Eₕ]", justify="center"),
             Column("spin mult.", justify="center"),
             Column("smallest vibfreqs\n\[cm⁻¹]", justify="center"),
+            Column("point group", justify="center"),
             title="compounds",
             box=self.box_style,
         )
@@ -206,12 +213,17 @@ class Report:
                     ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
                 )
                 vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
+
+            point_group = coords.find_point_group(
+                atommasses=data.atommasses, atomcoords=data.atomcoords
+            )
             compounds_table.add_row(
                 f"{i:d}",
                 name,
                 f"{data.energy / (constants.hartree * constants.N_A):17.12f}",
                 f"{data.mult}",
                 vibfreqs_text,
+                point_group,
             )
         yield logfiles_table
         yield compounds_table
@@ -225,7 +237,7 @@ class Report:
         ------
         renderable
         """
-        scheme = core._check_scheme(self.model.scheme)
+        scheme = rx.core._check_scheme(self.model.scheme)
 
         molecular_masses = np.array(
             [np.sum(data.atommasses) for name, data in self.model.compounds.items()]
@@ -233,23 +245,23 @@ class Report:
         energies = np.array(
             [data.energy for name, data in self.model.compounds.items()]
         )
-        internal_energies = api.get_internal_energies(
+        internal_energies = rx.get_internal_energies(
             self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
         )
-        enthalpies = api.get_enthalpies(
+        enthalpies = rx.get_enthalpies(
             self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
         )
-        entropies = api.get_entropies(
+        entropies = rx.get_entropies(
             self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
         )
         freeenergies = enthalpies - self.temperature * entropies
         assert np.allclose(
             freeenergies,
-            api.get_freeenergies(
+            rx.get_freeenergies(
                 self.model.compounds,
                 qrrho=self.qrrho,
                 temperature=self.temperature,
-                # pressure=pressure,
+                pressure=self.pressure,
             ),
         )
 
@@ -261,7 +273,7 @@ class Report:
             Column("Uᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
             Column("Hᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
             Column("S\n\[cal/mol·K]", justify="center"),
-            title="calculated thermochemistry (compounds)",
+            title="estimated thermochemistry (compounds)",
             box=self.box_style,
         )
         for i, (name, data) in enumerate(self.model.compounds.items()):
@@ -276,36 +288,44 @@ class Report:
             )
         yield compounds_table
 
-        delta_mass = api.get_delta(scheme.A, molecular_masses)
-        delta_energies = api.get_delta(scheme.A, energies)
-        delta_internal_energies = api.get_delta(scheme.A, internal_energies)
-        delta_enthalpies = api.get_delta(scheme.A, enthalpies)
+        delta_mass = rx.get_delta(scheme.A, molecular_masses)
+        delta_energies = rx.get_delta(scheme.A, energies)
+        delta_internal_energies = rx.get_delta(scheme.A, internal_energies)
+        delta_enthalpies = rx.get_delta(scheme.A, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_entropies = api.get_delta(
-            scheme.A, entropies
-        ) + api.get_reaction_entropies(scheme.A)
+        delta_entropies = rx.get_delta(scheme.A, entropies) + rx.get_reaction_entropies(
+            scheme.A, temperature=self.temperature, pressure=self.pressure
+        )
         delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
         assert np.allclose(
             delta_freeenergies,
-            api.get_delta(scheme.A, freeenergies)
-            - self.temperature * api.get_reaction_entropies(scheme.A),
+            rx.get_delta(scheme.A, freeenergies)
+            - self.temperature
+            * rx.get_reaction_entropies(
+                scheme.A, temperature=self.temperature, pressure=self.pressure
+            ),
         )
 
-        delta_activation_mass = api.get_delta(scheme.B, molecular_masses)
-        delta_activation_energies = api.get_delta(scheme.B, energies)
-        delta_activation_internal_energies = api.get_delta(scheme.B, internal_energies)
-        delta_activation_enthalpies = api.get_delta(scheme.B, enthalpies)
+        delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
+        delta_activation_energies = rx.get_delta(scheme.B, energies)
+        delta_activation_internal_energies = rx.get_delta(scheme.B, internal_energies)
+        delta_activation_enthalpies = rx.get_delta(scheme.B, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_activation_entropies = api.get_delta(
+        delta_activation_entropies = rx.get_delta(
             scheme.B, entropies
-        ) + api.get_reaction_entropies(scheme.B)
+        ) + rx.get_reaction_entropies(
+            scheme.B, temperature=self.temperature, pressure=self.pressure
+        )
         delta_activation_freeenergies = (
             delta_activation_enthalpies - self.temperature * delta_activation_entropies
         )
         assert np.allclose(
             delta_activation_freeenergies,
-            api.get_delta(scheme.B, freeenergies)
-            - self.temperature * api.get_reaction_entropies(scheme.B),
+            rx.get_delta(scheme.B, freeenergies)
+            - self.temperature
+            * rx.get_reaction_entropies(
+                scheme.B, temperature=self.temperature, pressure=self.pressure
+            ),
         )
 
         circ_table = Table(
@@ -317,7 +337,7 @@ class Report:
             Column("ΔU°\n\[kcal/mol]", justify="center"),
             Column("ΔH°\n\[kcal/mol]", justify="center"),
             Column("ΔS°\n\[cal/mol·K]", justify="center"),
-            title="calculated (reaction°) thermochemistry",
+            title="estimated (reaction°) thermochemistry",
             box=self.box_style,
         )
         dagger_table = Table(
@@ -329,7 +349,7 @@ class Report:
             Column("ΔU‡\n\[kcal/mol]", justify="center"),
             Column("ΔH‡\n\[kcal/mol]", justify="center"),
             Column("ΔS‡\n\[cal/mol·K]", justify="center"),
-            title="calculated (activation‡) thermochemistry",
+            title="estimated (activation‡) thermochemistry",
             box=self.box_style,
         )
         for i, reaction in enumerate(scheme.reactions):
@@ -394,34 +414,44 @@ class Report:
         # diffusion control).
         # TODO(schneiderfelipe): use pressure.
         k = {
-            "M⁻ⁿ⁺¹·s⁻¹": api.get_k(
+            "M⁻ⁿ⁺¹·s⁻¹": rx.get_k(
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
                 tunneling=self.tunneling,
                 qrrho=self.qrrho,
-                temperature=self.temperature,
                 scale="l mol-1 s-1",
+                temperature=self.temperature,
+                pressure=self.pressure,
             ),
-            "(cm³/particle)ⁿ⁻¹·s⁻¹": api.get_k(
+            "(cm³/particle)ⁿ⁻¹·s⁻¹": rx.get_k(
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
                 tunneling=self.tunneling,
                 qrrho=self.qrrho,
-                temperature=self.temperature,
                 scale="cm3 particle-1 s-1",
+                temperature=self.temperature,
+                pressure=self.pressure,
             ),
-            "atm⁻ⁿ⁺¹·s⁻¹": api.get_k(
+            "atm⁻ⁿ⁺¹·s⁻¹": rx.get_k(
                 self.model.scheme,
                 self.model.compounds,
                 bias=self.bias,
                 tunneling=self.tunneling,
                 qrrho=self.qrrho,
-                temperature=self.temperature,
                 scale="atm-1 s-1",
+                temperature=self.temperature,
+                pressure=self.pressure,
             ),
         }
+        kappa = rx.get_kappa(
+            self.model.scheme,
+            self.model.compounds,
+            method=self.tunneling,
+            qrrho=self.qrrho,
+            temperature=self.temperature,
+        )
 
         kinetics_table = Table(
             *(
@@ -431,14 +461,20 @@ class Report:
                     Column("half equilib.?", justify="center"),
                 ]
                 + [Column(f"k\n\[{scale}]", justify="center") for scale in k]
+                + [Column("κ", justify="center")]
             ),
-            title="calculated reaction rate constants",
+            title="estimated reaction rate constants",
             box=self.box_style,
         )
         for i, reaction in enumerate(self.model.scheme.reactions):
-            row = [f"{i:d}", reaction, "No"] + [f"{k[scale][i]:.3g}" for scale in k]
+            row = (
+                [f"{i:d}", reaction, "No"]
+                + [f"{k[scale][i]:.3g}" for scale in k]
+                + [f"{kappa[i]:.3g}"]
+            )
             if self.model.scheme.is_half_equilibrium[i]:
                 row[2] = "Yes"
+                row[-1] = None  # hide transmission coefficient
 
             kinetics_table.add_row(*row)
         yield kinetics_table
@@ -449,32 +485,42 @@ class Report:
         yield Markdown("For **half-equilibria**, only ratios make sense.")
 
         if self.concentrations is not None and self.concentrations:
-            scale = "M⁻ⁿ⁺¹·s⁻¹"
+            k = k["M⁻ⁿ⁺¹·s⁻¹"]
 
-            # TODO(schneiderfelipe): apply post-processing to scheme, k (with functions
-            # that receive a scheme, k and return a scheme, k). One that solves the pH
-            # problem is welcome: get a scheme, k and, for each reaction in it, remove
-            # the H+ and multiplies the reaction rate constants by the proper
-            # concentration if there is H+ in the reactants.
-            # TODO(schneiderfelipe): encapsulate everything in a function that depends
-            # on the freeenergies as first parameter
-            dydt = api.get_dydt(self.model.scheme, k[scale])
-
-            y0 = np.zeros(len(self.model.scheme.compounds))
+            free_y0 = {}
+            fixed_y0 = {}
             for spec in self.concentrations:
                 fields = spec.split(":", 1)
-                name = fields[0]
+                name, quantity = fields[0].strip(), fields[1].strip()
+
+                if quantity.startswith("!"):
+                    d = fixed_y0
+                    quantity = quantity[1:]
+                else:
+                    d = free_y0
+
                 try:
-                    quantity = float(fields[1])
+                    quantity = float(quantity)
                 except (IndexError, ValueError):
                     raise ValueError(
                         "badly formatted concentrations: "
                         f"'{' '.join(self.concentrations)}'"
                     )
 
-                y0[self.model.scheme.compounds.index(name)] = quantity
+                d[name] = quantity
 
-            y, r = api.get_y(
+            # TODO(schneiderfelipe): log stuff related to get_fixed_scheme
+            scheme, k = rx.get_fixed_scheme(self.model.scheme, k, fixed_y0)
+
+            y0 = np.zeros(len(scheme.compounds))
+            for compound in free_y0:
+                y0[scheme.compounds.index(compound)] = free_y0[compound]
+
+            # TODO(schneiderfelipe): encapsulate everything in a function that depends
+            # on the freeenergies as first parameter
+            dydt = rx.get_dydt(scheme, k)
+
+            y, r = rx.get_y(
                 dydt,
                 y0=y0,
                 method=self.method,
@@ -490,7 +536,7 @@ class Report:
                 title="initial and final concentrations\n\[M]",
                 box=self.box_style,
             )
-            for i, (name, _) in enumerate(self.model.compounds.items()):
+            for i, name in enumerate(scheme.compounds):
                 conc_table.add_row(
                     f"{i:d}",
                     name,
@@ -501,7 +547,7 @@ class Report:
 
             active = ~np.isclose(y(y.t_min), y(y.t_max), rtol=1e-2)
             if self.plot == "all" or not np.any(active):
-                active = np.array([True for _ in self.model.compounds])
+                active = np.array([True for _ in scheme.compounds])
 
             factor = y(y.t_max)[active].max()
             reference = y(y.t_max)[active] / factor
@@ -518,8 +564,8 @@ class Report:
 
             num = 100
             t = set(np.linspace(y.t_min, t_max, num=num))
-            for i, name in enumerate(self.model.scheme.compounds):
-                if not core.is_transition_state(name):
+            for i, name in enumerate(scheme.compounds):
+                if not rx.is_transition_state(name):
                     res = minimize_scalar(
                         lambda t: -r(t)[i],
                         bounds=(y.t_min, (t_max + y.t_max) / 2),
@@ -535,12 +581,10 @@ class Report:
             if self.plot not in {"none", None}:
                 if self.plot not in {"all", "active"}:
                     name = self.plot
-                    plt.plot(
-                        t, y(t)[self.model.scheme.compounds.index(name)], label=name
-                    )
+                    plt.plot(t, y(t)[scheme.compounds.index(name)], label=name)
                 else:
-                    for i, name in enumerate(self.model.scheme.compounds):
-                        if active[i] and not core.is_transition_state(name):
+                    for i, name in enumerate(scheme.compounds):
+                        if active[i] and not rx.is_transition_state(name):
                             plt.plot(t, y(t)[i], label=name)
 
                 plt.legend()
@@ -552,7 +596,7 @@ class Report:
                 np.savetxt(
                     self.savepath,
                     np.block([t[:, np.newaxis], y(t).T]),
-                    header=f"t,{','.join(self.model.scheme.compounds)}",
+                    header=f"t,{','.join(scheme.compounds)}",
                     delimiter=",",
                 )
                 yield Markdown(f"Simulation data was saved to **{self.savepath}**")
@@ -627,6 +671,8 @@ def main():
         choices=["eckart", "wigner", "none"],
         default="eckart",
     )
+    # TODO(schneiderfelipe): allow selection of QRRHO for enthalpies and
+    # entropies separately.
     parser.add_argument(
         "--no-qrrho",
         help="disable the quasi-rigid rotor harmonic oscilator (QRRHO) "
@@ -643,7 +689,6 @@ def main():
         type=float,
         default=298.15,
     )
-    # TODO(schneiderfelipe): support pressure specification!
     parser.add_argument(
         "-p",
         "--pressure",
@@ -681,7 +726,7 @@ def main():
     console.print(
         Markdown(
             f"""
-# overreact {__version__}
+# overreact {rx.__version__}
 Construct precise chemical microkinetic models from first principles
 
 Inputs:
@@ -710,9 +755,9 @@ Parsing and calculating…
         level=levels[min(len(levels) - 1, args.verbose)], stream=sys.stdout
     )
     for handler in logging.root.handlers:
-        handler.setFormatter(io.InterfaceFormatter("%(message)s"))
+        handler.setFormatter(rx.io.InterfaceFormatter("%(message)s"))
 
-    model = io.parse_model(args.path, force_compile=args.compile)
+    model = rx.io.parse_model(args.path, force_compile=args.compile)
     report = Report(
         model,
         concentrations=args.concentrations,
@@ -720,6 +765,7 @@ Parsing and calculating…
         plot=args.plot,
         qrrho=args.qrrho,
         temperature=args.temperature,
+        pressure=args.pressure,
         bias=args.bias,
         tunneling=args.tunneling,
         method=args.method,
