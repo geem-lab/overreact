@@ -13,7 +13,6 @@ from scipy.stats import norm
 
 import overreact as rx
 from overreact import constants
-from overreact import core as _core
 
 
 def _find_package(package):
