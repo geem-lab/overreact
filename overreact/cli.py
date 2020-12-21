@@ -659,7 +659,7 @@ def main():
     parser.add_argument(
         "-b",
         "--bias",
-        help="an energy value (in joules per mole) to be added to each "
+        help="an energy value (in kilocalories per mole) to be added to each "
         "indiviual compound in order to mitigate eventual systematic errors",
         type=float,
         default=0.0,
@@ -742,7 +742,7 @@ Inputs:
 - Max. Time      = {args.max_time}
 - Rel. Tol.      = {args.rtol}
 - Abs. Tol.      = {args.atol}
-- Bias           = {args.bias / constants.kcal} kcal/mol
+- Bias           = {args.bias} kcal/mol
 - Tunneling      = {args.tunneling}
 
 Parsing and calculating…
@@ -766,7 +766,7 @@ Parsing and calculating…
         qrrho=args.qrrho,
         temperature=args.temperature,
         pressure=args.pressure,
-        bias=args.bias,
+        bias=args.bias * constants.kcal,
         tunneling=args.tunneling,
         method=args.method,
         max_time=args.max_time,
