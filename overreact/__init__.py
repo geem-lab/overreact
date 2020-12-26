@@ -22,6 +22,7 @@ from overreact.core import Scheme  # noqa: F401
 from overreact.core import unparse_reactions  # noqa: F401
 from overreact.io import parse_compounds  # noqa: F401
 from overreact.io import parse_model  # noqa: F401
+from overreact.simulate import get_bias  # noqa: F401
 from overreact.simulate import get_dydt  # noqa: F401
 from overreact.simulate import get_fixed_scheme  # noqa: F401
 from overreact.simulate import get_y  # noqa: F401
