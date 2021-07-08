@@ -18,7 +18,6 @@ User's guide
    foreword
    installation
    quickstart
-   tutorials/index
    thermochemistry
 
 Additional notes

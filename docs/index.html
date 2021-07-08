@@ -4,18 +4,19 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>overreact: ab initio reactions &#8212; overreact 1.0 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="#" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Foreword" href="foreword.html" />
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex/" />
+    <link rel="search" title="Search" href="search/" />
+    <link rel="next" title="Foreword" href="foreword/" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -38,7 +39,7 @@
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">overreact</span> <span class="kn">import</span> <span class="n">api</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">api</span><span class="o">.</span><span class="n">get_k</span><span class="p">(</span><span class="s2">&quot;S -&gt; E‡ -&gt; S&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;data/ethane/B97-3c/staggered.out&quot;</span><span class="p">,</span>
 <span class="gp">... </span>                           <span class="s2">&quot;E‡&quot;</span><span class="p">:</span> <span class="s2">&quot;data/ethane/B97-3c/eclipsed.out&quot;</span><span class="p">})</span>
-<span class="go">array([8.15810511e+10])</span>
+<span class="go">array([8.16e+10])</span>
 </pre></div>
 </div>
 <p>The two lines above calculate the rate of methyl rotation in ethane at
@@ -55,31 +56,15 @@ and a <a class="reference external" href="https://schneiderfelipe.github.io/over
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Background information, step-by-step usage instructions and tutorials.</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="foreword.html#ab-initio-thermochemistry"><em>Ab initio</em> thermochemistry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="foreword.html#microkinetic-modelling">Microkinetic modelling</a></li>
-<li class="toctree-l2"><a class="reference internal" href="foreword.html#degree-of-rate-control">Degree of rate control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foreword/">Foreword</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="foreword/#ab-initio-thermochemistry"><em>Ab initio</em> thermochemistry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="foreword/#microkinetic-modelling">Microkinetic modelling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="foreword/#degree-of-rate-control">Degree of rate control</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/1-rate_constant.html">Reaction rate constants</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/1-rate_constant.html#but-i-don-t-have-energy-deltas">But I don’t have energy deltas</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/2-equilibrium-constants.html">Equilibrium constants</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/2-quantum_tunnel.html">Transmission coefficients</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/3-reaction-symmetry.html">Reaction symmetry</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/4-curtin-hammett.html">Curtin-Hammett Principle</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/collins-kimball.html">Collins-Kimball theory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/hydrogen-abstraction.html">Hydrogen abstraction of methane by chlorine atoms</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tutorials/hydrogen-abstraction.html#microkinetic-simulation">Microkinetic simulation</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="thermochemistry.html">Notes about thermochemistry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart/">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermochemistry/">Notes about thermochemistry</a></li>
 </ul>
 </div>
 </div>
@@ -88,20 +73,20 @@ and a <a class="reference external" href="https://schneiderfelipe.github.io/over
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">General notes, legal information and changelog.</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="zbibliography.html">Bibliography</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently asked questions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-0">Version 1.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zbibliography/">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license/">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq/">Frequently asked questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog/">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog/#version-1-0">Version 1.0</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="contributing.html#support-questions">Support questions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="contributing.html#reporting-issues">Reporting issues</a></li>
-<li class="toctree-l2"><a class="reference internal" href="contributing.html#submitting-patches">Submitting patches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing/#support-questions">Support questions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing/#reporting-issues">Reporting issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing/#submitting-patches">Submitting patches</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors/">Authors</a></li>
 </ul>
 </div>
 <p>There are no more guides. You are now guideless. Good luck.</p>
@@ -132,34 +117,33 @@ and a <a class="reference external" href="https://schneiderfelipe.github.io/over
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Background information, step-by-step usage instructions and tutorials.</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="thermochemistry.html">Notes about thermochemistry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foreword/">Foreword</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation/">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart/">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="thermochemistry/">Notes about thermochemistry</a></li>
 </ul>
 <p class="caption"><span class="caption-text">General notes, legal information and changelog.</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="zbibliography.html">Bibliography</a></li>
-<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
-<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently asked questions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zbibliography/">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license/">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq/">Frequently asked questions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog/">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing/">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authors/">Authors</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="foreword.html" title="next chapter">Foreword</a></li>
+      <li>Next: <a href="foreword/" title="next chapter">Foreword</a></li>
   </ul></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
+    <form class="search" action="search/" method="get">
       <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
@@ -182,7 +166,7 @@ and a <a class="reference external" href="https://schneiderfelipe.github.io/over
       &copy;2019, Felipe Silveira de Souza Schneider.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.3.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
