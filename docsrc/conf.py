@@ -21,6 +21,7 @@
 # -- Project information -----------------------------------------------------
 
 import overreact
+import stanford_theme
 
 project = "overreact"
 copyright = "2019, Felipe Silveira de Souza Schneider"
@@ -59,7 +60,8 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_theme = "stanford_theme"
+html_theme_path = [stanford_theme.get_html_theme_path()]
 html_theme_options = {
     "logo": "logo.png",
     # 'github_user': 'schneiderfelipe',
