@@ -14,14 +14,38 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
+
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
 
 import overreact
-import stanford_theme
+
+
+# on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
+
+if not on_rtd:  # only import and set the theme if we're building docs locally
+    import stanford_theme
+
+    # The theme to use for HTML and HTML Help pages.  See the documentation for
+    # a list of builtin themes.
+    #
+    html_theme = "stanford_theme"
+    html_theme_path = [stanford_theme.get_html_theme_path()]
+    html_theme_options = {
+        "collapse_navigation": False,
+        "display_version": False,
+        "navigation_depth": 3,
+        # "logo": "logo.png",
+        # 'github_user': 'schneiderfelipe',
+        # 'github_repo': 'overreact',
+    }
+
+# otherwise, readthedocs.org uses their theme by default, so no need to specify it
+
 
 project = "overreact"
 copyright = "2019, Felipe Silveira de Souza Schneider"
@@ -56,17 +80,6 @@ templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
-
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = "stanford_theme"
-html_theme_path = [stanford_theme.get_html_theme_path()]
-html_theme_options = {
-    "logo": "logo.png",
-    # 'github_user': 'schneiderfelipe',
-    # 'github_repo': 'overreact',
-}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
