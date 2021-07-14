@@ -17,7 +17,7 @@ Reporting issues
 ----------------
 
 The easiest way to get help with the project is to `open an issue on Github
-<http://github.com/schneiderfelipe/overreact/issues>`__:
+<http://github.com/geem-lab/overreact/issues>`__:
 
 - Describe what you expected to happen.
 - If possible, include a `minimal reproducible example <https://stackoverflow.com/help/minimal-reproducible-example>`__

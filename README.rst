@@ -1,7 +1,7 @@
 |build|_
 
-.. |build| image:: https://github.com/schneiderfelipe/overreact/workflows/build/badge.svg
-.. _build: https://github.com/schneiderfelipe/overreact/actions?query=workflow:build
+.. |build| image:: https://github.com/geem-lab/overreact/workflows/build/badge.svg
+.. _build: https://github.com/geem-lab/overreact/actions?query=workflow:build
 
 overreact
 =========
