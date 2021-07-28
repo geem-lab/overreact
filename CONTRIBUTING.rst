@@ -40,3 +40,4 @@ Submitting patches
 - Include a string like “Fixes #123” in your commit message (where 123 is the
   issue you fixed).
   See `Closing issues using keywords <https://help.github.com/articles/creating-a-pull-request/>`__.
+- Use `semantic versioning <https://semver.org/>`__.
