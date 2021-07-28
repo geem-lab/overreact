@@ -654,7 +654,13 @@ def main():
     # files. This might be useful for some of the more complex operations I
     # want to be able to do in the future.
     parser = argparse.ArgumentParser(
-        description="Interface for building and modifying models.",
+        description=f"""
+        {rx.__headline__}
+        Interface for building and modifying models.
+        Read the documentation at {rx.__url__} for more information and usage examples.
+        Licensed under the terms of the {rx.__license__} License.
+        If you publish work using this software, please cite https://doi.org/{rx.__doi__}:
+        """,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -775,7 +781,17 @@ def main():
         Markdown(
             f"""
 # overreact {rx.__version__}
-Construct precise chemical microkinetic models from first principles
+
+{rx.__headline__}
+
+Licensed under the terms of the [{rx.__license__} License]({rx.__repo__}/blob/main/LICENSE).
+If you publish work using this software, **please cite [doi:{rx.__doi__}](https://doi.org/{rx.__doi__})**:
+
+```
+{rx.__citation__}
+```
+
+Read the documentation at [{rx.__url__}]({rx.__url__}) for more information and usage examples.
 
 Inputs:
 - Path           = {args.path}

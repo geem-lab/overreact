@@ -8,6 +8,7 @@ from setuptools import setup
 setup(
     name="overreact",
     version=open("VERSION").read().strip(),
+    license="MIT",
     description="Construct precise chemical microkinetic models from first principles",
     author="Felipe Silveira de Souza Schneider",
     author_email="schneider.felipe@posgrad.ufsc.br",
