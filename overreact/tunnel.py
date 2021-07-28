@@ -4,13 +4,46 @@
 
 import logging
 
-import numpy as _np
-from scipy.integrate import fixed_quad as _fixed_quad
-from scipy.special import roots_laguerre as _roots_laguerre
+import numpy as np
+from scipy.integrate import fixed_quad
+from scipy.special import roots_laguerre
 
 from overreact import constants
 
 logger = logging.getLogger(__name__)
+
+
+def _check_nu(vibfreq):
+    """Convert vibrational frequencies in cm-1 to s-1.
+
+    Parameters
+    ----------
+    vibfreq : array-like
+        Magnitude of the imaginary frequency in cm-1. Only the absolute value
+        is used.
+
+    Returns
+    -------
+    nu : array-like
+
+    Raises
+    ------
+    ValueError
+        If vibfreq is zero.
+
+    Examples
+    --------
+    >>> vibfreq = 1000.0
+    >>> _check_nu(vibfreq)
+    2.99792458e13
+    >>> _check_nu(2.0 * vibfreq) / _check_nu(vibfreq)
+    2.0
+    >>> _check_nu(vibfreq) == _check_nu(-vibfreq)
+    True
+    """
+    if np.isclose(vibfreq, 0.0).any():
+        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
+    return np.abs(vibfreq) * constants.c / constants.centi
 
 
 def wigner(vibfreq, temperature=298.15):
@@ -45,14 +78,12 @@ def wigner(vibfreq, temperature=298.15):
     1.02776
 
     """
-    if _np.isclose(vibfreq, 0.0).any():
-        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
+    temperature = np.asarray(temperature)
 
-    nu = _np.abs(vibfreq) * constants.c / constants.centi
-    temperature = _np.asanyarray(temperature)
-    u = constants.h * _np.abs(nu) / (constants.k * temperature)
+    nu = _check_nu(vibfreq)
+    u = constants.h * nu / (constants.k * temperature)
 
-    kappa = 1.0 + u ** 2 / 24.0
+    kappa = 1.0 + (u ** 2) / 24.0
     logger.info(f"Wigner tunneling coefficient: {kappa}")
     return kappa
 
@@ -104,25 +135,23 @@ def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
     array(3.3)
 
     """
-    if _np.isclose(vibfreq, 0.0).any():
-        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
+    temperature = np.asarray(temperature)
 
-    nu = _np.abs(vibfreq) * constants.c / constants.centi
-    temperature = _np.asanyarray(temperature)
-    u = constants.h * _np.abs(nu) / (constants.k * temperature)
+    nu = _check_nu(vibfreq)
+    u = constants.h * nu / (constants.k * temperature)
 
     if delta_backward is None:
         delta_backward = delta_forward
     logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
     logger.debug(f"backward potential barrier: {delta_backward} J/mol")
-    assert _np.all(delta_forward >= 0.0)
-    assert _np.all(delta_backward >= 0.0)
+    assert np.all(delta_forward >= 0.0)
+    assert np.all(delta_backward >= 0.0)
 
     # convert energies in joules per mole to joules
     delta_forward = delta_forward / constants.N_A
     delta_backward = delta_backward / constants.N_A
 
-    two_pi = 2.0 * _np.pi
+    two_pi = 2.0 * np.pi
     alpha1 = two_pi * delta_forward / (constants.h * nu)
     alpha2 = two_pi * delta_backward / (constants.h * nu)
 
@@ -131,7 +160,7 @@ def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
     return kappa
 
 
-@_np.vectorize
+@np.vectorize
 def _eckart(u, alpha1, alpha2=None):
     """Implement of the (unsymmetrical) Eckart tunneling approximation.
 
@@ -181,43 +210,43 @@ def _eckart(u, alpha1, alpha2=None):
     if alpha2 is None:
         alpha2 = alpha1
 
-    two_pi = 2.0 * _np.pi
+    two_pi = 2.0 * np.pi
     v1 = alpha1 * u / (two_pi)
     v2 = alpha2 * u / (two_pi)
 
-    d = 4.0 * alpha1 * alpha2 - _np.pi ** 2
+    d = 4.0 * alpha1 * alpha2 - np.pi ** 2
     if d > 0:
-        D = _np.cosh(_np.sqrt(d))
+        D = np.cosh(np.sqrt(d))
     else:
-        D = _np.cos(_np.sqrt(_np.abs(d)))
+        D = np.cos(np.sqrt(np.abs(d)))
 
-    sqrt_alpha1 = _np.sqrt(alpha1)
-    sqrt_alpha2 = _np.sqrt(alpha2)
+    sqrt_alpha1 = np.sqrt(alpha1)
+    sqrt_alpha2 = np.sqrt(alpha2)
     F = (
-        _np.sqrt(2.0)
+        np.sqrt(2.0)
         * sqrt_alpha1
         * sqrt_alpha2
-        / (_np.sqrt(_np.pi) * (sqrt_alpha1 + sqrt_alpha2))
+        / (np.sqrt(np.pi) * (sqrt_alpha1 + sqrt_alpha2))
     )
 
     def f(eps, with_exp=True):
         """Transmission function multiplied or not by the Boltzmann weight."""
-        a1 = F * _np.sqrt((eps + v1) / u)
-        a2 = F * _np.sqrt((eps + v2) / u)
+        a1 = F * np.sqrt((eps + v1) / u)
+        a2 = F * np.sqrt((eps + v2) / u)
 
-        qplus = _np.cosh(two_pi * (a1 + a2))
-        qminus = _np.cosh(two_pi * (a1 - a2))
+        qplus = np.cosh(two_pi * (a1 + a2))
+        qminus = np.cosh(two_pi * (a1 - a2))
 
         p = (qplus - qminus) / (D + qplus)
         if with_exp:
-            return p * _np.exp(-eps)
+            return p * np.exp(-eps)
         return p
 
     # integral from -min(v1, v2) to zero using Gauss quadrature
-    integ1 = _fixed_quad(f, -min(v1, v2), 0, n=gauss_n)[0]
+    integ1 = fixed_quad(f, -min(v1, v2), 0, n=gauss_n)[0]
 
     # integral from 0 to infinity using Laguerre quadrature
-    x, w = _roots_laguerre(n=laguerre_n)
+    x, w = roots_laguerre(n=laguerre_n)
     integ2 = w @ f(x, with_exp=False)
 
     return integ1 + integ2

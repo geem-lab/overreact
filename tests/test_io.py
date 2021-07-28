@@ -5,22 +5,21 @@
 import numpy as np
 import pytest
 
+import overreact as rx
 from overreact import constants
 from overreact import coords
-from overreact import io
-from overreact import _thermo
 
 
 def test_parse_model_raises_filenotfounderror():
     """Ensure parse_model raises FileNotFoundError when appropriate."""
     with pytest.raises(FileNotFoundError):
-        io.parse_model("not/available")
+        rx.io.parse_model("not/available")
 
     with pytest.raises(FileNotFoundError):
-        io.parse_model("this/model/does/not/exist.k")
+        rx.io.parse_model("this/model/does/not/exist.k")
 
     with pytest.raises(FileNotFoundError):
-        io.parse_model("unreachable.jk")
+        rx.io.parse_model("unreachable.jk")
 
 
 def test_sanity_for_absolute_thermochemistry():
@@ -55,7 +54,7 @@ def test_sanity_for_absolute_thermochemistry():
     vibfreqs = vibtemps * constants.k * constants.centi / (constants.h * constants.c)
 
     # ethane eclipsed
-    data = io.read_logfile("data/ethane/B97-3c/eclipsed.out")
+    data = rx.io.read_logfile("data/ethane/B97-3c/eclipsed.out")
     assert data.atommasses == pytest.approx(
         [12.0, 12.0, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783], 1e-3
     )
@@ -65,12 +64,12 @@ def test_sanity_for_absolute_thermochemistry():
         [23.57594, 88.34097, 88.34208], 7e-2
     )
     assert data.vibfreqs == pytest.approx(vibfreqs, 1.8)  # just for sanity
-    zpe = _thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)
+    zpe = rx.thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)
     assert zpe == pytest.approx(204885.0, 6e-2)
     assert zpe / constants.kcal == pytest.approx(48.96870, 6e-2)
     assert zpe / (constants.hartree * constants.N_A) == pytest.approx(0.078037, 6e-2)
     thermal_correction = (
-        _thermo.calc_internal_energy(
+        rx.thermo.calc_internal_energy(
             energy=data.energy,
             degeneracy=data.mult,
             moments=moments,
@@ -82,7 +81,7 @@ def test_sanity_for_absolute_thermochemistry():
         0.081258, 6e-2
     )
     enthalpy_correction = (
-        _thermo.calc_enthalpy(
+        rx.thermo.calc_enthalpy(
             energy=data.energy,
             degeneracy=data.mult,
             moments=moments,
@@ -96,7 +95,7 @@ def test_sanity_for_absolute_thermochemistry():
     assert enthalpy_correction - thermal_correction == pytest.approx(
         constants.R * temperature
     )
-    entropy = _thermo.calc_entropy(
+    entropy = rx.thermo.calc_entropy(
         atommasses=data.atommasses,
         energy=data.energy,
         degeneracy=data.mult,
@@ -146,7 +145,7 @@ def test_sanity_for_absolute_thermochemistry():
     )  # ORCA logfile
 
     # ethane staggered
-    data = io.read_logfile("data/ethane/B97-3c/staggered.out")
+    data = rx.io.read_logfile("data/ethane/B97-3c/staggered.out")
     assert data.atommasses == pytest.approx(
         [12.0, 12.0, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783], 1e-3
     )
@@ -156,12 +155,12 @@ def test_sanity_for_absolute_thermochemistry():
         [23.57594, 88.34097, 88.34208], 6e-2
     )
     assert data.vibfreqs == pytest.approx(vibfreqs, 3e-1)
-    zpe = _thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)
+    zpe = rx.thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)
     assert zpe == pytest.approx(204885.0, 6e-2)
     assert zpe / constants.kcal == pytest.approx(48.96870, 6e-2)
     assert zpe / (constants.hartree * constants.N_A) == pytest.approx(0.078037, 6e-2)
     thermal_correction = (
-        _thermo.calc_internal_energy(
+        rx.thermo.calc_internal_energy(
             energy=data.energy,
             degeneracy=data.mult,
             moments=moments,
@@ -173,7 +172,7 @@ def test_sanity_for_absolute_thermochemistry():
         0.081258, 5e-2
     )
     enthalpy_correction = (
-        _thermo.calc_enthalpy(
+        rx.thermo.calc_enthalpy(
             energy=data.energy,
             degeneracy=data.mult,
             moments=moments,
@@ -187,7 +186,7 @@ def test_sanity_for_absolute_thermochemistry():
     assert enthalpy_correction - thermal_correction == pytest.approx(
         constants.R * temperature
     )
-    entropy = _thermo.calc_entropy(
+    entropy = rx.thermo.calc_entropy(
         atommasses=data.atommasses,
         energy=data.energy,
         degeneracy=data.mult,
@@ -245,33 +244,33 @@ def test_compare_rrho_with_orca_logfile():
     temperature = 298.15
 
     # benzene
-    data = io.read_logfile("data/symmetries/benzene.out")
+    data = rx.io.read_logfile("data/symmetries/benzene.out")
     assert np.sum(data.atommasses) == pytest.approx(78.11, 6e-5)
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     symmetry_number = coords.symmetry_number(
         coords.find_point_group(data.atommasses, data.atomcoords)
     )
     assert symmetry_number == 12  # ORCA fails to find D6h symmetry!
-    internal_energy = _thermo.calc_internal_energy(
+    internal_energy = rx.thermo.calc_internal_energy(
         energy=data.energy,
         degeneracy=data.mult,
         moments=moments,
         vibfreqs=data.vibfreqs,
     )
-    zpe = _thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs, temperature=0.0)
-    elec_energy = _thermo._gas.calc_elec_energy(
+    zpe = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs, temperature=0.0)
+    elec_energy = rx.thermo._gas.calc_elec_energy(
         energy=data.energy, degeneracy=data.mult
     )
-    vib_energy = _thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs)
-    rot_energy = _thermo._gas.calc_rot_energy(moments=moments)
-    trans_energy = _thermo._gas.calc_trans_energy()
-    enthalpy = _thermo.calc_enthalpy(
+    vib_energy = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs)
+    rot_energy = rx.thermo._gas.calc_rot_energy(moments=moments)
+    trans_energy = rx.thermo._gas.calc_trans_energy()
+    enthalpy = rx.thermo.calc_enthalpy(
         energy=data.energy,
         degeneracy=data.mult,
         moments=moments,
         vibfreqs=data.vibfreqs,
     )
-    entropy = _thermo.calc_entropy(
+    entropy = rx.thermo.calc_entropy(
         atommasses=data.atommasses,
         energy=data.energy,
         degeneracy=data.mult,
@@ -279,14 +278,14 @@ def test_compare_rrho_with_orca_logfile():
         symmetry_number=symmetry_number,
         vibfreqs=data.vibfreqs,
     )
-    elec_entropy = _thermo._gas.calc_elec_entropy(
+    elec_entropy = rx.thermo._gas.calc_elec_entropy(
         energy=data.energy, degeneracy=data.mult
     )
-    vib_entropy = _thermo._gas.calc_vib_entropy(vibfreqs=data.vibfreqs)
-    rot_entropy = _thermo._gas.calc_rot_entropy(
+    vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs=data.vibfreqs)
+    rot_entropy = rx.thermo._gas.calc_rot_entropy(
         moments=moments, symmetry_number=symmetry_number
     )
-    trans_entropy = _thermo.calc_trans_entropy(atommasses=data.atommasses)
+    trans_entropy = rx.thermo.calc_trans_entropy(atommasses=data.atommasses)
     freeenergy = enthalpy - temperature * entropy
     assert elec_energy / (constants.hartree * constants.N_A) == pytest.approx(
         -232.02314787
@@ -400,37 +399,37 @@ def test_compare_qrrho_with_orca_logfile():
     temperature = 298.15
 
     # triphenylphosphine
-    data = io.read_logfile("data/symmetries/triphenylphosphine.out")
+    data = rx.io.read_logfile("data/symmetries/triphenylphosphine.out")
     assert np.sum(data.atommasses) == pytest.approx(262.29, 8e-6)
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     symmetry_number = coords.symmetry_number(
         coords.find_point_group(data.atommasses, data.atomcoords)
     )
     assert symmetry_number == 3
-    internal_energy = _thermo.calc_internal_energy(
+    internal_energy = rx.thermo.calc_internal_energy(
         energy=data.energy,
         degeneracy=data.mult,
         moments=moments,
         vibfreqs=data.vibfreqs,
         qrrho=False,
     )
-    zpe = _thermo._gas.calc_vib_energy(
+    zpe = rx.thermo._gas.calc_vib_energy(
         vibfreqs=data.vibfreqs, qrrho=False, temperature=0.0
     )
-    elec_energy = _thermo._gas.calc_elec_energy(
+    elec_energy = rx.thermo._gas.calc_elec_energy(
         energy=data.energy, degeneracy=data.mult
     )
-    vib_energy = _thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs, qrrho=False)
-    rot_energy = _thermo._gas.calc_rot_energy(moments=moments)
-    trans_energy = _thermo._gas.calc_trans_energy()
-    enthalpy = _thermo.calc_enthalpy(
+    vib_energy = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs, qrrho=False)
+    rot_energy = rx.thermo._gas.calc_rot_energy(moments=moments)
+    trans_energy = rx.thermo._gas.calc_trans_energy()
+    enthalpy = rx.thermo.calc_enthalpy(
         energy=data.energy,
         degeneracy=data.mult,
         moments=moments,
         vibfreqs=data.vibfreqs,
         qrrho=False,
     )
-    entropy = _thermo.calc_entropy(
+    entropy = rx.thermo.calc_entropy(
         atommasses=data.atommasses,
         energy=data.energy,
         degeneracy=data.mult,
@@ -438,14 +437,14 @@ def test_compare_qrrho_with_orca_logfile():
         symmetry_number=symmetry_number,
         vibfreqs=data.vibfreqs,
     )
-    elec_entropy = _thermo._gas.calc_elec_entropy(
+    elec_entropy = rx.thermo._gas.calc_elec_entropy(
         energy=data.energy, degeneracy=data.mult
     )
-    vib_entropy = _thermo._gas.calc_vib_entropy(vibfreqs=data.vibfreqs)
-    rot_entropy = _thermo._gas.calc_rot_entropy(
+    vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs=data.vibfreqs)
+    rot_entropy = rx.thermo._gas.calc_rot_entropy(
         moments=moments, symmetry_number=symmetry_number
     )
-    trans_entropy = _thermo.calc_trans_entropy(atommasses=data.atommasses)
+    trans_entropy = rx.thermo.calc_trans_entropy(atommasses=data.atommasses)
     freeenergy = enthalpy - temperature * entropy
     assert elec_energy / (constants.hartree * constants.N_A) == pytest.approx(
         -1035.902509903170
@@ -565,7 +564,7 @@ def test_read_logfile():
         "hessian",
     }
 
-    data = io.read_logfile("data/tanaka1996/UMP2/6-311G(2df,2pd)/Cl·.out")
+    data = rx.io.read_logfile("data/tanaka1996/UMP2/6-311G(2df,2pd)/Cl·.out")
     assert set(data) == fields
     assert data.logfile == "data/tanaka1996/UMP2/6-311G(2df,2pd)/Cl·.out"
     assert data.energy == pytest.approx(-1206891740.7180765, 3e-5)
@@ -575,7 +574,7 @@ def test_read_logfile():
     assert data.atomcoords == pytest.approx(np.array([[0.0, 0.0, 0.0]]))
 
     fields.remove("hessian")
-    data = io.read_logfile("data/symmetries/chlorobromofluoromethane.out")
+    data = rx.io.read_logfile("data/symmetries/chlorobromofluoromethane.out")
     assert set(data) == fields
     assert data.logfile == "data/symmetries/chlorobromofluoromethane.out"
     assert data.energy == -8327995636.7634325
@@ -615,7 +614,7 @@ def test_read_logfile_from_orca_xtb():
         "vibfreqs",
     }
 
-    data = io.read_logfile("data/symmetries/Xe.out")
+    data = rx.io.read_logfile("data/symmetries/Xe.out")
     assert set(data) == fields
     assert data.logfile == "data/symmetries/Xe.out"
     assert data.energy == -10194122.6419248
@@ -626,7 +625,7 @@ def test_read_logfile_from_orca_xtb():
     assert len(data.vibfreqs) == 0
     assert data.vibfreqs == pytest.approx(np.array([]))
 
-    data = io.read_logfile("data/symmetries/N-methyl-maleamic-acid.out")
+    data = rx.io.read_logfile("data/symmetries/N-methyl-maleamic-acid.out")
     assert set(data).issubset(fields)
     assert data.logfile == "data/symmetries/N-methyl-maleamic-acid.out"
     assert data.energy == pytest.approx(-77186778.47357602)

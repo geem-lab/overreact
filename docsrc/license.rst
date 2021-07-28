@@ -1,4 +1,4 @@
 License
 =======
 
-.. literalinclude:: ../COPYING
+.. literalinclude:: ../LICENSE

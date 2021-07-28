@@ -7,13 +7,13 @@ import os
 import numpy as np
 import pytest
 
+import overreact as rx
 from overreact import datasets
-from overreact import io
 
 
-def test_logfiles():
+def test_logfile_retrieval():
     """Ensure logfiles are properly lazily evaluated."""
-    data1 = io.read_logfile(
+    data1 = rx.io.read_logfile(
         os.path.join(
             datasets.data_path, "tanaka1996", "UMP2/6-311G(2df,2pd)", "Cl·.out"
         )
@@ -23,9 +23,9 @@ def test_logfiles():
         if isinstance(data1[key], str):
             assert data1[key] == data2[key]
         else:
-            assert np.asanyarray(data1[key]) == pytest.approx(np.asanyarray(data2[key]))
+            assert np.asarray(data1[key]) == pytest.approx(np.asarray(data2[key]))
 
-    data1 = io.read_logfile(
+    data1 = rx.io.read_logfile(
         os.path.join(datasets.data_path, "symmetries", "ferrocene-staggered.out")
     )
     data2 = datasets.logfiles["symmetries"]["ferrocene-staggered"]
@@ -33,4 +33,4 @@ def test_logfiles():
         if isinstance(data1[key], str):
             assert data1[key] == data2[key]
         else:
-            assert np.asanyarray(data1[key]) == pytest.approx(np.asanyarray(data2[key]))
+            assert np.asarray(data1[key]) == pytest.approx(np.asarray(data2[key]))

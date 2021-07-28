@@ -1,7 +1,7 @@
 |build|_
 
-.. |build| image:: https://github.com/schneiderfelipe/overreact/workflows/build/badge.svg
-.. _build: https://github.com/schneiderfelipe/overreact/actions?query=workflow:build
+.. |build| image:: https://github.com/geem-lab/overreact/workflows/build/badge.svg
+.. _build: https://github.com/geem-lab/overreact/actions?query=workflow:build
 
 overreact
 =========
@@ -13,7 +13,7 @@ overreact
 >>> from overreact import api
 >>> api.get_k("S -> E‡ -> S", {"S": "data/ethane/B97-3c/staggered.out",
 ...                            "E‡": "data/ethane/B97-3c/eclipsed.out"})
-array([8.15810511e+10])
+array([8.16e+10])
 
 The two lines above calculate the rate of methyl rotation in ethane at
 `B97-3c <https://doi.org/10.1063/1.5012601>`__.
@@ -23,5 +23,5 @@ The two lines above calculate the rate of methyl rotation in ethane at
 overreact uses precise thermochemical partition funtions and tunneling
 corrections.
 See the
-`installation instructions <https://schneiderfelipe.github.io/overreact/installation.html>`__
-and a `short introduction <https://schneiderfelipe.github.io/overreact/quickstart.html>`__.
+`installation instructions <https://geem-lab.github.io/overreact/installation.html>`__
+and a `short introduction <https://geem-lab.github.io/overreact/quickstart.html>`__.

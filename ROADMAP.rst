@@ -1,7 +1,6 @@
 Initial code idea:
 
 y0 = [1.0, 0.0]
-t_span = [0.0, 100.0]
 freeenergies = [0.0, 20.0, -10.0]
 
 model = parse("A -> A‡ -> B")
@@ -13,8 +12,8 @@ model = parse("A -> A‡ -> B")
 k = eyring(model.B @ freeenergies)
 
 dydt = get_dydt(model, k)
-t, y, r = get_y(dydt, t_span, y0)
-y[:, -1]
+y, r = get_y(dydt, y0)
+y(y.t_max)
 
 In some advanced tutorial, I might show how to create a polymerization model
 (Pn + P -> Pn+1‡ -> Pn+1) using data extrapolated from data on small to
@@ -40,12 +39,6 @@ I use flake8 to ensure style. The following plugins are used:
 I use black to ensure formatting. flake8 configuration is such that it is
 minimally compatible with black.
 
-TODO
-----
-
-[ ] Ensure raises are correct and documented.
-[ ] Select which functions are exposed in the final API.
-
 Extras #1
 ---------
 
@@ -59,17 +52,6 @@ citation here).
 - I believe the slowest rate constant of an equilibrium should probably be 10
   to 1000 times faster than the fastest reaction constant, but this might
   depend on a case-by-case basis, so the user should have some freedom here
-
-Extras #2
----------
-
-TODO: promote reproducible science and get citations at the same time:
-generate a state file (checkpoint? choose a pretty name) that has all the
-basic data to reproduce anything. Things can be remade, retested, shared, etc
-with it. Furthermore, it might be useful locally as well if, as we override
-it by doing a similar calculation (e.g. in the same folder), we first check
-if files have changed (by, say, a hash) and only reread what has changed
-(say, because it has been recalculated).
 
 The future CLI
 --------------
@@ -159,7 +141,7 @@ in the future.
 
     // All compound below will be read and the analysis will be made for all of
     // common temperatures in the logfiles. Logfiles are check for having the
-    // same level of theory if possible (here MP2/6-311G(3d,2p)).
+    // same level of theory if possible (here UMP2/6-311G(3d,2p)).
     $compounds
      [H3C·H·Cl]‡:
        logfile=ch4cl_ts_mp2_3d2p.out
@@ -247,22 +229,9 @@ collins-kimball for diffusion limit
 Marcus theory for electron transfer
 molar fractions for pH
 
-Roadmap
--------
-
-The following is what I think how overreact will soon be:
-
-io
-  # standard structure-energy data <- many sources
-  # read gibbs freeenergies and electronic energies, symmetry numbers, IRC potential energy surface, etc. from logfiles
-  # databases? this might be a very simple set of utilities if tutorials are well written
-rates:
-  def eyring(delta_freeenergy : np.ndarray, temperature : float) -> np.ndarray
-
 Things I which cclib could read from ORCA logfiles
 --------------------------------------------------
 - Absolute free and electronic energies
-- Symmetry numbers
 
 Approximations per paper
 ------------------------
@@ -270,45 +239,19 @@ Items with an * are not necessary in our present approach, or are
 incorporated in chunks compatible with our methodology, but the effects are
 still taken in consideration.
 
-doi:10.1002/qua.25686 (EyringPy):
-- Partition function* (we read from logfiles)
-- Transition state theory (TST)
-- Gas to solution equilibrium constant correction
-- Gas to solution standard state correction
-- Reaction symmetry
-- Tunneling corrections:
-  - Wigner
-  - Eckart
-- Pre-reactive and product complexes* (we simulate kinetics)
+doi:10.1002/qua.25686:
 - Corrections for reactions in solution:
   - Diffusion effect through Collins-Kimball theory
   - Electron transfer through Marcus theory
-  - Effect of pH (maybe solved by simulation)
   - Some of the above are from QM-ORSA for reactions in solution*
 
 doi:10.1039/C5CP00628G:
-- Gas to solution standard state correction
-- Molecular symmetry numbers
-- Anharmonicity and low frequency modes
-- Conformations* (solved by simulation)
-- Molecular charge and pH
-- Solvation thermodynamics
-
-doi:10.1016/0301-0104(94)00069-7:
-- Transition state theory
-- Eckart tunneling correction
-
-doi:10.1021/acs.orglett.0c00367:
-- Sistematic adjustment of free energies
+- Anharmonicity
+- Molecular charge
 
 doi:10.1021/acs.jpca.8b06092:
-- High level calculation
 - Variational transition state theory
 - Small curvature tunneling
-
-doi:10.1021/jp8012464:
-- High level calculation
-- Wigner tunneling correction
 
 doi:10.1021/acscatal.7b00115:
 - Degree of rate control
@@ -319,7 +262,6 @@ doi:10.1021/acscatal.7b00115:
 - Use of degree of rate control for screening catalysts
 
 doi:10.1039/c8cs00398j (lots of interesting things, some highlighted below):
-- Microkinetic modeling
 - Apparent activation energy
 - Degree of rate control
 - Linear free energy relationships

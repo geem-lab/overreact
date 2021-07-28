@@ -3,24 +3,23 @@
 """Module dedicated to classifying molecules into point groups."""
 
 import logging
-import re as _re
+import re
 
 import numpy as np
-from scipy.cluster.hierarchy import fcluster as _fcluster
-from scipy.cluster.hierarchy import linkage as _linkage
-from scipy.spatial import cKDTree as _KDTree
-from scipy.spatial.distance import pdist as _pdist
-from scipy.spatial.distance import squareform as _squareform
-from scipy.spatial.transform import Rotation as _Rotation
+from scipy.cluster.hierarchy import fcluster
+from scipy.cluster.hierarchy import linkage
+from scipy.spatial import cKDTree as KDTree
+from scipy.spatial.distance import pdist
+from scipy.spatial.distance import squareform
+from scipy.spatial.transform import Rotation
 
+import overreact as rx
 from overreact import constants
-from overreact import misc
 
 logger = logging.getLogger(__name__)
 
 
-# TODO(schneiderfelipe): thoroughly test
-# TODO(schneiderfelipe): I believe alpha should depend on temperature.
+# TODO(schneiderfelipe): alpha should depend on temperature?
 def get_molecular_volume(
     atomnos,
     atomcoords,
@@ -71,9 +70,9 @@ def get_molecular_volume(
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
+    >>> from overreact import datasets
 
-    >>> data = logfiles["symmetries"]["dihydrogen"]
+    >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
     8.4
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
@@ -82,7 +81,7 @@ def get_molecular_volume(
     >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)
     (8.4, 61., 0.1)
 
-    >>> data = logfiles["symmetries"]["water"]
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
     18.
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
@@ -94,11 +93,11 @@ def get_molecular_volume(
     ...                      environment="benzene")
     (18., 301., 0.1)
 
-    >>> data = logfiles["symmetries"]["benzene"]
+    >>> data = datasets.logfiles["symmetries"]["benzene"]
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
     80.
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
-    ...                      full_output=True)  # doctest: +SKIP
+    ...                      full_output=True)
     (80., 115., 0.1)
     >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)
     (80., 240., 0.1)
@@ -119,9 +118,9 @@ def get_molecular_volume(
     if full_output and method == "izato":
         cav_volumes = []
     for _ in range(trials):
-        points = misc.halton(n, 3)
+        points = rx.misc.halton(n, 3)
         points = v1 + points * (v2 - v1)
-        tree = _KDTree(points)
+        tree = KDTree(points)
 
         within_vdw = set()
         if full_output and method == "izato":
@@ -147,13 +146,8 @@ def get_molecular_volume(
             logger.debug(f"Izato cavity volume = {cav_volume} ± {cav_err} Å³")
             return (vdw_volume, cav_volume, max(vdw_err, cav_err))
         elif method == "garza":
-            # TODO(schneiderfelipe): test for the following solvents at the
-            # following temperatures:
-            # - water: 274 K -- 373 K
-            # - pentane: 144 K -- 308 K
-            # - hexane: 178 K -- 340 K
-            # - heptane: 183 K -- 370 K
-            # - octane: 217 K -- 398 K
+            # TODO(schneiderfelipe): test for the following solvents: water,
+            # pentane, hexane, heptane and octane.
 
             cav_volume = _garza(
                 vdw_volume, environment, temperature=temperature, pressure=pressure
@@ -165,7 +159,6 @@ def get_molecular_volume(
     return vdw_volume
 
 
-# TODO(schneiderfelipe): thoroughly test
 def _garza(
     vdw_volume,
     environment="water",
@@ -223,13 +216,13 @@ def _garza(
     >>> _garza(100.0, full_output=True, environment="benzene")
     (665.4646143809224, 1.0, 1.0758657575737383)
     """
-    solvent = misc._get_chemical(environment, temperature, pressure)
+    solvent = rx.misc._get_chemical(environment, temperature, pressure)
 
-    # TODO(schneiderfelipe): things to do TODAY:
-    # 1. check correctness of this function
-    # 2. check it is called correctly everywhere
+    # TODO(schneiderfelipe): things to do:
+    # 1. check correctness of this function,
+    # 2. check it is called correctly everywhere,
     # 3. transfer the following commented code to get_chemical (it will become
-    # a complete abstraction of the solvent/molecular properties).
+    # a complete abstraction of the solvent/molecular properties):
     #
     # data_S = datasets.logfiles[solvent.name]
     # solvent_volume = coords.get_molecular_volume(data_S.atomnos,
@@ -317,7 +310,7 @@ def symmetry_number(point_group):
     elif point_group in {"c60", "c60v", "c60h", "d30", "d30d", "d30h", "s120", "ih"}:
         symmetry_number = 60
     else:
-        pieces = _re.match(
+        pieces = re.match(
             r"(?P<letter>[^\s]+)(?P<number>\d+)(?P<type>[^\s]+)?", point_group
         ).groupdict()
 
@@ -713,8 +706,9 @@ def _get_proper_axes(
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["diborane"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["diborane"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
@@ -728,8 +722,8 @@ def _get_proper_axes(
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
         return list()
 
-    axes = np.asanyarray(axes)
-    atomcoords = np.asanyarray(atomcoords)
+    axes = np.asarray(axes)
+    atomcoords = np.asarray(atomcoords)
     orders = _guess_orders(groups, rotor_class)
 
     found_axes = list()
@@ -929,8 +923,9 @@ def _get_improper_axes(
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["tanaka1996"]["methane@UMP2/6-311G(2df,2pd)"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["tanaka1996"]["methane@UMP2/cc-pVTZ"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
@@ -944,8 +939,8 @@ def _get_improper_axes(
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
         return list()
 
-    axes = np.asanyarray(axes)
-    atomcoords = np.asanyarray(atomcoords)
+    axes = np.asarray(axes)
+    atomcoords = np.asarray(atomcoords)
 
     if proper_axes is None:
         proper_axes = _get_proper_axes(
@@ -990,15 +985,9 @@ def _update_mirror_axes(
             return axes
         ax = ax / norm
 
-    if (
-        not all(np.isclose(ax @ v, 0.0, rtol=rtol, atol=atol) for v in nondeg_axes)
-        # or not all(  # TODO(schneiderfelipe): improve this filter
-        #     np.isclose(ax @ v, 0.0, rtol=rtol, atol=atol)
-        #     or np.isclose(np.abs(ax @ v), 1.0, rtol=rtol, atol=atol)
-        #     for n, v in proper_axes
-        # )
-        or any(np.isclose(np.abs(ax @ v), 1.0, rtol=rtol, atol=atol) for c, v in axes)
-    ):
+    if not all(
+        np.isclose(ax @ v, 0.0, rtol=rtol, atol=atol) for v in nondeg_axes
+    ) or any(np.isclose(np.abs(ax @ v), 1.0, rtol=rtol, atol=atol) for c, v in axes):
         return axes
 
     if all(
@@ -1076,8 +1065,9 @@ def _get_mirror_planes(
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["1-iodo-2-chloroethylene"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["1-iodo-2-chloroethylene"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
@@ -1089,8 +1079,8 @@ def _get_mirror_planes(
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
         return list()
 
-    axes = np.asanyarray(axes)
-    atomcoords = np.asanyarray(atomcoords)
+    axes = np.asarray(axes)
+    atomcoords = np.asarray(atomcoords)
 
     if proper_axes is None:
         proper_axes = _get_proper_axes(
@@ -1192,7 +1182,7 @@ def _has_inversion_center(atomcoords, groups, rtol=0.0, atol=1.0e-2, slack=1.888
     """
     rtol, atol = slack * rtol, slack * atol
 
-    atomcoords = np.asanyarray(atomcoords)
+    atomcoords = np.asarray(atomcoords)
     return all(
         _is_symmetric(atomcoords[group], _operation("i"), rtol=rtol, atol=atol)
         for group in groups[::-1]
@@ -1259,7 +1249,7 @@ def _is_symmetric(atomcoords, op, rtol=0.0, atol=1.0e-2, slack=10.256):
     rtol, atol = slack * rtol, slack * atol
     inner_slack = 1.055
 
-    tree = _KDTree(atomcoords)
+    tree = KDTree(atomcoords)
     d, i = tree.query(atomcoords @ op.T)
 
     return (
@@ -1332,11 +1322,11 @@ def _operation(name, order=2, axis=None):
     elif name == "e":
         return np.eye(3)
     elif name in {"c", "σ", "sigma", "s"}:  # normalize axis
-        axis = np.asanyarray(axis)
+        axis = np.asarray(axis)
         axis = axis / np.linalg.norm(axis)
 
         if name in {"c", "s"}:
-            rotation = _Rotation.from_rotvec(2.0 * np.pi * axis / order).as_matrix()
+            rotation = Rotation.from_rotvec(2.0 * np.pi * axis / order).as_matrix()
         if name in {"σ", "sigma", "s"}:
             reflection = np.eye(3) - 2.0 * np.outer(axis, axis)
         if name == "c":
@@ -1424,7 +1414,7 @@ def _classify_rotor(moments, rtol=0.0, atol=1.0e-2, slack=0.870):
 
     if np.isclose(moments[2], 0.0, rtol=inner_slack * rtol, atol=inner_slack * atol):
         return "spheric", "atomic"
-    moments = np.asanyarray(moments) / moments[2]
+    moments = np.asarray(moments) / moments[2]
 
     # basic tests for tops
     is_oblate = np.isclose(
@@ -1484,14 +1474,15 @@ def gyradius(atommasses, atomcoords, method="iupac"):
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["tanaka1996"]["CH3·@UMP2/6-311G(2df,2pd)"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["tanaka1996"]["CH3·@UMP2/cc-pVTZ"]
     >>> gyradius(data.atommasses, data.atomcoords)
     0.481
     >>> gyradius(data.atommasses, data.atomcoords, method="mean")
     0.93
 
-    >>> data = logfiles["symmetries"]["water"]
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> gyradius(data.atommasses, data.atomcoords)
     0.31915597673891866
     >>> gyradius(np.ones_like(data.atommasses), data.atomcoords)
@@ -1591,10 +1582,10 @@ def inertia(atommasses, atomcoords, align=True):
     return moments, axes, atomcoords
 
 
-# TODO(schneiderfelipe): correct this
+# TODO(schneiderfelipe): this needs rework, see
 # https://chemistry.stackexchange.com/questions/74639/how-to-calculate-wavenumbers-of-normal-modes-from-the-eigenvalues-of-the-cartesi/74923#74923
-# This needs rework. Ideally, the same Eckart transformation that make this
-# work will also work in calc_vibfreqs, so one thing leads to the other.
+# Ideally, the same Eckart transformation that make this work will also work
+# in calc_vibfreqs, so one thing leads to the other.
 def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     """Compute the Hessian matrix from normal modes and frequencies.
 
@@ -1617,10 +1608,15 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     array-like
         Complete Hessian matrix in cartesian coordinates.
 
+    Notes
+    -----
+    This is a work in progress!
+
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["water"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> H = calc_hessian(data.atommasses, data.atomcoords, data.vibfreqs, data.vibdisps)
     >>> calc_vibfreqs(H, data.atommasses)  # doctest: +SKIP
     array([1619.1, 3671.7, 3769.1])
@@ -1645,19 +1641,20 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
             -0.01313383, -0.00678954,  0.25045664,  0.29443748]])
     """
     dof = 3 * len(atommasses)
-    L_cart = np.asanyarray(vibdisps).reshape((len(vibfreqs), dof)).T
-    # correct until here
+    L_cart = np.asarray(vibdisps).reshape((len(vibfreqs), dof)).T
+    # this function is correct until here
+
     L_cart = np.linalg.qr(L_cart, mode="complete")[0]
 
     atommasses_sqrt = np.sqrt([mass for mass in atommasses for _ in range(3)])
     D = eckart_transform(atommasses, atomcoords)
     M = np.diag(1.0 / atommasses_sqrt)
     L = np.linalg.solve(M @ D, L_cart)
-    # TODO(schneiderfelipe): transform the following in a warning?
+
     assert np.allclose(M @ D @ L, L_cart)
 
-    # correct from here
-    nu = np.asanyarray(vibfreqs) * constants.c / constants.centi
+    # this function is correct from here
+    nu = np.asarray(vibfreqs) * constants.c / constants.centi
     eigenvalues = (
         (2.0 * np.pi * nu) ** 2
         * (constants.atomic_mass * constants.bohr ** 2)
@@ -1670,8 +1667,8 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     return f_mwc * np.outer(atommasses_sqrt, atommasses_sqrt)
 
 
-# TODO(schneiderfelipe): correct this
-# TODO(schneiderfelipe): project out translations and rotations
+# TODO(schneiderfelipe): correct this function and project out translations
+# and rotations, see
 # https://chemistry.stackexchange.com/questions/74639/how-to-calculate-wavenumbers-of-normal-modes-from-the-eigenvalues-of-the-cartesi/74923#74923
 def calc_vibfreqs(hessian, atommasses):
     """Calculate vibrational frequencies.
@@ -1693,17 +1690,19 @@ def calc_vibfreqs(hessian, atommasses):
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["symmetries"]["water"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> calc_vibfreqs(data.hessian, data.atommasses)
     array([1619.1, 3671.7, 3769.1])
     """
     atommasses_sqrt = np.sqrt([mass for mass in atommasses for _ in range(3)])
 
     # mass-weighted Hessian
-    hessian = np.asanyarray(hessian) / np.outer(atommasses_sqrt, atommasses_sqrt)
+    hessian = np.asarray(hessian) / np.outer(atommasses_sqrt, atommasses_sqrt)
 
     eigenvalues = np.linalg.eigvals(hessian)
+
     # TODO(schneiderfelipe): the following probably misses some linear
     # molecules and transition states.
     eigenvalues = np.real(eigenvalues[eigenvalues > 0])[::-1]
@@ -1733,16 +1732,17 @@ def eckart_transform(atommasses, atomcoords):
 
     Examples
     --------
-    >>> from overreact.datasets import logfiles
-    >>> data = logfiles["tanaka1996"]["Cl·@UMP2/6-311G(2df,2pd)"]
+    >>> from overreact import datasets
+
+    >>> data = datasets.logfiles["tanaka1996"]["Cl·@UMP2/cc-pVTZ"]
     >>> eckart_transform(data.atommasses, data.atomcoords)
     array([[1., 0., 0.],
            [0., 1., 0.],
            [0., 0., 1.]])
-    >>> data = logfiles["symmetries"]["dihydrogen"]
+    >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
     >>> eckart_transform(data.atommasses, data.atomcoords)
     array([[...]])
-    >>> data = logfiles["symmetries"]["water"]
+    >>> data = datasets.logfiles["symmetries"]["water"]
     >>> eckart_transform(data.atommasses, data.atomcoords)
     array([[-9.42386999e-01,  0.00000000e+00,  0.00000000e+00,
              2.99716727e-01, -2.86166258e-06, -7.42376895e-02,
@@ -1772,7 +1772,7 @@ def eckart_transform(atommasses, atomcoords):
              2.94635849e-01, -3.12654446e-01,  5.71869440e-01,
              5.73721626e-01, -1.13019078e-01,  3.00863871e-01]])
     """
-    atommasses = np.asanyarray(atommasses)
+    atommasses = np.asarray(atommasses)
     natom = len(atommasses)
     dof = 3 * natom
 
@@ -1887,7 +1887,7 @@ def _equivalent_atoms(
         return groups
 
     if method == "cluster":
-        D = _squareform(_pdist(atomcoords))
+        D = squareform(pdist(atomcoords))
         # mu = np.outer(atommasses, atommasses) / np.add.outer(
         #     atommasses, atommasses
         # )  # reduced masses
@@ -1897,13 +1897,11 @@ def _equivalent_atoms(
         sigma = np.std(D, axis=0)
         delta = np.sqrt(np.sum(D ** 2, axis=0))
 
-        criteria = np.block(
-            [[omega], [sigma], [delta]]
-        ).T  # TODO(schneiderfelipe): use xy plane?
-        Z = _linkage(_pdist(criteria), method="single")
-        clusters = _fcluster(Z, thresh, criterion="distance")
+        criteria = np.block([[omega], [sigma], [delta]]).T
+        Z = linkage(pdist(criteria), method="single")
+        clusters = fcluster(Z, thresh, criterion="distance")
 
-        # TODO(schneiderfelipe): this is for debug and should evtl. be removed.
+        # TODO(schneiderfelipe): this was for debug and should evtl. be removed.
         if plot:
             import matplotlib.pyplot as plt
 

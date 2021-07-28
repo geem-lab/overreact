@@ -5,7 +5,7 @@
 Most of this data comes from `scipy.constants`.
 """
 
-import numpy as _np
+import numpy as np
 from scipy.constants import angstrom  # noqa: F401
 from scipy.constants import atm  # noqa: F401
 from scipy.constants import atomic_mass  # noqa: F401
@@ -153,7 +153,7 @@ _vdw_radius_crc = [
 ]
 
 
-@_np.vectorize
+@np.vectorize
 def _vdw_radius(atomno):
     """Select reasonable estimates for the van der Waals radii.
 

@@ -2,28 +2,37 @@
 
 """Command-line interface."""
 
+import shutil
 import argparse
 import logging
 import os
 import re
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import minimize_scalar
+from rich import box
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+from rich.table import Table
+from rich.table import Column
+from rich.text import Text
 
-from overreact import api
+import overreact as rx
+from overreact import coords
 from overreact import constants
-from overreact import core
-from overreact import io
+from overreact.misc import _found_seaborn
 
-levels = [logging.WARNING, logging.INFO, logging.DEBUG]
+if _found_seaborn:
+    import seaborn as sns
+
+    sns.set(style="white", palette="colorblind")
 
 
-def summarize_model(
-    model, quantities=None, savepath=None, plot=False, qrrho=True, temperature=298.15
-):
-    """Produce a string describing a model.
-
-    The returned string contains a final line break.
+class Report:
+    """Produce a report object based on a model.
 
     Parameters
     ----------
@@ -36,547 +45,801 @@ def summarize_model(
     temperature : array-like, optional
         Absolute temperature in Kelvin.
 
-    Returns
-    -------
-    str
-
     Examples
     --------
-    >>> model = api.parse_model("data/ethane/B97-3c/model.jk")
-    >>> print(summarize_model(model))
+    >>> from rich import print
+    >>> model = rx.parse_model("data/ethane/B97-3c/model.jk")
+    >>> print(Report(model))
+    ╭──────────────────╮
+    │ (read) reactions │
+    │                  │
+    │   S -> E‡ -> S   │
+    │                  │
+    ╰──────────────────╯
+                       (parsed) reactions
     <BLANKLINE>
-                                   (READ) REACTIONS
-    ------------------------------------------------------------------------------
-                                     S -> E‡ -> S
+      no   reactant(s)   via‡   product(s)   half equilib.?
+     ───────────────────────────────────────────────────────
+       0   S             E‡     S                  No
     <BLANKLINE>
-                                                              (PARSED) REACTIONS
-    --------------------------------------------------------------------------------------------------------------------------------------
-    no                      reactants                          via‡                           products                      half equilib.?
-    -- --------------------------------------------------- ------------ --------------------------------------------------- --------------
-     0                          S                               E‡                               S
+    ...
     <BLANKLINE>
-                                                            COMPOUNDS
-    -------------------------------------------------------------------------------------------------------------------------
-    no      compound        elec. energy   spin mult.     smallest vibfreqs                    original logfile
-                                [Eh]                            [cm⁻¹]
-    -- ----------------- ----------------- ---------- ------------------------- ---------------------------------------------
-     0         S          -79.788170457691     1        307.6,   825.4,   826.1           data/ethane/B97-3c/staggered.out
-     1         E‡         -79.783894160233     1       -298.9,   902.2,   902.5            data/ethane/B97-3c/eclipsed.out
-    <BLANKLINE>
-                           CALCULATED THERMOCHEMISTRY (COMPOUNDS)
-    -----------------------------------------------------------------------------------
-    no      compound      mass  Gcorr(298.15K) Ucorr(298.15K) Hcorr(298.15K) S(298.15K)
-                         [amu]    [kcal/mol]     [kcal/mol]     [kcal/mol]   [cal/mol·K]
-    -- ----------------- ------ -------------- -------------- -------------- ----------
-     0         S          30.07          33.01          48.63          49.22      54.40
-     1         E‡         30.07          32.95          48.15          48.74      52.96
-    <BLANKLINE>
-                                                                                   CALCULATED THERMOCHEMISTRY (REACTIONS)
-    ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    no                               reaction                              Δmass‡    ΔG‡        ΔE‡        ΔU‡        ΔH‡         ΔS‡     Δmass°    ΔG°        ΔE°        ΔU°        ΔH°         ΔS°
-                                                                           [amu]  [kcal/mol] [kcal/mol] [kcal/mol] [kcal/mol] [cal/mol·K] [amu]  [kcal/mol] [kcal/mol] [kcal/mol] [kcal/mol] [cal/mol·K]
-    -- ------------------------------------------------------------------- ------ ---------- ---------- ---------- ---------- ----------- ------ ---------- ---------- ---------- ---------- -----------
-     0                                S -> S                                 0.00       2.63       2.68       2.20       2.20       -1.44   0.00       0.00       0.00       0.00       0.00        0.00
-    <BLANKLINE>
-                                                              CALCULATED KINETICS
-    ---------------------------------------------------------------------------------------------------------------------------------------
-    no                               reaction                              half equilib.?      k                 k                  k
-                                                                                          [M⁻ⁿ⁺¹·s⁻¹] [(cm³/particle)ⁿ⁻¹·s⁻¹] [atm⁻ⁿ⁺¹·s⁻¹]
-    -- ------------------------------------------------------------------- -------------- ----------- ----------------------- -------------
-     0                                S -> S                                                8.2e+10           8.2e+10            8.2e+10
+    Only in the table above, all Gibbs free energies were biased by 0.0 J/mol.
+    For half-equilibria, only ratios make sense.
     """
-    sections = []
-    sections.append(_summarize_scheme(model.scheme))
-    sections.append(_summarize_compounds(model.compounds))
-    sections.append(
-        _summarize_thermochemistry(
-            model.scheme, model.compounds, qrrho=qrrho, temperature=temperature
+
+    def __init__(
+        self,
+        model,
+        concentrations=None,
+        savepath=None,
+        plot=None,
+        qrrho=True,
+        temperature=298.15,
+        pressure=constants.atm,
+        bias=0.0,
+        tunneling="eckart",
+        method="Radau",
+        max_time=24 * 60 * 60,
+        rtol=1e-5,
+        atol=1e-11,
+        box_style=box.SIMPLE,
+    ):
+        self.model = model
+        self.concentrations = concentrations
+        self.savepath = savepath
+        self.plot = plot
+        self.qrrho = qrrho
+        self.temperature = temperature
+        # TODO(schneiderfelipe): use pressure throughout
+        self.pressure = pressure
+        self.bias = bias
+        self.tunneling = tunneling
+        self.method = method
+        self.max_time = max_time
+        self.rtol = rtol
+        self.atol = atol
+        self.box_style = box_style
+
+    def __rich_console__(self, console, options):
+        """
+        Implement Rich Console protocol.
+
+        This works by yielding from generators.
+
+        Yields
+        ------
+        renderable
+        """
+        yield from self._yield_scheme()
+        yield from self._yield_compounds()
+        yield from self._yield_thermochemistry()
+        yield from self._yield_kinetics()
+
+    def _yield_scheme(self):
+        """Produce a renderables describing the reaction scheme.
+
+        This is meant to be used from within `__rich_console__`.
+
+        Yields
+        ------
+        renderable
+        """
+        scheme = rx.core._check_scheme(self.model.scheme)
+
+        raw_table = Table(
+            title="(read) reactions", box=self.box_style, show_header=False
         )
-    )
-    sections.append(
-        _summarize_kinetics(
-            model.scheme,
-            model.compounds,
-            quantities=quantities,
-            savepath=savepath,
-            plot=plot,
-            qrrho=qrrho,
-            temperature=temperature,
+        raw_table.add_column(justify="left")
+        for r in rx.core.unparse_reactions(scheme).split("\n"):
+            raw_table.add_row(r)
+        yield Panel(raw_table, expand=False)
+
+        transition_states = rx.core.get_transition_states(
+            scheme.A, scheme.B, scheme.is_half_equilibrium
         )
-    )
-    return "".join(sections)
 
+        parsed_table = Table(
+            Column("no", justify="right"),
+            Column("reactant(s)", justify="left"),
+            Column("via‡", justify="left"),
+            Column("product(s)", justify="left"),
+            Column("half equilib.?", justify="center"),
+            title="(parsed) reactions",
+            box=self.box_style,
+        )
+        for i, reaction in enumerate(scheme.reactions):
+            reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
+            row = [f"{i:d}", reactants, None, products, "No"]
+            if transition_states[i] is not None:
+                row[2] = scheme.compounds[transition_states[i]]
+            elif scheme.is_half_equilibrium[i]:
+                row[4] = "Yes"
+            parsed_table.add_row(*row)
+        yield parsed_table
 
-def _summarize_scheme(scheme):
-    """Produce a string describing a reaction scheme.
+    def _yield_compounds(self):
+        """Produce a renderables describing the compounds.
 
-    This is meant to be used from within `summarize_model`. The returned string
-    contains a final line break.
+        This is meant to be used from within `__rich_console__`.
 
-    Parameters
-    ----------
-    scheme : Scheme
+        Yields
+        ------
+        renderable
 
-    Returns
-    -------
-    str
-    """
-    scheme = core._check_scheme(scheme)
-    reactions = _format_table(
-        [[row] for row in core.unparse_reactions(scheme).split("\n")],
-        title="(read) reactions",
-        length=[78],
-    )
+        Raises
+        ------
+        ValueError
+            If at least one compound has no data defined.
+        """
+        undefined_compounds = []
+        for name in self.model.compounds:
+            if not self.model.compounds[name]:
+                undefined_compounds.append(name)
+        if undefined_compounds:
+            raise ValueError(f"undefined compounds: {', '.join(undefined_compounds)}")
 
-    transition_states = core.get_transition_states(
-        scheme.A, scheme.B, scheme.is_half_equilibrium
-    )
+        logfiles_table = Table(
+            Column("no", justify="right"),
+            Column("compound", justify="left"),
+            Column("path", justify="left"),
+            title="logfiles",
+            box=self.box_style,
+        )
+        compounds_table = Table(
+            Column("no", justify="right"),
+            Column("compound", justify="left"),
+            Column("elec. energy\n\[Eₕ]", justify="center"),
+            Column("spin mult.", justify="center"),
+            Column("smallest vibfreqs\n\[cm⁻¹]", justify="center"),
+            Column("point group", justify="center"),
+            title="compounds",
+            box=self.box_style,
+        )
+        for i, (name, data) in enumerate(self.model.compounds.items()):
+            path_text = None
+            if data.logfile is not None:
+                path_text = Text(data.logfile)
+                path_text.highlight_regex(r"[^\/]+$", "bright_blue")
+            logfiles_table.add_row(
+                f"{i:d}",
+                name,
+                path_text,
+            )
 
-    reaction_rows = [
-        [
-            "no",
-            "reactants".center(51),
-            "via‡".center(12),
-            "products".center(51),
-            "half equilib.?",
-        ]
-    ]
-    reaction_rows.append(["-" * len(field) for field in reaction_rows[0]])
-    for i, reaction in enumerate(scheme.reactions):
-        reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
-        row = [f"{i:2d}", reactants, None, products, None]
-        if transition_states[i] is not None:
-            row[2] = scheme.compounds[transition_states[i]]
-        elif scheme.is_half_equilibrium[i]:
-            row[4] = True
-        reaction_rows.append(row)
-    parsed_reactions = _format_table(reaction_rows, title="(parsed) reactions")
+            vibfreqs_text = None
+            if data.vibfreqs is not None:
+                vibfreqs_text = Text(
+                    ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
+                )
+                vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
 
-    return reactions + parsed_reactions
-
-
-def _summarize_compounds(compounds):
-    """Produce a string describing compounds.
-
-    This is meant to be used from within `summarize_model`. The returned string
-    contains a final line break.
-
-    Parameters
-    ----------
-    compounds : dict-like
-
-    Returns
-    -------
-    str
-
-    Raises
-    ------
-    ValueError
-        If at least one compound has no data defined.
-    """
-    undefined_compounds = []
-    for name in compounds:
-        if not compounds[name]:
-            undefined_compounds.append(name)
-    if undefined_compounds:
-        raise ValueError(f"undefined compounds: {', '.join(undefined_compounds)}")
-
-    compound_rows = [
-        [
-            "no",
-            "compound".center(17),
-            "elec. energy".center(17),
-            "spin mult.",
-            "smallest vibfreqs".center(25),
-            "original logfile".center(45),
-        ],
-        [None, None, "[Eh]", None, "[cm⁻¹]", None],
-    ]
-    compound_rows.append(["-" * len(field) for field in compound_rows[0]])
-    for i, (name, data) in enumerate(compounds.items()):
-        compound_rows.append(
-            [
-                f"{i:2d}",
+            point_group = coords.find_point_group(
+                atommasses=data.atommasses, atomcoords=data.atomcoords
+            )
+            compounds_table.add_row(
+                f"{i:d}",
                 name,
                 f"{data.energy / (constants.hartree * constants.N_A):17.12f}",
-                data.mult,
-                ", ".join([f"{vibfreq:7.1f}" for vibfreq in data.vibfreqs[:3]]),
-                # TODO(schneiderfelipe): show only the file name and inform
-                # the absolute path to folder (as a bash variable) somewhere
-                # else.
-                data.logfile,
-            ]
+                f"{data.mult}",
+                vibfreqs_text,
+                point_group,
+            )
+        yield logfiles_table
+        yield compounds_table
+
+    def _yield_thermochemistry(self):
+        """Produce a renderables describing the thermochemistry of the reaction scheme.
+
+        This is meant to be used from within `__rich_console__`.
+
+        Yields
+        ------
+        renderable
+        """
+        scheme = rx.core._check_scheme(self.model.scheme)
+
+        molecular_masses = np.array(
+            [np.sum(data.atommasses) for name, data in self.model.compounds.items()]
+        )
+        energies = np.array(
+            [data.energy for name, data in self.model.compounds.items()]
+        )
+        internal_energies = rx.get_internal_energies(
+            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
+        )
+        enthalpies = rx.get_enthalpies(
+            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
+        )
+        entropies = rx.get_entropies(
+            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
+        )
+        freeenergies = enthalpies - self.temperature * entropies
+        assert np.allclose(
+            freeenergies,
+            rx.get_freeenergies(
+                self.model.compounds,
+                qrrho=self.qrrho,
+                temperature=self.temperature,
+                pressure=self.pressure,
+            ),
         )
 
-    return _format_table(compound_rows, title="compounds")
-
-
-def _summarize_thermochemistry(scheme, compounds, qrrho=True, temperature=298.15):
-    """Produce a string describing the thermochemistry of a reaction scheme.
-
-    This is meant to be used from within `summarize_model`. The returned string
-    contains a final line break.
-
-    Parameters
-    ----------
-    scheme : Scheme
-    compounds : dict-like
-    qrrho : bool, optional
-        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
-        approximations of M. Head-Gordon (enthalpy correction, see
-        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
-        doi:10.1002/chem.201200497) on top of the classical RRHO.
-    temperature : array-like, optional
-        Absolute temperature in Kelvin.
-
-    Returns
-    -------
-    str
-    """
-    scheme = core._check_scheme(scheme)
-
-    molecular_masses = np.array(
-        [np.sum(data.atommasses) for name, data in compounds.items()]
-    )
-    energies = np.array([data.energy for name, data in compounds.items()])
-    internal_energies = api.get_internal_energies(
-        compounds, qrrho=qrrho, temperature=temperature
-    )
-    enthalpies = api.get_enthalpies(compounds, qrrho=qrrho, temperature=temperature)
-    entropies = api.get_entropies(compounds, qrrho=qrrho, temperature=temperature)
-    freeenergies = enthalpies - temperature * entropies
-
-    compound_rows = [
-        [
-            "no",
-            "compound".center(17),
-            "mass".center(6),
-            f"Gcorr({temperature}K)",
-            f"Ucorr({temperature}K)",
-            f"Hcorr({temperature}K)",
-            f"S({temperature}K)",
-        ],
-        [None, None, "[amu]", "[kcal/mol]", "[kcal/mol]", "[kcal/mol]", "[cal/mol·K]"],
-    ]
-    compound_rows.append(["-" * len(field) for field in compound_rows[0]])
-    for i, (name, data) in enumerate(compounds.items()):
-        compound_rows.append(
-            [
-                f"{i:2d}",
+        compounds_table = Table(
+            Column("no", justify="right"),
+            Column("compound", justify="left"),
+            Column("mass\n\[amu]", justify="center"),
+            Column("Gᶜᵒʳʳ\n\[kcal/mol]", justify="center", style="bright_green"),
+            Column("Uᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
+            Column("Hᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
+            Column("S\n\[cal/mol·K]", justify="center"),
+            title="estimated thermochemistry (compounds)",
+            box=self.box_style,
+        )
+        for i, (name, data) in enumerate(self.model.compounds.items()):
+            compounds_table.add_row(
+                f"{i:d}",
                 name,
                 f"{molecular_masses[i]:6.2f}",
                 f"{(freeenergies[i] - data.energy) / constants.kcal:14.2f}",
                 f"{(internal_energies[i] - data.energy) / constants.kcal:14.2f}",
                 f"{(enthalpies[i] - data.energy) / constants.kcal:14.2f}",
                 f"{entropies[i] / constants.calorie:10.2f}",
-            ]
+            )
+        yield compounds_table
+
+        delta_mass = rx.get_delta(scheme.A, molecular_masses)
+        delta_energies = rx.get_delta(scheme.A, energies)
+        delta_internal_energies = rx.get_delta(scheme.A, internal_energies)
+        delta_enthalpies = rx.get_delta(scheme.A, enthalpies)
+        # TODO(schneiderfelipe): log the contribution of reaction symmetry
+        delta_entropies = rx.get_delta(scheme.A, entropies) + rx.get_reaction_entropies(
+            scheme.A, temperature=self.temperature, pressure=self.pressure
         )
-    compounds_table = _format_table(
-        compound_rows, title="calculated thermochemistry (compounds)"
-    )
+        delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
+        assert np.allclose(
+            delta_freeenergies,
+            rx.get_delta(scheme.A, freeenergies)
+            - self.temperature
+            * rx.get_reaction_entropies(
+                scheme.A, temperature=self.temperature, pressure=self.pressure
+            ),
+        )
 
-    delta_mass = api.get_delta(scheme.A, molecular_masses)
-    delta_energies = api.get_delta(scheme.A, energies)
-    delta_internal_energies = api.get_delta(scheme.A, internal_energies)
-    delta_enthalpies = api.get_delta(scheme.A, enthalpies)
-    delta_entropies = api.get_delta(scheme.A, entropies)
-    delta_freeenergies = api.get_delta(scheme.A, freeenergies)
+        delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
+        delta_activation_energies = rx.get_delta(scheme.B, energies)
+        delta_activation_internal_energies = rx.get_delta(scheme.B, internal_energies)
+        delta_activation_enthalpies = rx.get_delta(scheme.B, enthalpies)
+        # TODO(schneiderfelipe): log the contribution of reaction symmetry
+        delta_activation_entropies = rx.get_delta(
+            scheme.B, entropies
+        ) + rx.get_reaction_entropies(
+            scheme.B, temperature=self.temperature, pressure=self.pressure
+        )
+        delta_activation_freeenergies = (
+            delta_activation_enthalpies - self.temperature * delta_activation_entropies
+        )
+        assert np.allclose(
+            delta_activation_freeenergies,
+            rx.get_delta(scheme.B, freeenergies)
+            - self.temperature
+            * rx.get_reaction_entropies(
+                scheme.B, temperature=self.temperature, pressure=self.pressure
+            ),
+        )
 
-    delta_activation_mass = api.get_delta(scheme.B, molecular_masses)
-    delta_activation_energies = api.get_delta(scheme.B, energies)
-    delta_activation_internal_energies = api.get_delta(scheme.B, internal_energies)
-    delta_activation_enthalpies = api.get_delta(scheme.B, enthalpies)
-    delta_activation_entropies = api.get_delta(scheme.B, entropies)
-    delta_activation_freeenergies = api.get_delta(scheme.B, freeenergies)
+        circ_table = Table(
+            Column("no", justify="right"),
+            Column("reaction", justify="left"),
+            Column("Δmass°\n\[amu]", justify="center"),
+            Column("ΔG°\n\[kcal/mol]", justify="center", style="bright_green"),
+            Column("ΔE°\n\[kcal/mol]", justify="center"),
+            Column("ΔU°\n\[kcal/mol]", justify="center"),
+            Column("ΔH°\n\[kcal/mol]", justify="center"),
+            Column("ΔS°\n\[cal/mol·K]", justify="center"),
+            title="estimated (reaction°) thermochemistry",
+            box=self.box_style,
+        )
+        dagger_table = Table(
+            Column("no", justify="right"),
+            Column("reaction", justify="left"),
+            Column("Δmass‡\n\[amu]", justify="center"),
+            Column("ΔG‡\n\[kcal/mol]", justify="center", style="bright_green"),
+            Column("ΔE‡\n\[kcal/mol]", justify="center"),
+            Column("ΔU‡\n\[kcal/mol]", justify="center"),
+            Column("ΔH‡\n\[kcal/mol]", justify="center"),
+            Column("ΔS‡\n\[cal/mol·K]", justify="center"),
+            title="estimated (activation‡) thermochemistry",
+            box=self.box_style,
+        )
+        for i, reaction in enumerate(scheme.reactions):
+            if scheme.is_half_equilibrium[i]:
+                circ_row = [
+                    f"{i:d}",
+                    reaction,
+                    f"{delta_mass[i]:6.2f}",
+                    f"{delta_freeenergies[i] / constants.kcal:10.2f}",
+                    f"{delta_energies[i] / constants.kcal:10.2f}",
+                    f"{delta_internal_energies[i] / constants.kcal:10.2f}",
+                    f"{delta_enthalpies[i] / constants.kcal:10.2f}",
+                    f"{delta_entropies[i] / constants.calorie:11.2f}",
+                ]
+                dagger_row = [
+                    f"{i:d}",
+                    reaction,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]
+            else:
+                circ_row = [
+                    f"{i:d}",
+                    reaction,
+                    f"{delta_mass[i]:6.2f}",
+                    f"{delta_freeenergies[i] / constants.kcal:10.2f}",
+                    f"{delta_energies[i] / constants.kcal:10.2f}",
+                    f"{delta_internal_energies[i] / constants.kcal:10.2f}",
+                    f"{delta_enthalpies[i] / constants.kcal:10.2f}",
+                    f"{delta_entropies[i] / constants.calorie:11.2f}",
+                ]
+                dagger_row = [
+                    f"{i:d}",
+                    reaction,
+                    f"{delta_activation_mass[i]:6.2f}",
+                    f"{delta_activation_freeenergies[i] / constants.kcal:10.2f}",
+                    f"{delta_activation_energies[i] / constants.kcal:10.2f}",
+                    f"{delta_activation_internal_energies[i] / constants.kcal:10.2f}",
+                    f"{delta_activation_enthalpies[i] / constants.kcal:10.2f}",
+                    f"{delta_activation_entropies[i] / constants.calorie:11.2f}",
+                ]
 
-    reaction_rows = [
-        [
-            "no",
-            "reaction".center(67),
-            "Δmass‡",
-            "ΔG‡".center(10),
-            "ΔE‡".center(10),
-            "ΔU‡".center(10),
-            "ΔH‡".center(10),
-            "ΔS‡".center(11),
-            "Δmass°",
-            "ΔG°".center(10),
-            "ΔE°".center(10),
-            "ΔU°".center(10),
-            "ΔH°".center(10),
-            "ΔS°".center(11),
-        ],
-        [
-            None,
-            None,
-            "[amu]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[cal/mol·K]",
-            "[amu]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[kcal/mol]",
-            "[cal/mol·K]",
-        ],
-    ]
-    reaction_rows.append(["-" * len(field) for field in reaction_rows[0]])
-    for i, reaction in enumerate(scheme.reactions):
-        if scheme.is_half_equilibrium[i]:
-            row = [
-                f"{i:2d}",
-                reaction,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                f"{delta_mass[i]:6.2f}",
-                f"{delta_freeenergies[i] / constants.kcal:10.2f}",
-                f"{delta_energies[i] / constants.kcal:10.2f}",
-                f"{delta_internal_energies[i] / constants.kcal:10.2f}",
-                f"{delta_enthalpies[i] / constants.kcal:10.2f}",
-                f"{delta_entropies[i] / constants.calorie:11.2f}",
-            ]
-        else:
-            row = [
-                f"{i:2d}",
-                reaction,
-                f"{delta_activation_mass[i]:6.2f}",
-                f"{delta_activation_freeenergies[i] / constants.kcal:10.2f}",
-                f"{delta_activation_energies[i] / constants.kcal:10.2f}",
-                f"{delta_activation_internal_energies[i] / constants.kcal:10.2f}",
-                f"{delta_activation_enthalpies[i] / constants.kcal:10.2f}",
-                f"{delta_activation_entropies[i] / constants.calorie:11.2f}",
-                f"{delta_mass[i]:6.2f}",
-                f"{delta_freeenergies[i] / constants.kcal:10.2f}",
-                f"{delta_energies[i] / constants.kcal:10.2f}",
-                f"{delta_internal_energies[i] / constants.kcal:10.2f}",
-                f"{delta_enthalpies[i] / constants.kcal:10.2f}",
-                f"{delta_entropies[i] / constants.calorie:11.2f}",
-            ]
+            circ_table.add_row(*circ_row)
+            dagger_table.add_row(*dagger_row)
+        yield circ_table
+        yield dagger_table
 
-        reaction_rows.append(row)
-    reactions_table = _format_table(
-        reaction_rows, title="calculated thermochemistry (REACTIONS)"
-    )
+    def _yield_kinetics(self):
+        """Produce a renderables describing the kinetics of the system.
 
-    return compounds_table + reactions_table
+        This is meant to be used from within `__rich_console__`.
 
-
-def _summarize_kinetics(
-    scheme,
-    compounds,
-    quantities=None,
-    savepath=None,
-    plot=False,
-    qrrho=True,
-    temperature=298.15,
-):
-    # TODO(schneiderfelipe): apply other corrections to k
-    k = {
-        "M⁻ⁿ⁺¹·s⁻¹": api.get_k(
-            scheme, compounds, qrrho=qrrho, temperature=temperature, scale="l mol-1 s-1"
-        ),
-        "(cm³/particle)ⁿ⁻¹·s⁻¹": api.get_k(
-            scheme,
-            compounds,
-            qrrho=qrrho,
-            temperature=temperature,
-            scale="cm3 particle-1 s-1",
-        ),
-        "atm⁻ⁿ⁺¹·s⁻¹": api.get_k(
-            scheme, compounds, qrrho=qrrho, temperature=temperature, scale="atm-1 s-1"
-        ),
-    }
-
-    reaction_rows = [
-        ["no", "reaction".center(67), "half equilib.?"]
-        + ["k".center(len(scale) + 2) for scale in k],
-        [None, None, None] + [f"[{scale}]" for scale in k],
-    ]
-    reaction_rows.append(["-" * len(field) for field in reaction_rows[0]])
-    for i, reaction in enumerate(scheme.reactions):
-        row = [f"{i:2d}", reaction, None] + [f"{k[scale][i]:7.2g}" for scale in k]
-        if scheme.is_half_equilibrium[i]:
-            row[2] = True
-
-        reaction_rows.append(row)
-    reactions_table = _format_table(reaction_rows, title="calculated kinetics")
-
-    if quantities is not None and quantities:
-        # TODO(schneiderfelipe): apply post-processing to scheme, k (with functions
-        # that receive a scheme, k and return a scheme, k). One that solves the pH
-        # problem is welcome: get a scheme, k and, for each reaction in it, remove
-        # the H+ and multiplies the reaction rate constants by the proper
-        # concentration if there is H+ in the reactants.
-        # TODO(schneiderfelipe): encapsulate everything in a function that depends
-        # on the freeenergies as first parameter
-        dydt = api.get_dydt(scheme, k)
-
-        y0 = np.zeros(len(scheme.compounds))
-        for spec in quantities:
-            fields = spec.split(":", 1)
-            name = fields[0]
-            try:
-                quantity = float(fields[1])
-            except (IndexError, ValueError):
-                raise ValueError(
-                    f"badly formatted quantities: '{' '.join(quantities)}'"
-                )
-
-            # TODO(schneiderfelipe): the following is inefficient but probably OK
-            y0[scheme.compounds.index(name)] = quantity
-
-        t, y, r = api.get_y(dydt, y0=y0, method="Radau")
-        if plot:
-            import matplotlib.pyplot as plt
-
-            for i, name in enumerate(scheme.compounds):
-                if not core.is_transition_state(name):
-                    plt.plot(t, y[i], label=name)
-
-            plt.legend()
-            plt.xlabel("Time (s)")
-            plt.ylabel("Concentration (M)")
-            plt.show()
-
-        if savepath is not None:
-            np.savetxt(
-                savepath,
-                np.block([t[:, np.newaxis], y.T]),
-                header=f"t,{','.join(scheme.compounds)}",
+        Yields
+        ------
+        renderable
+        """
+        if isinstance(self.bias, str):
+            data = np.genfromtxt(
+                self.bias,
+                names=True,
                 delimiter=",",
             )
+            data = {name: data[name] for name in data.dtype.names}
 
-        # TODO(schneiderfelipe): implement the degree of rate control
+            scheme, _, y0 = _prepare_simulation(
+                self.model.scheme,
+                rx.get_k(
+                    self.model.scheme,
+                    self.model.compounds,
+                    bias=0.0,
+                    tunneling=self.tunneling,
+                    qrrho=self.qrrho,
+                    scale="l mol-1 s-1",
+                    temperature=self.temperature,
+                    pressure=self.pressure,
+                ),
+                self.concentrations,
+            )
+            # TODO(schneiderfelipe): support schemes with fixed concentrations
+            self.bias = rx.get_bias(
+                scheme,
+                self.model.compounds,
+                data,
+                y0,
+                tunneling=self.tunneling,
+                qrrho=self.qrrho,
+                temperature=self.temperature,
+                pressure=self.pressure,
+                method=self.method,
+                rtol=self.rtol,
+                atol=self.atol,
+            )
 
-    return reactions_table
-
-
-def _create_banner(text, title_char="-", width=78):
-    banner = f"\n\n{text.center(width)}"
-    return banner + f"\n{title_char * width}\n"
-
-
-def _format_table(rows, length=None, sep=" ", title=None):
-    """Format a table for printing.
-
-    The width of each column is taken from the length of the first row. Nones
-    are omitted.
-
-    Parameters
-    ----------
-    rows : sequence of sequence of str
-    length : sequence of int, optional
-    sep : str, optional
-
-    Returns
-    -------
-    str
-
-    Examples
-    --------
-    >>> print(_format_table([["one  ", "two"], [1, 2], ["hello", "world"]]))
-    one    two
-    1      2
-    hello  world
-    """
-    default_length = [len(field) for field in rows[0]]
-    if length is None:
-        length = default_length
-    else:
-        length = [a if a is not None else b for a, b in zip(length, default_length)]
-
-    lines = []
-    for row in rows:
-        line = [
-            str(field).center(length[i]) if field is not None else " " * length[i]
-            for i, field in enumerate(row)
-        ]
-        lines.append(sep.join(line))
-
-    table = "\n".join(lines)
-    if title is not None:
-        return (
-            _create_banner(title.upper(), width=np.sum(length) + len(length) - 1)
-            + table
+        # TODO(schneiderfelipe): apply other corrections to k (such as
+        # diffusion control).
+        # TODO(schneiderfelipe): use pressure.
+        k = {
+            "M⁻ⁿ⁺¹·s⁻¹": rx.get_k(
+                self.model.scheme,
+                self.model.compounds,
+                bias=self.bias,
+                tunneling=self.tunneling,
+                qrrho=self.qrrho,
+                scale="l mol-1 s-1",
+                temperature=self.temperature,
+                pressure=self.pressure,
+            ),
+            "(cm³/particle)ⁿ⁻¹·s⁻¹": rx.get_k(
+                self.model.scheme,
+                self.model.compounds,
+                bias=self.bias,
+                tunneling=self.tunneling,
+                qrrho=self.qrrho,
+                scale="cm3 particle-1 s-1",
+                temperature=self.temperature,
+                pressure=self.pressure,
+            ),
+            "atm⁻ⁿ⁺¹·s⁻¹": rx.get_k(
+                self.model.scheme,
+                self.model.compounds,
+                bias=self.bias,
+                tunneling=self.tunneling,
+                qrrho=self.qrrho,
+                scale="atm-1 s-1",
+                temperature=self.temperature,
+                pressure=self.pressure,
+            ),
+        }
+        kappa = rx.get_kappa(
+            self.model.scheme,
+            self.model.compounds,
+            method=self.tunneling,
+            qrrho=self.qrrho,
+            temperature=self.temperature,
         )
-    return table + "\n"
+
+        kinetics_table = Table(
+            *(
+                [
+                    Column("no", justify="right"),
+                    Column("reaction", justify="left"),
+                    Column("half equilib.?", justify="center"),
+                ]
+                + [Column(f"k\n\[{scale}]", justify="center") for scale in k]
+                + [Column("κ", justify="center")]
+            ),
+            title="estimated reaction rate constants",
+            box=self.box_style,
+        )
+        for i, reaction in enumerate(self.model.scheme.reactions):
+            row = (
+                [f"{i:d}", reaction, "No"]
+                + [f"{k[scale][i]:.3g}" for scale in k]
+                + [f"{kappa[i]:.3g}"]
+            )
+            if self.model.scheme.is_half_equilibrium[i]:
+                row[2] = "Yes"
+                row[-1] = None  # hide transmission coefficient
+
+            kinetics_table.add_row(*row)
+        yield kinetics_table
+        yield Markdown(
+            "Only in the table above, all Gibbs free energies were biased by "
+            f"{self.bias} J/mol."
+        )
+        yield Markdown("For **half-equilibria**, only ratios make sense.")
+
+        if self.concentrations is not None and self.concentrations:
+            scheme, k, y0 = _prepare_simulation(
+                self.model.scheme, k["M⁻ⁿ⁺¹·s⁻¹"], self.concentrations
+            )
+
+            # TODO(schneiderfelipe): encapsulate everything in a function that depends
+            # on the freeenergies as first parameter
+            dydt = rx.get_dydt(scheme, k)
+
+            y, r = rx.get_y(
+                dydt,
+                y0=y0,
+                method=self.method,
+                rtol=self.rtol,
+                atol=self.atol,
+                max_time=self.max_time,
+            )
+            conc_table = Table(
+                Column("no", justify="right"),
+                Column("compound", justify="left"),
+                Column(f"t = {y.t_min:.1g} s", justify="right"),
+                Column(f"t = {y.t_max:.1g} s", justify="right", style="bright_green"),
+                title="initial and final concentrations\n\[M]",
+                box=self.box_style,
+            )
+            for i, name in enumerate(scheme.compounds):
+                conc_table.add_row(
+                    f"{i:d}",
+                    name,
+                    f"{y(y.t_min)[i]:.3f}",
+                    f"{y(y.t_max)[i]:.3f}",
+                )
+            yield conc_table
+
+            active = ~np.isclose(y(y.t_min), y(y.t_max), rtol=1e-2)
+            if self.plot == "all" or not np.any(active):
+                active = np.array([True for _ in scheme.compounds])
+
+            factor = y(y.t_max)[active].max()
+            reference = y(y.t_max)[active] / factor
+
+            alpha = 0.9
+            n_max = np.log(1e-8) / np.log(alpha)
+
+            t_max, i = y.t_max, 0
+            while i < n_max and np.allclose(
+                y(t_max)[active] / factor, reference, atol=1e-2
+            ):
+                t_max = alpha * t_max
+                i += 1
+
+            num = 100
+            t = set(np.linspace(y.t_min, t_max, num=num))
+            for i, name in enumerate(scheme.compounds):
+                if not rx.is_transition_state(name):
+                    res = minimize_scalar(
+                        lambda t: -r(t)[i],
+                        bounds=(y.t_min, (t_max + y.t_max) / 2),
+                        method="bounded",
+                    )
+                    if y.t_min < res.x < t_max:
+                        t.update(np.linspace(y.t_min, res.x, num=num // 2))
+                        t.update(np.linspace(res.x, t_max, num=num // 2))
+                        active[i] = True
+
+            t.update(np.geomspace(np.min([_t for _t in t if _t > 0.0]), t_max, num=num))
+            t = np.array(sorted(t))
+            if self.plot not in {"none", None}:
+                if self.plot not in {"all", "active"}:
+                    name = self.plot
+                    plt.plot(t, y(t)[scheme.compounds.index(name)], label=name)
+                else:
+                    for i, name in enumerate(scheme.compounds):
+                        if active[i] and not rx.is_transition_state(name):
+                            plt.plot(t, y(t)[i], label=name)
+
+                plt.legend()
+                plt.xlabel("Time (s)")
+                plt.ylabel("Concentration (M)")
+                plt.show()
+
+            if self.savepath is not None:
+                np.savetxt(
+                    self.savepath,
+                    np.block([t[:, np.newaxis], y(t).T]),
+                    header=f"t,{','.join(scheme.compounds)}",
+                    delimiter=",",
+                )
+                yield Markdown(f"Simulation data was saved to **{self.savepath}**")
+
+
+def _prepare_simulation(scheme, k, concentrations):
+    """Helper for preparing some data before simulation."""
+    free_y0 = {}
+    fixed_y0 = {}
+    for spec in concentrations:
+        fields = spec.split(":", 1)
+        name, quantity = fields[0].strip(), fields[1].strip()
+
+        if quantity.startswith("!"):
+            d = fixed_y0
+            quantity = quantity[1:]
+        else:
+            d = free_y0
+
+        try:
+            quantity = float(quantity)
+        except (IndexError, ValueError):
+            raise ValueError(
+                "badly formatted concentrations: " f"'{' '.join(concentrations)}'"
+            )
+
+        d[name] = quantity
+
+    # TODO(schneiderfelipe): log stuff related to get_fixed_scheme
+    scheme, k = rx.get_fixed_scheme(scheme, k, fixed_y0)
+
+    y0 = np.zeros(len(scheme.compounds))
+    for compound in free_y0:
+        y0[scheme.compounds.index(compound)] = free_y0[compound]
+
+    return scheme, k, y0
 
 
 def main():
     """Command-line interface."""
-    # TODO(schneiderfelipe): test and docs
+    console = Console(width=max(105, shutil.get_terminal_size()[0]))
+    levels = [logging.WARNING, logging.INFO, logging.DEBUG]
+
+    # TODO(schneiderfelipe): some commands for concatenating/summing .k/.jk
+    # files. This might be useful for some of the more complex operations I
+    # want to be able to do in the future.
     parser = argparse.ArgumentParser(
-        description="Interface for building and modifying models."
+        description=f"""
+        {rx.__headline__}
+        Interface for building and modifying models.
+        Read the documentation at {rx.__url__} for more information and usage examples.
+        Licensed under the terms of the {rx.__license__} License.
+        If you publish work using this software, please cite https://doi.org/{rx.__doi__}:
+        """,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("path", help="path to a source (.k) or model file (.jk)")
     parser.add_argument(
-        "quantities",
-        help=(
-            "optional initial compound concentrations as 'name:quantity' for "
-            "a microkinetic simulation"
-        ),
+        "path",
+        help="path to a source (.k) or compiled (.jk) model file (if a source "
+        "file is given, but there is a compiled file available, the compiled "
+        "file will be used; use --compile|-c to force recompilation of the "
+        "source file instead)",
+    )
+    parser.add_argument(
+        "concentrations",
+        help="(optional) initial compound concentrations (in moles per liter) "
+        "in the form 'name:quantity' (if present, a microkinetic simulation "
+        "will be performed; more than one entry can be given)",
         nargs="*",
     )
-    parser.add_argument("-T", "--temperature", type=float, default=298.15)
-    # TODO(schneiderfelipe): support pressure specification!
-    parser.add_argument("-p", "--pressure", type=float, default=constants.atm)
     parser.add_argument(
-        "--no-qrrho",
-        dest="qrrho",
-        help=(
-            "disable the quasi-rigid rotor harmonic oscilator (QRRHO) "
-            "approximations to enthalpies and entropies "
-            "(see doi:10.1021/jp509921r and doi:10.1002/chem.201200497)"
-        ),
-        action="store_false",
-    )
-    parser.add_argument(
-        "--plot",
-        help=(
-            "plot concentrations as a function of time in a microkinetics simulation"
-        ),
-        action="store_true",
+        "-v",
+        "--verbose",
+        help="increase output verbosity (can be given many times, each time "
+        "the amount of logged data is increased)",
+        action="count",
+        default=0,
     )
     parser.add_argument(
         "-c",
         "--compile",
-        help="only compile a source file (.k) into a model file (.jk)",
+        # TODO(schneiderfelipe): should we consider --compile|-c always as a
+        # do-nothing (no analysis)?
+        help="force recompile a source (.k) into a compiled (.jk) model file",
         action="store_true",
     )
     parser.add_argument(
-        "-v", "--verbose", help="increase output verbosity", action="count", default=0
+        "--plot",
+        help="plot the concentrations as a function of time from the "
+        "performed microkinetics simulation: can be either 'none', 'all', "
+        "'active' species only (i.e., the ones that actually change "
+        "concentration during the simulation) or a single compound name (e.g. "
+        "'NH3(w)')",
+        # TODO(schneiderfelipe): validate inputs to avoid "ValueError:
+        # tuple.index(x): x not in tuple"
+        # choices=["active", "all", "none"],
+        default="none",
     )
-    # TODO(schneiderfelipe): --dry-run|-n for testing purposes (useful
-    # usage together with --compile|-c --- or should we consider --compile|-c
-    # always as a do-nothing (no analysis)?).
-    # TODO(schneiderfelipe): some commands for concatenating/summing .k/.jk
-    # files. This might be useful for some of the more complex operations I
-    # want to be able to do in the future.
+    parser.add_argument(
+        "-b",
+        "--bias",
+        help="an energy value (in kilocalories per mole) to be added to each "
+        "indiviual compound in order to mitigate eventual systematic errors",
+        default=0.0,
+    )
+    parser.add_argument(
+        "--tunneling",
+        help="specify the tunneling method employed (use --tunneling=none for "
+        "no tunneling correction)",
+        choices=["eckart", "wigner", "none"],
+        default="eckart",
+    )
+    # TODO(schneiderfelipe): allow selection of QRRHO for enthalpies and
+    # entropies separately.
+    parser.add_argument(
+        "--no-qrrho",
+        help="disable the quasi-rigid rotor harmonic oscilator (QRRHO) "
+        "approximations to both enthalpies and entropies (see "
+        "[doi:10.1021/jp509921r] and [doi:10.1002/chem.201200497])",
+        dest="qrrho",
+        action="store_false",
+    )
+    parser.add_argument(
+        "-T",
+        "--temperature",
+        help="set working temperature (in kelvins) to be used in "
+        "thermochemistry and microkinetics",
+        type=float,
+        default=298.15,
+    )
+    parser.add_argument(
+        "-p",
+        "--pressure",
+        help="set working pressure (in pascals) to be used in " "thermochemistry",
+        type=float,
+        default=constants.atm,
+    )
+    parser.add_argument(
+        "--method",
+        help="integrator used in solving the ODE system of the microkinetic "
+        "simulation",
+        choices=["Radau", "BDF", "LSODA"],
+        default="Radau",
+    )
+    parser.add_argument(
+        "--max-time",
+        help="maximum microkinetic simulation time (in s) allowed",
+        type=float,
+        default=24 * 60 * 60,
+    )
+    parser.add_argument(
+        "--rtol",
+        help="relative local error of the ODE system integrator",
+        type=float,
+        default=1e-5,
+    )
+    parser.add_argument(
+        "--atol",
+        help="absolute local error of the ODE system integrator",
+        type=float,
+        default=1e-11,
+    )
     args = parser.parse_args()
+
+    try:
+        args.bias = float(args.bias) * constants.kcal
+        bias_message = f"{args.bias} kcal/mol"
+    except ValueError:
+        bias_message = f"fitting from {args.bias}"
+
+    console.print(
+        Markdown(
+            f"""
+# overreact {rx.__version__}
+
+{rx.__headline__}
+
+Licensed under the terms of the [{rx.__license__} License]({rx.__repo__}/blob/main/LICENSE).
+If you publish work using this software, **please cite [doi:{rx.__doi__}](https://doi.org/{rx.__doi__})**:
+
+```
+{rx.__citation__}
+```
+
+Read the documentation at [{rx.__url__}]({rx.__url__}) for more information and usage examples.
+
+Inputs:
+- Path           = {args.path}
+- Concentrations = {args.concentrations}
+- Verbose level  = {args.verbose}
+- Compile?       = {args.compile}
+- Plot?          = {args.plot}
+- QRRHO?         = {args.qrrho}
+- Temperature    = {args.temperature} K
+- Pressure       = {args.pressure} Pa
+- Integrator     = {args.method}
+- Max. Time      = {args.max_time}
+- Rel. Tol.      = {args.rtol}
+- Abs. Tol.      = {args.atol}
+- Bias           = {bias_message}
+- Tunneling      = {args.tunneling}
+
+Parsing and calculating…
+            """
+        ),
+        justify="left",
+    )
+
     logging.basicConfig(
         level=levels[min(len(levels) - 1, args.verbose)], stream=sys.stdout
     )
     for handler in logging.root.handlers:
-        handler.setFormatter(io.InterfaceFormatter("%(message)s"))
+        handler.setFormatter(rx.io.InterfaceFormatter("%(message)s"))
 
-    model = io.parse_model(args.path, force_compile=args.compile)
-    print(
-        summarize_model(
-            model,
-            quantities=args.quantities,
-            savepath=os.path.splitext(args.path)[0] + ".csv",
-            plot=args.plot,
-            qrrho=args.qrrho,
-            temperature=args.temperature,
-        )
+    model = rx.io.parse_model(args.path, force_compile=args.compile)
+    report = Report(
+        model,
+        concentrations=args.concentrations,
+        savepath=os.path.splitext(args.path)[0] + ".csv",
+        plot=args.plot,
+        qrrho=args.qrrho,
+        temperature=args.temperature,
+        pressure=args.pressure,
+        bias=args.bias,
+        tunneling=args.tunneling,
+        method=args.method,
+        max_time=args.max_time,
+        rtol=args.rtol,
+        atol=args.atol,
     )
+    # TODO(schneiderfelipe): use a progress bar to inform about the
+    # simulation and show the time it took to simulate.
+    console.print(report, justify="left")
 
 
 if __name__ == "__main__":

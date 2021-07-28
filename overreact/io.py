@@ -12,9 +12,8 @@ import warnings
 
 import numpy as np
 
+import overreact as rx
 from overreact import constants
-from overreact import core as _core
-from overreact import misc
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -44,7 +43,7 @@ def parse_model(path, force_compile=False):
 
     Returns
     -------
-    model : dict-like
+    model : immutable dict-like
 
     Raises
     ------
@@ -55,26 +54,27 @@ def parse_model(path, force_compile=False):
     --------
     >>> model = parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
-    Scheme(compounds=['S', 'E‡'],
-           reactions=['S -> S'],
-           is_half_equilibrium=[False],
-           A=[[1.], [0.]],
-           B=[[-1.], [1.]])
+    Scheme(compounds=('S', 'E‡'),
+           reactions=('S -> S',),
+           is_half_equilibrium=(False,),
+           A=((0.0,), (0.0,)),
+           B=((-1.0,), (1.0,)))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.77142256,
      'mult': 1,
-     'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
-     'atommasses': [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
-     'atomcoords': [[-7.633588, 2.520693, -4.8e-05],
+     'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
+     'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
+     'atomcoords': ((-7.633588, 2.520693, -4.8e-05),
                     ...,
-                    [-5.832852, 3.674431, 0.363239]],
-     'vibfreqs': [307.57, 825.42, ..., 3071.11, 3071.45],
-     'vibdisps': [[[-1.7e-05, 3.4e-05, 5.4e-05],
+                    (-5.832852, 3.674431, 0.363239)),
+     'vibfreqs': (307.57, 825.42, ..., 3071.11, 3071.45),
+     'vibdisps': (((-1.7e-05, 3.4e-05, 5.4e-05),
                    ...,
-                   [-0.011061, -0.030431, -0.027036]]]}
+                   (-0.011061, -0.030431, -0.027036)))}
 
-    >>> model_from_source = parse_model("data/ethane/B97-3c/model.k")
+    >>> model_from_source = parse_model("data/ethane/B97-3c/model.k",
+    ...                                 force_compile=True)
     >>> model_from_source == model
     True
 
@@ -85,7 +85,7 @@ def parse_model(path, force_compile=False):
     if not path.endswith((".k", ".jk")):
         path = path + ".jk"
         logger.warning(f"assuming jk-file in {path}")
-    name, ext = os.path.splitext(path)
+    name, _ = os.path.splitext(path)
 
     path_jk = name + ".jk"
     if not force_compile and os.path.isfile(path_jk):
@@ -96,12 +96,12 @@ def parse_model(path, force_compile=False):
     logger.info(f"parsing k-file in {path_k}")
     if not os.path.isfile(path_k):
         raise FileNotFoundError
+
     model = _parse_source(path_k)
     with open(path_jk, "w") as f:
         logger.info(f"writing jk-file in {path_jk}")
         f.write(_unparse_model(model))
 
-    # TODO(schneiderfelipe): maybe log the output of io.summarize_model(model) here?
     return model
 
 
@@ -117,43 +117,43 @@ def _parse_model(file_or_path):
 
     Returns
     -------
-    model : dict-like
+    model : immutable dict-like
 
     Examples
     --------
     >>> model = _parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
-    Scheme(compounds=['S', 'E‡'],
-           reactions=['S -> S'],
-           is_half_equilibrium=[False],
-           A=[[1.], [0.]],
-           B=[[-1.], [1.]])
+    Scheme(compounds=('S', 'E‡'),
+           reactions=('S -> S',),
+           is_half_equilibrium=(False,),
+           A=((1.,), (0.,)),
+           B=((-1.,), (1.,)))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.77142256,
      'mult': 1,
-     'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
-     'atommasses': [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
-     'atomcoords': [[-7.633588, 2.520693, -4.8e-05],
+     'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
+     'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
+     'atomcoords': ((-7.633588, 2.520693, -4.8e-05),
                     ...,
-                    [-5.832852, 3.674431, 0.363239]],
-     'vibfreqs': [307.57, 825.42, ..., 3071.11, 3071.45],
-     'vibdisps': [[[-1.7e-05, 3.4e-05, 5.4e-05],
+                    (-5.832852, 3.674431, 0.363239)),
+     'vibfreqs': (307.57, 825.42, ..., 3071.11, 3071.45),
+     'vibdisps': (((-1.7e-05, 3.4e-05, 5.4e-05),
                    ...,
-                   [-0.011061, -0.030431, -0.027036]]]}
+                   (-0.011061, -0.030431, -0.027036)))}
     >>> model.compounds["E‡"]
     {'logfile': 'data/ethane/B97-3c/eclipsed.out',
      'energy': -209472585.3539883,
      'mult': 1,
-     'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
-     'atommasses': [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
-     'atomcoords': [[-7.640622, 2.51993, -1.6e-05],
+     'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
+     'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
+     'atomcoords': ((-7.640622, 2.51993, -1.6e-05),
                     ...,
-                    [-5.730333, 2.893778, 0.996894]],
-     'vibfreqs': [-298.94, 902.19, ..., 3077.75, 3078.05],
-     'vibdisps': [[[-6.7e-05, 2.3e-05, 3.4e-05],
+                    (-5.730333, 2.893778, 0.996894)),
+     'vibfreqs': (-298.94, 902.19, ..., 3077.75, 3078.05),
+     'vibdisps': (((-6.7e-05, 2.3e-05, 3.4e-05),
                    ...,
-                   [0.133315, 0.086028, 0.35746]]]}
+                   (0.133315, 0.086028, 0.35746)))}
     """
     try:
         model = json.load(file_or_path)
@@ -161,14 +161,10 @@ def _parse_model(file_or_path):
         with open(file_or_path, "r") as stream:
             model = json.load(stream)
 
-    model = dotdict(model)
-
     if "scheme" in model:
-        model.scheme = _core.parse_reactions(model.scheme)
-    if "compounds" in model:
-        for key in model.compounds:
-            model.compounds[key] = dotdict(model.compounds[key])
-    return model
+        model["scheme"] = rx.parse_reactions(model["scheme"])
+
+    return dotdict(model)
 
 
 def _parse_source(file_path_or_str):
@@ -183,7 +179,7 @@ def _parse_source(file_path_or_str):
 
     Returns
     -------
-    json : str
+    model : immutable dict-like
 
     Notes
     -----
@@ -192,79 +188,32 @@ def _parse_source(file_path_or_str):
     Examples
     --------
     >>> model = _parse_source("data/ethane/B97-3c/model.k")
+    >>> model.scheme
+    Scheme(compounds=('S', 'E‡'),
+           reactions=('S -> S',),
+           is_half_equilibrium=(False,),
+           A=((0.0,),
+              (0.0,)),
+           B=((-1.0,),
+              (1.0,)))
     >>> print(_unparse_model(model))
-    {
-      "scheme": [
-        "S -> E‡ -> S"
-      ],
-      "compounds": {
-        "S": {
-          "logfile": "data/ethane/B97-3c/staggered.out",
-          "energy": -209483812.77142256,
-          "mult": 1,
-          "atomnos": [
-            6,
-            6,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1
-          ],
-          "atommasses": [
-            12.011,
-            ...,
-            1.008
-          ],
-          "atomcoords": [
-            [
-              -7.633588,
-              2.520693,
-              -4.8e-05
-            ],
-            ...,
-            [
-              -5.832852,
-              3.674431,
-              0.363239
-            ]
-          ],
-          "vibfreqs": [
-            307.57,
-            ...,
-            3071.45
-          ],
-          "vibdisps": [
-            [
-              [
-                -1.7e-05,
-                3.4e-05,
-                5.4e-05
-              ],
-              ...
-            ]
-        },
-        "E‡": {
-          ...
-        }
-      }
-    }
+    {"scheme":["S -> E‡ -> S"],"compounds":{"S":{"logfile":"da...,0.35746]]]}}}
 
     It is guaranteed that both the list of compounds in the scheme and in the
     keys of compounds match. This implementation detail is crucial for the
     proper internal bevahiour of overreact:
 
-    >>> model = parse_model("data/perez-soto2020/NoRI/GFN2-xTB/model.k")
+    >>> model = parse_model("data/perez-soto2020/NoRI/GFN2-xTB/model.k",
+    ...                     force_compile=True)
     >>> model.scheme.compounds
-    ['Benzaldehyde(dcm)', 'NButylamine(dcm)', 'A_N(dcm)', 'A_N_N(dcm)',
+    ('Benzaldehyde(dcm)', 'NButylamine(dcm)', 'A_N(dcm)', 'A_N_N(dcm)',
      'Water(dcm)', 'A_N_W(dcm)', 'A_N_N_W(dcm)', 'A_N_W_W(dcm)', 'TS1_#(dcm)',
      'Hemiaminal(dcm)', 'TS2_#(dcm)', 'I_W(dcm)', 'TS1N_#(dcm)', 'Int_N(dcm)',
      'TS2N_#(dcm)', 'I_N_W(dcm)', 'TS1W_#(dcm)', 'Int_W(dcm)', 'TS2W_#(dcm)',
      'I_W_W(dcm)', 'TS1NW_#(dcm)', 'Int_N_W(dcm)', 'TS2NW_#(dcm)',
      'I_N_W_W(dcm)', 'TS1WW_#(dcm)', 'Int_W_W(dcm)', 'TS2WW_#(dcm)',
-     'I_W_W_W(dcm)', 'Imine(dcm)']
-    >>> list(model.compounds) == model.scheme.compounds
+     'I_W_W_W(dcm)', 'Imine(dcm)')
+    >>> tuple(model.compounds) == model.scheme.compounds
     True
     """
     name = None
@@ -296,7 +245,7 @@ def _parse_source(file_path_or_str):
             sections[name].append(line)
 
     if "scheme" in sections:
-        sections["scheme"] = _core.parse_reactions(sections["scheme"])
+        sections["scheme"] = rx.parse_reactions(sections["scheme"])
     if "compounds" in sections:
         sections["compounds"] = parse_compounds(
             sections["compounds"], path=path, select=sections["scheme"].compounds
@@ -312,7 +261,7 @@ def _unparse_source(model):
 
     Parameters
     ----------
-    model : dict-like
+    model : immutable dict-like
 
     Returns
     -------
@@ -329,7 +278,7 @@ def _unparse_source(model):
     $end
     $compounds
      S:
-      logfile=data/ethane/B97-3c/staggered.out
+      logfile="data/ethane/B97-3c/staggered.out"
       energy=-209483812.77142256
       mult=1
       atomnos=[6, 6, 1, 1, 1, 1, 1, 1]
@@ -338,7 +287,7 @@ def _unparse_source(model):
       vibfreqs=[307.57, 825.42, ..., 3071.11, 3071.45]
       vibdisps=[[[-1.7e-05, 3.4e-05, 5.4e-05], ..., [..., -0.027036]]]
      E‡:
-      logfile=data/ethane/B97-3c/eclipsed.out
+      logfile="data/ethane/B97-3c/eclipsed.out"
       energy=-209472585.3539883
       mult=1
       ...
@@ -349,42 +298,42 @@ def _unparse_source(model):
 
     >>> model = _parse_source(source)
     >>> model.scheme
-    Scheme(compounds=['S', 'E‡'],
-           reactions=['S -> S'],
-           is_half_equilibrium=[False],
-           A=[[1.], [0.]],
-           B=[[-1.], [1.]])
+    Scheme(compounds=('S', 'E‡'),
+           reactions=('S -> S',),
+           is_half_equilibrium=(False,),
+           A=((1.,), (0.,)),
+           B=((-1.,), (1.,)))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.77142256,
      'mult': 1,
-     'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
-     'atommasses': [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
-     'atomcoords': [[-7.633588, 2.520693, -4.8e-05],
+     'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
+     'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
+     'atomcoords': ((-7.633588, 2.520693, -4.8e-05),
                     ...,
-                    [-5.832852, 3.674431, 0.363239]],
-     'vibfreqs': [307.57, 825.42, ..., 3071.11, 3071.45],
-     'vibdisps': [[[-1.7e-05, 3.4e-05, 5.4e-05],
+                    (-5.832852, 3.674431, 0.363239)),
+     'vibfreqs': (307.57, 825.42, ..., 3071.11, 3071.45),
+     'vibdisps': (((-1.7e-05, 3.4e-05, 5.4e-05),
                    ...,
-                   [-0.011061, -0.030431, -0.027036]]]}
+                   (-0.011061, -0.030431, -0.027036)))}
     >>> model.compounds["E‡"]
     {'logfile': 'data/ethane/B97-3c/eclipsed.out',
      'energy': -209472585.3539883,
      'mult': 1,
-     'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
-     'atommasses': [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
-     'atomcoords': [[-7.640622, 2.51993, -1.6e-05],
+     'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
+     'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
+     'atomcoords': ((-7.640622, 2.51993, -1.6e-05),
                     ...,
-                    [-5.730333, 2.893778, 0.996894]],
-     'vibfreqs': [-298.94, 902.19, ..., 3077.75, 3078.05],
-     'vibdisps': [[[-6.7e-05, 2.3e-05, 3.4e-05],
+                    (-5.730333, 2.893778, 0.996894)),
+     'vibfreqs': (-298.94, 902.19, ..., 3077.75, 3078.05),
+     'vibdisps': (((-6.7e-05, 2.3e-05, 3.4e-05),
                    ...,
-                   [0.133315, 0.086028, 0.35746]]]}
+                   (0.133315, 0.086028, 0.35746)))}
     """
     source = "// generated by overreact\n"
     if "scheme" in model:
         source += "$scheme\n"
-        for line in _core.unparse_reactions(model.scheme).split("\n"):
+        for line in rx.unparse_reactions(model.scheme).split("\n"):
             source += f" {line}\n"
         source += "$end\n"
     if "compounds" in model:
@@ -392,7 +341,10 @@ def _unparse_source(model):
         for compound in model.compounds:
             source += f" {compound}:\n"
             for key in model.compounds[compound]:
-                source += f"  {key}={model.compounds[compound][key]}\n"
+                inline_json = json.dumps(
+                    model.compounds[compound][key], ensure_ascii=False
+                )
+                source += f"  {key}={inline_json}\n"
         source += "$end\n"
     return source
 
@@ -405,7 +357,7 @@ def _unparse_model(model):
 
     Parameters
     ----------
-    model : dict-like
+    model : immutable dict-like
 
     Returns
     -------
@@ -413,70 +365,16 @@ def _unparse_model(model):
 
     Examples
     --------
-    >>> model = _parse_model("data/ethane/B97-3c/model.jk")
+    >>> model = _parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.jk")
     >>> print(_unparse_model(model))
-    {
-      "scheme": [
-        "S -> E‡ -> S"
-      ],
-      "compounds": {
-        "S": {
-          "logfile": "data/ethane/B97-3c/staggered.out",
-          "energy": -209483812.77142256,
-          "mult": 1,
-          "atomnos": [
-            6,
-            6,
-            1,
-            1,
-            1,
-            1,
-            1,
-            1
-          ],
-          "atommasses": [
-            12.011,
-            ...,
-            1.008
-          ],
-          "atomcoords": [
-            [
-              -7.633588,
-              2.520693,
-              -4.8e-05
-            ],
-            ...,
-            [
-              -5.832852,
-              3.674431,
-              0.363239
-            ]
-          ],
-          "vibfreqs": [
-            307.57,
-            ...,
-            3071.45
-          ],
-          "vibdisps": [
-            [
-              [
-                -1.7e-05,
-                3.4e-05,
-                5.4e-05
-              ],
-              ...
-           ]
-        },
-        "E‡": {
-          ...
-        }
-      }
-    }
+    {"scheme":["NH3(w) + OH·(w) -> NH3·OH#(w...,"atomcoords":[[0.0,0.0,0.0]]}}}
     """
-    model = dotdict(model.copy())
+    # create a new mutable object to avoid side effects
+    model = dict(model.copy())
+
     if "scheme" in model:
-        model.scheme = _core.unparse_reactions(model.scheme).split("\n")
-    return json.dumps(model, indent=2, ensure_ascii=False)
+        model["scheme"] = rx.unparse_reactions(model["scheme"]).split("\n")
+    return json.dumps(model, ensure_ascii=False, separators=(",", ":"))
 
 
 def _check_compounds(compounds):
@@ -496,28 +394,28 @@ def _check_compounds(compounds):
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
            'energy': -209483812.77142256,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
-           'atommasses': [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
-           'atomcoords': [[-7.633588, 2.520693, -4.8e-05],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
+           'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
+           'atomcoords': ((-7.633588, 2.520693, -4.8e-05),
                            ...,
-                          [-5.832852, 3.674431, 0.363239]],
-           'vibfreqs': [307.57, 825.42, ..., 3071.11, 3071.45],
-           'vibdisps': [[[-1.7e-05, 3.4e-05, 5.4e-05],
+                          (-5.832852, 3.674431, 0.363239)),
+           'vibfreqs': (307.57, 825.42, ..., 3071.11, 3071.45),
+           'vibdisps': (((-1.7e-05, 3.4e-05, 5.4e-05),
                           ...,
-                         [-0.011061, -0.030431, -0.027036]]]}}
+                         (-0.011061, -0.030431, -0.027036)))}}
     >>> _check_compounds(_check_compounds({"S": "data/ethane/B97-3c/staggered.out"}))
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
            'energy': -209483812.77142256,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
-           'atommasses': [12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008],
-           'atomcoords': [[-7.633588, 2.520693, -4.8e-05],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
+           'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
+           'atomcoords': ((-7.633588, 2.520693, -4.8e-05),
                            ...,
-                          [-5.832852, 3.674431, 0.363239]],
-           'vibfreqs': [307.57, 825.42, ..., 3071.11, 3071.45],
-           'vibdisps': [[[-1.7e-05, 3.4e-05, 5.4e-05],
+                          (-5.832852, 3.674431, 0.363239)),
+           'vibfreqs': (307.57, 825.42, ..., 3071.11, 3071.45),
+           'vibdisps': (((-1.7e-05, 3.4e-05, 5.4e-05),
                           ...,
-                         [-0.011061, -0.030431, -0.027036]]]}}
+                         (-0.011061, -0.030431, -0.027036)))}}
     """
     for name in compounds:
         if isinstance(compounds[name], str):
@@ -525,7 +423,6 @@ def _check_compounds(compounds):
     return dict(compounds)
 
 
-# TODO(schneiderfelipe): test and docs
 def parse_compounds(text, path=("",), select=None):
     """Parse a set of compounds.
 
@@ -540,66 +437,68 @@ def parse_compounds(text, path=("",), select=None):
 
     Returns
     -------
-    compounds : dict-like
+    compounds : immutable dict-like
 
     Examples
     --------
-    >>> compounds = parse_compounds("S: data/ethane/B97-3c/staggered.out")
+    >>> import overreact as rx
+
+    >>> compounds = rx.parse_compounds("S: data/ethane/B97-3c/staggered.out")
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
            'energy': -209483812.77142256,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
 
-    >>> compounds = parse_compounds({"S": "data/ethane/B97-3c/staggered.out"})
+    >>> compounds = rx.parse_compounds({"S": "data/ethane/B97-3c/staggered.out"})
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
            'energy': -209483812.77142256,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
 
-    >>> compounds = parse_compounds(["S: data/ethane/B97-3c/staggered.out",
+    >>> compounds = rx.parse_compounds(["S: data/ethane/B97-3c/staggered.out",
     ...                              "E‡: data/ethane/B97-3c/eclipsed.out"])
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
            'energy': -209483812.77142256,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...},
     'E‡': {'logfile': 'data/ethane/B97-3c/eclipsed.out',
            'energy': -209472585.3539883,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
 
-    >>> compounds = parse_compounds('''S: data/ethane/B97-3c/staggered.out
+    >>> compounds = rx.parse_compounds('''S: data/ethane/B97-3c/staggered.out
     ...                                E‡: data/ethane/B97-3c/eclipsed.out''')
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
            'energy': -209483812.77142256,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...},
     'E‡': {'logfile': 'data/ethane/B97-3c/eclipsed.out',
            'energy': -209472585.3539883,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
 
-    >>> compounds = parse_compounds({"S": "data/ethane/B97-3c/staggered.out",
+    >>> compounds = rx.parse_compounds({"S": "data/ethane/B97-3c/staggered.out",
     ...                              "E‡": "data/ethane/B97-3c/eclipsed.out"})
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
            'energy': -209483812.77142256,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...},
     'E‡': {'logfile': 'data/ethane/B97-3c/eclipsed.out',
            'energy': -209472585.3539883,
            'mult': 1,
-           'atomnos': [6, 6, 1, 1, 1, 1, 1, 1],
+           'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
     """
     if isinstance(text, dict):
@@ -609,7 +508,7 @@ def parse_compounds(text, path=("",), select=None):
     except AttributeError:
         lines = text
     name = None
-    compounds = defaultdict(dotdict)
+    compounds = defaultdict(dict)
     for line in lines:
         if ":" in line:
             name, line = [x.strip() for x in line.split(":", 1)]
@@ -626,6 +525,7 @@ def parse_compounds(text, path=("",), select=None):
                 # TODO(schneiderfelipe): test "nested" logfiles, i.e.,
                 # DNPLO-CCSD(T)/def2-TZVP(-f)//revPBE-D4-gCP/def2-SVP, etc.
                 success = False
+                value = value.strip('"')
                 for p in path:
                     try:
                         logger.info(f"trying to read {os.path.join(p, value)}")
@@ -645,7 +545,7 @@ def parse_compounds(text, path=("",), select=None):
         # TODO(schneiderfelipe): this workaround still allow unused compounds
         # to be parsed! This should change in the future.
         compounds = {name: compounds[name] for name in select}
-    return dict(compounds)
+    return dotdict(compounds)
 
 
 def read_logfile(path):
@@ -667,50 +567,50 @@ def read_logfile(path):
 
     Examples
     --------
-    >>> read_logfile("data/symmetries/benzene.out")
+    >>> import overreact as rx
+
+    >>> rx.io.read_logfile("data/symmetries/benzene.out")
     {'logfile': 'data/symmetries/benzene.out',
      'energy': -609176691.0746485,
      'mult': 1,
-     'atomnos': [6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1],
-     'atommasses': [12.011, ..., 1.008],
-     'atomcoords': [[1.856873, 1.370646, -0.904202],
+     'atomnos': (6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1),
+     'atommasses': (12.011, ..., 1.008),
+     'atomcoords': ((1.856873, 1.370646, -0.904202),
                     ...,
-                    [0.794845, 1.265216, -1.190139]],
-     'vibfreqs': [397.68, 397.72, ..., 3099.78, 3109.35],
-     'vibdisps': [[[-0.030923, -0.073676, 0.142038],
+                    (0.794845, 1.265216, -1.190139)),
+     'vibfreqs': (397.68, 397.72, ..., 3099.78, 3109.35),
+     'vibdisps': (((-0.030923, -0.073676, 0.142038),
                    ...,
-                   [0.400329, 0.039742, 0.107782]]]}
-    >>> read_logfile("data/symmetries/water.out")
-    {'logfile': 'data/symmetries/water.out',
-     'energy': -200411626.9934847,
-     'mult': 1,
-     'atomnos': [8, 1, 1],
-     'atommasses': [15.999, 1.008, 1.008],
-     'atomcoords': [[0.178164, 0.697853, 0.297922], ..., [..., -0.407083]],
-     'vibfreqs': [1619.07, 3671.68, 3769.05],
-     'vibdisps': [[[0.037749, 0.058895, 0.00295], ..., [..., -0.509409]]],
-     'hessian': [[0.22070725835, 0.14857971186, -0.20392672101, ...],
-                 ...,
-                [..., -0.01263596771, 0.23474251331, 0.28651782768]]}
+                   (0.400329, 0.039742, 0.107782)))}
+
+    >>> rx.io.read_logfile("data/hickel1992/UM06-2X/6-311++G(d,p)/OH·.out")
+    {'logfile': 'data/hickel1992/UM06-2X/6-311++G(d,p)/OH·.out',
+     'energy': -198844853.7713648,
+     'mult': 2,
+     'atomnos': (8, 1),
+     'atommasses': (15.999, 1.008),
+     'atomcoords': ((-2.436122, 1.35689, 0.0),
+                    (-1.463378, 1.35689, 0.0)),
+     'vibfreqs': (3775.24,),
+     'vibdisps': (((0.062879, 0.0, 0.0),
+                  (-0.998021, -0.0, 0.0)),),
+     'hessian': ((0.51457715535, ..., -0.00010536738319),
+                  ...,
+                 (-0.00010536738319, ..., -0.001114845004))}
     """
     try:
         ccdata = ccopen(path).parse()
-        ccdata.listify()
         data = {
             "logfile": path,
             # This energy may lack dispersion, solvation, correlation, etc.
             "energy": ccdata.scfenergies[-1] * constants.eV * constants.N_A,
             "mult": ccdata.mult,
-            "atomnos": ccdata.atomnos,
-            "atommasses": ccdata.atommasses,
-            "atomcoords": ccdata.atomcoords[-1],
-            "vibfreqs": ccdata.vibfreqs,
-            "vibdisps": ccdata.vibdisps,
+            "atomnos": rx.misc.totuple(ccdata.atomnos),
+            "atommasses": rx.misc.totuple(ccdata.atommasses),
+            "atomcoords": rx.misc.totuple(ccdata.atomcoords[-1]),
+            "vibfreqs": rx.misc.totuple(ccdata.vibfreqs),
+            "vibdisps": rx.misc.totuple(ccdata.vibdisps),
         }
-        # TODO(schneiderfelipe): only run the code below if we know it is an
-        # ORCA logfile. I want the code in this final section to be very
-        # specific in supplying *only* things cclib is not (yet) able to.
-        #
         # This properly parses the final single point energy from ORCA files.
         data.update(_read_orca_logfile(path))
     except AttributeError:
@@ -718,6 +618,10 @@ def read_logfile(path):
         # parse much more than small pieces of information, as at this point
         # cclib has failed.
         try:
+            # TODO(schneiderfelipe): only run the code below if we know it is
+            # an ORCA logfile. The code in this final section should be very
+            # specific in supplying *only* things cclib is not (yet) able to
+            # parse.
             data = _read_orca_logfile(path, minimal=False)
         except FileNotFoundError:
             raise FileNotFoundError(f"could not parse logfile: '{path}'")
@@ -782,8 +686,8 @@ def _read_orca_hess(path):
         return hessian
 
 
-# Heavily inpired by pieces of cclib
-def _read_orca_logfile(path, minimal=True):  # noqa: C901
+# heavily inpired by pieces of cclib
+def _read_orca_logfile(path, minimal=True):
     """Read an ORCA logfile.
 
     This function is a temporary reader, to be used until cclib supports all
@@ -803,33 +707,30 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
     --------
     >>> _read_orca_logfile("data/symmetries/benzene.out")
     {'energy': -609176691.0746485}
-    >>> _read_orca_logfile("data/tanaka1996/UMP2/6-311G(2df,2pd)/Cl·.out")
+    >>> _read_orca_logfile("data/tanaka1996/UMP2/cc-pVTZ/Cl·.out")
     {'energy': ...,
-     'hessian': [[...]]}
+     'hessian': ((...))}
     >>> _read_orca_logfile("data/symmetries/benzene.out", minimal=False)
     {'energy': -609176691.0746485,
      'logfile': 'data/symmetries/benzene.out',
      'mult': 1,
-     'atomnos': [6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1],
-     'atomcoords': [[1.856873, 1.370646, -0.904202],
+     'atomnos': (6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1),
+     'atomcoords': ((1.856873, 1.370646, -0.904202),
                     ...,
-                    [0.794845, 1.265216, -1.190139]],
-     'atommasses': [12.011, ..., 1.008],
-     'vibfreqs': [397.68, 397.72, ..., 3099.78, 3109.35]}
-    >>> _read_orca_logfile("data/tanaka1996/UMP2/6-311G(2df,2pd)/Cl·.out",
+                    (0.794845, 1.265216, -1.190139)),
+     'atommasses': (12.011, ..., 1.008),
+     'vibfreqs': (397.68, 397.72, ..., 3099.78, 3109.35)}
+    >>> _read_orca_logfile("data/tanaka1996/UMP2/cc-pVTZ/Cl·.out",
     ...                    minimal=False)
-    {'energy': -1206916696.9980993,
-     'hessian': [[2.344970859e-11, -1.1953313121e-14, -6.1524162557e-17],
-                 [-1.1953313121e-14, 2.1263734888e-11, 9.2241716473e-17],
-                 [-6.1524162557e-17, 9.2241716473e-17, 2.1024502755e-11]],
-     'logfile': 'data/tanaka1996/UMP2/6-311G(2df,2pd)/Cl·.out',
+    {'energy': -1206878421.4741397,
+     'hessian': ((2.4367721762e-11, ..., 1.0639954754e-11)),
+     'logfile': 'data/tanaka1996/UMP2/cc-pVTZ/Cl·.out',
      'mult': 2,
-     'atomnos': [17],
-     'atomcoords': [[0.0, 0.0, 0.0]],
-     'atommasses': [35.453],
-     'vibfreqs': array([], dtype=float64)}
+     'atomnos': (17,),
+     'atomcoords': ((0.0, 0.0, 0.0),),
+     'atommasses': (35.453,),
+     'vibfreqs': ()}
     """
-    # TODO(schneiderfelipe): return an empty dict-like on error.
     atomcoords = None
     atommasses = None
     vibfreqs = None
@@ -859,7 +760,7 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
                     while len(line) > 1:
                         atom, x, y, z = line.split()
                         if atom[-1] != ">":
-                            atomnos.append(misc.atomic_number[atom])
+                            atomnos.append(rx.misc.atomic_number[atom])
                             atomcoords.append([float(x), float(y), float(z)])
                         line = next(file)
 
@@ -878,7 +779,7 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
                             == "> coreless ECP center with (optional) point charge"
                         ):
                             break
-                        no, lb, za, frag, mass, x, y, z = line.split()
+                        _, lb, _, _, mass, x, y, z = line.split()
                         if lb[-1] != ">":
                             atommasses.append(float(mass))
                         line = next(file)
@@ -897,7 +798,6 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
                             vibfreqs.append(float(line.split()[1]))
                             line = next(file).strip()
 
-                        # TODO(schneiderfelipe): should we remove almost zeros?
                         nonzero = np.nonzero(vibfreqs)[0]
                         first_mode = nonzero[0]
                         vibfreqs = vibfreqs[first_mode:]
@@ -909,7 +809,7 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
     if hessian is None:
         try:
             hessian = _read_orca_hess(path.replace(".out", ".hess"))
-            data.update({"hessian": hessian.tolist()})
+            data.update({"hessian": rx.misc.totuple(hessian)})
         except FileNotFoundError:
             pass
 
@@ -929,20 +829,22 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
             for _ in range(n):
                 line = next(file)
                 atom, x, y, z = line.split()
-                atomnos.append(misc.atomic_number[atom])
+                atomnos.append(rx.misc.atomic_number[atom])
                 atomcoords.append([float(x), float(y), float(z)])
-    data.update({"atomnos": atomnos, "atomcoords": atomcoords})
+    data.update(
+        {"atomnos": rx.misc.totuple(atomnos), "atomcoords": rx.misc.totuple(atomcoords)}
+    )
 
     if atommasses is None:
-        # TODO(schneiderfelipe): show a warning about guessing masses from the
-        # periodic table.
+        # TODO(schneiderfelipe): warn about guessing masses from the periodic
+        # table.
         atommasses = []
         for n in atomnos:
-            atommasses.append(misc.atomic_mass[n])
-    data.update({"atommasses": atommasses})
+            atommasses.append(rx.misc.atomic_mass[n])
+    data.update({"atommasses": rx.misc.totuple(atommasses)})
 
     if vibfreqs is not None:
-        data.update({"vibfreqs": vibfreqs})
+        data.update({"vibfreqs": rx.misc.totuple(vibfreqs)})
 
     return data
 
@@ -951,21 +853,57 @@ def _read_orca_logfile(path, minimal=True):  # noqa: C901
 class dotdict(dict):
     """Access dictionary attributes through dot.notation.
 
+    This object is meant to be immutable, so that it can be hashed.
+
+    Raises
+    ------
+    NotImplementedError
+        If one attempts to change a value.
+
     Examples
     --------
-    >>> mydict = {"val": "it works"}
-    >>> nested_dict = {"val": "nested works too"}
-    >>> mydict = dotdict(mydict)
+    >>> mydict = dotdict({
+    ...     "val": "it works like a dict",
+    ...     "nested": {
+    ...         "val": "nested works too"
+    ...     },
+    ... })
     >>> mydict.val
-    'it works'
-    >>> mydict.nested = dotdict(nested_dict)
+    'it works like a dict'
     >>> mydict.nested.val
     'nested works too'
+
+    The constructor actually works recursively:
+
+    >>> type(mydict.nested)
+    <class 'overreact.io.dotdict'>
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for key, val in self.items():
+            if isinstance(val, (list, np.ndarray)):
+                super().__setitem__(key, rx.misc.totuple(val))
+            elif isinstance(val, dict):
+                super().__setitem__(key, dotdict(val))
+
     __getattr__ = dict.get
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
+
+    def __setitem__(self, key, value):
+        raise NotImplementedError("dotdict objects are immutable")
+
+    # https://stackoverflow.com/a/1151686/4039050
+    # https://stackoverflow.com/a/1151705/4039050
+    def __hash__(self):
+        return hash(self._key())
+
+    # https://stackoverflow.com/a/16162138/4039050
+    def _key(self):
+        return (frozenset(self), frozenset(self.items()))
+
+    def __eq__(self, other):
+        return self._key() == other._key()
 
 
 # https://stackoverflow.com/a/61144084/4039050

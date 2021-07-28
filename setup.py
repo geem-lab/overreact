@@ -8,13 +8,18 @@ from setuptools import setup
 setup(
     name="overreact",
     version=open("VERSION").read().strip(),
-    description="A Python package for constructing microkinetic models",
+    license="MIT",
+    description="Construct precise chemical microkinetic models from first principles",
     author="Felipe Silveira de Souza Schneider",
     author_email="schneider.felipe@posgrad.ufsc.br",
-    url="https://github.com/schneiderfelipe/overreact",
+    url="https://github.com/geem-lab/overreact",
     packages=find_packages(),
     entry_points={"console_scripts": ["overreact = overreact.cli:main"]},
     install_requires=["cclib>=1.6.3", "scipy>=1.4.0"],
-    extras_require={"thermo": ["thermo>=0.1.39"]},
-    tests_require=["pytest>=5.2.1"],
+    extras_require={
+        "cli": ["rich>=9.2.0"],
+        "fast": ["jax>=0.2.6", "jaxlib>=0.1.57"],
+        "solvents": ["thermo>=0.1.39"],
+    },
+    tests_require=["matplotlib>=2.1.1", "pytest>=5.2.1"],
 )
