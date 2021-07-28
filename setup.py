@@ -8,10 +8,11 @@ from setuptools import setup
 setup(
     name="overreact",
     version=open("VERSION").read().strip(),
+    license="MIT",
     description="Construct precise chemical microkinetic models from first principles",
     author="Felipe Silveira de Souza Schneider",
     author_email="schneider.felipe@posgrad.ufsc.br",
-    url="https://github.com/schneiderfelipe/overreact",
+    url="https://github.com/geem-lab/overreact",
     packages=find_packages(),
     entry_points={"console_scripts": ["overreact = overreact.cli:main"]},
     install_requires=["cclib>=1.6.3", "scipy>=1.4.0"],
