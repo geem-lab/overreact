@@ -19,7 +19,7 @@ See the [installation instructions](https://geem-lab.github.io/overreact-docs/in
 ## License
 
 **overreact** is open-source, released under the permissive **MIT license**.
-See [our LICENSE file](https://github.com/geem-lab/overreact-docs/blob/master/LICENSE).
+See [our LICENSE file](https://github.com/geem-lab/overreact/blob/main/LICENSE).
 
 ## Citing **overreact**
 
