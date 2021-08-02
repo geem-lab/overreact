@@ -217,6 +217,11 @@ class Report:
             point_group = coords.find_point_group(
                 atommasses=data.atommasses, atomcoords=data.atomcoords
             )
+
+            vibfreqs_text = Text(
+                ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
+            )
+            vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
             compounds_table.add_row(
                 f"{i:d}",
                 name,
@@ -643,6 +648,15 @@ def _prepare_simulation(scheme, k, concentrations):
         y0[scheme.compounds.index(compound)] = free_y0[compound]
 
     return scheme, k, y0
+
+            if self.savepath is not None:
+                np.savetxt(
+                    self.savepath,
+                    np.block([t[:, np.newaxis], y(t).T]),
+                    header=f"t,{','.join(self.model.scheme.compounds)}",
+                    delimiter=",",
+                )
+                yield Markdown(f"Simulation data was saved to **{self.savepath}**")
 
 
 def main():
