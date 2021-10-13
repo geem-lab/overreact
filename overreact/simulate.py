@@ -10,8 +10,10 @@ import logging
 
 import numpy as np
 from scipy.integrate import solve_ivp
+from scipy.optimize import minimize_scalar
 
 import overreact as rx
+from overreact import constants
 from overreact.misc import _found_jax
 
 if _found_jax:
@@ -501,3 +503,98 @@ def get_fixed_scheme(scheme, k, fixed_y0):
         ),
         new_k,
     )
+
+
+def get_bias(
+    scheme,
+    compounds,
+    data,
+    y0,
+    tunneling="eckart",
+    qrrho=True,
+    temperature=298.15,
+    pressure=constants.atm,
+    method="Radau",
+    rtol=1e-5,
+    atol=1e-11,
+):
+    r"""Estimate a energy bias for a given set of reference data points.
+
+    Parameters
+    ----------
+    scheme : Scheme
+    data : dict-like of array-like
+    compounds : dict-like, optional
+    tunneling : str or None, optional
+        Choose between "eckart", "wigner" or None (or "none").
+    qrrho : bool or tuple-like, optional
+        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
+        approximations of M. Head-Gordon (enthalpy correction, see
+        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
+        doi:10.1002/chem.201200497) on top of the classical RRHO.
+    temperature : array-like, optional
+        Absolute temperature in Kelvin.
+    pressure : array-like, optional
+        Reference gas pressure.
+    delta_freeenergies : array-like, optional
+    molecularity : array-like, optional
+        Reaction order, i.e., number of molecules that come together to react.
+        If set, this is used to calculate `delta_moles` for
+        `equilibrium_constant`, which effectively calculates a solution
+        equilibrium constant between reactants and the transition state for
+        gas phase data. You should set this to `None` if your free energies
+        were already adjusted for solution Gibbs free energies.
+    volume : float, optional
+        Molar volume.
+
+    Returns
+    -------
+    array-like
+
+    Examples
+    --------
+    >>> model = rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.jk")
+
+    The following are some estimates on actual atmospheric concentrations:
+
+    >>> y0 = [4.8120675684099e-05, 2.8206357713028517e-05, 0.0, 0.0, 2.7426565371218556e-05]
+    >>> data = {"t": [1.276472128376942246e-06, 1.446535794555581743e-04, 1.717069678525567564e-02],
+    ...         "CH3·": [9.694916853338366211e-09, 1.066033349343709026e-06, 2.632179124780495175e-05]}
+    >>> get_bias(model.scheme, data, y0, model.compounds) / constants.kcal
+    -1.364171
+    """
+    max_time = np.max(data["t"])
+
+    def f(bias):
+        k = rx.get_k(
+            scheme,
+            compounds,
+            bias=bias,
+            tunneling=tunneling,
+            qrrho=qrrho,
+            temperature=temperature,
+            pressure=pressure,
+        )
+
+        # TODO(schneiderfelipe): support schemes with fixed concentrations
+        dydt = rx.get_dydt(scheme, k)
+        y, _ = rx.get_y(
+            dydt,
+            y0=y0,
+            method=method,
+            rtol=rtol,
+            atol=atol,
+            max_time=max_time,
+        )
+
+        yhat = y(data["t"])
+        return np.sum(
+            [
+                (yhat[i] - data[name]) ** 2
+                for (i, name) in enumerate(compounds)
+                if name in data
+            ]
+        )
+
+    res = minimize_scalar(f)
+    return res.x

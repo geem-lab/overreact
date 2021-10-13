@@ -410,6 +410,43 @@ class Report:
         ------
         renderable
         """
+        if isinstance(self.bias, str):
+            data = np.genfromtxt(
+                self.bias,
+                names=True,
+                delimiter=",",
+            )
+            data = {name: data[name] for name in data.dtype.names}
+
+            scheme, _, y0 = _prepare_simulation(
+                self.model.scheme,
+                rx.get_k(
+                    self.model.scheme,
+                    self.model.compounds,
+                    bias=0.0,
+                    tunneling=self.tunneling,
+                    qrrho=self.qrrho,
+                    scale="l mol-1 s-1",
+                    temperature=self.temperature,
+                    pressure=self.pressure,
+                ),
+                self.concentrations,
+            )
+            # TODO(schneiderfelipe): support schemes with fixed concentrations
+            self.bias = rx.get_bias(
+                scheme,
+                self.model.compounds,
+                data,
+                y0,
+                tunneling=self.tunneling,
+                qrrho=self.qrrho,
+                temperature=self.temperature,
+                pressure=self.pressure,
+                method=self.method,
+                rtol=self.rtol,
+                atol=self.atol,
+            )
+
         # TODO(schneiderfelipe): apply other corrections to k (such as
         # diffusion control).
         # TODO(schneiderfelipe): use pressure.
@@ -485,36 +522,9 @@ class Report:
         yield Markdown("For **half-equilibria**, only ratios make sense.")
 
         if self.concentrations is not None and self.concentrations:
-            k = k["M⁻ⁿ⁺¹·s⁻¹"]
-
-            free_y0 = {}
-            fixed_y0 = {}
-            for spec in self.concentrations:
-                fields = spec.split(":", 1)
-                name, quantity = fields[0].strip(), fields[1].strip()
-
-                if quantity.startswith("!"):
-                    d = fixed_y0
-                    quantity = quantity[1:]
-                else:
-                    d = free_y0
-
-                try:
-                    quantity = float(quantity)
-                except (IndexError, ValueError):
-                    raise ValueError(
-                        "badly formatted concentrations: "
-                        f"'{' '.join(self.concentrations)}'"
-                    )
-
-                d[name] = quantity
-
-            # TODO(schneiderfelipe): log stuff related to get_fixed_scheme
-            scheme, k = rx.get_fixed_scheme(self.model.scheme, k, fixed_y0)
-
-            y0 = np.zeros(len(scheme.compounds))
-            for compound in free_y0:
-                y0[scheme.compounds.index(compound)] = free_y0[compound]
+            scheme, k, y0 = _prepare_simulation(
+                self.model.scheme, k["M⁻ⁿ⁺¹·s⁻¹"], self.concentrations
+            )
 
             # TODO(schneiderfelipe): encapsulate everything in a function that depends
             # on the freeenergies as first parameter
@@ -602,6 +612,39 @@ class Report:
                 yield Markdown(f"Simulation data was saved to **{self.savepath}**")
 
 
+def _prepare_simulation(scheme, k, concentrations):
+    """Helper for preparing some data before simulation."""
+    free_y0 = {}
+    fixed_y0 = {}
+    for spec in concentrations:
+        fields = spec.split(":", 1)
+        name, quantity = fields[0].strip(), fields[1].strip()
+
+        if quantity.startswith("!"):
+            d = fixed_y0
+            quantity = quantity[1:]
+        else:
+            d = free_y0
+
+        try:
+            quantity = float(quantity)
+        except (IndexError, ValueError):
+            raise ValueError(
+                "badly formatted concentrations: " f"'{' '.join(concentrations)}'"
+            )
+
+        d[name] = quantity
+
+    # TODO(schneiderfelipe): log stuff related to get_fixed_scheme
+    scheme, k = rx.get_fixed_scheme(scheme, k, fixed_y0)
+
+    y0 = np.zeros(len(scheme.compounds))
+    for compound in free_y0:
+        y0[scheme.compounds.index(compound)] = free_y0[compound]
+
+    return scheme, k, y0
+
+
 def main():
     """Command-line interface."""
     console = Console(width=max(105, shutil.get_terminal_size()[0]))
@@ -659,9 +702,8 @@ def main():
     parser.add_argument(
         "-b",
         "--bias",
-        help="an energy value (in joules per mole) to be added to each "
+        help="an energy value (in kilocalories per mole) to be added to each "
         "indiviual compound in order to mitigate eventual systematic errors",
-        type=float,
         default=0.0,
     )
     parser.add_argument(
@@ -723,6 +765,12 @@ def main():
     )
     args = parser.parse_args()
 
+    try:
+        args.bias = float(args.bias) * constants.kcal
+        bias_message = f"{args.bias} kcal/mol"
+    except ValueError:
+        bias_message = f"fitting from {args.bias}"
+
     console.print(
         Markdown(
             f"""
@@ -742,7 +790,7 @@ Inputs:
 - Max. Time      = {args.max_time}
 - Rel. Tol.      = {args.rtol}
 - Abs. Tol.      = {args.atol}
-- Bias           = {args.bias / constants.kcal} kcal/mol
+- Bias           = {bias_message}
 - Tunneling      = {args.tunneling}
 
 Parsing and calculating…
