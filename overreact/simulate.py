@@ -28,15 +28,6 @@ else:
 
 logger = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
-
-_found_jax = _misc._find_package("jax")
-if _found_jax:
-    import jax.numpy as jnp
-    from jax import jacfwd
-    from jax import jit
-    from jax.config import config
-
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
 def get_y(
     dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11, max_time=24 * 60 * 60
