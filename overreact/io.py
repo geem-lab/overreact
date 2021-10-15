@@ -201,9 +201,9 @@ def _parse_source(file_path_or_str):
 
     It is guaranteed that both the list of compounds in the scheme and in the
     keys of compounds match. This implementation detail is crucial for the
-    proper internal bevahiour of overreact:
+    proper internal behavior of overreact:
 
-    >>> model = parse_model("data/perez-soto2020/NoRI/GFN2-xTB/model.k",
+    >>> model = parse_model("data/perez-soto2020/RI/B3LYP-D3BJ/cc-pVTZ/model.k",
     ...                     force_compile=True)
     >>> model.scheme.compounds
     ('Benzaldehyde(dcm)', 'NButylamine(dcm)', 'A_N(dcm)', 'A_N_N(dcm)',
@@ -523,7 +523,7 @@ def parse_compounds(text, path=("",), select=None):
 
             if key == "logfile":
                 # TODO(schneiderfelipe): test "nested" logfiles, i.e.,
-                # DNPLO-CCSD(T)/def2-TZVP(-f)//revPBE-D4-gCP/def2-SVP, etc.
+                # DLPNO-CCSD(T)/def2-TZVP(-f)//revPBE-D4-gCP/def2-SVP, etc.
                 success = False
                 value = value.strip('"')
                 for p in path:
@@ -686,7 +686,7 @@ def _read_orca_hess(path):
         return hessian
 
 
-# heavily inpired by pieces of cclib
+# heavily inspired by pieces of cclib
 def _read_orca_logfile(path, minimal=True):
     """Read an ORCA logfile.
 
@@ -912,8 +912,8 @@ class _LazyDict(MutableMapping):
 
     _function = None
 
-    def __init__(self, *args, **kargs):
-        self._dict = dict(*args, **kargs)
+    def __init__(self, *args, **kwargs):
+        self._dict = dict(*args, **kwargs)
 
     def __getitem__(self, key):
         """Evaluate value."""

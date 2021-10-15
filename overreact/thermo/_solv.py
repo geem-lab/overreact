@@ -225,7 +225,7 @@ def molar_free_volume(
     92.
     >>> molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
     ...     / (constants.angstrom ** 3 * constants.N_A)
-    896.
+    90e1
 
     >>> data = datasets.logfiles["symmetries"]["benzene"]
     >>> molar_free_volume(data.atomnos, data.atomcoords, method="izato") \

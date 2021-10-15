@@ -24,7 +24,7 @@ def get_internal_energies(compounds, qrrho=True, temperature=298.15):
     ----------
     compounds : dict-like
     qrrho : bool, optional
-        Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
+        Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon (see doi:10.1021/jp509921r) on top of the classical
         RRHO.
     temperature : array-like, optional
@@ -46,7 +46,7 @@ def get_internal_energies(compounds, qrrho=True, temperature=298.15):
 
     """
     compounds = rx.io._check_compounds(compounds)
-    internal_energes = []
+    internal_energies = []
     for name in compounds:
         logger.info(f"calculate internal energy: {name}")
 
@@ -63,8 +63,8 @@ def get_internal_energies(compounds, qrrho=True, temperature=298.15):
             qrrho=qrrho,
             temperature=temperature,
         )
-        internal_energes.append(internal_energy)
-    return np.array(internal_energes)
+        internal_energies.append(internal_energy)
+    return np.array(internal_energies)
 
 
 def get_enthalpies(compounds, qrrho=True, temperature=298.15):
@@ -74,7 +74,7 @@ def get_enthalpies(compounds, qrrho=True, temperature=298.15):
     ----------
     compounds : dict-like
     qrrho : bool, optional
-        Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
+        Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon (see doi:10.1021/jp509921r) on top of the classical
         RRHO.
     temperature : array-like, optional
@@ -146,7 +146,7 @@ def get_entropies(
         Choose between "standard", "izato" (doi:10.1039/C9CP03226F) and "garza"
         (doi:10.1021/acs.jctc.9b00214).
     qrrho : bool, optional
-        Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
+        Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         S. Grimme (see doi:10.1002/chem.201200497) on top of the classical
         RRHO.
     temperature : array-like, optional
@@ -226,7 +226,7 @@ def _check_qrrho(qrrho):
     Parameters
     ----------
     qrrho : bool or tuple-like
-        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
+        Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon (enthalpy correction, see
         doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
         doi:10.1002/chem.201200497) on top of the classical RRHO.
@@ -285,7 +285,7 @@ def get_freeenergies(
         Choose between "standard", "izato" (doi:10.1039/C9CP03226F) and "garza"
         (doi:10.1021/acs.jctc.9b00214).
     qrrho : bool or tuple-like, optional
-        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
+        Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon (enthalpy correction, see
         doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
         doi:10.1002/chem.201200497) on top of the classical RRHO.
@@ -367,7 +367,7 @@ def get_k(
     tunneling : str or None, optional
         Choose between "eckart", "wigner" or None (or "none").
     qrrho : bool or tuple-like, optional
-        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
+        Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon (enthalpy correction, see
         doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
         doi:10.1002/chem.201200497) on top of the classical RRHO.
@@ -557,7 +557,7 @@ def get_kappa(scheme, compounds, method="eckart", qrrho=True, temperature=298.15
     method : str or None, optional
         Choose between "eckart", "wigner" or None (or "none").
     qrrho : bool, optional
-        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
+        Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon (enthalpy correction, see
         doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
         doi:10.1002/chem.201200497) on top of the classical RRHO.

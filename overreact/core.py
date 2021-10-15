@@ -535,13 +535,13 @@ def parse_reactions(text):
               (1.,  0.),
               (0.,  1.)))
 
-    The following is correct bevahior. In fact, the reactions are badly
+    The following is correct behavior. In fact, the reactions are badly
     defined: if more than one transition state are chained, the following
     happens, which is correct since it's the most physically plausible model
     that can be extracted. I think it's a feature that the product B is ignored
     and not the reactant A since the user will easily see the mistake in graphs
     of concentration over time (the alternative would be no reaction happening
-    at all, which is cryptical). Furthermore, it's not clear how a reaction
+    at all, which is cryptic). Furthermore, it's not clear how a reaction
     barrier be defined in such a weird case:
 
     >>> parse_reactions("A -> A‡ -> A'‡ -> B")
@@ -788,7 +788,7 @@ def _parse_side(side):
 
 
 def _unparse_side(unside):
-    """Return string representation of a lefti/right hand side of a reaction.
+    """Return string representation of a left/right hand side of a reaction.
 
     Parameters
     ----------

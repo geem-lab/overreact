@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-"""Miscelaneous functions that do not currently fit in other modules.
+"""Miscellaneous functions that do not currently fit in other modules.
 
-Ideally, the functions here will be transfered to other modules in the future.
+Ideally, the functions here will be transferred to other modules in the future.
 """
 
 from functools import lru_cache as cache
@@ -479,7 +479,7 @@ def _get_chemical(
     >>> water.Vm
     1.806904e-5
     >>> water.permittivity
-    78.35530812232503
+    78.355308122325
     >>> water.isobaric_expansion
     0.000402256
     >>> water.omega

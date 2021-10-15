@@ -191,30 +191,30 @@ def _garza(
     Examples
     --------
     >>> _garza(1.0)
-    24.319540062148373
+    24.3195400621484
     >>> _garza(1.0, full_output=True)
-    (24.319540062148373, 1.8152561408352508, 0.3507458151874175)
+    (24.3195400621484, 1.81525614083525, 0.3507458151874175)
     >>> _garza(10.0)
-    66.51277879775996
+    66.51277879776
     >>> _garza(10.0, full_output=True)
-    (66.51277879775996, 1.0, 0.7556589516232841)
+    (66.51277879776, 1.0, 0.7556589516232841)
     >>> _garza(100.0)
-    279.5765661525939
+    279.576566152594
     >>> _garza(100.0, full_output=True)
-    (279.5765661525939, 1.0, 1.6280178592103285)
+    (279.576566152594, 1.0, 1.6280178592103285)
 
     >>> _garza(1.0, environment="benzene")
-    131.79158378480162
+    131.
     >>> _garza(1.0, full_output=True, environment="benzene")
-    (131.79158378480162, 3.3498456246522053, 0.23178825099342945)
+    (131., 3.35, 0.23178825099342945)
     >>> _garza(10.0, environment="benzene")
-    243.36764121314235
+    243.
     >>> _garza(10.0, full_output=True, environment="benzene")
-    (243.36764121314235, 3.2919877091756504, 0.49937264868206155)
+    (243., 3.29, 0.49937264868206155)
     >>> _garza(100.0, environment="benzene")
-    665.4646143809224
+    665.
     >>> _garza(100.0, full_output=True, environment="benzene")
-    (665.4646143809224, 1.0, 1.0758657575737383)
+    (665., 1.0, 1.0758657575737383)
     """
     solvent = rx.misc._get_chemical(environment, temperature, pressure)
 
@@ -1382,7 +1382,7 @@ def _classify_rotor(moments, rtol=0.0, atol=1.0e-2, slack=0.870):
     >>> _classify_rotor([1, 1, 1])
     ('spheric', 'nonplanar')
 
-    Asymmetric tops can be a lot of diferent groups, the ones lacking proper
+    Asymmetric tops can be a lot of different groups, the ones lacking proper
     axis of symmetry (C1, Ci, Cs) being exclusively found in asymmetric tops.
     Furthermore, any group found for symmetric tops can be found for asymmetric
     tops as well, which complicates things a bit.
@@ -1827,7 +1827,7 @@ def _equivalent_atoms(
         Atomic masses in atomic mass units (amu).
     atomcoords : array-like
         Atomic coordinates.
-    method : str, optioanl
+    method : str, optional
         Method of partitioning: "atommass" (same atoms same groups), "cluster".
     thresh : int, optional
         Threshold to consider atom clusters.
@@ -1901,7 +1901,7 @@ def _equivalent_atoms(
         Z = linkage(pdist(criteria), method="single")
         clusters = fcluster(Z, thresh, criterion="distance")
 
-        # TODO(schneiderfelipe): this was for debug and should evtl. be removed.
+        # TODO(schneiderfelipe): this was for debug and should eventually be removed.
         if plot:
             import matplotlib.pyplot as plt
 
