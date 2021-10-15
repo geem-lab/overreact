@@ -38,7 +38,7 @@ class Report:
     ----------
     model : dict-like
     qrrho : bool, optional
-        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
+        Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon (enthalpy correction, see
         doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
         doi:10.1002/chem.201200497) on top of the classical RRHO.
@@ -189,9 +189,9 @@ class Report:
         compounds_table = Table(
             Column("no", justify="right"),
             Column("compound", justify="left"),
-            Column("elec. energy\n\[Eₕ]", justify="center"),
+            Column("elec. energy\n〈Eₕ〉", justify="center"),
             Column("spin mult.", justify="center"),
-            Column("smallest vibfreqs\n\[cm⁻¹]", justify="center"),
+            Column("smallest vibfreqs\n〈cm⁻¹〉", justify="center"),
             Column("point group", justify="center"),
             title="compounds",
             box=self.box_style,
@@ -273,11 +273,11 @@ class Report:
         compounds_table = Table(
             Column("no", justify="right"),
             Column("compound", justify="left"),
-            Column("mass\n\[amu]", justify="center"),
-            Column("Gᶜᵒʳʳ\n\[kcal/mol]", justify="center", style="bright_green"),
-            Column("Uᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
-            Column("Hᶜᵒʳʳ\n\[kcal/mol]", justify="center"),
-            Column("S\n\[cal/mol·K]", justify="center"),
+            Column("mass\n〈amu〉", justify="center"),
+            Column("Gᶜᵒʳʳ\n〈kcal/mol〉", justify="center", style="bright_green"),
+            Column("Uᶜᵒʳʳ\n〈kcal/mol〉", justify="center"),
+            Column("Hᶜᵒʳʳ\n〈kcal/mol〉", justify="center"),
+            Column("S\n〈cal/mol·K〉", justify="center"),
             title="estimated thermochemistry (compounds)",
             box=self.box_style,
         )
@@ -336,24 +336,24 @@ class Report:
         circ_table = Table(
             Column("no", justify="right"),
             Column("reaction", justify="left"),
-            Column("Δmass°\n\[amu]", justify="center"),
-            Column("ΔG°\n\[kcal/mol]", justify="center", style="bright_green"),
-            Column("ΔE°\n\[kcal/mol]", justify="center"),
-            Column("ΔU°\n\[kcal/mol]", justify="center"),
-            Column("ΔH°\n\[kcal/mol]", justify="center"),
-            Column("ΔS°\n\[cal/mol·K]", justify="center"),
+            Column("Δmass°\n〈amu〉", justify="center"),
+            Column("ΔG°\n〈kcal/mol〉", justify="center", style="bright_green"),
+            Column("ΔE°\n〈kcal/mol〉", justify="center"),
+            Column("ΔU°\n〈kcal/mol〉", justify="center"),
+            Column("ΔH°\n〈kcal/mol〉", justify="center"),
+            Column("ΔS°\n〈cal/mol·K〉", justify="center"),
             title="estimated (reaction°) thermochemistry",
             box=self.box_style,
         )
         dagger_table = Table(
             Column("no", justify="right"),
             Column("reaction", justify="left"),
-            Column("Δmass‡\n\[amu]", justify="center"),
-            Column("ΔG‡\n\[kcal/mol]", justify="center", style="bright_green"),
-            Column("ΔE‡\n\[kcal/mol]", justify="center"),
-            Column("ΔU‡\n\[kcal/mol]", justify="center"),
-            Column("ΔH‡\n\[kcal/mol]", justify="center"),
-            Column("ΔS‡\n\[cal/mol·K]", justify="center"),
+            Column("Δmass‡\n〈amu〉", justify="center"),
+            Column("ΔG‡\n〈kcal/mol〉", justify="center", style="bright_green"),
+            Column("ΔE‡\n〈kcal/mol〉", justify="center"),
+            Column("ΔU‡\n〈kcal/mol〉", justify="center"),
+            Column("ΔH‡\n〈kcal/mol〉", justify="center"),
+            Column("ΔS‡\n〈cal/mol·K〉", justify="center"),
             title="estimated (activation‡) thermochemistry",
             box=self.box_style,
         )
@@ -502,7 +502,7 @@ class Report:
                     Column("reaction", justify="left"),
                     Column("half equilib.?", justify="center"),
                 ]
-                + [Column(f"k\n\[{scale}]", justify="center") for scale in k]
+                + [Column(f"k\n〈{scale}〉", justify="center") for scale in k]
                 + [Column("κ", justify="center")]
             ),
             title="estimated reaction rate constants",
@@ -548,7 +548,7 @@ class Report:
                 Column("compound", justify="left"),
                 Column(f"t = {y.t_min:.1g} s", justify="right"),
                 Column(f"t = {y.t_max:.1g} s", justify="right", style="bright_green"),
-                title="initial and final concentrations\n\[M]",
+                title="initial and final concentrations\n〈M〉",
                 box=self.box_style,
             )
             for i, name in enumerate(scheme.compounds):
@@ -664,7 +664,8 @@ def main():
         Interface for building and modifying models.
         Read the documentation at {rx.__url__} for more information and usage examples.
         Licensed under the terms of the {rx.__license__} License.
-        If you publish work using this software, please cite https://doi.org/{rx.__doi__}:
+        If you publish work using this software, please cite
+        https://doi.org/{rx.__doi__}:
         """,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -714,7 +715,7 @@ def main():
         "-b",
         "--bias",
         help="an energy value (in kilocalories per mole) to be added to each "
-        "indiviual compound in order to mitigate eventual systematic errors",
+        "individual compound in order to mitigate eventual systematic errors",
         default=0.0,
     )
     parser.add_argument(
@@ -728,7 +729,7 @@ def main():
     # entropies separately.
     parser.add_argument(
         "--no-qrrho",
-        help="disable the quasi-rigid rotor harmonic oscilator (QRRHO) "
+        help="disable the quasi-rigid rotor harmonic oscillator (QRRHO) "
         "approximations to both enthalpies and entropies (see "
         "[doi:10.1021/jp509921r] and [doi:10.1002/chem.201200497])",
         dest="qrrho",
@@ -789,14 +790,17 @@ def main():
 
 {rx.__headline__}
 
-Licensed under the terms of the [{rx.__license__} License]({rx.__repo__}/blob/main/LICENSE).
-If you publish work using this software, **please cite [doi:{rx.__doi__}](https://doi.org/{rx.__doi__})**:
+Licensed under the terms of the
+[{rx.__license__} License]({rx.__repo__}/blob/main/LICENSE).
+If you publish work using this software, **please cite
+[doi:{rx.__doi__}](https://doi.org/{rx.__doi__})**:
 
 ```
 {rx.__citation__}
 ```
 
-Read the documentation at [{rx.__url__}]({rx.__url__}) for more information and usage examples.
+Read the documentation at [{rx.__url__}]({rx.__url__}) for more information
+and usage examples.
 
 Inputs:
 - Path           = {args.path}

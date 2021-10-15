@@ -31,3 +31,23 @@ from overreact.thermo import get_delta  # noqa: F401
 from overreact.thermo import get_reaction_entropies  # noqa: F401
 
 __version__ = _pkg_resources.get_distribution(__name__).version
+__license__ = "MIT"  # too hard to get from setup.py
+__doi__ = "10.5281/zenodo.5154060"
+__citation__ = r"""
+@misc{overreact2021,
+  title        = {
+    \textbf{overreact}: a tool for creating and analyzing microkinetic models
+    built from computational chemistry data, v1.0alpha
+  },
+  author       = {Schneider, Felipe S. S. and Caramori, Giovanni F.},
+  year         = 2021,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.5154060},
+  url          = {https://zenodo.org/record/5154060},
+  copyright    = {Open Access},
+  howpublished = {\url{https://github.com/geem-lab/overreact}}
+}
+"""
+__url__ = "https://geem-lab.github.io/overreact-docs"
+__repo__ = "https://github.com/geem-lab/overreact"
+__headline__ = "Construct precise chemical microkinetic models from first principles."

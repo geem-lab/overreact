@@ -796,7 +796,7 @@ def change_reference_state(
 
 # TODO(schneiderfelipe): we need a concrete example of this for testing.
 def get_reaction_entropies(transform, temperature=298.15, pressure=constants.atm):
-    """Calculate entropy contributions from the overall reaction structure.
+    r"""Calculate entropy contributions from the overall reaction structure.
 
     This function currently implements the reaction translational entropy, a
     result of the indistinguishability of reactants or products, i.e., a

@@ -28,6 +28,7 @@ else:
 
 logger = logging.getLogger(__name__)
 
+
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
 def get_y(
     dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11, max_time=24 * 60 * 60
@@ -51,11 +52,11 @@ def get_y(
         is chosen based on the system at hand (the method of choice works for
         any zeroth-, first- or second-order reactions).
     method : str, optional
-        Integration method to use. See `scipy.integrade.solve_ivp` for details.
+        Integration method to use. See `scipy.integrate.solve_ivp` for details.
         Kinetics problems are very often stiff and, as such, "RK45" is
         normally unsuited. "Radau", "BDF" or "LSODA" are good choices.
     rtol, atol : array-like
-        See `scipy.integrade.solve_ivp` for details.
+        See `scipy.integrate.solve_ivp` for details.
     max_time : float, optional
         If `t_span` is not given, an interval will be estimated, but it can't
         be larger than this parameter.
@@ -504,6 +505,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     )
 
 
+# TODO(schneiderfelipe): this is probably not ready yet
 def get_bias(
     scheme,
     compounds,
@@ -522,12 +524,13 @@ def get_bias(
     Parameters
     ----------
     scheme : Scheme
-    data : dict-like of array-like
     compounds : dict-like, optional
+    data : dict-like of array-like
+    y0: array-like
     tunneling : str or None, optional
         Choose between "eckart", "wigner" or None (or "none").
     qrrho : bool or tuple-like, optional
-        Apply both the quasi-rigid rotor harmonic oscilator (QRRHO)
+        Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon (enthalpy correction, see
         doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
         doi:10.1002/chem.201200497) on top of the classical RRHO.
@@ -556,10 +559,18 @@ def get_bias(
 
     The following are some estimates on actual atmospheric concentrations:
 
-    >>> y0 = [4.8120675684099e-05, 2.8206357713028517e-05, 0.0, 0.0, 2.7426565371218556e-05]
-    >>> data = {"t": [1.276472128376942246e-06, 1.446535794555581743e-04, 1.717069678525567564e-02],
-    ...         "CH3·": [9.694916853338366211e-09, 1.066033349343709026e-06, 2.632179124780495175e-05]}
-    >>> get_bias(model.scheme, data, y0, model.compounds) / constants.kcal
+    >>> y0 = [4.8120675684099e-5,
+    ...       2.8206357713029e-5,
+    ...       0.0,
+    ...       0.0,
+    ...       2.7426565371219e-5]
+    >>> data = {"t": [1.276472128376942246e-6,
+    ...               1.446535794555581743e-4,
+    ...               1.717069678525567564e-2],
+    ...         "CH3·": [9.694916853338366211e-9,
+    ...                  1.066033349343709026e-6,
+    ...                  2.632179124780495175e-5]}
+    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal
     -1.364171
     """
     max_time = np.max(data["t"])
