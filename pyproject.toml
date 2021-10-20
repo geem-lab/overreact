@@ -6,6 +6,9 @@ authors = ["Felipe S. S. Schneider <schneiderfelipe@posgrad.ufsc.br>"]
 license = "MIT"
 repository = "https://github.com/geem-lab/overreact"
 
+[tool.poetry.scripts]
+overreact = 'overreact.cli:main'
+
 [tool.poetry.dependencies]
 python = ">=3.7,<3.10"
 scipy = "^1.7.1"
