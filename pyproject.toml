@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Create and analyze chemical microkinetic models built from computational chemistry data. 🧪📈🧑‍🔬"
 authors = ["Felipe S. S. Schneider <schneiderfelipe@posgrad.ufsc.br>"]
 license = "MIT"
+repository = "https://github.com/geem-lab/overreact"
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.10"
