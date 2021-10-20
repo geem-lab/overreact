@@ -6,9 +6,11 @@ authors = ["Felipe S. S. Schneider <schneiderfelipe@posgrad.ufsc.br>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 
 [tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+matplotlib = "^3.4.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
