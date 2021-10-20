@@ -1,6 +1,0 @@
-cclib>=1.6.3
-scipy>=1.4.0
-matplotlib>=2.1.1
-pytest>=5.2.1
-rich>=9.2.0
-thermo>=0.1.39
