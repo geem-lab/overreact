@@ -6,7 +6,9 @@ authors = ["Felipe S. S. Schneider <schneiderfelipe@posgrad.ufsc.br>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.7,<3.10"
+scipy = "^1.7.1"
+cclib = "^1.7.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
