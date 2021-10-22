@@ -2,19 +2,21 @@
 
 <div style="text-align:center;">
 
-![overreact](https://raw.githubusercontent.com/geem-lab/overreact-docs/master/logo.png)
+![overreact](https://raw.githubusercontent.com/geem-lab/overreact-guide/master/logo.png)
 
 </div>
 
 **overreact** is a _library_ and a _command-line tool_ for creating and
-analyzing [microkinetic models](https://geem-lab.github.io/overreact-docs/#microkinetic).
+analyzing
+[microkinetic models](https://geem-lab.github.io/overreact-guide/#microkinetic).
 Data is parsed directly from computational chemistry output files thanks to
 [`cclib`](https://cclib.github.io/) (see the [list of supported programs](https://cclib.github.io/#summary)).
 
 ## Installation
 
-**overreact** is a Python package, so you can easily install it with `pip`.
-See the [installation instructions](https://geem-lab.github.io/overreact-docs/install.html).
+**overreact** is a Python package, so you can easily install it with `pip`. See
+the
+[installation instructions](https://geem-lab.github.io/overreact-guide/install.html).
 
 ## License
 
