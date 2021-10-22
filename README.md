@@ -10,7 +10,8 @@
 analyzing
 [microkinetic models](https://geem-lab.github.io/overreact-guide/#microkinetic).
 Data is parsed directly from computational chemistry output files thanks to
-[`cclib`](https://cclib.github.io/) (see the [list of supported programs](https://cclib.github.io/#summary)).
+[`cclib`](https://cclib.github.io/) (see the
+[list of supported programs](https://cclib.github.io/#summary)).
 
 ## Installation
 
@@ -20,15 +21,16 @@ the
 
 ## License
 
-**overreact** is open-source, released under the permissive **MIT license**.
-See [our LICENSE file](https://github.com/geem-lab/overreact/blob/main/LICENSE).
+**overreact** is open-source, released under the permissive **MIT license**. See
+[our LICENSE file](https://github.com/geem-lab/overreact/blob/main/LICENSE).
 
 ## Citing **overreact**
 
 If you use **overreact** in your research, please cite:
 
-> F. S. S. Schneider and G. F. Caramori. _**overreact**: a tool for creating and analyzing microkinetic models built from computational chemistry data_. **2021**.
-> Available at: <https://github.com/geem-lab/overreact>.
+> F. S. S. Schneider and G. F. Caramori. _**overreact**: a tool for creating and
+> analyzing microkinetic models built from computational chemistry data_.
+> **2021**. Available at: <https://github.com/geem-lab/overreact>.
 
 Here's the reference in [BibTeX](http://www.bibtex.org/) format:
 
@@ -57,12 +59,13 @@ Here's the reference in [BibTeX](http://www.bibtex.org/) format:
 }
 ```
 
-A paper describing **overreact** is currently being prepared.
-When it is published, the above BibTeX entry will be updated.
+A paper describing **overreact** is currently being prepared. When it is
+published, the above BibTeX entry will be updated.
 
 ## Funding
 
-This project was developed at the [GEEM lab](https://geem-ufsc.org/) ([Federal University of Santa
-Catarina](https://en.ufsc.br/), Brazil), and was partially funded by the
+This project was developed at the [GEEM lab](https://geem-ufsc.org/)
+([Federal University of Santa Catarina](https://en.ufsc.br/), Brazil), and was
+partially funded by the
 [Brazilian National Council for Scientific and Technological Development (CNPq)](https://cnpq.br/),
 grant number 140485/2017-1.
