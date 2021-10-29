@@ -22,7 +22,7 @@ solvents = ["thermo"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2.1"
-matplotlib = "^2.1.1"
+matplotlib = "^3.4.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
