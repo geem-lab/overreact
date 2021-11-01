@@ -2,11 +2,6 @@
 # package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
 # https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
-### This workflow has access to secrets and a read-write token
-name: Dependabot Workflow
-on:
-    pull_request_target
   
 version: 2
 updates:
