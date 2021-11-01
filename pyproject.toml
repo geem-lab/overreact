@@ -21,7 +21,7 @@ cli = ["rich"]
 solvents = ["thermo"]
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2.1"
+pytest = "^6.2.5"
 matplotlib = "^3.4.3"
 
 [build-system]
