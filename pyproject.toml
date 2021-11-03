@@ -5,7 +5,13 @@ description = "Create and analyze chemical microkinetic models built from comput
 authors = ["Felipe S. S. Schneider <schneider.felipe@posgrad.ufsc.br>",
            "Giovanni F. Caramori <giovanni.caramori@ufsc.br>"]
 license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/geem-lab/overreact"
 repository = "https://github.com/geem-lab/overreact"
+documentation = "https://geem-lab.github.io/overreact-guide"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/geem-lab/overreact/issues"
 
 [tool.poetry.scripts]
 overreact = 'overreact.cli:main'
