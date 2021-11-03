@@ -56,7 +56,7 @@ citation here).
 The future CLI
 --------------
 
-THE MASTER IDEA IS THAT YOU COMPILE A MODEL AND THEN USE IT FOR ANALYSING.
+THE MASTER IDEA IS THAT YOU COMPILE A MODEL AND THEN USE IT FOR ANALYZING.
 
 $ ls
 model.k
@@ -75,11 +75,11 @@ model.rct
 ...
 
 Things I want to incorporate:
-- The above is actualy a simple code that a. receives reaction scheme from an
+- The above is actually a simple code that a. receives reaction scheme from an
   input file and b. reads a list of energies and other data per compound
   (processed from logfiles) and returns a list of reaction rate constants.
   This is basically the core of the compiled model. NEVER FORGET: THIS IS
-  YOUR GREATER INOVATION. This will allow e.g. the study of concurrent
+  YOUR GREATER INNOVATION. This will allow e.g. the study of concurrent
   reactions and selectivity (final ratio between possible products,
   percentage of desired product produced compared with that could be
   maximally achieved), among other things.
