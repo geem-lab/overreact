@@ -217,11 +217,6 @@ class Report:
             point_group = coords.find_point_group(
                 atommasses=data.atommasses, atomcoords=data.atomcoords
             )
-
-            vibfreqs_text = Text(
-                ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
-            )
-            vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
             compounds_table.add_row(
                 f"{i:d}",
                 name,
@@ -725,8 +720,6 @@ def main():
         choices=["eckart", "wigner", "none"],
         default="eckart",
     )
-    # TODO(schneiderfelipe): allow selection of QRRHO for enthalpies and
-    # entropies separately.
     parser.add_argument(
         "--no-qrrho",
         help="disable the quasi-rigid rotor harmonic oscillator (QRRHO) "
