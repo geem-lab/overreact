@@ -679,6 +679,11 @@ def main():
         nargs="*",
     )
     parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {rx.__version__}",
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         help="increase output verbosity (can be given many times, each time "
