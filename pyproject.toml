@@ -12,6 +12,7 @@ documentation = "https://geem-lab.github.io/overreact-guide"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/geem-lab/overreact/issues"
+"Discussions" = "https://github.com/geem-lab/overreact/discussions"
 
 [tool.poetry.scripts]
 overreact = 'overreact.cli:main'
