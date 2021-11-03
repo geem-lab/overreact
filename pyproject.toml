@@ -23,6 +23,10 @@ solvents = ["thermo"]
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
 matplotlib = "^3.4.3"
+pydocstyle = "^6.1.1"
+bandit = "^1.7.0"
+black = {version = "^21.10b0", allow-prereleases = true}
+flake8 = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
