@@ -75,6 +75,23 @@ periodictable = "*"
 scipy = ">=1.2.0"
 
 [[package]]
+name = "chemicals"
+version = "1.0.12"
+description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
+category = "main"
+optional = true
+python-versions = "*"
+
+[package.dependencies]
+fluids = ">=1.0.9"
+numpy = "*"
+pandas = "*"
+scipy = "*"
+
+[package.extras]
+"Coverage documentation" = ["wsgiref (>=0.1.2)", "coverage (>=4.0.3)"]
+
+[[package]]
 name = "click"
 version = "8.0.3"
 description = "Composable command line interface toolkit"
@@ -507,14 +524,15 @@ pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 
 [[package]]
 name = "thermo"
-version = "0.1.40"
+version = "0.2.10"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 
 [package.dependencies]
-fluids = ">=0.1.77"
+chemicals = ">=1.0.12"
+fluids = ">=1.0.10"
 pandas = "*"
 scipy = "*"
 
@@ -572,7 +590,7 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"
-content-hash = "630219a9e0a3c3fa1b3efcd771f2c2a9d4e76fd0e28ac3e11e912db3d25d471c"
+content-hash = "0a8d2c842909a06a41cbd6689c8d63f6097b83bbc1510ace696368efcda6a1d8"
 
 [metadata.files]
 atomicwrites = [
@@ -593,6 +611,9 @@ black = [
 ]
 cclib = [
     {file = "cclib-1.7.1.tar.gz", hash = "sha256:0a1715a0c6c78437d17d65e3221e4d8eca9ad35ccf6ab153968b6a2a3e8399c8"},
+]
+chemicals = [
+    {file = "chemicals-1.0.12.tar.gz", hash = "sha256:6f571108f682c65a54a88d576f94b3299dbac8f2f438b76944db96936c408bf6"},
 ]
 click = [
     {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},
@@ -998,7 +1019,7 @@ stevedore = [
     {file = "stevedore-3.5.0.tar.gz", hash = "sha256:f40253887d8712eaa2bb0ea3830374416736dc8ec0e22f5a65092c1174c44335"},
 ]
 thermo = [
-    {file = "thermo-0.1.40.tar.gz", hash = "sha256:3e1e0f90ae4764e3b711e1d532acef667bcc24eb30fdad4cb3aae145b160e48a"},
+    {file = "thermo-0.2.10.tar.gz", hash = "sha256:316d99effff54ff11055f8be84d41c7282e00caa89dd38315d8b2eceb95bc0a1"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
