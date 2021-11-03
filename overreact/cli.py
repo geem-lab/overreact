@@ -19,11 +19,14 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.table import Column
 from rich.text import Text
+from rich import traceback
 
 import overreact as rx
 from overreact import coords
 from overreact import constants
 from overreact.misc import _found_seaborn
+
+traceback.install(show_locals=True)
 
 if _found_seaborn:
     import seaborn as sns
