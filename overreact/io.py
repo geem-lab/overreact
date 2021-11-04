@@ -383,6 +383,9 @@ def _check_compounds(compounds):
     Parameters
     ----------
     compounds : dict-like
+        A descriptor of the compounds.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
 
     Returns
     -------

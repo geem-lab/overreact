@@ -181,8 +181,16 @@ def molar_free_volume(
     atomcoords : array-like
         Atomic coordinates.
     method : str, optional
-        Choose between "izato" and "garza", for solvation methods presented in
-        doi:10.1039/C9CP03226F and doi:10.1021/acs.jctc.9b00214, respectively.
+        This is a placeholder for future functionality.
+        There are plans to implement more sophisticated methods for calculating
+        entropies such as in
+        [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
+        and
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        Head over to the
+        [discussions](https://github.com/geem-lab/overreact/discussions) if
+        you're interested and would like to contribute.
+        Leave this as "standard" for now.
     environment : str, optional
     temperature : array-like, optional
         Absolute temperature in Kelvin.

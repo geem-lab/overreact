@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
-"""High-level interface."""
+"""
+This module contains the high-level application programming interface.
+
+If you intend to use **overreact** as a library in a project, you should
+probably start here.
+"""
 
 import logging
 import warnings
+from typing import Optional, Union
 
 import numpy as np
 from scipy.misc import derivative
@@ -14,16 +20,22 @@ from overreact import constants, coords, rates, tunnel
 logger = logging.getLogger(__name__)
 
 
-def get_internal_energies(compounds, qrrho=True, temperature=298.15):
-    """Obtain internal energies for compounds.
+def get_internal_energies(
+    compounds: dict, qrrho: bool = True, temperature: float = 298.15
+) -> np.ndarray:
+    """Obtain internal energies for compounds at a given temperature.
 
     Parameters
     ----------
     compounds : dict-like
+        A descriptor of the compounds.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
-        M. Head-Gordon (see doi:10.1021/jp509921r) on top of the classical
-        RRHO.
+        M. Head-Gordon and others (see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
 
@@ -35,7 +47,6 @@ def get_internal_energies(compounds, qrrho=True, temperature=298.15):
     --------
     >>> import overreact as rx
     >>> from overreact import constants
-
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> internal_energies = get_internal_energies(model.compounds)
     >>> (internal_energies - internal_energies.min()) / constants.kcal
@@ -64,16 +75,22 @@ def get_internal_energies(compounds, qrrho=True, temperature=298.15):
     return np.array(internal_energies)
 
 
-def get_enthalpies(compounds, qrrho=True, temperature=298.15):
-    """Obtain enthalpies for compounds.
+def get_enthalpies(
+    compounds: dict, qrrho: bool = True, temperature: float = 298.15
+) -> np.ndarray:
+    """Obtain enthalpies for compounds at a given temperature.
 
     Parameters
     ----------
     compounds : dict-like
+        A descriptor of the compounds.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
-        M. Head-Gordon (see doi:10.1021/jp509921r) on top of the classical
-        RRHO.
+        M. Head-Gordon and others (see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
 
@@ -85,16 +102,15 @@ def get_enthalpies(compounds, qrrho=True, temperature=298.15):
     --------
     >>> import overreact as rx
     >>> from overreact import constants
-
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> enthalpies = get_enthalpies(model.compounds)
     >>> (enthalpies - enthalpies.min()) / constants.kcal
     array([0. , 2.20053981])
 
     The enthalpies at absolute zero can easily be obtained (this is used,
-    e.g., in the calculation of the Eckart tunneling coefficient). We can use
-    this to calculate, for instance, the thermal contributions to the
-    enthalpy:
+    e.g., in the calculation of the Eckart tunneling coefficient, see
+    `overreact.tunnel.eckart`). We can use this to calculate, for instance,
+    the thermal contributions to the enthalpy:
 
     >>> zero_enthalpies = get_enthalpies(model.compounds, temperature=0)
     >>> (enthalpies - zero_enthalpies) / constants.kcal
@@ -123,29 +139,42 @@ def get_enthalpies(compounds, qrrho=True, temperature=298.15):
 
 
 def get_entropies(
-    compounds,
-    environment=None,
-    method="standard",
-    qrrho=True,
-    temperature=298.15,
-    pressure=constants.atm,
-):
-    """Obtain entropies for compounds.
+    compounds: dict,
+    environment: Optional[str] = None,
+    method: str = "standard",
+    qrrho: bool = True,
+    temperature: float = 298.15,
+    pressure: float = constants.atm,
+) -> np.ndarray:
+    """Obtain entropies for compounds at a given temperature and pressure.
 
     Parameters
     ----------
     compounds : dict-like
+        A descriptor of the compounds.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     environment : str or None, optional
         Choose between "gas" and a solvent. This is chosen for you by default,
-        based on the names of each compound. If given, all compounds will
-        have the same behavior.
+        based on the names of each compound (e.g. `A(g)` or `A` is gas,
+        `A(w)` or `A(...)` is solvated). In case this is given, all compounds
+        will have the same behavior.
     method : str, optional
-        Choose between "standard", "izato" (doi:10.1039/C9CP03226F) and "garza"
-        (doi:10.1021/acs.jctc.9b00214).
+        This is a placeholder for future functionality.
+        There are plans to implement more sophisticated methods for calculating
+        entropies such as in
+        [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
+        and
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        Head over to the
+        [discussions](https://github.com/geem-lab/overreact/discussions) if
+        you're interested and would like to contribute.
+        Leave this as "standard" for now.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
-        S. Grimme (see doi:10.1002/chem.201200497) on top of the classical
-        RRHO.
+        S. Grimme (see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
+        on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
@@ -159,7 +188,6 @@ def get_entropies(
     --------
     >>> import overreact as rx
     >>> from overreact import constants
-
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> entropies = get_entropies(model.compounds)
     >>> (entropies - entropies.min()) / constants.calorie
@@ -217,16 +245,18 @@ def get_entropies(
     return np.array(entropies)
 
 
-def _check_qrrho(qrrho):
+def _check_qrrho(qrrho: Union[bool, tuple[bool, bool]]) -> tuple[bool, bool]:
     """Get options for QRRHO for both enthalpy and entropy.
 
     Parameters
     ----------
     qrrho : bool or tuple-like
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
-        approximations of M. Head-Gordon (enthalpy correction, see
-        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
-        doi:10.1002/chem.201200497) on top of the classical RRHO.
+        approximations of M. Head-Gordon and others (enthalpy correction, see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        and S. Grimme (entropy correction, see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
+        on top of the classical RRHO.
 
     Returns
     -------
@@ -259,19 +289,22 @@ def _check_qrrho(qrrho):
 
 
 def get_freeenergies(
-    compounds,
-    bias=0.0,
-    environment=None,
-    method="standard",
-    qrrho=True,
-    temperature=298.15,
-    pressure=constants.atm,
-):
-    """Obtain free energies for compounds.
+    compounds: dict,
+    bias: float = 0.0,
+    environment: Optional[str] = None,
+    method: str = "standard",
+    qrrho: bool = True,
+    temperature: float = 298.15,
+    pressure: float = constants.atm,
+) -> float:
+    """Obtain free energies for compounds at a given temperature and pressure.
 
     Parameters
     ----------
     compounds : dict-like
+        A descriptor of the compounds.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     bias : array-like, optional
         Energy to be added to free energies.
     environment : str or None, optional
@@ -279,13 +312,23 @@ def get_freeenergies(
         based on the names of each compound. If given, all compounds will
         have the same behavior.
     method : str, optional
-        Choose between "standard", "izato" (doi:10.1039/C9CP03226F) and "garza"
-        (doi:10.1021/acs.jctc.9b00214).
+        This is a placeholder for future functionality.
+        There are plans to implement more sophisticated methods for calculating
+        entropies such as in
+        [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
+        and
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        Head over to the
+        [discussions](https://github.com/geem-lab/overreact/discussions) if
+        you're interested and would like to contribute.
+        Leave this as "standard" for now.
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
-        approximations of M. Head-Gordon (enthalpy correction, see
-        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
-        doi:10.1002/chem.201200497) on top of the classical RRHO.
+        approximations of M. Head-Gordon and others (enthalpy correction, see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        and S. Grimme (entropy correction, see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
+        on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
@@ -299,12 +342,10 @@ def get_freeenergies(
     --------
     >>> import overreact as rx
     >>> from overreact import constants
-
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> freeenergies = get_freeenergies(model.compounds, qrrho=(False, True))
     >>> (freeenergies - freeenergies.min()) / constants.kcal
     array([0. , 2.62281461])
-
     >>> freeenergies = get_freeenergies(model.compounds)
     >>> (freeenergies - freeenergies.min()) / constants.kcal
     array([0. , 2.62862818])
@@ -358,16 +399,21 @@ def get_k(
     Parameters
     ----------
     scheme : Scheme
-    compounds : dict-like, optional
+    compounds : dict-like
+        A descriptor of the compounds.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     bias : array-like, optional
         Energy to be added to free energies.
     tunneling : str or None, optional
         Choose between "eckart", "wigner" or None (or "none").
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
-        approximations of M. Head-Gordon (enthalpy correction, see
-        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
-        doi:10.1002/chem.201200497) on top of the classical RRHO.
+        approximations of M. Head-Gordonand others (enthalpy correction, see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        and S. Grimme (entropy correction, see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
+        on top of the classical RRHO.
     scale : str, optional
         Reaction rate units. Possible values are "cm3 mol-1 s-1",
         "l mol-1 s-1", "m3 mol-1 s-1", "cm3 particle-1 s-1", "mmHg-1 s-1" and
@@ -551,13 +597,18 @@ def get_kappa(scheme, compounds, method="eckart", qrrho=True, temperature=298.15
     ----------
     scheme : Scheme
     compounds : dict-like
+        A descriptor of the compounds.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     method : str or None, optional
         Choose between "eckart", "wigner" or None (or "none").
     qrrho : bool, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
-        approximations of M. Head-Gordon (enthalpy correction, see
-        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
-        doi:10.1002/chem.201200497) on top of the classical RRHO.
+        approximations of M. Head-Gordon and others (enthalpy correction, see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        and S. Grimme (entropy correction, see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
+        on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
 

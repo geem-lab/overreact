@@ -208,7 +208,8 @@ def calc_rot_energy(moments=None, independent=False, weights=1.0, temperature=29
     independent : bool, optional
         Whether rotational degrees of freedom should be considered independent
         (this is to be mainly used in the quasi-RRHO approach of M.
-        Head-Gordon, see doi:10.1021/jp509921r).
+        Head-Gordon, see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)).
     weights : array-like, optional
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -313,12 +314,20 @@ def calc_rot_entropy(
     environment : str, optional
         Choose between "gas" and a solvent.
     method : str, optional
-        Choose between "standard", "izato" (doi:10.1039/C9CP03226F) and "garza"
-        (doi:10.1021/acs.jctc.9b00214).
+        This is a placeholder for future functionality.
+        There are plans to implement more sophisticated methods for calculating
+        entropies such as in
+        [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
+        and
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        Head over to the
+        [discussions](https://github.com/geem-lab/overreact/discussions) if
+        you're interested and would like to contribute.
+        Leave this as "standard" for now.
     independent : bool, optional
         Whether rotational degrees of freedom should be considered independent
         (this is to be mainly used in the quasi-RRHO approach of S. Grimme, see
-        doi:10.1002/chem.201200497).
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)).
     weights : array-like, optional
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -443,7 +452,8 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
         Frequency magnitudes in cm-1.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
-        M. Head-Gordon (see doi:10.1021/jp509921r) on top of the classical
+        M. Head-Gordon and others (see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -529,7 +539,8 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
         Frequency magnitudes in cm-1.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
-        S. Grimme (see doi:10.1002/chem.201200497) on top of the classical
+        S. Grimme (see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -787,7 +798,7 @@ def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):
     """Calculate moments of inertia for a free rotors with the same frequencies.
 
     This is part of the quasi-RRHO approach of S. Grimme, see
-    doi:10.1002/chem.201200497.
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497).
 
     Parameters
     ----------
@@ -828,7 +839,7 @@ def _head_gordon_damping(vibfreqs, omega=103.61231288246945, alpha=4):
     """Calculate the Head-Gordon damping function.
 
     This is part of the quasi-RRHO approach of S. Grimme, see
-    doi:10.1002/chem.201200497.
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497).
 
     Parameters
     ----------

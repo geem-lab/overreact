@@ -49,8 +49,16 @@ def calc_trans_entropy(
     environment : str, optional
         Choose between "gas" and a solvent.
     method : str, optional
-        Choose between "standard", "izato" (doi:10.1039/C9CP03226F) and "garza"
-        (doi:10.1021/acs.jctc.9b00214).
+        This is a placeholder for future functionality.
+        There are plans to implement more sophisticated methods for calculating
+        entropies such as in
+        [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
+        and
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        Head over to the
+        [discussions](https://github.com/geem-lab/overreact/discussions) if
+        you're interested and would like to contribute.
+        Leave this as "standard" for now.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
@@ -143,7 +151,8 @@ def calc_internal_energy(
         Frequency magnitudes in cm-1.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
-        M. Head-Gordon (see doi:10.1021/jp509921r) on top of the classical
+        M. Head-Gordon and others (see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -212,7 +221,8 @@ def calc_enthalpy(
         Frequency magnitudes in cm-1.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
-        M. Head-Gordon (see doi:10.1021/jp509921r) on top of the classical
+        M. Head-Gordon and others (see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -303,11 +313,20 @@ def calc_entropy(
     environment : str, optional
         Choose between "gas" and a solvent.
     method : str, optional
-        Choose between "standard", "izato" (doi:10.1039/C9CP03226F) and "garza"
-        (doi:10.1021/acs.jctc.9b00214).
+        This is a placeholder for future functionality.
+        There are plans to implement more sophisticated methods for calculating
+        entropies such as in
+        [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
+        and
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        Head over to the
+        [discussions](https://github.com/geem-lab/overreact/discussions) if
+        you're interested and would like to contribute.
+        Leave this as "standard" for now.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
-        S. Grimme (see doi:10.1002/chem.201200497) on top of the classical
+        S. Grimme (see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -435,7 +454,8 @@ def calc_heat_capacity(
         Frequency magnitudes in cm-1.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
-        M. Head-Gordon (see doi:10.1021/jp509921r) on top of the classical
+        M. Head-Gordon and others (see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.

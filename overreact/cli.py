@@ -39,9 +39,9 @@ class Report:
     model : dict-like
     qrrho : bool, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
-        approximations of M. Head-Gordon (enthalpy correction, see
-        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
-        doi:10.1002/chem.201200497) on top of the classical RRHO.
+        approximations of M. Head-Gordon and others (enthalpy correction, see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) and S. Grimme (entropy correction, see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
 

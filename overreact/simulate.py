@@ -517,16 +517,19 @@ def get_bias(
     Parameters
     ----------
     scheme : Scheme
-    compounds : dict-like, optional
+    compounds : dict-like
+        A descriptor of the compounds.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     data : dict-like of array-like
     y0: array-like
     tunneling : str or None, optional
         Choose between "eckart", "wigner" or None (or "none").
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
-        approximations of M. Head-Gordon (enthalpy correction, see
-        doi:10.1021/jp509921r) and S. Grimme (entropy correction, see
-        doi:10.1002/chem.201200497) on top of the classical RRHO.
+        approximations of M. Head-Gordon and others (enthalpy correction, see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) and S. Grimme (entropy correction, see
+        [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
