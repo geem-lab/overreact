@@ -48,25 +48,19 @@ def test_basic_example_for_solvation_equilibria():
     ]
 
     concentration_correction = -temperature * rx.change_reference_state(
-        temperature=temperature,
+        temperature=temperature
     )
 
     for qrrho in [False, (False, True), True]:
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_freeenergies = rx.get_delta(
             model.scheme.A,
-            rx.get_freeenergies(
-                model.compounds,
-                temperature=temperature,
-                qrrho=qrrho,
-            ),
+            rx.get_freeenergies(model.compounds, temperature=temperature, qrrho=qrrho),
         ) - temperature * rx.get_reaction_entropies(
-            model.scheme.A,
-            temperature=temperature,
+            model.scheme.A, temperature=temperature
         )
         assert delta_freeenergies / constants.kcal == pytest.approx(
-            delta_freeenergies_ref,
-            7e-3,
+            delta_freeenergies_ref, 7e-3
         )
 
         # the following tests the solvation free energy from doi:10.1021/jp810292n
@@ -115,10 +109,7 @@ def test_basic_example_for_solvation_phase_kinetics():
     )
 
     # only concentration correction, no symmetry and no tunneling
-    k = rx.rates.eyring(
-        delta_freeenergies * constants.kcal,
-        temperature=temperatures,
-    )
+    k = rx.rates.eyring(delta_freeenergies * constants.kcal, temperature=temperatures)
     assert k == pytest.approx([3.3e6, 3.4e6, 4.0e6, 4.7e6, 5.5e6, 6.4e6, 7.3e6], 8e-2)
     assert np.log10(k) == pytest.approx(
         np.log10([3.3e6, 3.4e6, 4.0e6, 4.7e6, 5.5e6, 6.4e6, 7.3e6]), 6e-3
@@ -129,10 +120,7 @@ def test_basic_example_for_solvation_phase_kinetics():
     assert delta_freeenergies == pytest.approx(
         [7.9, 7.9, 8.1, 8.3, 8.5, 8.7, 8.8], 7e-3
     )
-    k = rx.rates.eyring(
-        delta_freeenergies * constants.kcal,
-        temperature=temperatures,
-    )
+    k = rx.rates.eyring(delta_freeenergies * constants.kcal, temperature=temperatures)
     assert k == pytest.approx([9.8e6, 1.0e7, 1.2e7, 1.4e7, 1.7e7, 1.9e7, 2.2e7], 8e-2)
     assert np.log10(k) == pytest.approx(
         np.log10([9.8e6, 1.0e7, 1.2e7, 1.4e7, 1.7e7, 1.9e7, 2.2e7]), 5e-3
@@ -140,10 +128,7 @@ def test_basic_example_for_solvation_phase_kinetics():
 
     # concentration correction, symmetry and tunneling included
     kappa = rx.tunnel.eckart(
-        986.79,
-        3.3 * constants.kcal,
-        16.4 * constants.kcal,
-        temperature=temperatures,
+        986.79, 3.3 * constants.kcal, 16.4 * constants.kcal, temperature=temperatures
     )
     assert kappa == pytest.approx([2.3, 2.3, 2.2, 2.1, 2.0, 1.9, 1.9], 9e-2)
 
@@ -181,10 +166,7 @@ def test_basic_example_for_gas_phase_kinetics():
     assert delta_freeenergies == pytest.approx([6.9, 8.4, 8.4, 9.9], 8e-3)
 
     # only concentration correction, no symmetry and no tunneling
-    k = rx.rates.eyring(
-        delta_freeenergies * constants.kcal,
-        temperature=temperatures,
-    )
+    k = rx.rates.eyring(delta_freeenergies * constants.kcal, temperature=temperatures)
     k = rx.rates.convert_rate_constant(k, "cm3 particle-1 s-1", molecularity=2)
     assert 1e16 * k == pytest.approx(
         1e16 * np.array([2.2e-16, 7.5e-15, 7.9e-15, 5.6e-14]), 7e-2
@@ -196,10 +178,7 @@ def test_basic_example_for_gas_phase_kinetics():
     # only concentration correction and symmetry, no tunneling
     delta_freeenergies += sym_correction
     assert delta_freeenergies == pytest.approx([6.3, 7.6, 7.6, 8.8], 9e-3)
-    k = rx.rates.eyring(
-        delta_freeenergies * constants.kcal,
-        temperature=temperatures,
-    )
+    k = rx.rates.eyring(delta_freeenergies * constants.kcal, temperature=temperatures)
     k = rx.rates.convert_rate_constant(k, "cm3 particle-1 s-1", molecularity=2)
     assert 1e16 * k == pytest.approx(
         1e16 * np.array([8.8e-16, 3.0e-14, 3.1e-14, 2.2e-13]), 8e-2
@@ -425,9 +404,7 @@ def test_delta_energies_for_hickel1992():
     delta_freeenergies = []
     for temperature in temperatures:
         freeenergies = rx.get_freeenergies(
-            model.compounds,
-            temperature=temperature,
-            qrrho=(False, True),
+            model.compounds, temperature=temperature, qrrho=(False, True)
         )
         delta_freeenergy = (
             rx.get_delta(model.scheme.B, freeenergies)
@@ -474,10 +451,7 @@ def test_delta_energies_for_tanaka1996():
 
     delta_freeenergies = []
     for temperature in temperatures:
-        freeenergies = rx.get_freeenergies(
-            model.compounds,
-            temperature=temperature,
-        )
+        freeenergies = rx.get_freeenergies(model.compounds, temperature=temperature)
         delta_freeenergy = (
             rx.get_delta(model.scheme.B, freeenergies)
             - temperature
@@ -504,10 +478,7 @@ def test_delta_energies_for_tanaka1996():
 
     delta_freeenergies = []
     for temperature in temperatures:
-        freeenergies = rx.get_freeenergies(
-            model.compounds,
-            temperature=temperature,
-        )
+        freeenergies = rx.get_freeenergies(model.compounds, temperature=temperature)
         delta_freeenergy = (
             rx.get_delta(model.scheme.B, freeenergies)
             - temperature

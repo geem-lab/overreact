@@ -25,8 +25,7 @@ def test_get_entropies():
     calculations, but not for enthalpies."""
     model = rx.parse_model("data/ethane/B97-3c/model.k")
     assert 298.15 * rx.get_delta(
-        model.scheme.B,
-        rx.get_entropies(model.compounds, environment="gas"),
+        model.scheme.B, rx.get_entropies(model.compounds, environment="gas")
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.02685478 - 0.00942732 + 0.00773558 - (0.02753672 - 0.00941496 + 0.00772322),
         4e-4,
@@ -34,8 +33,7 @@ def test_get_entropies():
 
     model = rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.k")
     assert 298.15 * rx.get_delta(
-        model.scheme.B,
-        rx.get_entropies(model.compounds, environment="gas"),
+        model.scheme.B, rx.get_entropies(model.compounds, environment="gas")
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.03025523 - 0.01030794 + 0.00927065 - (0.02110620 + 0.00065446 + 0.01740262),
         3e-5,
@@ -44,8 +42,7 @@ def test_get_entropies():
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
     assert 298.15 * rx.get_delta(
-        model.scheme.B,
-        rx.get_entropies(model.compounds, environment="gas"),
+        model.scheme.B, rx.get_entropies(model.compounds, environment="gas")
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.03070499
         - ((0.02288418 - 0.00647387 + 0.00543658) + 0.02022750)
