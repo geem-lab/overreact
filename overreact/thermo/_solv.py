@@ -8,8 +8,7 @@ import numpy as np
 from scipy.misc import derivative
 
 import overreact as rx
-from overreact import constants
-from overreact import coords
+from overreact import constants, coords
 
 logger = logging.getLogger(__name__)
 

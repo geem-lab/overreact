@@ -7,9 +7,7 @@ import pytest
 from scipy.special import factorial
 
 import overreact as rx
-from overreact import constants
-from overreact import coords
-from overreact import datasets
+from overreact import constants, coords, datasets
 
 # TODO(schneiderfelipe): test summability of enthalpy and entropy terms: two
 # equal degrees of freedom should sum to two times a single degree of freedom:

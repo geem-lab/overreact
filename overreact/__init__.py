@@ -15,10 +15,10 @@ from overreact.api import get_freeenergies  # noqa: F401
 from overreact.api import get_internal_energies  # noqa: F401
 from overreact.api import get_k  # noqa: F401
 from overreact.api import get_kappa  # noqa: F401
+from overreact.core import Scheme  # noqa: F401
 from overreact.core import get_transition_states  # noqa: F401
 from overreact.core import is_transition_state  # noqa: F401
 from overreact.core import parse_reactions  # noqa: F401
-from overreact.core import Scheme  # noqa: F401
 from overreact.core import unparse_reactions  # noqa: F401
 from overreact.io import parse_compounds  # noqa: F401
 from overreact.io import parse_model  # noqa: F401

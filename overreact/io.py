@@ -2,13 +2,13 @@
 
 """I/O operations."""
 
-from collections.abc import MutableMapping
-from collections import defaultdict
 import json
 import logging
 import os
 import textwrap
 import warnings
+from collections import defaultdict
+from collections.abc import MutableMapping
 
 import numpy as np
 

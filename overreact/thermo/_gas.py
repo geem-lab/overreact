@@ -6,8 +6,7 @@ import logging
 
 import numpy as np
 
-from overreact import constants
-from overreact import coords
+from overreact import constants, coords
 
 logger = logging.getLogger(__name__)
 

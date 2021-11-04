@@ -6,6 +6,8 @@ Most of this data comes from `scipy.constants`.
 """
 
 import numpy as np
+from scipy.constants import N_A  # noqa: F401
+from scipy.constants import R  # noqa: F401
 from scipy.constants import angstrom  # noqa: F401
 from scipy.constants import atm  # noqa: F401
 from scipy.constants import atomic_mass  # noqa: F401
@@ -20,10 +22,8 @@ from scipy.constants import hbar  # noqa: F401
 from scipy.constants import k  # noqa: F401
 from scipy.constants import kilo  # noqa: F401
 from scipy.constants import liter  # noqa: F401
-from scipy.constants import N_A  # noqa: F401
-from scipy.constants import physical_constants
-from scipy.constants import R  # noqa: F401
 from scipy.constants import torr  # noqa: F401
+from scipy.constants import physical_constants
 
 hartree, _, _ = physical_constants["Hartree energy"]
 bohr, _, _ = physical_constants["Bohr radius"]

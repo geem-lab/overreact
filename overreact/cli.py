@@ -2,28 +2,25 @@
 
 """Command-line interface."""
 
-import shutil
 import argparse
 import logging
 import os
 import re
+import shutil
 import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.optimize import minimize_scalar
-from rich import box
+from rich import box, traceback
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
-from rich.table import Table
-from rich.table import Column
+from rich.table import Column, Table
 from rich.text import Text
-from rich import traceback
+from scipy.optimize import minimize_scalar
 
 import overreact as rx
-from overreact import coords
-from overreact import constants
+from overreact import constants, coords
 from overreact.misc import _found_seaborn
 
 traceback.install(show_locals=True)

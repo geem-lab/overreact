@@ -18,8 +18,7 @@ from overreact.misc import _found_jax
 
 if _found_jax:
     import jax.numpy as jnp
-    from jax import jacfwd
-    from jax import jit
+    from jax import jacfwd, jit
     from jax.config import config
 
     config.update("jax_enable_x64", True)

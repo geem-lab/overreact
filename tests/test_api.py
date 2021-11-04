@@ -6,8 +6,7 @@ import numpy as np
 import pytest
 
 import overreact as rx
-from overreact import constants
-from overreact import coords
+from overreact import constants, coords
 
 
 def test_get_enthalpies():

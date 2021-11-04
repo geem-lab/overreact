@@ -9,10 +9,7 @@ import numpy as np
 from scipy.misc import derivative
 
 import overreact as rx
-from overreact import constants
-from overreact import coords
-from overreact import rates
-from overreact import tunnel
+from overreact import constants, coords, rates, tunnel
 
 logger = logging.getLogger(__name__)
 

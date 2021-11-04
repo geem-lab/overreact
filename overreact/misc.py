@@ -8,8 +8,7 @@ Ideally, the functions here will be transferred to other modules in the future.
 from functools import lru_cache as cache
 
 import numpy as np
-from scipy.stats import cauchy
-from scipy.stats import norm
+from scipy.stats import cauchy, norm
 
 import overreact as rx
 from overreact import constants

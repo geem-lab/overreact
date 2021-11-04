@@ -10,14 +10,16 @@ from scipy.special import factorial
 
 import overreact as rx
 from overreact import constants
-from overreact.thermo._gas import calc_elec_energy
-from overreact.thermo._gas import calc_elec_entropy
-from overreact.thermo._gas import calc_rot_energy
-from overreact.thermo._gas import calc_rot_entropy
-from overreact.thermo._gas import calc_trans_energy
-from overreact.thermo._gas import calc_vib_energy
-from overreact.thermo._gas import calc_vib_entropy
-from overreact.thermo._gas import molar_volume
+from overreact.thermo._gas import (
+    calc_elec_energy,
+    calc_elec_entropy,
+    calc_rot_energy,
+    calc_rot_entropy,
+    calc_trans_energy,
+    calc_vib_energy,
+    calc_vib_entropy,
+    molar_volume,
+)
 
 logger = logging.getLogger(__name__)
 

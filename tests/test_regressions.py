@@ -9,8 +9,7 @@ import pytest
 from scipy import stats
 
 import overreact as rx
-from overreact import constants
-from overreact import datasets
+from overreact import constants, datasets
 
 # TODO(schneiderfelipe): transfer all comparisons with experimental/reference
 # values to this file.

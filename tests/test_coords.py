@@ -5,8 +5,7 @@
 import numpy as np
 import pytest
 
-from overreact import coords
-from overreact import datasets
+from overreact import coords, datasets
 
 
 # TODO(schneiderfelipe): add one extra atom

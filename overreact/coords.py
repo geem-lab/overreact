@@ -6,11 +6,9 @@ import logging
 import re
 
 import numpy as np
-from scipy.cluster.hierarchy import fcluster
-from scipy.cluster.hierarchy import linkage
+from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial import cKDTree as KDTree
-from scipy.spatial.distance import pdist
-from scipy.spatial.distance import squareform
+from scipy.spatial.distance import pdist, squareform
 from scipy.spatial.transform import Rotation
 
 import overreact as rx

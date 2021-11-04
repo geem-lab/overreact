@@ -2,9 +2,9 @@
 
 """Module dedicated to parsing and modeling of chemical reaction networks."""
 
-from collections import namedtuple
 import itertools
 import re
+from collections import namedtuple
 
 import numpy as np
 
