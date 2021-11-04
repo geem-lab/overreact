@@ -201,11 +201,7 @@ class Report:
             if data.logfile is not None:
                 path_text = Text(data.logfile)
                 path_text.highlight_regex(r"[^\/]+$", "bright_blue")
-            logfiles_table.add_row(
-                f"{i:d}",
-                name,
-                path_text,
-            )
+            logfiles_table.add_row(f"{i:d}", name, path_text)
 
             vibfreqs_text = None
             if data.vibfreqs is not None:
@@ -364,16 +360,7 @@ class Report:
                     f"{delta_enthalpies[i] / constants.kcal:10.2f}",
                     f"{delta_entropies[i] / constants.calorie:11.2f}",
                 ]
-                dagger_row = [
-                    f"{i:d}",
-                    reaction,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ]
+                dagger_row = [f"{i:d}", reaction, None, None, None, None, None, None]
             else:
                 circ_row = [
                     f"{i:d}",
@@ -411,11 +398,7 @@ class Report:
         renderable
         """
         if isinstance(self.bias, str):
-            data = np.genfromtxt(
-                self.bias,
-                names=True,
-                delimiter=",",
-            )
+            data = np.genfromtxt(self.bias, names=True, delimiter=",")
             data = {name: data[name] for name in data.dtype.names}
 
             scheme, _, y0 = _prepare_simulation(
@@ -548,10 +531,7 @@ class Report:
             )
             for i, name in enumerate(scheme.compounds):
                 conc_table.add_row(
-                    f"{i:d}",
-                    name,
-                    f"{y(y.t_min)[i]:.3f}",
-                    f"{y(y.t_max)[i]:.3f}",
+                    f"{i:d}", name, f"{y(y.t_min)[i]:.3f}", f"{y(y.t_max)[i]:.3f}"
                 )
             yield conc_table
 
@@ -679,9 +659,7 @@ def main():
         nargs="*",
     )
     parser.add_argument(
-        "--version",
-        action="version",
-        version=f"%(prog)s {rx.__version__}",
+        "--version", action="version", version=f"%(prog)s {rx.__version__}"
     )
     parser.add_argument(
         "-v",

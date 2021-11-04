@@ -106,22 +106,16 @@ def get_y(
 
         halflife_estimate = 1.0
         if hasattr(dydt, "k"):
-            halflife_estimate = (
-                np.max(
-                    [
-                        np.max(y0) / 2.0,  # zeroth-order halflife
-                        np.log(2.0),  # first-order halflife
-                        1.0 / np.min(y0[np.nonzero(y0)]),  # second-order halflife
-                    ]
-                )
-                / np.min(dydt.k)
-            )
+            halflife_estimate = np.max(
+                [
+                    np.max(y0) / 2.0,  # zeroth-order halflife
+                    np.log(2.0),  # first-order halflife
+                    1.0 / np.min(y0[np.nonzero(y0)]),  # second-order halflife
+                ]
+            ) / np.min(dydt.k)
             logger.info(f"largest halflife guess = {halflife_estimate} s")
 
-        t_span = [
-            0.0,
-            min(n_halflives * halflife_estimate, max_time),
-        ]
+        t_span = [0.0, min(n_halflives * halflife_estimate, max_time)]
         logger.info(f"simulation time span   = {t_span} s")
 
     jac = None
@@ -588,12 +582,7 @@ def get_bias(
         # TODO(schneiderfelipe): support schemes with fixed concentrations
         dydt = rx.get_dydt(scheme, k)
         y, _ = rx.get_y(
-            dydt,
-            y0=y0,
-            method=method,
-            rtol=rtol,
-            atol=atol,
-            max_time=max_time,
+            dydt, y0=y0, method=method, rtol=rtol, atol=atol, max_time=max_time
         )
 
         yhat = y(data["t"])
