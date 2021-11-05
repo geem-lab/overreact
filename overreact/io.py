@@ -26,29 +26,29 @@ __all__ = ["parse_model"]
 
 
 def parse_model(path: str, force_compile: bool = False):
-    """Parse either a source file or model file, whichever is available.
+    """Parse either a source or model input file, whichever is available.
 
-    A **source file** (also known as a k-file) contains all the information needed
-    to *create a model file*.
-    A **model file** (also known as a jk-file) is a JSON encoded file with all the
+    A **source input file** (also known as a `.k` file) contains all the information needed
+    to *create a model input file*.
+    A **model input file** (also known as a `.jk` file) is a JSON encoded file with all the
     information needed to study microkinetic simulations from first principles.
 
-    You probably won't need to use model files directly, they are
-    automatically created based on source files.
-    [**Take a look at our guide on how to write an input source file**](https://geem-lab.github.io/overreact-guide/input.html).
+    You probably won't need to use model input files directly, they are
+    automatically created based on source input files.
+    [**Take a look at our guide on how to write an source input file**](https://geem-lab.github.io/overreact-guide/input.html).
 
-    This function attempts to parse a model file if available. If not, a source
-    file is parsed and a model file is generated from it. Extensions are
+    This function attempts to parse a model input file if available. If not, a source
+    input file is parsed and a model input file is generated from it. Extensions are
     guessed if none given (i.e., if only the base name given).
 
     Parameters
     ----------
     path : str
-        Path to the model file or source file.
+        Path to the model or source input file.
         If the final extension is not ``.jk`` or ``.k``, it is guessed.
     force_compile : bool
-        If True, a k-file will take precedence over any jk-file for reading. A
-        jk-file is thus either generated or overwritten. This is sometimes
+        If True, a `.k` file will take precedence over any `.jk` file for reading. A
+        `.jk` file is thus either generated or overwritten. This is sometimes
         needed to force an update with new data.
 
     Returns
@@ -94,31 +94,31 @@ def parse_model(path: str, force_compile: bool = False):
     """
     if not path.endswith((".k", ".jk")):
         path = path + ".jk"
-        logger.warning(f"assuming jk-file in {path}")
+        logger.warning(f"assuming .jk file in {path}")
     name, _ = os.path.splitext(path)
 
     path_jk = name + ".jk"
     if not force_compile and os.path.isfile(path_jk):
-        logger.info(f"parsing jk-file in {path_jk}")
+        logger.info(f"parsing .jk file in {path_jk}")
         return _parse_model(path_jk)
 
     path_k = name + ".k"
-    logger.info(f"parsing k-file in {path_k}")
+    logger.info(f"parsing .k file in {path_k}")
     if not os.path.isfile(path_k):
         raise FileNotFoundError
 
     model = _parse_source(path_k)
     with open(path_jk, "w") as f:
-        logger.info(f"writing jk-file in {path_jk}")
+        logger.info(f"writing .jk file in {path_jk}")
         f.write(_unparse_model(model))
 
     return model
 
 
 def _parse_model(file_or_path):
-    """Parse a model file (also known as a jk-file).
+    """Parse a model input file (also known as a `.jk` file).
 
-    A model file is a JSON encoded file with all the information needed to
+    A model input file is a JSON encoded file with all the information needed to
     study microkinetic simulations from first principles.
 
     Parameters
@@ -178,10 +178,10 @@ def _parse_model(file_or_path):
 
 
 def _parse_source(file_path_or_str):
-    """Parse a source file (also known as a k-file).
+    """Parse a source input file (also known as a `.k` file).
 
-    A source file contains all the information needed to create a model file
-    (also known as a jk-file).
+    A source input file contains all the information needed to create a model input file
+    (also known as a `.jk` file).
 
     Parameters
     ----------
@@ -264,10 +264,10 @@ def _parse_source(file_path_or_str):
 
 
 def _unparse_source(model):
-    """Unparse a source file (also known as a k-file).
+    """'Unparse' a source input file (also known as a `.k` file).
 
-    A source file contains all the information needed to create a model file
-    (also known as a jk-file).
+    A source input file contains all the information needed to create a model input file
+    (also known as a `.jk` file).
 
     Parameters
     ----------
@@ -360,9 +360,9 @@ def _unparse_source(model):
 
 
 def _unparse_model(model):
-    """Unparse a model file (also known as a jk-file).
+    """'Unparse' a model input file (also known as a `.jk` file).
 
-    A model file is a JSON encoded file with all the information needed to
+    A model input file is a JSON encoded file with all the information needed to
     study microkinetic simulations from first principles.
 
     Parameters
@@ -394,7 +394,7 @@ def _check_compounds(compounds):
     ----------
     compounds : dict-like
         A descriptor of the compounds.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
 
     Returns

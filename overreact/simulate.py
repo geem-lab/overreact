@@ -153,7 +153,7 @@ def get_dydt(scheme, k, ef=1e4):
     ----------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     k : array-like
         Reaction rate constant(s). Units match the concentration units given to
@@ -233,7 +233,7 @@ def _adjust_k(scheme, k, ef=1e4):
     ----------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     k : array-like
         Reaction rate constant(s). Units match the concentration units given to
@@ -312,7 +312,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     ----------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     k : array-like
         Reaction rate constant(s). Units match the concentration units given to
@@ -527,11 +527,11 @@ def get_bias(
     ----------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     compounds : dict-like
         A descriptor of the compounds.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     data : dict-like of array-like
     y0: array-like

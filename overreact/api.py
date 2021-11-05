@@ -40,7 +40,7 @@ def get_internal_energies(
     ----------
     compounds : dict-like
         A descriptor of the compounds.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
@@ -93,7 +93,7 @@ def get_enthalpies(compounds: dict, qrrho: bool = True, temperature: float = 298
     ----------
     compounds : dict-like
         A descriptor of the compounds.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
@@ -161,7 +161,7 @@ def get_entropies(
     ----------
     compounds : dict-like
         A descriptor of the compounds.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     environment : str or None, optional
         Choose between "gas" and a solvent. This is chosen for you by default,
@@ -312,7 +312,7 @@ def get_freeenergies(
     ----------
     compounds : dict-like
         A descriptor of the compounds.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     bias : array-like, optional
         Energy to be added to free energies.
@@ -409,11 +409,11 @@ def get_k(
     ----------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     compounds : dict-like, optional
         A descriptor of the compounds.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     bias : array-like, optional
         Energy to be added to free energies.
@@ -629,11 +629,11 @@ def get_kappa(
     ----------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     compounds : dict-like
         A descriptor of the compounds.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     method : str or None, optional
         Choose between "eckart", "wigner" or None (or "none").

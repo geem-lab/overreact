@@ -121,13 +121,13 @@ def get_transition_states(A, B, is_half_equilibrium):
 # TODO(schneiderfelipe): some of the more esoteric doctests should become
 # real tests.
 def unparse_reactions(scheme):
-    """Unparse a kinetic model.
+    """'Unparse' a kinetic model.
 
     Parameters
     ----------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
 
     Returns
@@ -387,7 +387,7 @@ def parse_reactions(text):
     -------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model file.
+        Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
 
     Notes

@@ -630,7 +630,7 @@ def main():
     console = Console(width=max(105, shutil.get_terminal_size()[0]))
     levels = [logging.WARNING, logging.INFO, logging.DEBUG]
 
-    # TODO(schneiderfelipe): some commands for concatenating/summing .k/.jk
+    # TODO(schneiderfelipe): some commands for concatenating/summing `.k`/`.jk`
     # files. This might be useful for some of the more complex operations I
     # want to be able to do in the future.
     parser = argparse.ArgumentParser(
@@ -646,10 +646,10 @@ def main():
     )
     parser.add_argument(
         "path",
-        help="path to a source (.k) or compiled (.jk) model file (if a source "
-        "file is given, but there is a compiled file available, the compiled "
+        help="path to a source (`.k`) or compiled (.jk) model input file (if a source "
+        "input file is given, but there is a compiled file available, the compiled "
         "file will be used; use --compile|-c to force recompilation of the "
-        "source file instead)",
+        "source input file instead)",
     )
     parser.add_argument(
         "concentrations",
@@ -674,7 +674,7 @@ def main():
         "--compile",
         # TODO(schneiderfelipe): should we consider --compile|-c always as a
         # do-nothing (no analysis)?
-        help="force recompile a source (.k) into a compiled (.jk) model file",
+        help="force recompile a source (`.k`) into a compiled (.jk) model input file",
         action="store_true",
     )
     parser.add_argument(
