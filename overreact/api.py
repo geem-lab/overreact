@@ -33,7 +33,7 @@ __all__ = [
 
 def get_internal_energies(
     compounds: dict, qrrho: bool = True, temperature: float = 298.15
-) -> np.ndarray:
+):
     """Obtain internal energies for compounds at a given temperature.
 
     Parameters
@@ -86,9 +86,7 @@ def get_internal_energies(
     return np.array(internal_energies)
 
 
-def get_enthalpies(
-    compounds: dict, qrrho: bool = True, temperature: float = 298.15
-) -> np.ndarray:
+def get_enthalpies(compounds: dict, qrrho: bool = True, temperature: float = 298.15):
     """Obtain enthalpies for compounds at a given temperature.
 
     Parameters
@@ -156,7 +154,7 @@ def get_entropies(
     qrrho: bool = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
-) -> np.ndarray:
+):
     """Obtain entropies for compounds at a given temperature and pressure.
 
     Parameters
@@ -307,7 +305,7 @@ def get_freeenergies(
     qrrho: Union[bool, tuple[bool, bool]] = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
-) -> np.ndarray:
+):
     """Obtain free energies for compounds at a given temperature and pressure.
 
     Parameters
@@ -620,7 +618,7 @@ def get_kappa(
     method: str = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
-) -> np.ndarray:
+):
     r"""Obtain tunneling transmission coefficients at a given temperature.
 
     One tunneling transmission coefficient is calculated for each reaction. If
