@@ -152,6 +152,9 @@ def get_dydt(scheme, k, ef=1e4):
     Parameters
     ----------
     scheme : Scheme
+        A descriptor of the reaction scheme.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     k : array-like
         Reaction rate constant(s). Units match the concentration units given to
         the returned function ``dydt``.
@@ -229,6 +232,9 @@ def _adjust_k(scheme, k, ef=1e4):
     Parameters
     ----------
     scheme : Scheme
+        A descriptor of the reaction scheme.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     k : array-like
         Reaction rate constant(s). Units match the concentration units given to
         the returned function ``dydt``.
@@ -305,6 +311,9 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     Parameters
     ----------
     scheme : Scheme
+        A descriptor of the reaction scheme.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     k : array-like
         Reaction rate constant(s). Units match the concentration units given to
         the returned function ``dydt``.
@@ -517,6 +526,9 @@ def get_bias(
     Parameters
     ----------
     scheme : Scheme
+        A descriptor of the reaction scheme.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     compounds : dict-like
         A descriptor of the compounds.
         Mostly likely, this comes from a parsed model file.
@@ -535,6 +547,7 @@ def get_bias(
     pressure : array-like, optional
         Reference gas pressure.
     delta_freeenergies : array-like, optional
+        Use this instead of obtaining delta free energies from the compounds.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
         If set, this is used to calculate `delta_moles` for

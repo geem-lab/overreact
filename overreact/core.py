@@ -126,6 +126,9 @@ def unparse_reactions(scheme):
     Parameters
     ----------
     scheme : Scheme
+        A descriptor of the reaction scheme.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
 
     Returns
     -------
@@ -383,6 +386,9 @@ def parse_reactions(text):
     Returns
     -------
     scheme : Scheme
+        A descriptor of the reaction scheme.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
 
     Notes
     -----

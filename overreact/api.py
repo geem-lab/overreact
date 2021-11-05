@@ -16,8 +16,19 @@ from scipy.misc import derivative
 
 import overreact as rx
 from overreact import constants, coords, rates, tunnel
+from overreact.core import Scheme
 
 logger = logging.getLogger(__name__)
+
+
+__all__ = [
+    "get_k",
+    "get_kappa",
+    "get_freeenergies",
+    "get_entropies",
+    "get_enthalpies",
+    "get_internal_energies",
+]
 
 
 def get_internal_energies(
@@ -382,24 +393,27 @@ def get_freeenergies(
 
 
 def get_k(
-    scheme,
-    compounds=None,
-    bias=0.0,
-    tunneling="eckart",
-    qrrho=True,
-    scale="l mol-1 s-1",
-    temperature=298.15,
-    pressure=constants.atm,
-    delta_freeenergies=None,
-    molecularity=None,
-    volume=None,
-):
-    r"""Obtain reaction rate constants.
+    scheme: Scheme,
+    compounds: Optional[dict] = None,
+    bias: float = 0.0,
+    tunneling: str = "eckart",
+    qrrho: Union[bool, tuple[bool, bool]] = True,
+    scale: str = "l mol-1 s-1",
+    temperature: float = 298.15,
+    pressure: float = constants.atm,
+    delta_freeenergies: Optional[float] = None,
+    molecularity: Optional[float] = None,
+    volume: Optional[float] = None,
+) -> float:
+    r"""Obtain reaction rate constants for a given reaction scheme.
 
     Parameters
     ----------
     scheme : Scheme
-    compounds : dict-like
+        A descriptor of the reaction scheme.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
+    compounds : dict-like, optional
         A descriptor of the compounds.
         Mostly likely, this comes from a parsed model file.
         See `overreact.io.parse_model`.
@@ -423,10 +437,11 @@ def get_k(
     pressure : array-like, optional
         Reference gas pressure.
     delta_freeenergies : array-like, optional
+        Use this instead of obtaining delta free energies from the compounds.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
         If set, this is used to calculate `delta_moles` for
-        `equilibrium_constant`, which effectively calculates a solution
+        `overreact.thermo.equilibrium_constant`, which effectively calculates a solution
         equilibrium constant between reactants and the transition state for
         gas phase data. You should set this to `None` if your free energies
         were already adjusted for solution Gibbs free energies.
@@ -444,9 +459,10 @@ def get_k(
 
     Examples
     --------
-    Below is an example of a rotating ethane. How many turns it does per
-    second? We use Eckart tunneling by default, but this can be changed (check
-    doi:10.1126/science.1132178 to see which is closest to the experiment):
+    Below is an example of an estimate for the rate of methyl rotation in
+    ethane (a trivial attempt to reproduce
+    [*Science*, **2006**, 313, 5795, 1951-1955](https://doi.org/10.1126/science.1132178)).
+    **How many turns it does per second?**
 
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> get_k(model.scheme, model.compounds)
@@ -455,22 +471,33 @@ def get_k(
     array([8.24968117e+10])
     >>> get_k(model.scheme, model.compounds, qrrho=False)
     array([8.26909266e+10])
-
     >>> get_k(model.scheme, model.compounds, tunneling="wigner")
     array([7.99e+10])
     >>> get_k(model.scheme, model.compounds, tunneling=None)
     array([7.35e+10])
 
+    The calculated value is off by less than 2% from the experimental value
+    (:math:`\frac{1}{12 \times 10^{-12}} \text{s}^{-1} = 8.33 \times 10^{10} \text{s}^{-1}`).
+    We use Eckart tunneling by default, but see the effect of changing it
+    above.
+
     The units of the returned reaction rate constants can be selected for
-    non-unimolecular processes:
+    non-unimolecular processes. The following is an attempt to reproduce
+    [*J Atmos Chem*, **1996** 23, 37–49](https://doi.org/10.1007/BF00058703) for
+    the reaction of proton-withdrawal by a chloride radical from the methane
+    molecule
+    :math:`\ce{CH4 + \cdot Cl -> [H3C\cdots H\cdots Cl]^\ddagger -> H3C\cdot + HCl}`:
 
     >>> model = rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.jk")
-    >>> get_k(model.scheme, model.compounds, temperature=200.0,
+    >>> get_k(model.scheme, model.compounds, temperature=300,
     ...       scale="cm3 particle-1 s-1")
-    array([1.0e-14])
+    array([9.60e-14])
 
-    (By the way, the experimental reaction rate constant for this reaction is
-    :math:`1.03 \times 10^{-13} \text{cm}^3 \text{particle}^{-1} \text{s}^{-1}`.)
+    (By the way, according to the Jet Propulsion Laboratory,
+    [Publication No. 19-5](https://jpldataeval.jpl.nasa.gov/),
+    the experimental reaction rate constant for this reaction is
+    :math:`1.0 \times 10^{-13} \text{cm}^3 \text{particle}^{-1} \text{s}^{-1}`.)
+
     The returned units are "M-1 s-1" by default:
 
     >>> get_k(model.scheme, model.compounds) \
@@ -586,16 +613,25 @@ def get_k(
 
 
 # TODO(schneiderfelipe): accept deltas and make compounds optional.
-def get_kappa(scheme, compounds, method="eckart", qrrho=True, temperature=298.15):
-    r"""Obtain tunneling transmission coefficients.
+def get_kappa(
+    scheme: Scheme,
+    compounds: dict,
+    method: str = "eckart",
+    qrrho: bool = True,
+    temperature: float = 298.15,
+) -> float:
+    r"""Obtain tunneling transmission coefficients at a given temperature.
 
     One tunneling transmission coefficient is calculated for each reaction. If
-    a reaction lacks a transition state (i.e., a dummy half-equilibrium), its
-    transmission coefficient is set to unity.
+    a reaction lacks a transition state (i.e., a half-equilibrium reaction),
+    its transmission coefficient is set to unity.
 
     Parameters
     ----------
     scheme : Scheme
+        A descriptor of the reaction scheme.
+        Mostly likely, this comes from a parsed model file.
+        See `overreact.io.parse_model`.
     compounds : dict-like
         A descriptor of the compounds.
         Mostly likely, this comes from a parsed model file.
@@ -618,11 +654,10 @@ def get_kappa(scheme, compounds, method="eckart", qrrho=True, temperature=298.15
 
     Examples
     --------
-    The following example is an estimate for the rate of methyl rotation in ethane.
-    The calculated value is off by less than 2% from the experimental value
-    (:math:`\frac{1}{12 \times 10^{-12}} \text{s}^{-1} = 8.33 \times 10^{10}
-    \text{s}^{-1}`, see doi:10.1126/science.1132178). (As a side note, the
-    experimental barrier is 12.04 kJ/mol :cite:`Hirota_1979`.)
+    Below is an example of an estimate of how much quantum tunneling
+    contributes to the rate of methyl rotation in ethane (see
+    [*Science*, **2006**, 313, 5795, 1951-1955](https://doi.org/10.1126/science.1132178)
+    for some interesting experimental data on this reaction).
 
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> kappa = get_kappa(model.scheme, model.compounds)
@@ -630,11 +665,16 @@ def get_kappa(scheme, compounds, method="eckart", qrrho=True, temperature=298.15
     array([1.110])
     >>> get_kappa(model.scheme, model.compounds, method="none")
     array([1.0])
-    >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
-    array([8.e+10])
     >>> get_kappa(model.scheme, model.compounds, method="none") \
     ... == get_kappa(model.scheme, model.compounds, method=None)
     array([ True])
+
+    You can calculate each piece of the reaction rate constant by hand,
+    if you want. Just make sure that you don't calculate the tunneling
+    coefficient twice:
+
+    >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
+    array([8.e+10])
     """
     scheme = rx.core._check_scheme(scheme)
     compounds = rx.io._check_compounds(compounds)
@@ -692,8 +732,6 @@ def get_kappa(scheme, compounds, method="eckart", qrrho=True, temperature=298.15
     return kappas
 
 
-# TODO(schneiderfelipe): this should probably be deprecated but it is very
-# good as a starting point for sensitivity analyses in general.
 def get_drc(
     scheme,
     compounds,
@@ -710,7 +748,12 @@ def get_drc(
 
     Notes
     -----
-    This is a work in progress!
+    **This is a work in progress!**
+
+    It is a good starting point for sensitivity analyses in general.
+    Head over to the
+    [discussions](https://github.com/geem-lab/overreact/discussions) if
+    you're interested and would like to contribute.
 
     Examples
     --------
