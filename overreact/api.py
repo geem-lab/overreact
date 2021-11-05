@@ -304,10 +304,10 @@ def get_freeenergies(
     bias: float = 0.0,
     environment: Optional[str] = None,
     method: str = "standard",
-    qrrho: bool = True,
+    qrrho: Union[bool, tuple[bool, bool]] = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
-) -> float:
+) -> np.ndarray:
     """Obtain free energies for compounds at a given temperature and pressure.
 
     Parameters
@@ -525,6 +525,7 @@ def get_k(
     if compounds is not None:
         compounds = rx.io._check_compounds(compounds)
     if delta_freeenergies is None:
+        assert compounds is not None, "compounds must be specified"
         freeenergies = get_freeenergies(
             compounds,
             bias=bias,
@@ -619,7 +620,7 @@ def get_kappa(
     method: str = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
-) -> float:
+) -> np.ndarray:
     r"""Obtain tunneling transmission coefficients at a given temperature.
 
     One tunneling transmission coefficient is calculated for each reaction. If
@@ -724,12 +725,12 @@ def get_kappa(
 
     # TODO(schneiderfelipe): is this correct? shouldn't we correct shapes
     # somewhere else?
-    kappas = np.asarray(kappas).flatten()
+    vec_kappas = np.asarray(kappas).flatten()
     logger.info(
         "(quantum) tunneling coefficients: "
-        f"{', '.join([f'{kappa:7.3g}' for kappa in kappas])}"
+        f"{', '.join([f'{kappa:7.3g}' for kappa in vec_kappas])}"
     )
-    return kappas
+    return vec_kappas
 
 
 def get_drc(
