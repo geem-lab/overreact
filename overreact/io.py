@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""I/O operations."""
+"""Basic I/O operations (such as reading source **input files**)."""
 
 import json
 import logging
@@ -22,13 +22,20 @@ with warnings.catch_warnings():
 logger = logging.getLogger(__name__)
 
 
-def parse_model(path, force_compile=False):
+__all__ = ["parse_model"]
+
+
+def parse_model(path: str, force_compile: bool = False):
     """Parse either a source file or model file, whichever is available.
 
-    A model file (also known as a jk-file) is a JSON encoded file with all the
+    A **source file** (also known as a k-file) contains all the information needed
+    to *create a model file*.
+    A **model file** (also known as a jk-file) is a JSON encoded file with all the
     information needed to study microkinetic simulations from first principles.
-    A source file (also known as a k-file) contains all the information needed
-    to create a model file.
+
+    You probably won't need to use model files directly, they are
+    automatically created based on source files.
+    [**Take a look at our guide on how to write an input source file**](https://geem-lab.github.io/overreact-guide/input.html).
 
     This function attempts to parse a model file if available. If not, a source
     file is parsed and a model file is generated from it. Extensions are
@@ -37,9 +44,12 @@ def parse_model(path, force_compile=False):
     Parameters
     ----------
     path : str
+        Path to the model file or source file.
+        If the final extension is not ``.jk`` or ``.k``, it is guessed.
     force_compile : bool
         If True, a k-file will take precedence over any jk-file for reading. A
-        jk-file is thus either generated or overwritten.
+        jk-file is thus either generated or overwritten. This is sometimes
+        needed to force an update with new data.
 
     Returns
     -------
@@ -52,6 +62,8 @@ def parse_model(path, force_compile=False):
 
     Examples
     --------
+    Some examples of how overreact "sees" your data below 😄:
+
     >>> model = parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
@@ -72,12 +84,10 @@ def parse_model(path, force_compile=False):
      'vibdisps': (((-1.7e-05, 3.4e-05, 5.4e-05),
                    ...,
                    (-0.011061, -0.030431, -0.027036)))}
-
     >>> model_from_source = parse_model("data/ethane/B97-3c/model.k",
     ...                                 force_compile=True)
     >>> model_from_source == model
     True
-
     >>> model_from_source = parse_model("data/ethane/B97-3c/model")
     >>> model_from_source == model
     True
