@@ -6,6 +6,12 @@ Here are functions that calculate reaction rates as well, which is needed for
 the time simulations.
 """
 
+
+from __future__ import annotations
+
+__all__ = ["get_y", "get_dydt", "get_fixed_scheme"]
+
+
 import logging
 
 import numpy as np
@@ -159,6 +165,9 @@ def get_dydt(scheme, k, ef=1e4):
         Reaction rate constant(s). Units match the concentration units given to
         the returned function ``dydt``.
     ef : float, optional
+        Equilibrium factor. This is a parameter that can be used to scale the
+        reaction rates associated to half-equilibrium reactions such that they
+        are faster than the other reactions.
 
     Returns
     -------
