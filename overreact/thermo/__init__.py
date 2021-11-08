@@ -2,7 +2,12 @@
 
 """Module dedicated to the calculation of thermodynamic properties."""
 
+
+from __future__ import annotations
+
+
 import logging
+from typing import Optional
 
 import numpy as np
 from scipy.misc import derivative
@@ -587,13 +592,13 @@ def get_delta(transform, property):
 
 
 def equilibrium_constant(
-    delta_freeenergy,
-    delta_moles=None,
-    temperature=298.15,
-    pressure=constants.atm,
-    volume=None,
+    delta_freeenergy: float,
+    delta_moles: Optional[int] = None,
+    temperature: float | np.ndarray = 298.15,
+    pressure: float = constants.atm,
+    volume: Optional[float] = None,
 ):
-    r"""Calculate an equilibrium constant from a reaction Gibbs energy.
+    r"""Calculate an equilibrium constant from a reaction [Gibbs free energy](https://en.wikipedia.org/wiki/Gibbs_free_energy).
 
     This function uses the usual `relationship between reaction Gibbs energy
     and equilibrium constant
@@ -604,13 +609,14 @@ def equilibrium_constant(
 
     If `delta_moles` is given, the above will be multiplied by a term
     :math:`\left( \frac{R T}{p} \right)^{-\Delta n}`, which effectively
-    transforms a :math:`K_p` into a :math:`K_c`.
+    transforms a :math:`K_p` equilibrium constant into a :math:`K_c`
+    (see below).
 
     Parameters
     ----------
     delta_freeenergy : array-like
-        Delta Gibbs reaction free energies. This assumes values were already
-        corrected for a one molar reference state.
+        Delta Gibbs reaction free energies. **This assumes values were already
+        corrected for a one molar reference state.**
     delta_moles : array-like, optional
         Difference in moles between products and reactants. If set, this
         multiplies the end result by
@@ -629,6 +635,7 @@ def equilibrium_constant(
     Returns
     -------
     K : array-like
+        Equilibrium constant.
 
     Notes
     -----
@@ -639,8 +646,8 @@ def equilibrium_constant(
 
     Examples
     --------
-    The following is an example from
-    <https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Supplemental_Modules_(Physical_and_Theoretical_Chemistry)/Equilibria/Chemical_Equilibria/The_Equilibrium_Constant>.
+    The following is an example from the
+    [LibreTexts Chemistry Library](https://chem.libretexts.org/Bookshelves/Physical_and_Theoretical_Chemistry_Textbook_Maps/Supplemental_Modules_(Physical_and_Theoretical_Chemistry)/Equilibria/Chemical_Equilibria/The_Equilibrium_Constant).
     Consider the following equilibrium:
 
     .. math::
@@ -669,12 +676,12 @@ def equilibrium_constant(
     >>> equilibrium_constant(dG, delta_moles=-1)
     array([1.002])
 
-    (It makes sense for gases to favor the most entropic side of the
-    equilibrium.) The example above clearly used "solution-based" data (our
-    :math:`K_c` was calculated using molar quantities, which means reference
-    volumes of one liter). You could convert it to gas phase data to get the
-    same result, by change the reference state (in this case, from one molar
-    to one atmosphere):
+    (As expected, it makes sense for gases to favor the most entropic side of
+    the equilibrium.) The example above clearly used "solution-based" data
+    (our :math:`K_c` was calculated using molar quantities, which means
+    reference volumes of one liter). You could convert it to gas phase data
+    to get the same result, by changing the reference state (in this case,
+    from one molar to one atmosphere using `change_reference_state`):
 
     >>> dG += temperature * rx.change_reference_state()
     >>> equilibrium_constant(dG)
@@ -686,11 +693,11 @@ def equilibrium_constant(
     >>> equilibrium_constant(dG, delta_moles=1)
     array([24.5])
 
-    The following example is from Wikipedia
-    (<https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect>).
-    The reactions are copper complex formating equilibria with two different
-    ligands. Since this reaction is happening in solution, it is the solution
-    standard Gibbs reaction free energy that is given:
+    The following example is from
+    [Wikipedia](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
+    The reactions are two copper complex forming equilibria with two
+    different ligands. Since this reaction takes place in solution, it is the
+    solution standard Gibbs reaction free energy that is given:
 
     >>> dG1 = -37.4e3
     >>> np.log10(equilibrium_constant(dG1))
@@ -699,9 +706,9 @@ def equilibrium_constant(
     >>> np.log10(equilibrium_constant(dG2))
     array([10.62])
 
-    The above are thus :math:`log_{10}(K_c)`. Since we are talking about a
+    The above are thus :math:`\log_{10}(K_c)`. Since we are talking about a
     mono- and a bidendate ligands, the `delta_moles` are -4 and -2,
-    respectively, and we could obtain the :math:`log_{10}(K_p)` the following
+    respectively, and we could obtain the :math:`\log_{10}(K_p)` the following
     way:
 
     >>> np.log10(equilibrium_constant(dG1, delta_moles=-4))
@@ -709,8 +716,8 @@ def equilibrium_constant(
     >>> np.log10(equilibrium_constant(dG2, delta_moles=-2))
     array([7.85])
 
-    You can easily check that the above values are correct.
-
+    You can easily check that the above values match the values given
+    [here](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
     """
     temperature = np.asarray(temperature)
 
@@ -736,7 +743,7 @@ def change_reference_state(
     pressure=constants.atm,
     volume=None,
 ):
-    r"""Calculate an aditive entropy correction to a change in reference states.
+    r"""Calculate an additive entropy correction to a change in reference states.
 
     .. math::
         \Delta G_\text{corr} =
