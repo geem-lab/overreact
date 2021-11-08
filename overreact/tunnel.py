@@ -2,7 +2,14 @@
 
 """Module dedicated to quantum tunneling approximations."""
 
+
+from __future__ import annotations
+
+__all__ = ["eckart", "wigner"]
+
+
 import logging
+from typing import Optional
 
 import numpy as np
 from scipy.integrate import fixed_quad
@@ -13,13 +20,13 @@ from overreact import constants
 logger = logging.getLogger(__name__)
 
 
-def _check_nu(vibfreq):
-    """Convert vibrational frequencies in cm-1 to s-1.
+def _check_nu(vibfreq: float) -> float:
+    """Convert vibrational frequencies in cm$^{-1}$ to s-1.
 
     Parameters
     ----------
     vibfreq : array-like
-        Magnitude of the imaginary frequency in cm-1. Only the absolute value
+        Magnitude of the imaginary frequency in cm$^{-1}$. Only the absolute value
         is used.
 
     Returns
@@ -46,13 +53,13 @@ def _check_nu(vibfreq):
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
-def wigner(vibfreq, temperature=298.15):
+def wigner(vibfreq: float, temperature: float | np.ndarray = 298.15) -> float:
     """Calculate the Wigner correction to quantum tunneling.
 
     Parameters
     ----------
     vibfreq : array-like
-        Magnitude of the imaginary frequency in cm-1. Only the absolute value
+        Magnitude of the imaginary frequency in cm$^{-1}$. Only the absolute value
         is used.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -60,6 +67,7 @@ def wigner(vibfreq, temperature=298.15):
     Returns
     -------
     kappa : array-like
+        The quantum tunneling correction.
 
     Raises
     ------
@@ -88,16 +96,24 @@ def wigner(vibfreq, temperature=298.15):
     return kappa
 
 
-def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
+def eckart(
+    vibfreq: float,
+    delta_forward: float,
+    delta_backward: Optional[float] = None,
+    temperature: float | np.ndarray = 298.15,
+) -> float:
     """Calculate the Eckart correction to quantum tunneling.
 
-    See doi:10.1021/j100809a040 and doi:10.6028/jres.086.014.
+    References are
+    [*J. Phys. Chem.* **1962**, 66, 3, 532–533](https://doi.org/10.1021/j100809a040)
+    and
+    [*J. Res. Natl. Inst. Stand. Technol.*, **1981**, 86, 357](https://doi.org/10.6028/jres.086.014).
 
     Parameters
     ----------
     vibfreq : array-like
-        Magnitude of the imaginary frequency in cm-1. Only the absolute value
-        is used.
+        Magnitude of the imaginary frequency in cm$^{-1}$. **Only the absolute value
+        is used**.
     delta_forward : array-like
         Activation enthalpy at 0 K for the forward reaction.
     delta_backward : array-like, optional
@@ -110,6 +126,7 @@ def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
     Returns
     -------
     kappa : array-like
+        The quantum tunneling correction.
 
     Raises
     ------
@@ -142,15 +159,17 @@ def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
 
     if delta_backward is None:
         delta_backward = delta_forward
+
     logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
     logger.debug(f"backward potential barrier: {delta_backward} J/mol")
-    assert np.all(delta_forward >= 0.0)
-    assert np.all(delta_backward >= 0.0)
+    assert np.all(delta_forward >= 0.0)  # FIX: add message
+    assert np.all(delta_backward >= 0.0)  # FIX: add message
 
     # convert energies in joules per mole to joules
     delta_forward = delta_forward / constants.N_A
     delta_backward = delta_backward / constants.N_A
 
+    assert delta_backward is not None
     two_pi = 2.0 * np.pi
     alpha1 = two_pi * delta_forward / (constants.h * nu)
     alpha2 = two_pi * delta_backward / (constants.h * nu)
@@ -161,7 +180,7 @@ def eckart(vibfreq, delta_forward, delta_backward=None, temperature=298.15):
 
 
 @np.vectorize
-def _eckart(u, alpha1, alpha2=None):
+def _eckart(u: float, alpha1: float, alpha2: Optional[float] = None) -> float:
     """Implement of the (unsymmetrical) Eckart tunneling approximation.
 
     This is based on doi:10.1021/j100809a040 and doi:10.6028/jres.086.014.
