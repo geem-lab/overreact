@@ -2,6 +2,10 @@
 
 """Basic I/O operations (such as reading source **input files**)."""
 
+
+__all__ = ["parse_model"]
+
+
 import json
 import logging
 import os
@@ -9,11 +13,12 @@ import textwrap
 import warnings
 from collections import defaultdict
 from collections.abc import MutableMapping
+from typing import Text
 
 import numpy as np
 
 import overreact as rx
-from overreact import constants
+from overreact import _constants as constants
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -22,10 +27,7 @@ with warnings.catch_warnings():
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["parse_model"]
-
-
-def parse_model(path: str, force_compile: bool = False):
+def parse_model(path: Text, force_compile: bool = False):
     """Parse either a source or model input file, whichever is available.
 
     A **source input file** (also known as a `.k` file) contains all the information needed
@@ -264,7 +266,7 @@ def _parse_source(file_path_or_str):
 
 
 def _unparse_source(model):
-    """'Unparse' a source input file (also known as a `.k` file).
+    """Unparse a source input file (also known as a `.k` file).
 
     A source input file contains all the information needed to create a model input file
     (also known as a `.jk` file).
@@ -360,7 +362,7 @@ def _unparse_source(model):
 
 
 def _unparse_model(model):
-    """'Unparse' a model input file (also known as a `.jk` file).
+    """Unparse a model input file (also known as a `.jk` file).
 
     A model input file is a JSON encoded file with all the information needed to
     study microkinetic simulations from first principles.
@@ -431,7 +433,7 @@ def _check_compounds(compounds):
                          (-0.011061, -0.030431, -0.027036)))}}
     """
     for name in compounds:
-        if isinstance(compounds[name], str):
+        if isinstance(compounds[name], Text):
             compounds[name] = read_logfile(compounds[name])
     return dict(compounds)
 
@@ -618,11 +620,11 @@ def read_logfile(path):
             # This energy may lack dispersion, solvation, correlation, etc.
             "energy": ccdata.scfenergies[-1] * constants.eV * constants.N_A,
             "mult": ccdata.mult,
-            "atomnos": rx.misc.totuple(ccdata.atomnos),
-            "atommasses": rx.misc.totuple(ccdata.atommasses),
-            "atomcoords": rx.misc.totuple(ccdata.atomcoords[-1]),
-            "vibfreqs": rx.misc.totuple(ccdata.vibfreqs),
-            "vibdisps": rx.misc.totuple(ccdata.vibdisps),
+            "atomnos": rx._misc.totuple(ccdata.atomnos),
+            "atommasses": rx._misc.totuple(ccdata.atommasses),
+            "atomcoords": rx._misc.totuple(ccdata.atomcoords[-1]),
+            "vibfreqs": rx._misc.totuple(ccdata.vibfreqs),
+            "vibdisps": rx._misc.totuple(ccdata.vibdisps),
         }
         # This properly parses the final single point energy from ORCA files.
         data.update(_read_orca_logfile(path))
@@ -773,7 +775,7 @@ def _read_orca_logfile(path, minimal=True):
                     while len(line) > 1:
                         atom, x, y, z = line.split()
                         if atom[-1] != ">":
-                            atomnos.append(rx.misc.atomic_number[atom])
+                            atomnos.append(rx._misc.atomic_number[atom])
                             atomcoords.append([float(x), float(y), float(z)])
                         line = next(file)
 
@@ -822,7 +824,7 @@ def _read_orca_logfile(path, minimal=True):
     if hessian is None:
         try:
             hessian = _read_orca_hess(path.replace(".out", ".hess"))
-            data.update({"hessian": rx.misc.totuple(hessian)})
+            data.update({"hessian": rx._misc.totuple(hessian)})
         except FileNotFoundError:
             pass
 
@@ -842,10 +844,13 @@ def _read_orca_logfile(path, minimal=True):
             for _ in range(n):
                 line = next(file)
                 atom, x, y, z = line.split()
-                atomnos.append(rx.misc.atomic_number[atom])
+                atomnos.append(rx._misc.atomic_number[atom])
                 atomcoords.append([float(x), float(y), float(z)])
     data.update(
-        {"atomnos": rx.misc.totuple(atomnos), "atomcoords": rx.misc.totuple(atomcoords)}
+        {
+            "atomnos": rx._misc.totuple(atomnos),
+            "atomcoords": rx._misc.totuple(atomcoords),
+        }
     )
 
     if atommasses is None:
@@ -853,11 +858,11 @@ def _read_orca_logfile(path, minimal=True):
         # table.
         atommasses = []
         for n in atomnos:
-            atommasses.append(rx.misc.atomic_mass[n])
-    data.update({"atommasses": rx.misc.totuple(atommasses)})
+            atommasses.append(rx._misc.atomic_mass[n])
+    data.update({"atommasses": rx._misc.totuple(atommasses)})
 
     if vibfreqs is not None:
-        data.update({"vibfreqs": rx.misc.totuple(vibfreqs)})
+        data.update({"vibfreqs": rx._misc.totuple(vibfreqs)})
 
     return data
 
@@ -897,7 +902,7 @@ class dotdict(dict):
 
         for key, val in self.items():
             if isinstance(val, (list, np.ndarray)):
-                super().__setitem__(key, rx.misc.totuple(val))
+                super().__setitem__(key, rx._misc.totuple(val))
             elif isinstance(val, dict):
                 super().__setitem__(key, dotdict(val))
 

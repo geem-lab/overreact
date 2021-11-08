@@ -6,7 +6,8 @@ import numpy as np
 import pytest
 
 import overreact as rx
-from overreact import constants, coords
+from overreact import _constants as constants
+from overreact import coords
 
 
 def test_parse_model_raises_filenotfounderror():

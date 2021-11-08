@@ -18,7 +18,7 @@ from scipy.spatial.distance import pdist, squareform
 from scipy.spatial.transform import Rotation
 
 import overreact as rx
-from overreact import constants
+from overreact import _constants as constants
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ def get_molecular_volume(
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
@@ -130,7 +130,7 @@ def get_molecular_volume(
     if full_output and method == "izato":
         cav_volumes = []
     for _ in range(trials):
-        points = rx.misc.halton(n, 3)
+        points = rx._misc.halton(n, 3)
         points = v1 + points * (v2 - v1)
         tree = KDTree(points)
 
@@ -228,7 +228,7 @@ def _garza(
     >>> _garza(100.0, full_output=True, environment="benzene")
     (665., 1.0, 1.0758657575737383)
     """
-    solvent = rx.misc._get_chemical(environment, temperature, pressure)
+    solvent = rx._misc._get_chemical(environment, temperature, pressure)
 
     # TODO(schneiderfelipe): things to do:
     # 1. check correctness of this function,
@@ -719,7 +719,7 @@ def _get_proper_axes(
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["diborane"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
@@ -936,7 +936,7 @@ def _get_improper_axes(
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["tanaka1996"]["methane@UMP2/cc-pVTZ"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
@@ -1078,7 +1078,7 @@ def _get_mirror_planes(
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["1-iodo-2-chloroethylene"]
     >>> groups = _equivalent_atoms(data.atommasses, data.atomcoords)
@@ -1487,7 +1487,7 @@ def gyradius(atommasses, atomcoords, method="iupac"):
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["tanaka1996"]["CH3·@UMP2/cc-pVTZ"]
     >>> gyradius(data.atommasses, data.atomcoords)
@@ -1627,7 +1627,7 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["water"]
     >>> H = calc_hessian(data.atommasses, data.atomcoords, data.vibfreqs, data.vibdisps)
@@ -1703,7 +1703,7 @@ def calc_vibfreqs(hessian, atommasses):
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["water"]
     >>> calc_vibfreqs(data.hessian, data.atommasses)
@@ -1745,7 +1745,7 @@ def eckart_transform(atommasses, atomcoords):
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["tanaka1996"]["Cl·@UMP2/cc-pVTZ"]
     >>> eckart_transform(data.atommasses, data.atomcoords)

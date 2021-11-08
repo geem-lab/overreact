@@ -11,7 +11,7 @@ import numpy as np
 from scipy.stats import cauchy, norm
 
 import overreact as rx
-from overreact import constants
+from overreact import _constants as constants
 
 
 def _find_package(package):
@@ -469,7 +469,7 @@ def _get_chemical(
 
     Examples
     --------
-    >>> from overreact import constants
+    >>> from overreact import _constants as constants
     >>> water = _get_chemical("water", pressure=constants.atm)
     >>> water.name
     'water'

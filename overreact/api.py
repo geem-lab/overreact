@@ -10,20 +10,6 @@ probably start here.
 
 from __future__ import annotations
 
-import logging
-import warnings
-from typing import Optional
-
-import numpy as np
-from scipy.misc import derivative
-
-import overreact as rx
-from overreact import constants, coords, rates, tunnel
-from overreact.core import Scheme
-
-logger = logging.getLogger(__name__)
-
-
 __all__ = [
     "get_k",
     "get_kappa",
@@ -32,6 +18,21 @@ __all__ = [
     "get_enthalpies",
     "get_internal_energies",
 ]
+
+
+import logging
+import warnings
+from typing import Optional, Text
+
+import numpy as np
+from scipy.misc import derivative
+
+import overreact as rx
+from overreact import _constants as constants
+from overreact import coords, rates, tunnel
+from overreact.core import Scheme
+
+logger = logging.getLogger(__name__)
 
 
 def get_internal_energies(
@@ -60,7 +61,7 @@ def get_internal_energies(
     Examples
     --------
     >>> import overreact as rx
-    >>> from overreact import constants
+    >>> from overreact import _constants as constants
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> internal_energies = get_internal_energies(model.compounds)
     >>> (internal_energies - internal_energies.min()) / constants.kcal
@@ -113,7 +114,7 @@ def get_enthalpies(compounds: dict, qrrho: bool = True, temperature: float = 298
     Examples
     --------
     >>> import overreact as rx
-    >>> from overreact import constants
+    >>> from overreact import _constants as constants
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> enthalpies = get_enthalpies(model.compounds)
     >>> (enthalpies - enthalpies.min()) / constants.kcal
@@ -152,8 +153,8 @@ def get_enthalpies(compounds: dict, qrrho: bool = True, temperature: float = 298
 
 def get_entropies(
     compounds: dict,
-    environment: Optional[str] = None,
-    method: str = "standard",
+    environment: Optional[Text] = None,
+    method: Text = "standard",
     qrrho: bool = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
@@ -199,7 +200,7 @@ def get_entropies(
     Examples
     --------
     >>> import overreact as rx
-    >>> from overreact import constants
+    >>> from overreact import _constants as constants
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> entropies = get_entropies(model.compounds)
     >>> (entropies - entropies.min()) / constants.calorie
@@ -303,8 +304,8 @@ def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
 def get_freeenergies(
     compounds: dict,
     bias: float = 0.0,
-    environment: Optional[str] = None,
-    method: str = "standard",
+    environment: Optional[Text] = None,
+    method: Text = "standard",
     qrrho: bool | tuple[bool, bool] = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
@@ -353,7 +354,7 @@ def get_freeenergies(
     Examples
     --------
     >>> import overreact as rx
-    >>> from overreact import constants
+    >>> from overreact import _constants as constants
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> freeenergies = get_freeenergies(model.compounds, qrrho=(False, True))
     >>> (freeenergies - freeenergies.min()) / constants.kcal
@@ -397,9 +398,9 @@ def get_k(
     scheme: Scheme,
     compounds: Optional[dict] = None,
     bias: float = 0.0,
-    tunneling: str = "eckart",
+    tunneling: Text = "eckart",
     qrrho: bool | tuple[bool, bool] = True,
-    scale: str = "l mol-1 s-1",
+    scale: Text = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
     delta_freeenergies: Optional[float] = None,
@@ -618,7 +619,7 @@ def get_k(
 def get_kappa(
     scheme: Scheme,
     compounds: dict,
-    method: str = "eckart",
+    method: Text = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
 ):

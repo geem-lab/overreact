@@ -5,7 +5,7 @@
 import pytest
 
 import overreact as rx
-from overreact import constants
+from overreact import _constants as constants
 
 
 def test_reference_raw_constants():

@@ -16,7 +16,7 @@ from scipy.misc import derivative
 from scipy.special import factorial
 
 import overreact as rx
-from overreact import constants
+from overreact import _constants as constants
 from overreact.thermo._gas import (
     calc_elec_energy,
     calc_elec_entropy,

@@ -692,13 +692,13 @@ def parse_reactions(text: Text | Sequence[Text]) -> Scheme:
     return Scheme(
         compounds=tuple(compounds),
         reactions=tuple(_unparse_reactions(reactions)),
-        is_half_equilibrium=rx.misc.totuple([reaction[2] for reaction in reactions]),
-        A=rx.misc.totuple(
+        is_half_equilibrium=rx._misc.totuple([reaction[2] for reaction in reactions]),
+        A=rx._misc.totuple(
             np.block(
                 [[vector, np.zeros(len(compounds) - len(vector))] for vector in A]
             ).T
         ),
-        B=rx.misc.totuple(
+        B=rx._misc.totuple(
             np.block(
                 [[vector, np.zeros(len(compounds) - len(vector))] for vector in B]
             ).T

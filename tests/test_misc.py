@@ -11,7 +11,7 @@ import overreact as rx
 def test_broaden_spectrum_works():
     """Ensure we can broad a simple spectrum."""
     x = np.linspace(50, 200, num=15)
-    s = rx.misc.broaden_spectrum(x, [150, 100], [2, 1], scale=20.0)
+    s = rx._misc.broaden_spectrum(x, [150, 100], [2, 1], scale=20.0)
     assert s == pytest.approx(
         [
             0.04316864,

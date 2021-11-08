@@ -8,7 +8,8 @@ import numpy as np
 from scipy.misc import derivative
 
 import overreact as rx
-from overreact import constants, coords
+from overreact import _constants as constants
+from overreact import coords
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ def calc_cav_entropy(
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
     >>> calc_cav_entropy(data.atomnos, data.atomcoords)
@@ -99,7 +100,7 @@ def calc_cav_entropy(
             pressure=pressure,
         )
 
-        solvent = rx.misc._get_chemical(environment, temperature, pressure)
+        solvent = rx._misc._get_chemical(environment, temperature, pressure)
 
         permittivity = solvent.permittivity
         y = 3.0 * ((permittivity - 1.0) / (permittivity + 2.0)) / (4.0 * np.pi)
@@ -210,7 +211,7 @@ def molar_free_volume(
 
     Examples
     --------
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
     >>> molar_free_volume(data.atomnos, data.atomcoords, method="izato") \

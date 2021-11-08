@@ -2,7 +2,7 @@
 
 """Tests for the command-line interface."""
 
-from overreact import cli
+from overreact import _cli as cli
 
 
 def test_cli_compiles_source_file(monkeypatch):

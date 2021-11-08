@@ -15,7 +15,7 @@ import logging
 import numpy as np
 
 import overreact as rx
-from overreact import constants
+from overreact import _constants as constants
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     >>> liquid_viscosity("water", temperature=299.26)
     8.90e-4
     """
-    return rx.misc._get_chemical(id, temperature, pressure).mul
+    return rx._misc._get_chemical(id, temperature, pressure).mul
 
 
 # TODO(schneiderfelipe): log the calculated diffusional reaction rate limit.

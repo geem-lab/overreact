@@ -19,8 +19,8 @@ from scipy.integrate import solve_ivp
 from scipy.optimize import minimize_scalar
 
 import overreact as rx
-from overreact import constants
-from overreact.misc import _found_jax
+from overreact import _constants as constants
+from overreact._misc import _found_jax
 
 if _found_jax:
     import jax.numpy as jnp

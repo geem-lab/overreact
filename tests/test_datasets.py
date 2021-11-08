@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 import overreact as rx
-from overreact import datasets
+from overreact import _datasets as datasets
 
 
 def test_logfile_retrieval():

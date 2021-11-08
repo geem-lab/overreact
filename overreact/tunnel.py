@@ -15,7 +15,7 @@ import numpy as np
 from scipy.integrate import fixed_quad
 from scipy.special import roots_laguerre
 
-from overreact import constants
+from overreact import _constants as constants
 
 logger = logging.getLogger(__name__)
 

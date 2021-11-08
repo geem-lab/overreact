@@ -2,6 +2,9 @@
 
 """Command-line interface."""
 
+
+from __future__ import annotations
+
 import argparse
 import logging
 import os
@@ -20,8 +23,9 @@ from rich.text import Text
 from scipy.optimize import minimize_scalar
 
 import overreact as rx
-from overreact import constants, coords
-from overreact.misc import _found_seaborn
+from overreact import _constants as constants
+from overreact import coords
+from overreact._misc import _found_seaborn
 
 traceback.install(show_locals=True)
 
@@ -74,7 +78,7 @@ class Report:
         concentrations=None,
         savepath=None,
         plot=None,
-        qrrho=True,
+        qrrho_descriptor="both",
         temperature=298.15,
         pressure=constants.atm,
         bias=0.0,
@@ -89,7 +93,14 @@ class Report:
         self.concentrations = concentrations
         self.savepath = savepath
         self.plot = plot
-        self.qrrho = qrrho
+        self.qrrho = {
+            "both": (True, True),
+            "enthalpy": (True, False),
+            "entropy": (False, True),
+            "none": (False, False),
+        }[qrrho_descriptor]
+        self.qrrho_enthalpy, self.qrrho_entropy = self.qrrho
+
         self.temperature = temperature
         # TODO(schneiderfelipe): use pressure throughout
         self.pressure = pressure
@@ -259,7 +270,7 @@ class Report:
                 temperature=self.temperature,
                 pressure=self.pressure,
             ),
-        )
+        )  # FIX: add message
 
         compounds_table = Table(
             Column("no", justify="right"),
@@ -300,7 +311,7 @@ class Report:
             * rx.get_reaction_entropies(
                 scheme.A, temperature=self.temperature, pressure=self.pressure
             ),
-        )
+        )  # FIX: add message
 
         delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
         delta_activation_energies = rx.get_delta(scheme.B, energies)
@@ -322,7 +333,7 @@ class Report:
             * rx.get_reaction_entropies(
                 scheme.B, temperature=self.temperature, pressure=self.pressure
             ),
-        )
+        )  # FIX: add message
 
         circ_table = Table(
             Column("no", justify="right"),
@@ -708,8 +719,9 @@ def main():
         help="disable the quasi-rigid rotor harmonic oscillator (QRRHO) "
         "approximations to both enthalpies and entropies (see "
         "[doi:10.1021/jp509921r] and [doi:10.1002/chem.201200497])",
-        dest="qrrho",
-        action="store_false",
+        choices=["both", "enthalpy", "entropy", "none"],
+        default="both",
+        dest="qrrho_descriptor",
     )
     parser.add_argument(
         "-T",
@@ -784,7 +796,7 @@ Inputs:
 - Verbose level  = {args.verbose}
 - Compile?       = {args.compile}
 - Plot?          = {args.plot}
-- QRRHO?         = {args.qrrho}
+- QRRHO?         = {args.qrrho_descriptor}
 - Temperature    = {args.temperature} K
 - Pressure       = {args.pressure} Pa
 - Integrator     = {args.method}
@@ -812,7 +824,7 @@ Parsing and calculating…
         concentrations=args.concentrations,
         savepath=os.path.splitext(args.path)[0] + ".csv",
         plot=args.plot,
-        qrrho=args.qrrho,
+        qrrho_descriptor=args.qrrho_descriptor,
         temperature=args.temperature,
         pressure=args.pressure,
         bias=args.bias,

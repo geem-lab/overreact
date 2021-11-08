@@ -5,7 +5,9 @@
 import pytest
 
 import overreact as rx
-from overreact import constants, coords, datasets
+from overreact import _constants as constants
+from overreact import _datasets as datasets
+from overreact import coords
 
 
 def test_entropy_liquid_phase():

@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 import overreact as rx
-from overreact import constants
+from overreact import _constants as constants
 
 
 def test_sanity_for_chemical_kinetics():

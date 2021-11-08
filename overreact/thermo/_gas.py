@@ -6,7 +6,8 @@ import logging
 
 import numpy as np
 
-from overreact import constants, coords
+from overreact import _constants as constants
+from overreact import coords
 
 logger = logging.getLogger(__name__)
 
@@ -361,7 +362,7 @@ def calc_rot_entropy(
     >>> calc_rot_entropy()
     0.0
 
-    >>> from overreact import datasets
+    >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["water"]
     >>> moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
