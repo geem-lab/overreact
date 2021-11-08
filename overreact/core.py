@@ -2,15 +2,36 @@
 
 """Module dedicated to parsing and modeling of chemical reaction networks."""
 
+from __future__ import annotations
+
 import itertools
 import re
-from collections import namedtuple
+from typing import NamedTuple, Sequence
 
 import numpy as np
 
 import overreact as rx
 
-Scheme = namedtuple("Scheme", "compounds reactions is_half_equilibrium A B")
+
+class Scheme(NamedTuple):
+    """
+    A descriptor of a chemical reaction network.
+
+    Mostly likely, this comes from a parsed input file.
+    See `overreact.io.parse_model`.
+    """
+
+    compounds: Sequence[str]
+    """A descriptor of compounds."""
+    reactions: Sequence[str]
+    """A descriptor of reactions."""
+    is_half_equilibrium: Sequence[bool]
+    """An indicator of whether a reaction is half-equilibrium."""
+    A: np.ndarray
+    """A matrix of stoichiometric coefficients between reactants and products."""
+    B: np.ndarray
+    """A matrix of stoichiometric coefficients between reactants and transition states."""
+
 
 _abbr_environment = {
     "dcm": "dichloromethane",
