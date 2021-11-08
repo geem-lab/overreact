@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+__all__ = ["equilibrium_constant", "change_reference_state"]
+
 
 import logging
 from typing import Optional
@@ -155,7 +157,7 @@ def calc_internal_energy(
     vibfreqs : array-like
         Frequency magnitudes in cm-1.
     qrrho : bool, optional
-        Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
+        Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
@@ -225,7 +227,7 @@ def calc_enthalpy(
     vibfreqs : array-like
         Frequency magnitudes in cm-1.
     qrrho : bool, optional
-        Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
+        Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
@@ -329,7 +331,7 @@ def calc_entropy(
         you're interested and would like to contribute.
         Leave this as "standard" for now.
     qrrho : bool, optional
-        Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
+        Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         S. Grimme (see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical
         RRHO.
@@ -458,7 +460,7 @@ def calc_heat_capacity(
     vibfreqs : array-like
         Frequency magnitudes in cm-1.
     qrrho : bool, optional
-        Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
+        Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
@@ -736,12 +738,12 @@ def equilibrium_constant(
 
 
 def change_reference_state(
-    new_reference=1.0 / constants.liter,
-    old_reference=None,
-    sign=1,
-    temperature=298.15,
-    pressure=constants.atm,
-    volume=None,
+    new_reference: float = 1.0 / constants.liter,
+    old_reference: Optional[float] = None,
+    sign: int = 1,
+    temperature: float | np.ndarray = 298.15,
+    pressure: float = constants.atm,
+    volume: Optional[float] = None,
 ):
     r"""Calculate an additive entropy correction to a change in reference states.
 
@@ -750,11 +752,11 @@ def change_reference_state(
             R T \ln \left( \frac{\chi_\text{new}}{\chi_\text{old}} \right)
 
     The value returned can be directly multiplied by temperature and summed to
-    old reference free energies to obtain new reference free energies. See
-    notes below.
+    the old reference free energies to obtain free energies with respect to a
+    new reference. See notes below.
 
-    For instance, the concentration correction to Gibbs free energy for gas to
-    liquid standard state change is simply
+    For instance, the concentration correction to Gibbs free energy for a
+    gas-to-liquid standard state change is simply
     (:math:`c^\circ = \frac{\text{1 atm}}{R T}`),
 
     .. math::
@@ -769,6 +771,8 @@ def change_reference_state(
         Old reference state. Default value corresponds to the concentration of
         an ideal gas at the given temperature and 1 atm.
     sign : float, optional
+        Sign of the change in reference state. Default value is 1. This only
+        multiplies the final result.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
@@ -792,7 +796,7 @@ def change_reference_state(
     Examples
     --------
     By default, the correction returns a change in concentration from the gas
-    phase standard concentration to the solvated state standard concentration:
+    phase standard concentration to the solvated-state standard concentration:
 
     >>> -rx.change_reference_state() / constants.calorie
     -6.4
@@ -801,7 +805,7 @@ def change_reference_state(
     >>> 273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal
     1.69
 
-    This function can also be used to adjust symmetry effects from C1
+    But this function can also be used to adjust symmetry effects from C1
     calculations (symmetry number equals to one). For D7h, for instance, the
     symmetry number is 14:
 
