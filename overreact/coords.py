@@ -2,6 +2,12 @@
 
 """Module dedicated to classifying molecules into point groups."""
 
+
+from __future__ import annotations
+
+__all__ = ["find_point_group", "symmetry_number"]
+
+
 import logging
 import re
 
@@ -263,9 +269,8 @@ def symmetry_number(point_group):
 
     This function has a set of the most common point groups precomputed, but is
     able to calculate the symmetry number if it is not found in known tables.
-    Precomputed values are from doi:10.1007/s00214-007-0328-0, ORCA's manual
-    (page 279) and Advances in Physical Organic Chemistry (2016), by Ian
-    Williams, Nick Williams (page 44).
+    Most precomputed values are from
+    [*Theor Chem Account* **2007** 118, 813–826](https://doi.org/10.1007/s00214-007-0328-0).
 
     Parameters
     ----------
@@ -275,6 +280,7 @@ def symmetry_number(point_group):
     Returns
     -------
     int
+        Rotational symmetry number.
 
     Examples
     --------
@@ -352,6 +358,7 @@ def find_point_group(atommasses, atomcoords, proper_axes=None, rtol=0.0, atol=1.
     Returns
     -------
     str
+        Point group symbol.
 
     Examples
     --------
