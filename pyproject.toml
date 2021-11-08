@@ -15,7 +15,7 @@ documentation = "https://geem-lab.github.io/overreact-guide"
 "Discussions" = "https://github.com/geem-lab/overreact/discussions"
 
 [tool.poetry.scripts]
-overreact = 'overreact.cli:main'
+overreact = 'overreact._cli:main'
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.10"
