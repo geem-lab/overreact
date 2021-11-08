@@ -7,9 +7,12 @@ If you intend to use **overreact** as a library in a project, you should
 probably start here.
 """
 
+
+from __future__ import annotations
+
 import logging
 import warnings
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 from scipy.misc import derivative
@@ -254,7 +257,7 @@ def get_entropies(
     return np.array(entropies)
 
 
-def _check_qrrho(qrrho: Union[bool, tuple[bool, bool]]) -> tuple[bool, bool]:
+def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
     """Get options for QRRHO for both enthalpy and entropy.
 
     Parameters
@@ -302,7 +305,7 @@ def get_freeenergies(
     bias: float = 0.0,
     environment: Optional[str] = None,
     method: str = "standard",
-    qrrho: Union[bool, tuple[bool, bool]] = True,
+    qrrho: bool | tuple[bool, bool] = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
 ):
@@ -395,7 +398,7 @@ def get_k(
     compounds: Optional[dict] = None,
     bias: float = 0.0,
     tunneling: str = "eckart",
-    qrrho: Union[bool, tuple[bool, bool]] = True,
+    qrrho: bool | tuple[bool, bool] = True,
     scale: str = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
