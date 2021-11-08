@@ -2,11 +2,15 @@
 
 """Module dedicated to parsing and modeling of chemical reaction networks."""
 
+
 from __future__ import annotations
+
+__all__ = ["Scheme", "parse_reactions"]
+
 
 import itertools
 import re
-from typing import NamedTuple, Sequence
+from typing import NamedTuple, Sequence, Text
 
 import numpy as np
 
@@ -21,9 +25,9 @@ class Scheme(NamedTuple):
     See `overreact.io.parse_model`.
     """
 
-    compounds: Sequence[str]
+    compounds: Sequence[Text]
     """A descriptor of compounds."""
-    reactions: Sequence[str]
+    reactions: Sequence[Text]
     """A descriptor of reactions."""
     is_half_equilibrium: Sequence[bool]
     """An indicator of whether a reaction is half-equilibrium."""
@@ -48,7 +52,7 @@ _abbr_environment = {
 }
 
 
-def _check_scheme(scheme_or_text):
+def _check_scheme(scheme_or_text: Scheme | Text) -> Scheme:
     """Interface transparently between strings and schemes.
 
     Parameters
@@ -141,8 +145,8 @@ def get_transition_states(A, B, is_half_equilibrium):
 
 # TODO(schneiderfelipe): some of the more esoteric doctests should become
 # real tests.
-def unparse_reactions(scheme):
-    """'Unparse' a kinetic model.
+def unparse_reactions(scheme: Scheme) -> Text:
+    """Unparse a kinetic model.
 
     Parameters
     ----------
@@ -396,8 +400,12 @@ def is_transition_state(name):
     return False
 
 
-def parse_reactions(text):
-    """Parse a kinetic model.
+def parse_reactions(text: Text | Sequence[Text]) -> Scheme:
+    """
+    Parse a kinetic model as a chemical reaction scheme.
+
+    This is an essential part of the parsing process.
+    See `overreact.io.parse_model` other details.
 
     Parameters
     ----------
@@ -408,13 +416,13 @@ def parse_reactions(text):
     -------
     scheme : Scheme
         A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed input file.
-        See `overreact.io.parse_model`.
 
     Notes
     -----
     The model description should comply with the mini-language for systems of
-    reactions::
+    reactions. A semi-formal definition of the grammar in
+    [Backus–Naur form](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)
+    is given below:
 
              equation ::= equation_side arrow equation_side
         equation_side ::= coefficient compound ['+' coefficient compound]*
@@ -422,14 +430,18 @@ def parse_reactions(text):
              compound ::= mix of printable characters
                 arrow ::= '->' | '<=>' | '<-'
 
-    Blank lines and comments (starting with "//") are ignored. Doubled
+    Blank lines and comments (starting with `//`) are ignored. Repeated
     reactions are ignored. Furthermore, reactions can be chained one after
-    another and, if a single compound (with either a "‡" or a "#" at the end)
+    another and, if a single compound (with either a `‡` or a `#` at the end)
     appears alone on one side of a reaction, it's considered a transition
-    state, whose lifetime is very close to zero.
+    state. Transition states have zero lifetime during the simulation.
 
     Examples
     --------
+    What follows is a rather long tour over the parsing process and its
+    output in general. You can skip it if you are not interested in the
+    details.
+
     >>> scheme = parse_reactions("A -> B  // a direct reaction")
 
     The reaction above is a direct one (observe that comments are ignored). The
@@ -455,7 +467,7 @@ def parse_reactions(text):
            A=((-1.,), (1.,)),
            B=((-1.,), (1.,)))
 
-    Equilibria produce twice as many direct reactions, while the B matrix
+    Equilibria produce twice as many direct reactions, while the $B$ matrix
     defines an energy relationship for only one of each pair:
 
     >>> parse_reactions("A <=> B  // an equilibrium")
@@ -484,10 +496,10 @@ def parse_reactions(text):
            B=((-1.,  0.),
               (1.,  0.)))
 
-    Transition states are specified with an asterisk at the end. They are shown
-    among compounds, but the matrix A ensures they'll never have a non-zero
-    rate of formation/consumption. On the other hand, they are needed in the B
-    matrix:
+    Transition states are specified with a special symbol at the end (either
+    `‡` or `#`). They are shown among compounds, but the matrix $A$ ensures
+    they'll never have a non-zero rate of formation/consumption. On the other
+    hand, they are needed in the $B$ matrix:
 
     >>> parse_reactions("A -> A‡ -> B")
     Scheme(compounds=('A', 'A‡', 'B'),
@@ -506,8 +518,8 @@ def parse_reactions(text):
            B=((-1.,), (1.,), (0.,)))
 
     It is possible to define a reaction whose product is the same as the
-    reactant. This is found in phenomena such as ammonia inversion or the
-    methyl rotation in ethane:
+    reactant. This is found in isomerization processes (e.g., ammonia
+    inversion or the methyl rotation in ethane):
 
     >>> parse_reactions("S -> E‡ -> S")
     Scheme(compounds=('S', 'E‡'),
@@ -516,10 +528,10 @@ def parse_reactions(text):
            A=((0.,), (0.,)),
            B=((-1.,), (1.,)))
 
-    As such, a column full of zeros in the A matrix corresponds to a reaction
+    As such, a column full of zeros in the $A$ matrix corresponds to a reaction
     with zero net change. As can be seen, overreact allows for very general
     models. An interesting feature is that a single transition state can link
-    many different compounds:
+    many different compounds (whether it is useful is a matter of debate):
 
     >>> parse_reactions('''
     ...     B  -> B‡  -> C  // chained reactions and transition states
@@ -565,11 +577,10 @@ def parse_reactions(text):
     The following is correct behavior. In fact, the reactions are badly
     defined: if more than one transition state are chained, the following
     happens, which is correct since it's the most physically plausible model
-    that can be extracted. I think it's a feature that the product B is ignored
-    and not the reactant A since the user will easily see the mistake in graphs
-    of concentration over time (the alternative would be no reaction happening
-    at all, which is cryptic). Furthermore, it's not clear how a reaction
-    barrier be defined in such a weird case:
+    that can be extracted. It can be seen as a feature that the product B is
+    ignored and not the reactant A, since the user would easily see the mistake
+    in graphs of concentration over time (the alternative would be no
+    reaction happening at all, which is rather cryptic to debug).
 
     >>> parse_reactions("A -> A‡ -> A'‡ -> B")
     Scheme(compounds=('A', 'A‡', "A'‡", 'B'),
@@ -577,9 +588,16 @@ def parse_reactions(text):
            is_half_equilibrium=(False,),
            A=((-1.,), (0.,), (1.,), (0.,)),
            B=((-1.,), (1.,), (0.,), (0.,)))
+
+    In any case, it's not clear how a reaction barrier be defined in such a
+    case. If you have a use case, don't hesitate to
+    [open an issue](https://github.com/geem-lab/overreact/issues/), we'll be
+    happy to hear from you.
     """
-    compounds = dict()
-    reactions = dict()
+    compounds: dict[Text, int] = dict()
+    reactions: dict[
+        tuple[Text, Text, bool, Text], tuple[tuple[tuple[int, Text], ...], bool]
+    ] = dict()
     A = list()  # coefficients between reactants and products
     B = list()  # coefficients between reactants and transition states
 
@@ -621,8 +639,12 @@ def parse_reactions(text):
         A.append(A_vector)
         B.append(B_vector)
 
-    after_transitions = dict()
-    before_transitions = dict()
+    after_transitions: dict[
+        tuple[tuple[int, Text], ...], list[tuple[int, Text]]
+    ] = dict()
+    before_transitions: dict[
+        tuple[tuple[int, Text], ...], list[tuple[int, Text]]
+    ] = dict()
 
     for reactants, products, is_half_equilibrium in _parse_reactions(text):
         if (reactants, products, False, None) in reactions or (
