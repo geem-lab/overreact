@@ -2,6 +2,14 @@
 
 """Module dedicated to the calculation of reaction rate constants."""
 
+
+from __future__ import annotations
+
+from typing import Optional
+
+__all__ = ["eyring"]
+
+
 import logging
 
 import numpy as np
@@ -268,11 +276,11 @@ def convert_rate_constant(
 
 
 def eyring(
-    delta_freeenergy,
-    molecularity=None,
-    temperature=298.15,
-    pressure=constants.atm,
-    volume=None,
+    delta_freeenergy: float | np.ndarray,
+    molecularity: Optional[int] = None,
+    temperature: float | np.ndarray = 298.15,
+    pressure: float = constants.atm,
+    volume: Optional[float] = None,
 ):
     r"""Calculate a reaction rate constant.
 
@@ -291,15 +299,15 @@ def eyring(
     Parameters
     ----------
     delta_freeenergy : array-like
-        Delta Gibbs activation free energies. This assumes values were already
-        corrected for a one molar reference state.
+        Delta Gibbs activation free energies. **This assumes values were already
+        corrected for a one molar reference state (if applicable).**
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
         If set, this is used to calculate `delta_moles` for
         `equilibrium_constant`, which effectively calculates a solution
         equilibrium constant between reactants and the transition state for
-        gas phase data. You should set this to `None` if your free energies
-        were already adjusted for solution Gibbs free energies.
+        gas phase data. **You should set this to `None` if your free energies
+        were already adjusted for solution Gibbs free energies.**
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
@@ -316,20 +324,22 @@ def eyring(
 
     Notes
     -----
-    This function uses `equilibrium_constant` internally.
+    This function uses `equilibrium_constant` internally to calculate the
+    equilibrium constant between reactants and the transition state.
 
     Examples
     --------
-    The following are examples from <https://gaussian.com/thermo/>, in which
-    the kinetic isotope effect of a bimolecular reaction is analyzed:
+    The following are examples from
+    [Thermochemistry in Gaussian](https://gaussian.com/thermo/), in which the
+    kinetic isotope effect of a bimolecular reaction is analyzed:
 
     >>> eyring(17.26 * constants.kcal)
     array([1.38])
     >>> eyring(18.86 * constants.kcal)
     array([0.093])
 
-    It is well known that, at room temperature, when you decrease a reaction
-    barrier by 1.4 kcal/mol, the reaction becomes ten times faster:
+    It is well known that, at room temperature, if you "decrease" a reaction
+    barrier by 1.4 kcal/mol, the reaction becomes around ten times faster:
 
     >>> dG = np.random.uniform(1.0, 100.0) * constants.kcal
     >>> eyring(dG - 1.4 * constants.kcal) / eyring(dG)

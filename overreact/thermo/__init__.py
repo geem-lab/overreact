@@ -594,8 +594,8 @@ def get_delta(transform, property):
 
 
 def equilibrium_constant(
-    delta_freeenergy: float,
-    delta_moles: Optional[int] = None,
+    delta_freeenergy: float | np.ndarray,
+    delta_moles: Optional[int | np.ndarray] = None,
     temperature: float | np.ndarray = 298.15,
     pressure: float = constants.atm,
     volume: Optional[float] = None,
