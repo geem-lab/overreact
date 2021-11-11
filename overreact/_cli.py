@@ -14,21 +14,12 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-from rich import box, traceback
-from rich.console import Console
-from rich.markdown import Markdown
-from rich.panel import Panel
-from rich.table import Column, Table
-from rich.text import Text
 from scipy.optimize import minimize_scalar
 
 import overreact as rx
 from overreact import _constants as constants
 from overreact import coords
-from overreact._misc import _found_seaborn
-
-traceback.install(show_locals=True)
-
+from overreact._misc import _check_package, _found_rich, _found_seaborn
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +30,19 @@ if _found_seaborn:
     sns.set(style="white", palette="colorblind")
 else:
     logger.warning("Install seaborn to get nicer plots: pip install seaborn")
+
+
+if _found_rich:
+    from rich import box, traceback
+    from rich.console import Console
+    from rich.markdown import Markdown
+    from rich.panel import Panel
+    from rich.table import Column, Table
+    from rich.text import Text
+
+    traceback.install(show_locals=True)
+else:
+    _check_package("rich", _found_rich, "cli")
 
 
 class Report:
@@ -95,6 +99,7 @@ class Report:
         atol=1e-11,
         box_style=box.SIMPLE,
     ):
+        """Initialize a Report object."""
         self.model = model
         self.concentrations = concentrations
         self.savepath = savepath
@@ -610,7 +615,7 @@ class Report:
 
 
 def _prepare_simulation(scheme, k, concentrations):
-    """Helper for preparing some data before simulation."""
+    """Help prepare some data before the simulation."""
     free_y0 = {}
     fixed_y0 = {}
     for spec in concentrations:
@@ -654,7 +659,7 @@ def main():
         description=f"""
         {rx.__headline__}
         Interface for building and modifying models.
-        Read the documentation at {rx.__url__} for more information and usage examples.
+        Read the user guide at {rx.__url__} for more information and usage examples.
         Licensed under the terms of the {rx.__license__} License.
         If you publish work using this software, please cite
         https://doi.org/{rx.__doi__}:
@@ -793,7 +798,7 @@ If you publish work using this software, **please cite
 {rx.__citation__}
 ```
 
-Read the documentation at [{rx.__url__}]({rx.__url__}) for more information
+Read the user guide at [{rx.__url__}]({rx.__url__}) for more information
 and usage examples.
 
 Inputs:

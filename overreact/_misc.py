@@ -6,6 +6,7 @@ Ideally, the functions here will be transferred to other modules in the future.
 """
 
 from functools import lru_cache as cache
+from typing import Optional, Text
 
 import numpy as np
 from scipy.stats import cauchy, norm
@@ -42,10 +43,14 @@ def _find_package(package):
 
 
 _found_jax = _find_package("jax")
+_found_rich = _find_package("rich")
 _found_seaborn = _find_package("seaborn")
 _found_thermo = _find_package("thermo")
+
+
 if _found_thermo:
     from thermo.chemical import Chemical
+
 
 # Inspired by
 # https://github.com/cclib/cclib/blob/master/cclib/parser/utils.py#L159
@@ -419,7 +424,9 @@ atomic_number = {
 }
 
 
-def _check_package(package, found_package):
+def _check_package(
+    package: Text, found_package: bool, extra_flag: Optional[Text] = None
+) -> None:
     """Raise an issue if a package was not found.
 
     Parameters
@@ -428,6 +435,8 @@ def _check_package(package, found_package):
         Package name.
     found_package : bool
         Whether the package was found or not.
+    extra_flag : Optional[str]
+        Extra flag of overreact that also installs the package.
 
     Raises
     ------
@@ -440,10 +449,20 @@ def _check_package(package, found_package):
     >>> _check_package("i_dont_exist", False)
     Traceback (most recent call last):
       ...
-    ImportError: You must install `i_dont_exist` to use this function
+    ImportError: You must install `i_dont_exist` to use this functionality: `pip install i_dont_exist`
+    >>> _check_package("rich", False, "cli")
+    Traceback (most recent call last):
+      ...
+    ImportError: You must install `rich` to use this functionality: `pip install rich` (or `pip install "overreact[cli]"`)
     """
     if not found_package:
-        raise ImportError(f"You must install `{package}` to use this function")
+        message = (
+            f"You must install `{package}` to use this functionality: "
+            f"`pip install {package}`"
+        )
+        if extra_flag:
+            message += f' (or `pip install "overreact[{extra_flag}]"`)'
+        raise ImportError(message)
 
 
 # TODO(schneiderfelipe): what does this function returns for identifier="gas"
@@ -486,7 +505,7 @@ def _get_chemical(
     >>> water.mul
     0.00091272
     """
-    _check_package("thermo", _found_thermo)
+    _check_package("thermo", _found_thermo, "solvents")
     # TODO(schneiderfelipe): return a named tuple with only the required data.
     # TODO(schneiderfelipe): support logging the retrieval of data.
     # TODO(schneiderfelipe): test returned parameters.
