@@ -22,6 +22,9 @@ import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _found_jax
 
+logger = logging.getLogger(__name__)
+
+
 if _found_jax:
     import jax.numpy as jnp
     from jax import jacfwd, jit
@@ -29,9 +32,8 @@ if _found_jax:
 
     config.update("jax_enable_x64", True)
 else:
+    logger.warning("JAX not found. Just-in-time compilation will not be used.")
     jnp = np
-
-logger = logging.getLogger(__name__)
 
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
@@ -222,6 +224,7 @@ def get_dydt(scheme, k, ef=1e4):
         return jnp.dot(A, r)
 
     if _found_jax:
+        # Using JAX for JIT compilation is much faster.
         _dydt = jit(_dydt)
 
         def _jac(t, y):
