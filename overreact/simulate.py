@@ -32,7 +32,10 @@ if _found_jax:
 
     config.update("jax_enable_x64", True)
 else:
-    logger.warning("JAX not found. Just-in-time compilation will not be used.")
+    logger.warning(
+        "Install JAX to have just-in-time compilation: "
+        'pip install jax (or pip install "overreact[fast]")'
+    )
     jnp = np
 
 

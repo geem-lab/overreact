@@ -29,10 +29,16 @@ from overreact._misc import _found_seaborn
 
 traceback.install(show_locals=True)
 
+
+logger = logging.getLogger(__name__)
+
+
 if _found_seaborn:
     import seaborn as sns
 
     sns.set(style="white", palette="colorblind")
+else:
+    logger.warning("Install seaborn to get nicer plots: pip install seaborn")
 
 
 class Report:
