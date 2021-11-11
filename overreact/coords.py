@@ -1664,7 +1664,7 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     M = np.diag(1.0 / atommasses_sqrt)
     L = np.linalg.solve(M @ D, L_cart)
 
-    assert np.allclose(M @ D @ L, L_cart)
+    assert np.allclose(M @ D @ L, L_cart), "L_cart is not orthogonal"
 
     # this function is correct from here
     nu = np.asarray(vibfreqs) * constants.c / constants.centi

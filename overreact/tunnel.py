@@ -162,14 +162,14 @@ def eckart(
 
     logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
     logger.debug(f"backward potential barrier: {delta_backward} J/mol")
-    assert np.all(delta_forward >= 0.0)  # FIX: add message
-    assert np.all(delta_backward >= 0.0)  # FIX: add message
+    assert np.all(delta_forward >= 0.0), "delta_forward should be >= 0"
+    assert np.all(delta_backward >= 0.0), "delta_backward should be >= 0"
 
     # convert energies in joules per mole to joules
     delta_forward = delta_forward / constants.N_A
     delta_backward = delta_backward / constants.N_A
 
-    assert delta_backward is not None
+    assert delta_backward is not None, "delta_backward should be given"
     two_pi = 2.0 * np.pi
     alpha1 = two_pi * delta_forward / (constants.h * nu)
     alpha2 = two_pi * delta_backward / (constants.h * nu)

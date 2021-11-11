@@ -85,8 +85,8 @@ def calc_cav_entropy(
         logger.warning("assuming cavity entropy zero at zero temperature")
         return 0.0
 
-    assert atomnos is not None
-    assert atomcoords is not None
+    assert atomnos is not None, "atomnos must be provided"
+    assert atomcoords is not None, "atomcoords must be provided"
     vdw_volume = coords.get_molecular_volume(atomnos, atomcoords)
 
     def func(temperature, solvent):

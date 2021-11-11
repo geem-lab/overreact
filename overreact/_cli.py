@@ -281,7 +281,7 @@ class Report:
                 temperature=self.temperature,
                 pressure=self.pressure,
             ),
-        )  # FIX: add message
+        ), "free energies do not match"
 
         compounds_table = Table(
             Column("no", justify="right"),
@@ -322,7 +322,7 @@ class Report:
             * rx.get_reaction_entropies(
                 scheme.A, temperature=self.temperature, pressure=self.pressure
             ),
-        )  # FIX: add message
+        ), "free energies do not match"
 
         delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
         delta_activation_energies = rx.get_delta(scheme.B, energies)
@@ -344,7 +344,7 @@ class Report:
             * rx.get_reaction_entropies(
                 scheme.B, temperature=self.temperature, pressure=self.pressure
             ),
-        )  # FIX: add message
+        ), "free energies do not match"
 
         circ_table = Table(
             Column("no", justify="right"),
