@@ -527,7 +527,7 @@ def get_k(
     if compounds is not None:
         compounds = rx.io._check_compounds(compounds)
     if delta_freeenergies is None:
-        assert compounds is not None, "compounds must be specified"
+        assert compounds is not None, "compounds could not be inferred"
         freeenergies = get_freeenergies(
             compounds,
             bias=bias,
@@ -569,9 +569,10 @@ def get_k(
             _K = pair[0] / pair[1]
 
             k[i : i + 2] = pair / pair.min()
-            assert np.isclose(
-                _K, k[i] / k[i + 1]
-            ), "reaction rate constants for equilibria are not close to one"
+            assert np.isclose(_K, k[i] / k[i + 1]), (
+                "reaction rate constants for equilibria could not be made "
+                "to match the expected equilibrium constant value"
+            )
 
             # loop over pairs of equilibria
             i += 1

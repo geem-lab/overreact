@@ -415,8 +415,8 @@ def calc_rot_entropy(
     elif environment == "solid":
         raise ValueError(f"environment not yet implemented: {environment}")
     else:
-        assert atomnos is not None, "atomnos must be given for liquid phase"
-        assert atomcoords is not None, "atomcoords must be given for liquid phase"
+        assert atomnos is not None, "atomnos must be given"
+        assert atomcoords is not None, "atomcoords must be given"
         vdw_volume = coords.get_molecular_volume(atomnos, atomcoords)
         cav_volume, N_cav, _ = coords._garza(
             vdw_volume,
@@ -641,9 +641,10 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
         2.0 * np.pi * total_mass * constants.k * temperature
     )
     q_trans = volume / (constants.N_A * debroglie_wavelength ** 3)
-    assert (
-        q_trans > 1.0
-    ), "gas must obey Maxwell–Boltzmann statistics to satisfy the classical regime"
+    assert q_trans > 1.0, (
+        f"de Broglie wavelength {debroglie_wavelength} is too large for the gas to "
+        "satisfy Maxwell–Boltzmann statistics (classical regime)"
+    )
     return constants.R * (np.log(q_trans) + 2.5)
 
 

@@ -114,8 +114,8 @@ def calc_trans_entropy(
     elif environment == "solid":
         raise ValueError(f"environment not yet implemented: {environment}")
     else:
-        assert atomnos is not None, "atomnos must be provided for a solvent"
-        assert atomcoords is not None, "atomcoords must be provided for a solvent"
+        assert atomnos is not None, "atomnos must be provided"
+        assert atomcoords is not None, "atomcoords must be provided"
         volume = rx.thermo._solv.molar_free_volume(
             atomnos=atomnos,
             atomcoords=atomcoords,
@@ -420,12 +420,8 @@ def calc_entropy(
         if method == "standard":
             pass
         else:
-            assert (
-                atomnos is not None
-            ), "atomnos must be provided for non-standard methods"
-            assert (
-                atomcoords is not None
-            ), "atomcoords must be provided for non-standard methods"
+            assert atomnos is not None, "atomnos must be provided"
+            assert atomcoords is not None, "atomcoords must be provided"
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
             entropy = entropy + rx.thermo._solv.calc_cav_entropy(
