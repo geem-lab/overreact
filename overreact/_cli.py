@@ -647,7 +647,7 @@ def _prepare_simulation(scheme, k, concentrations):
     return scheme, k, y0
 
 
-def main():
+def main(arguments=None):
     """Command-line interface."""
     console = Console(width=max(105, shutil.get_terminal_size()[0]))
     levels = [logging.WARNING, logging.INFO, logging.DEBUG]
@@ -774,7 +774,7 @@ def main():
         type=float,
         default=1e-11,
     )
-    args = parser.parse_args()
+    args = parser.parse_args(arguments)
 
     try:
         args.bias = float(args.bias) * constants.kcal
