@@ -611,8 +611,11 @@ def read_logfile(path):
                   ...,
                  (-0.00010536738319, ..., -0.001114845004))}
     """
+    parser = ccopen(path)
+    origin = parser.__class__.__name__
+    logger.info(f"reading a {origin} logfile: {path}")
     try:
-        ccdata = ccopen(path).parse()
+        ccdata = parser.parse()
         data = {
             "logfile": path,
             # This energy may lack dispersion, solvation, correlation, etc.
