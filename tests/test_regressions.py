@@ -22,7 +22,7 @@ def test_basic_example_for_solvation_equilibria():
     Data is as cited in doi:10.1021/jp810292n and doi:10.1063/1.1416902, and
     is experimental except when otherwise indicated in the comments.
     """
-    model = rx.parse_model("data/acetate/model.k")
+    model = rx.parse_model("data/acetate/Orca4/model.k")
     temperature = 298.15
     pK = 4.756  # doi:10.1063/1.1416902
 

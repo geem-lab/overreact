@@ -273,7 +273,7 @@ def _adjust_k(scheme, k, ef=1e4):
     ...           rx.get_k(model.scheme, model.compounds))  # doctest: +SKIP
     array([8.16880917e+10])
 
-    >>> model = rx.parse_model("data/acetate/model.k")
+    >>> model = rx.parse_model("data/acetate/Orca4/model.k")
     >>> _adjust_k(model.scheme,
     ...           rx.get_k(model.scheme, model.compounds))  # doctest: +SKIP
     array([1.00000000e+00, 5.74491548e+04, 1.61152010e+07,
