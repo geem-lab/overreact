@@ -537,8 +537,6 @@ def parse_compounds(text, path=("",), select=None):
                 key, value = "logfile", line
 
             if key == "logfile":
-                # TODO(schneiderfelipe): test "nested" logfiles, i.e.,
-                # DLPNO-CCSD(T)/def2-TZVP(-f)//revPBE-D4-gCP/def2-SVP, etc.
                 success = False
                 value = value.strip('"')
                 for p in path:
