@@ -855,8 +855,7 @@ def _read_orca_logfile(path, minimal=True):
     )
 
     if atommasses is None:
-        # TODO(schneiderfelipe): warn about guessing masses from the periodic
-        # table.
+        logger.warning("using atomic masses from periodic table")
         atommasses = []
         for n in atomnos:
             atommasses.append(rx._misc.atomic_mass[n])
