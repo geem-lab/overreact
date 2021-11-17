@@ -58,7 +58,7 @@ stevedore = ">=1.20.0"
 
 [[package]]
 name = "black"
-version = "21.10b0"
+version = "21.11b0"
 description = "The uncompromising code formatter."
 category = "dev"
 optional = false
@@ -71,7 +71,7 @@ pathspec = ">=0.9.0,<1"
 platformdirs = ">=2"
 regex = ">=2020.1.8"
 tomli = ">=0.2.6,<2.0.0"
-typed-ast = {version = ">=1.4.2", markers = "python_version < \"3.8\""}
+typed-ast = {version = ">=1.4.2", markers = "python_version < \"3.8\" and implementation_name == \"cpython\""}
 typing-extensions = ">=3.10.0.0"
 
 [package.extras]
@@ -790,7 +790,7 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.10"
-content-hash = "bf35797428bde3f6e2a4650c5f0c053fa313e2224871c200033722fd7a1dfeb1"
+content-hash = "4ae08133c5b5b69e90d98b0e17fbea347a9adb7eb314367c61eb9f44d77ea0dc"
 
 [metadata.files]
 absl-py = [
@@ -814,8 +814,8 @@ bandit = [
     {file = "bandit-1.7.1.tar.gz", hash = "sha256:a81b00b5436e6880fa8ad6799bc830e02032047713cbb143a12939ac67eb756c"},
 ]
 black = [
-    {file = "black-21.10b0-py3-none-any.whl", hash = "sha256:6eb7448da9143ee65b856a5f3676b7dda98ad9abe0f87fce8c59291f15e82a5b"},
-    {file = "black-21.10b0.tar.gz", hash = "sha256:a9952229092e325fe5f3dae56d81f639b23f7131eb840781947e4b2886030f33"},
+    {file = "black-21.11b0-py3-none-any.whl", hash = "sha256:0b1f66cbfadcd332ceeaeecf6373d9991d451868d2e2219ad0ac1213fb701117"},
+    {file = "black-21.11b0.tar.gz", hash = "sha256:83f3852301c8dcb229e9c444dd79f573c8d31c7c2dad9bbaaa94c808630e32aa"},
 ]
 cclib = [
     {file = "cclib-1.7.1.tar.gz", hash = "sha256:0a1715a0c6c78437d17d65e3221e4d8eca9ad35ccf6ab153968b6a2a3e8399c8"},
