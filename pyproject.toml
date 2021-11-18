@@ -42,6 +42,8 @@ isort = "^5.10.1"
 pdoc = "^8.0.1"
 types-setuptools = "^57.4.2"
 mypy = "^0.910"
+debugpy = "^1.5.1"
+ipython = "^7.29.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
