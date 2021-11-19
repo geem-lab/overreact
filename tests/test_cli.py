@@ -24,3 +24,10 @@ def test_cli_describes_model_file(monkeypatch):
     params = ["overreact", "data/ethane/B97-3c/model.jk"]
     monkeypatch.setattr("sys.argv", params)
     cli.main()
+
+
+def test_cli_accepts_gaussian_logfiles(monkeypatch):
+    """Ensure the command-line interface is OK with Gaussian logfiles."""
+    params = ["overreact", "data/acetate/Gaussian09/wB97XD/6-311++G**/model.k"]
+    monkeypatch.setattr("sys.argv", params)
+    cli.main()
