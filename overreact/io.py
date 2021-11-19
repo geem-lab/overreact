@@ -611,7 +611,8 @@ def read_logfile(path):
                   ...,
                  (-0.00010536738319, ..., -0.001114845004))}
     """
-    parser = ccopen(path)
+    if not (parser := ccopen(path)):
+        raise FileNotFoundError(f"could not find logfile '{path}'")
     origin = parser.__class__.__name__.lower()
     logger.info(f"reading a {origin} logfile: {path}")
     try:
