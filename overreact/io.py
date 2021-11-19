@@ -582,6 +582,8 @@ def read_logfile(path):
     --------
     >>> import overreact as rx
 
+    Some Orca logfiles:
+
     >>> rx.io.read_logfile("data/symmetries/benzene.out")
     {'logfile': 'data/symmetries/benzene.out',
      'energy': -609176691.0746485,
@@ -610,6 +612,22 @@ def read_logfile(path):
      'hessian': ((0.51457715535, ..., -0.00010536738319),
                   ...,
                  (-0.00010536738319, ..., -0.001114845004))}
+
+    A Gaussian logfile as another example:
+
+    >>> rx.io.read_logfile("data/acetate/Gaussian09/wB97XD/6-311++G**/AcO-_0.gau.out")
+    {'logfile': 'data/acetate/Gaussian09/wB97XD/6-311++G**/AcO-_0.gau.out',
+     'energy': -600283832.3323932,
+     'mult': 1,
+     'atomnos': (6, 6, 1, 1, 1, 8, 8),
+     'atommasses': (12.0, 12.0, 1.007825, 1.007825, 1.007825, 15.9949146, 15.9949146),
+     'atomcoords': ((-0.174905, -0.001738, 0.000115),
+                    ...,
+                    (-0.721316, 1.137017, -4.3e-05)),
+     'vibfreqs': (80.2535, 471.106, ..., 3129.0397, 3152.3619),
+     'vibdisps': (((0.0, 0.0, 0.02),
+                   ...,
+                   (0.0, 0.0, 0.0)))}
     """
     if not (parser := ccopen(path)):
         raise FileNotFoundError(f"could not find logfile '{path}'")
@@ -628,6 +646,15 @@ def read_logfile(path):
             "vibfreqs": rx._misc.totuple(ccdata.vibfreqs),
             "vibdisps": rx._misc.totuple(ccdata.vibdisps),
         }
+
+        # This solves a current bug in cclib (see
+        # https://github.com/cclib/cclib/issues/1080)
+        if origin == "gaussian":
+            data["atommasses"] = data["atommasses"][: len(data["atomnos"])]
+
+        assert len(data["atomnos"]) == len(data["atommasses"])
+        assert len(data["atomnos"]) == len(data["atomcoords"])
+
         # This properly parses the final single point energy from ORCA files.
         if origin == "orca":
             data.update(_read_orca_logfile(path))
