@@ -1,12 +1,6 @@
-# Welcome to **overreact**!
-
-<div style="text-align:center;">
-
 ![overreact](https://raw.githubusercontent.com/geem-lab/overreact-guide/master/logo.png)
 
-</div>
-
-**overreact** is a _library_ and a _command-line tool_ for creating and
+**overreact** is a **library** and a **command-line tool** for building and
 analyzing
 [microkinetic models](https://geem-lab.github.io/overreact-guide/#microkinetic).
 Data is parsed directly from computational chemistry output files thanks to
@@ -15,21 +9,23 @@ Data is parsed directly from computational chemistry output files thanks to
 
 ## Installation
 
-**overreact** is a Python package, so you can easily install it with `pip`. See
-the
-[installation instructions](https://geem-lab.github.io/overreact-guide/install.html).
+**overreact** is a Python package, so you can easily install it with
+[`pip`](https://pypi.org/project/pip/):
 
-## License
+```bash
+$ pip install "overreact[cli,fast]"
+```
 
-**overreact** is open-source, released under the permissive **MIT license**. See
-[our LICENSE file](https://github.com/geem-lab/overreact/blob/main/LICENSE).
+See the
+[installation instructions](https://geem-lab.github.io/overreact-guide/install.html)
+in our guide for more details.
 
 ## Citing **overreact**
 
 If you use **overreact** in your research, please cite:
 
-> F. S. S. Schneider and G. F. Caramori. _**overreact**: a tool for creating and
-> analyzing microkinetic models built from computational chemistry data_.
+> F. S. S. Schneider and G. F. Caramori. **overreact**: a tool for creating and
+> analyzing microkinetic models built from computational chemistry data.
 > **2021**. Available at: <https://github.com/geem-lab/overreact>.
 
 Here's the reference in [BibTeX](http://www.bibtex.org/) format:
@@ -61,6 +57,11 @@ Here's the reference in [BibTeX](http://www.bibtex.org/) format:
 
 A paper describing **overreact** is currently being prepared. When it is
 published, the above BibTeX entry will be updated.
+
+## License
+
+**overreact** is open-source, released under the permissive **MIT license**. See
+[our LICENSE file](https://github.com/geem-lab/overreact/blob/main/LICENSE).
 
 ## Funding
 
