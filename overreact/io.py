@@ -612,7 +612,7 @@ def read_logfile(path):
                  (-0.00010536738319, ..., -0.001114845004))}
     """
     parser = ccopen(path)
-    origin = parser.__class__.__name__
+    origin = parser.__class__.__name__.lower()
     logger.info(f"reading a {origin} logfile: {path}")
     try:
         ccdata = parser.parse()
@@ -628,19 +628,19 @@ def read_logfile(path):
             "vibdisps": rx._misc.totuple(ccdata.vibdisps),
         }
         # This properly parses the final single point energy from ORCA files.
-        data.update(_read_orca_logfile(path))
+        if origin == "orca":
+            data.update(_read_orca_logfile(path))
     except AttributeError:
         # Here is the code to parse things on our own. This means we need to
         # parse much more than small pieces of information, as at this point
         # cclib has failed.
-        try:
-            # TODO(schneiderfelipe): only run the code below if we know it is
-            # an ORCA logfile. The code in this final section should be very
-            # specific in supplying *only* things cclib is not (yet) able to
-            # parse.
-            data = _read_orca_logfile(path, minimal=False)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"could not parse logfile: '{path}'")
+        if origin == "orca":
+            try:
+                data = _read_orca_logfile(path, minimal=False)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"could not parse logfile: '{path}'")
+        else:
+            raise
     return dotdict(data)
 
 
