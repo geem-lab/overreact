@@ -174,6 +174,11 @@ def convert_rate_constant(
     -------
     array-like
 
+    Raises
+    ------
+    ValueError
+        If either `old_scale` or `new_scale` are not recognized.
+
     Notes
     -----
     Some symbols are accepted as alternatives in "new_scale" and "old_scale":
@@ -250,7 +255,7 @@ def convert_rate_constant(
     elif old_scale == "atm-1 s-1":
         factor = rx.thermo.molar_volume(temperature, pressure) * constants.kilo
     else:
-        raise ValueError(f"unit not recognized: {old_scale}")
+        raise ValueError(f"old unit not recognized: {old_scale}")
 
     # now we convert l mol-1 s-1 to what we need
     if new_scale == "cm3 mol-1 s-1":
@@ -268,7 +273,7 @@ def convert_rate_constant(
     elif new_scale == "atm-1 s-1":
         factor *= 1.0 / (rx.thermo.molar_volume(temperature, pressure) * constants.kilo)
     else:
-        raise ValueError(f"unit not recognized: {new_scale}")
+        raise ValueError(f"new unit not recognized: {new_scale}")
 
     factor **= molecularity - 1
     logger.info(f"conversion factor ({old_scale} to {new_scale}) = {factor}")

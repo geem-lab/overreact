@@ -441,7 +441,7 @@ def _check_package(
     Raises
     ------
     ImportError
-        If the package could not be imported.
+        If the package was not found.
 
     Examples
     --------

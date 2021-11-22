@@ -60,7 +60,7 @@ def parse_model(path: Text, force_compile: bool = False):
     Raises
     ------
     FileNotFoundError
-        If no files could be found.
+        If the model or source input file is not found.
 
     Examples
     --------
@@ -107,7 +107,7 @@ def parse_model(path: Text, force_compile: bool = False):
     path_k = name + ".k"
     logger.info(f"parsing .k file in {path_k}")
     if not os.path.isfile(path_k):
-        raise FileNotFoundError
+        raise FileNotFoundError(f"no .k file found in {path_k}")
 
     model = _parse_source(path_k)
     with open(path_jk, "w") as f:
@@ -454,6 +454,11 @@ def parse_compounds(text, path=("",), select=None):
     -------
     compounds : immutable dict-like
 
+    Raises
+    ------
+    FileNotFoundError
+        If a logfile is not found.
+
     Examples
     --------
     >>> import overreact as rx
@@ -576,7 +581,7 @@ def read_logfile(path):
     Raises
     ------
     FileNotFoundError
-        In case the logfile can not be found.
+        If the logfile is not found.
 
     Examples
     --------
@@ -937,6 +942,16 @@ class dotdict(dict):
     __getattr__ = dict.get
 
     def __setitem__(self, key, value):
+        """
+        Set an item.
+
+        This is not allowed and will raise an exception.
+
+        Raises
+        ------
+        NotImplementedError
+            If one attempts to change a value.
+        """
         raise NotImplementedError("dotdict objects are immutable")
 
     # https://stackoverflow.com/a/1151686/4039050

@@ -36,7 +36,7 @@ def _check_nu(vibfreq: float) -> float:
     Raises
     ------
     ValueError
-        If vibfreq is zero.
+        If `vibfreq` is zero.
 
     Examples
     --------
@@ -72,7 +72,7 @@ def wigner(vibfreq: float, temperature: float | np.ndarray = 298.15) -> float:
     Raises
     ------
     ValueError
-        If vibfreq is zero.
+        If `vibfreq` is zero.
 
     Examples
     --------
@@ -131,7 +131,7 @@ def eckart(
     Raises
     ------
     ValueError
-        If vibfreq is zero.
+        If `vibfreq` is zero.
 
     Examples
     --------

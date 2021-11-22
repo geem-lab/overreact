@@ -74,6 +74,11 @@ def get_molecular_volume(
     cav_volume, err : float, optional
         Volumes returned are in Å³ per molecule.
 
+    Raises
+    ------
+    ValueError
+        If `method` is not recognized.
+
     Notes
     -----
     For "izato", see equation 3 of doi:10.1039/C9CP03226F for the conceptual
@@ -281,6 +286,11 @@ def symmetry_number(point_group):
     -------
     int
         Rotational symmetry number.
+
+    Raises
+    ------
+    ValueError
+        If point group is not found in precomputed values.
 
     Examples
     --------
@@ -1288,6 +1298,11 @@ def _operation(name, order=2, axis=None):
     -------
     array-like
 
+    Raises
+    ------
+    ValueError
+        If the operation is not recognized.
+
     Examples
     --------
     >>> _operation("e")
@@ -1484,6 +1499,11 @@ def gyradius(atommasses, atomcoords, method="iupac"):
     Returns
     -------
     array-like
+
+    Raises
+    ------
+    ValueError
+        If `method` is not recognized.
 
     Examples
     --------
@@ -1851,6 +1871,11 @@ def _equivalent_atoms(
         Groups of symmetry equivalent atoms, in ascending order of size. Each
         element in the list is a sequence of indices, one list for each group
         of equivalent atoms. See examples below.
+
+    Raises
+    ------
+    ValueError
+        If `method` is not recognized.
 
     Notes
     -----

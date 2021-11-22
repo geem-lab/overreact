@@ -340,6 +340,11 @@ def calc_rot_entropy(
     float
         Rotational entropy in J/mol·K.
 
+    Raises
+    ------
+    ValueError
+        If environment is "solid".
+
     Examples
     --------
     >>> i = (constants.hbar**2 / (2.0 * constants.k * 15.02)) \

@@ -76,6 +76,11 @@ def calc_trans_entropy(
     float
         Translational entropy in J/mol·K.
 
+    Raises
+    ------
+    ValueError
+        If environment is "solid".
+
     Examples
     --------
     >>> calc_trans_entropy(35.45)  # Cl-
@@ -350,6 +355,11 @@ def calc_entropy(
     -------
     float
         Entropy in J/mol·K.
+
+    Raises
+    ------
+    ValueError
+        If environment is "solid".
 
     Notes
     -----

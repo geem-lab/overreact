@@ -194,7 +194,7 @@ class Report:
         Raises
         ------
         ValueError
-            If at least one compound has no data defined.
+            If at least one compound has undefined data.
         """
         undefined_compounds = []
         for name in self.model.compounds:
@@ -617,7 +617,14 @@ class Report:
 
 
 def _prepare_simulation(scheme, k, concentrations):
-    """Help prepare some data before the simulation."""
+    """
+    Help prepare some data before the simulation.
+
+    Raises
+    ------
+    ValueError
+        If concentrations are invalid or inconsistent with the scheme.
+    """
     free_y0 = {}
     fixed_y0 = {}
     for spec in concentrations:

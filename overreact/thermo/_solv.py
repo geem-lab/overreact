@@ -203,6 +203,11 @@ def molar_free_volume(
     float
         Molar free volume in cubic meters per mole.
 
+    Raises
+    ------
+    ValueError
+        If `method` is not recognized.
+
     Notes
     -----
     For "izato", see equation 3 of doi:10.1039/C9CP03226F for the conceptual
@@ -264,6 +269,6 @@ def molar_free_volume(
         )
         molar_free_volume = N_cav * cav_volume * constants.angstrom ** 3 * constants.N_A
     else:
-        raise ValueError(f"unavailable method: '{method}'")
+        raise ValueError(f"unrecognized method: '{method}'")
     logger.debug(f"molar free volume = {molar_free_volume} Å³")
     return molar_free_volume

@@ -278,7 +278,7 @@ def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
     Raises
     ------
     ValueError
-        If the QRRHO specification could not be recognized.
+        If the QRRHO specification is not understood.
 
     Examples
     --------
@@ -657,6 +657,11 @@ def get_kappa(
     Returns
     -------
     array-like
+
+    Raises
+    ------
+    ValueError
+        If `method` is not supported.
 
     Examples
     --------
