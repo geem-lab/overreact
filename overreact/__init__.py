@@ -46,6 +46,7 @@ __citation__ = r"""
   howpublished = {\url{https://github.com/geem-lab/overreact}}
 }
 """
-__url__ = "https://geem-lab.github.io/overreact-guide"
+__url_guide__ = "https://geem-lab.github.io/overreact-guide"
+__url_docs__ = "https://geem-lab.github.io/overreact"
 __repo__ = "https://github.com/geem-lab/overreact"
 __headline__ = "Construct precise chemical microkinetic models from first principles."

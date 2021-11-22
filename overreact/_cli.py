@@ -659,7 +659,9 @@ def main(arguments=None):
         description=f"""
         {rx.__headline__}
         Interface for building and modifying models.
-        Read the user guide at {rx.__url__} for more information and usage examples.
+        Read the user guide at {rx.__url_guide__} for more information and usage
+        examples.
+
         Licensed under the terms of the {rx.__license__} License.
         If you publish work using this software, please cite
         https://doi.org/{rx.__doi__}:
@@ -798,7 +800,7 @@ If you publish work using this software, **please cite
 {rx.__citation__}
 ```
 
-Read the user guide at [{rx.__url__}]({rx.__url__}) for more information
+Read the user guide at [{rx.__url_guide__}]({rx.__url_guide__}) for more information
 and usage examples.
 
 Inputs:
