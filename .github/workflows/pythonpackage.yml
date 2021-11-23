@@ -5,46 +5,36 @@ name: build
 
 on:
     push:
-        branches: [main]
+        branches: [$default-branch]
     pull_request:
-        branches: [main]
+        branches: [$default-branch]
 
 jobs:
     build:
+        runs-on: ubuntu-latest
         strategy:
+            fail-fast: false
             matrix:
-                os:
-                    - ubuntu-latest
-                    # - windows-latest
-                    # - macos-latest
-                python-version: ["3.8", "3.9"]
-
-        runs-on: ${{ matrix.os }}
+                python-version: ["3.8", "3.9", "3.10"]
 
         steps:
-            - name: Checkout repository and submodules
-              uses: actions/checkout@v2
-              with:
-                  token: ${{ secrets.OVERREACT_DATA }}
-                  submodules: recursive
+            - uses: actions/checkout@v2 # should we need to checkout submodules?
             - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v2.3.0
+              uses: actions/setup-python@v2
               with:
                   python-version: ${{ matrix.python-version }}
             - name: Install package and dependencies
               run: |
                   python -m pip install --upgrade pip
-                  pip install ".[cli,solvents]"
-                  pip install matplotlib
+                  python -m pip install flake8 pytest
+                  python -m pip install ".[cli,fast,solvents]"
+                  if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
             - name: Lint with flake8
               run: |
-                  pip install flake8
                   # stop the build if there are Python syntax errors or undefined names
                   flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-                  # exit-zero treats all errors as warnings.
-                  flake8 . --count --exit-zero --statistics
-            - name: Test with pytest and coverage
+                  # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+                  flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+            - name: Test with pytest
               run: |
-                  pip install pytest coverage
-                  coverage run -m pytest
-                  coverage report
+                  pytest
