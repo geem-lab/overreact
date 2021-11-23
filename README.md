@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/geem-lab/overreact/branch/main/graph/badge.svg?token=4WAVXCRXY8)](https://codecov.io/gh/geem-lab/overreact)
+
 ![overreact](https://raw.githubusercontent.com/geem-lab/overreact-guide/master/logo.png)
 
 **overreact** is a **library** and a **command-line tool** for building and
