@@ -5,7 +5,9 @@
 [![GitHub license](https://img.shields.io/github/license/geem-lab/overreact)](https://github.com/geem-lab/overreact/blob/main/LICENSE)
 ![Made in Brazil 🇧🇷](https://img.shields.io/badge/made%20in-Brazil-009c3b)
 
-![overreact](https://raw.githubusercontent.com/geem-lab/overreact-guide/master/logo.png)
+<div align="center">
+    <img alt="overreact" src="https://raw.githubusercontent.com/geem-lab/overreact-guide/master/logo.png" />
+</div>
 
 **overreact** is a **library** and a **command-line tool** for building and
 analyzing
