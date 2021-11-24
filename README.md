@@ -16,6 +16,11 @@ Data is parsed directly from computational chemistry output files thanks to
 [`cclib`](https://cclib.github.io/) (see the
 [list of supported programs](https://cclib.github.io/#summary)).
 
+Take a look at the [**user guide**](https://geem-lab.github.io/overreact-guide/)
+for more information on how to use **overreact**. Or check out the
+[**API documentation**](https://geem-lab.github.io/overreact/overreact.html) for
+a more detailed description of the application programming interface.
+
 ## Installation
 
 **overreact** is a Python package, so you can easily install it with
