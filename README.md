@@ -26,8 +26,8 @@ $ pip install "overreact[cli,fast]"
 ```
 
 See the
-[installation instructions](https://geem-lab.github.io/overreact-guide/install.html)
-in our guide for more details.
+[installation guide](https://geem-lab.github.io/overreact-guide/install.html)
+for more details.
 
 ## Citing **overreact**
 
