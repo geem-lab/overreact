@@ -63,7 +63,7 @@ published, the above BibTeX entry will be updated.
 ## License
 
 **overreact** is open-source, released under the permissive **MIT license**. See
-[our LICENSE file](https://github.com/geem-lab/overreact/blob/main/LICENSE).
+[the LICENSE agreement](https://github.com/geem-lab/overreact/blob/main/LICENSE).
 
 ## Funding
 
