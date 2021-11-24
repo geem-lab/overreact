@@ -33,34 +33,27 @@ for more details.
 
 If you use **overreact** in your research, please cite:
 
-> F. S. S. Schneider and G. F. Caramori. **overreact**: a tool for creating and
-> analyzing microkinetic models built from computational chemistry data.
-> **2021**. Available at: <https://github.com/geem-lab/overreact>.
+> F. S. S. Schneider and G. F. Caramori. _**geem-lab/overreact**: a tool for
+> creating and analyzing microkinetic models built from computational chemistry
+> data, v1.0.1_. **2021**.
+> [DOI:10.5281/ZENODO.5643960](https://doi.org/10.5281/ZENODO.5643960). Freely
+> available at: <<https://github.com/geem-lab/overreact>>.
 
 Here's the reference in [BibTeX](http://www.bibtex.org/) format:
 
-<!-- @article{overreact,
-  title = \textbf{overreact}: a tool for creating and analyzing microkinetic models built from computational chemistry data},
-  author = {Schneider, F. S. S. and Caramori, G. F.},
-  journal={J. Chem. Phys.},
-  volume={155},
-  number={1},
-  pages={0},
-  year = {2021},
-  publisher={American Chemical Society (ACS)},
-  doi={10.1063/1.5058983},
-  url={https://doi.org/10.1063/1.5058983}
-} -->
-
 ```bibtex
 @misc{overreact2021,
-  title        = {
-    \textbf{overreact}: a tool for creating and analyzing microkinetic models
-    built from computational chemistry data, ver. 1.0
-  },
-  author       = {Schneider, F. S. S. and Caramori, G. F.},
-  year         = 2021,
   howpublished = {\url{https://github.com/geem-lab/overreact}}
+  year = {2021},
+  author = {Schneider, F. S. S. and Caramori, G. F.},
+  title = {
+    \textbf{geem-lab/overreact}: a tool for creating and analyzing
+    microkinetic models built from computational chemistry data, v1.0.1
+  },
+  doi = {10.5281/ZENODO.5643960},
+  url = {https://zenodo.org/record/5643960},
+  publisher = {Zenodo},
+  copyright = {Open Access}
 }
 ```
 
