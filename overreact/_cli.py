@@ -441,7 +441,6 @@ class Report:
                 ),
                 self.concentrations,
             )
-            # TODO(schneiderfelipe): support schemes with fixed concentrations
             self.bias = rx.get_bias(
                 scheme,
                 self.model.compounds,
@@ -864,8 +863,6 @@ Parsing and calculating…
         rtol=args.rtol,
         atol=args.atol,
     )
-    # TODO(schneiderfelipe): use a progress bar to inform about the
-    # simulation and show the time it took to simulate.
     console.print(report, justify="left")
 
 
