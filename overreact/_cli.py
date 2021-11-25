@@ -135,10 +135,12 @@ class Report:
         ------
         renderable
         """
+        yield Markdown("---")
         yield from self._yield_scheme()
         yield from self._yield_compounds()
         yield from self._yield_thermochemistry()
         yield from self._yield_kinetics()
+        yield Markdown("---")
 
     def _yield_scheme(self):
         """Produce a renderables describing the reaction scheme.
@@ -800,16 +802,23 @@ def main(arguments=None):
 {rx.__headline__}
 
 Licensed under the terms of the
-[{rx.__license__} License]({rx.__repo__}/blob/main/LICENSE).
+[{rx.__license__} License]({rx.__url_repo__}/blob/main/LICENSE).
 If you publish work using this software, **please cite
-[doi:{rx.__doi__}](https://doi.org/{rx.__doi__})**:
+[doi:{rx.__doi__}](https://zenodo.org/badge/latestdoi/214332027)**:
 
 ```
 {rx.__citation__}
 ```
 
 Read the user guide at [{rx.__url_guide__}]({rx.__url_guide__}) for more information
-and usage examples.
+and usage examples. Other useful resources:
+
+- [Questions and Discussions]({rx.__url_repo__}/discussions)
+- [Bug Tracker]({rx.__url_repo__}/issues)
+- [GitHub Repository]({rx.__url_repo__})
+- [Python Package Index]({rx.__url_pypi__})
+
+---
 
 Inputs:
 - Path           = {args.path}
