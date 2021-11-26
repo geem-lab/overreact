@@ -45,6 +45,7 @@ mypy = "^0.910"
 debugpy = "^1.5.1"
 ipython = "^7.29.0"
 pytest-cov = "^3.0.0"
+seaborn = "^0.11.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
