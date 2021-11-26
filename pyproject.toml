@@ -6,13 +6,16 @@ authors = ["Felipe S. S. Schneider <schneider.felipe@posgrad.ufsc.br>",
            "Giovanni F. Caramori <giovanni.caramori@ufsc.br>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/geem-lab/overreact"
+homepage = "https://geem-lab.github.io/overreact-guide/"
 repository = "https://github.com/geem-lab/overreact"
-documentation = "https://geem-lab.github.io/overreact-guide"
+documentation = "https://geem-lab.github.io/overreact-guide/"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/geem-lab/overreact/issues"
 "Discussions" = "https://github.com/geem-lab/overreact/discussions"
+"API documentation" = "https://geem-lab.github.io/overreact/overreact.html"
+"PyPI" = "https://pypi.org/project/overreact/"
+"Citation" = "https://zenodo.org/badge/latestdoi/214332027"
 
 [tool.poetry.scripts]
 overreact = 'overreact._cli:main'
