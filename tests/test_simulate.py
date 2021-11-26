@@ -44,7 +44,7 @@ def test_get_y_propagates_reaction_automatically():
     y, r = simulate.get_y(simulate.get_dydt(scheme, np.array([1.0, 1.0])), y0=y0)
 
     assert y.t_min == 0.0
-    assert y.t_max == 1400.0
+    assert y.t_max == 10300.0
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx(
         [1.668212890625, 0.6728515625, 0.341787109375], 9e-5
@@ -90,7 +90,7 @@ def test_get_y_conservation_in_equilibria():
     t = np.linspace(y.t_min, y.t_max, num=100)
 
     assert y.t_min == 0.0
-    assert y.t_max == 14.0
+    assert y.t_max == 103.0
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx([0.5, 0.5], 5e-5)
     assert r(y.t_min) == pytest.approx([-1, 1])

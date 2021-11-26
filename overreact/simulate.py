@@ -95,10 +95,10 @@ def get_y(
     used to produce a suitable vector of timepoints for, e.g., plotting:
 
     >>> y.t_min, y.t_max
-    (0.0, 14.0)
+    (0.0, 103.0)
     >>> t = np.linspace(y.t_min, y.t_max)
     >>> t
-    array([ 0. , 0.28571429, ..., 13.71428571, 14. ])
+    array([ 0. , 2.10204082, ..., 100.89795918, 103. ])
 
     Both `y` and `r` can be used to check concentrations and rates in any
     point in time. In particular, both are vectorized:
