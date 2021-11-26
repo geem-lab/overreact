@@ -66,22 +66,69 @@ class Report:
     >>> from rich import print
     >>> model = rx.parse_model("data/ethane/B97-3c/model.jk")
     >>> print(Report(model))
+    ────────────────────────────────────────────────────────────────────────────────
     ╭──────────────────╮
     │ (read) reactions │
     │                  │
     │   S -> E‡ -> S   │
     │                  │
     ╰──────────────────╯
-                       (parsed) reactions
+                    (parsed) reactions
     <BLANKLINE>
-      no   reactant(s)   via‡   product(s)   half equilib.?
-     ───────────────────────────────────────────────────────
-       0   S             E‡     S                  No
+    no   reactant(s)   via‡   product(s)   half equilib.?
+    ───────────────────────────────────────────────────────
+    0   S             E‡     S                  No
     <BLANKLINE>
-    ...
+                        logfiles
+    <BLANKLINE>
+    no   compound   path
+    ──────────────────────────────────────────────────
+    0   S          data/ethane/B97-3c/staggered.out
+    1   E‡         data/ethane/B97-3c/eclipsed.out
+    <BLANKLINE>
+                                    compounds
+    <BLANKLINE>
+    no   compound    elec. energy     spin mult.      smallest       point group
+                        〈Eₕ〉                        vibfreqs
+                                                        〈cm⁻¹〉
+    ──────────────────────────────────────────────────────────────────────────────
+    0   S           -79.788170457…       1            +307.6,           D3d
+                                                    +825.4,  +826.1
+    1   E‡          -79.783894160…       1            -298.9,           D3h
+                                                    +902.2,  +902.5
+    <BLANKLINE>
+                        estimated thermochemistry (compounds)
+    <BLANKLINE>
+    no   compound    mass       Gᶜᵒʳʳ        Uᶜᵒʳʳ         Hᶜᵒʳʳ          S
+                    〈amu〉   〈kcal/mo…   〈kcal/mo…   〈kcal/mol…   〈cal/mol…
+    ──────────────────────────────────────────────────────────────────────────────
+    0   S           30.07             …            …            4…        54.40
+    1   E‡          30.07             …            …            4…        52.96
+    <BLANKLINE>
+                        estimated (reaction°) thermochemistry
+    <BLANKLINE>
+    no   reaction   Δmass°      ΔG°        ΔE°        ΔU°       ΔH°        ΔS°
+                    〈amu〉   〈kcal/…   〈kcal/…   〈kcal…   〈kcal/…   〈cal/…
+    ──────────────────────────────────────────────────────────────────────────────
+    0   S -> S       0.00          0…         0…         …         0…         …
+    <BLANKLINE>
+                        estimated (activation‡) thermochemistry
+    <BLANKLINE>
+    no   reaction   Δmass‡      ΔG‡        ΔE‡        ΔU‡       ΔH‡        ΔS‡
+                    〈amu〉   〈kcal/…   〈kcal/…   〈kcal…   〈kcal/…   〈cal/…
+    ──────────────────────────────────────────────────────────────────────────────
+    0   S -> S       0.00          2…         2…         …         2…         …
+    <BLANKLINE>
+                        estimated reaction rate constants
+    <BLANKLINE>
+    no   reaction      half            k             k             k         κ
+                    equilib.?    〈M⁻ⁿ⁺¹·s⁻…   〈(cm³/par…   〈atm⁻ⁿ⁺¹·…
+    ──────────────────────────────────────────────────────────────────────────────
+    0   S -> S         No         8.17e+10      8.17e+10      8.17e+10     1.11
     <BLANKLINE>
     Only in the table above, all Gibbs free energies were biased by 0.0 J/mol.
     For half-equilibria, only ratios make sense.
+    ────────────────────────────────────────────────────────────────────────────────
     """
 
     def __init__(
