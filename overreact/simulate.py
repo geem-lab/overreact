@@ -226,7 +226,7 @@ def get_dydt(scheme, k, ef=EF):
     k_adj = _adjust_k(scheme, k, ef=ef)
 
     def _dydt(t, y):
-        r = k * jnp.prod(jnp.power(y, M), axis=1)
+        r = k_adj * jnp.prod(jnp.power(y, M), axis=1)
         return jnp.dot(A, r)
 
     if _found_jax:
