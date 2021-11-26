@@ -112,7 +112,7 @@ def get_y(
     if t_span is None:
         # We defined alpha such that 1.0 - alpha is an estimate of the extend
         # to which the reaction is simulated.
-        alpha = 1e-4
+        alpha = 1e-31
         n_halflives = np.ceil(-np.log(alpha) / np.log(2))
 
         halflife_estimate = 1.0
