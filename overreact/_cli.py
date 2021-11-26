@@ -643,11 +643,11 @@ class Report:
             if self.plot not in {"none", None}:
                 if self.plot not in {"all", "active"}:
                     name = self.plot
-                    plt.plot(t, y(t)[scheme.compounds.index(name)], label=name)
+                    plt.plot(t, y(t)[scheme.compounds.index(name)], label=name, lw=3)
                 else:
                     for i, name in enumerate(scheme.compounds):
                         if active[i] and not rx.is_transition_state(name):
-                            plt.plot(t, y(t)[i], label=name)
+                            plt.plot(t, y(t)[i], label=name, lw=3)
 
                 plt.legend()
                 plt.xlabel("Time (s)")
