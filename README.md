@@ -44,7 +44,7 @@ If you use **overreact** in your research, please cite:
 
 > F. S. S. Schneider and G. F. Caramori. _**geem-lab/overreact**: a tool for
 > creating and analyzing microkinetic models built from computational chemistry
-> data, v1.0.1_. **2021**.
+> data, v1.0.2_. **2021**.
 > [DOI:10.5281/ZENODO.5643960](https://zenodo.org/badge/latestdoi/214332027).
 > Freely available at: <<https://github.com/geem-lab/overreact>>.
 
@@ -57,7 +57,7 @@ Here's the reference in [BibTeX](http://www.bibtex.org/) format:
   author = {Schneider, F. S. S. and Caramori, G. F.},
   title = {
     \textbf{geem-lab/overreact}: a tool for creating and analyzing
-    microkinetic models built from computational chemistry data, v1.0.1
+    microkinetic models built from computational chemistry data, v1.0.2
   },
   doi = {10.5281/ZENODO.5643960},
   url = {https://zenodo.org/record/5643960},

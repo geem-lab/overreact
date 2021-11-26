@@ -47,7 +47,7 @@ __citation__ = r"""
   author = {Schneider, F. S. S. and Caramori, G. F.},
   title = {
     \textbf{geem-lab/overreact}: a tool for creating and analyzing
-    microkinetic models built from computational chemistry data, v1.0.1
+    microkinetic models built from computational chemistry data, v1.0.2
   },
   doi = {DOI_PLACEHOLDER},
   url = {https://zenodo.org/record/5643960},

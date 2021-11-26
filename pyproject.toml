@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "overreact"
-version = "1.0.1"
+version = "1.0.2"
 description = "📈 Create and analyze chemical microkinetic models built from computational chemistry data"
 authors = ["Felipe S. S. Schneider <schneider.felipe@posgrad.ufsc.br>",
            "Giovanni F. Caramori <giovanni.caramori@ufsc.br>"]
