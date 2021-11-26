@@ -22,6 +22,9 @@ import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _found_jax
 
+EF = 1e4
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -157,7 +160,7 @@ def get_y(
     return y, r
 
 
-def get_dydt(scheme, k, ef=1e4):
+def get_dydt(scheme, k, ef=EF):
     """Generate a rate function that models a reaction scheme.
 
     Parameters
@@ -241,7 +244,7 @@ def get_dydt(scheme, k, ef=1e4):
     return _dydt
 
 
-def _adjust_k(scheme, k, ef=1e4):
+def _adjust_k(scheme, k, ef=EF):
     """Adjust reaction rate constants so that equilibria are equilibria.
 
     Parameters
