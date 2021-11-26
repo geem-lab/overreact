@@ -619,7 +619,7 @@ class Report:
 
             t_max, i = y.t_max, 0
             while i < n_max and np.allclose(
-                y(t_max)[active] / factor, reference, atol=1e-2
+                y(t_max)[active] / factor, reference, atol=1e-3
             ):
                 t_max = alpha * t_max
                 i += 1
