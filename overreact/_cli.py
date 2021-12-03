@@ -609,7 +609,12 @@ class Report:
                 )
             yield conc_table
 
-            active = ~np.isclose(y(y.t_min), y(y.t_max), rtol=1e-2)
+            t_span = y.t_max - y.t_min
+            active = ~np.isclose(
+                y(y.t_min + 0.01 * t_span * np.random.rand()),
+                y(y.t_max - 0.01 * t_span * np.random.rand()),
+                rtol=0.01,
+            )
             if self.plot == "all" or not np.any(active):
                 active = np.array([True for _ in scheme.compounds])
 
@@ -621,7 +626,7 @@ class Report:
 
             # We plot until concentrations are within this value from the
             # final concentrations.
-            alpha = 0.05
+            alpha = 0.01
 
             t_max, i = y.t_max, 0
             while i < n_max and np.allclose(
