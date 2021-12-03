@@ -113,9 +113,9 @@ def get_y(
     y0 = np.asarray(y0)
 
     if t_span is None:
-        # We defined alpha such that 1.0 - alpha is an estimate of the extend
-        # to which the reaction is simulated.
-        alpha = 1e-31
+        # We defined alpha such that 1.0 - alpha is an (under)estimate of the extend
+        # to which the reaction is simulated. And then we apply the Pareto principle.
+        alpha = 0.2
         n_halflives = np.ceil(-np.log(alpha) / np.log(2))
 
         halflife_estimate = 1.0
