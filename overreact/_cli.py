@@ -574,7 +574,9 @@ class Report:
             "Only in the table above, all Gibbs free energies were biased by "
             f"{self.bias} J/mol."
         )
-        yield Markdown("For **half-equilibria**, only ratios make sense.")
+        yield Markdown(
+            "For **half-equilibria**, only ratios make sense: in simulations, **equilibria will be adjusted to be faster than all other reactions**."
+        )
 
         if self.concentrations is not None and self.concentrations:
             scheme, k, y0 = _prepare_simulation(
