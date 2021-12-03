@@ -616,14 +616,18 @@ class Report:
             factor = y(y.t_max)[active].max()
             reference = y(y.t_max)[active] / factor
 
-            alpha = 0.9
-            n_max = np.log(1e-8) / np.log(alpha)
+            step = 0.9  # multiply by this factor to decrease t_max
+            n_max = np.log(1e-8) / np.log(step)
+
+            # We plot until concentrations are within this value from the
+            # final concentrations.
+            alpha = 0.05
 
             t_max, i = y.t_max, 0
             while i < n_max and np.allclose(
-                y(t_max)[active] / factor, reference, atol=1e-3
+                y(t_max)[active] / factor, reference, atol=alpha
             ):
-                t_max = alpha * t_max
+                t_max = step * t_max
                 i += 1
 
             num = 100
