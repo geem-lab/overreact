@@ -22,7 +22,7 @@ import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _found_jax
 
-EF = 1e4
+EF = 5
 
 
 logger = logging.getLogger(__name__)
