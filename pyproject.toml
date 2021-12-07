@@ -39,7 +39,7 @@ pytest = "^6.2.5"
 matplotlib = "^3.5.0"
 pydocstyle = "^6.1.1"
 bandit = "^1.7.1"
-black = {version = "^21.11b0", allow-prereleases = true}
+black = {version = "^21.12b0", allow-prereleases = true}
 flake8 = "^4.0.1"
 isort = "^5.10.1"
 pdoc = "^8.0.1"
