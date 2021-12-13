@@ -36,7 +36,7 @@ solvents = ["thermo"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
-matplotlib = "^3.5.0"
+matplotlib = "^3.5.1"
 pydocstyle = "^6.1.1"
 bandit = "^1.7.1"
 black = {version = "^21.12b0", allow-prereleases = true}
