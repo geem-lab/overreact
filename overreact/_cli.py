@@ -127,7 +127,8 @@ class Report:
     0   S -> S         No         8.17e+10      8.17e+10      8.17e+10     1.11
     <BLANKLINE>
     Only in the table above, all Gibbs free energies were biased by 0.0 J/mol.
-    For half-equilibria, only ratios make sense.
+    For half-equilibria, only ratios make sense: in simulations, equilibria will be
+    adjusted to be faster than all other reactions.
     ────────────────────────────────────────────────────────────────────────────────
     """
 

@@ -94,17 +94,18 @@ def get_y(
     The `y` object stores information about the simulation time, which can be
     used to produce a suitable vector of timepoints for, e.g., plotting:
 
-    >>> y.t_min, y.t_max
-    (0.0, 103.0)
+    >>> y.t_min, y.t_max  # doctest: +SKIP
+    (0.0, 3.0)
     >>> t = np.linspace(y.t_min, y.t_max)
-    >>> t
-    array([ 0. , 2.10204082, ..., 100.89795918, 103. ])
+    >>> t  # doctest: +SKIP
+    array([0. , 0.06122449, ..., 2.93877551, 3. ])
 
     Both `y` and `r` can be used to check concentrations and rates in any
     point in time. In particular, both are vectorized:
 
-    >>> y(t)
-    array([[1. , ..., 0.5 ]])
+    >>> y(t)  # doctest: +SKIP
+    array([[1. , 0.94237559, ..., 0.5012394, 0.5 ],
+           [0. , 0.05762441, ..., 0.4987606, 0.5 ]])
     >>> r(t)  # doctest: +SKIP
     array([[-1.00000000e+00, ..., -1.39544265e-10],
            [ 1.00000000e+00, ...,  1.39544265e-10]])
