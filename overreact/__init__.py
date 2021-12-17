@@ -39,7 +39,7 @@ __url_discussions__ = f"{__url_repo__}/discussions"
 __url_pypi__ = "https://pypi.org/project/overreact/"
 __url_guide__ = "https://geem-lab.github.io/overreact-guide/"
 
-__doi__ = "10.5281/ZENODO.5643960"
+__doi__ = "10.5281/zenodo.5730603"
 __citation__ = r"""
 @misc{overreact2021,
   howpublished = {\url{URL_REPO_PLACEHOLDER}},
@@ -50,7 +50,7 @@ __citation__ = r"""
     microkinetic models built from computational chemistry data, v1.0.2
   },
   doi = {DOI_PLACEHOLDER},
-  url = {https://zenodo.org/record/5643960},
+  url = {https://zenodo.org/record/5730603},
   publisher = {Zenodo},
   copyright = {Open Access}
 }
