@@ -1,9 +1,28 @@
 # Contributing
 
-Thank you for considering contributing to
-[overreact](https://geem-lab.github.io/overreact-guide/)!
+If you want to contribute to the development of **overreact**, you can find the
+source code on [GitHub](https://github.com/geem-lab/overreact). The recommended
+way of contributing is by forking the repository and pushing your changes to the
+forked repository.
 
-## Reporting issues
+> **💡** If you're interested in contributing to open-source projects, make sure
+> to read
+> ["How to Contribute to Open Source"](https://opensource.guide/how-to-contribute/)
+> from [Open Source Guides](https://opensource.guide/) They may even have a
+> translation for your native language!
+
+After cloning your fork, we recommend using [Poetry](https://python-poetry.org/)
+for managing your contributions:
+
+```console
+$ git clone git@github.com:your-username/overreact.git  # your-username is your GitHub username
+$ cd overreact
+$ poetry install
+```
+
+## Reccomended practices
+
+### Reporting issues
 
 The easiest way to report a bug or request a feature is to
 [create an issue on GitHub](http://github.com/geem-lab/overreact/issues). The
@@ -22,14 +41,14 @@ following greatly enhances our ability to solve the issue you are experiencing:
     to help us identify the issue.** This also helps check that the issue is not
     with your own code.
 
-## Support questions
+### Support questions
 
 Use the [discussions](https://github.com/geem-lab/overreact/discussions) for
 questions about your own code or on the use of overreact. (Please don't use the
 [issue tracker](https://github.com/geem-lab/overreact/issues) for asking
 questions, the discussions are a better place to ask questions 😄.)
 
-## Submitting patches
+### Submitting patches
 
 -   Include tests if your patch is supposed to solve a bug, and explain clearly
     under which circumstances the bug happens. Make sure the test fails without
