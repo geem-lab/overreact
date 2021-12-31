@@ -111,7 +111,7 @@ scipy = ">=1.2.0"
 
 [[package]]
 name = "chemicals"
-version = "1.0.15"
+version = "1.0.16"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
@@ -217,7 +217,7 @@ python-versions = "*"
 
 [[package]]
 name = "fluids"
-version = "1.0.14"
+version = "1.0.15"
 description = "Fluid dynamics component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
@@ -867,15 +867,15 @@ pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 
 [[package]]
 name = "thermo"
-version = "0.2.10"
+version = "0.2.11"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 
 [package.dependencies]
-chemicals = ">=1.0.12"
-fluids = ">=1.0.10"
+chemicals = ">=1.0.16"
+fluids = ">=1.0.15"
 pandas = "*"
 scipy = "*"
 
@@ -980,7 +980,7 @@ cclib = [
     {file = "cclib-1.7.1.tar.gz", hash = "sha256:0a1715a0c6c78437d17d65e3221e4d8eca9ad35ccf6ab153968b6a2a3e8399c8"},
 ]
 chemicals = [
-    {file = "chemicals-1.0.15.tar.gz", hash = "sha256:6337fdef199647289adadf775c0fcea6f6c31a2c8ece9e237949eaea8010077c"},
+    {file = "chemicals-1.0.16.tar.gz", hash = "sha256:659a7b9464839d91f82dba0ea67d522727d15828d3645bd809c9758b33b9a36f"},
 ]
 click = [
     {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},
@@ -1083,7 +1083,7 @@ flatbuffers = [
     {file = "flatbuffers-2.0.tar.gz", hash = "sha256:12158ab0272375eab8db2d663ae97370c33f152b27801fa6024e1d6105fd4dd2"},
 ]
 fluids = [
-    {file = "fluids-1.0.14.tar.gz", hash = "sha256:bff9526f51ffd3f771e0ac8db1c194117196a38c26de945debd0056a8d2abb97"},
+    {file = "fluids-1.0.15.tar.gz", hash = "sha256:03abcf7607e2ad53e8cba3395b3aaf29f6f145baa16acac00fd435a7249519d8"},
 ]
 fonttools = [
     {file = "fonttools-4.28.4-py3-none-any.whl", hash = "sha256:9934e3587dd5abf4e7f1d7176bcf0373db3f0ed728edf79791a9d2a7e664aac9"},
@@ -1607,7 +1607,7 @@ stevedore = [
     {file = "stevedore-3.5.0.tar.gz", hash = "sha256:f40253887d8712eaa2bb0ea3830374416736dc8ec0e22f5a65092c1174c44335"},
 ]
 thermo = [
-    {file = "thermo-0.2.10.tar.gz", hash = "sha256:316d99effff54ff11055f8be84d41c7282e00caa89dd38315d8b2eceb95bc0a1"},
+    {file = "thermo-0.2.11.tar.gz", hash = "sha256:7d5c1e5100c79f6c9f7332309fa5bf39148640beb4e4cc64a4732133ffeb7ea8"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
