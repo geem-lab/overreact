@@ -42,7 +42,7 @@ bandit = "^1.7.1"
 black = {version = "^21.12b0", allow-prereleases = true}
 flake8 = "^4.0.1"
 isort = "^5.10.1"
-pdoc = "^8.1.0"
+pdoc = "^8.2.0"
 types-setuptools = "^57.4.5"
 mypy = "^0.930"
 debugpy = "^1.5.1"
