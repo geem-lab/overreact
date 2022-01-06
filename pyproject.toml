@@ -46,7 +46,7 @@ pdoc = "^8.2.0"
 types-setuptools = "^57.4.5"
 mypy = "^0.930"
 debugpy = "^1.5.1"
-ipython = "^7.30.1"
+ipython = "^7.31.0"
 pytest-cov = "^3.0.0"
 seaborn = "^0.11.2"
 
