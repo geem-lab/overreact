@@ -911,7 +911,7 @@ test = ["pytest"]
 
 [[package]]
 name = "types-setuptools"
-version = "57.4.5"
+version = "57.4.6"
 description = "Typing stubs for setuptools"
 category = "dev"
 optional = false
@@ -941,7 +941,7 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "8f49fa2dde4f34c6ee7f85fea436dab54da8a4d7aa59b144890cc8923d2b4758"
+content-hash = "52109a355523ff9a46058b14db5b653c36d7a74b01c643372e0b622e92760f8c"
 
 [metadata.files]
 absl-py = [
@@ -1622,8 +1622,8 @@ traitlets = [
     {file = "traitlets-5.1.1.tar.gz", hash = "sha256:059f456c5a7c1c82b98c2e8c799f39c9b8128f6d0d46941ee118daace9eb70c7"},
 ]
 types-setuptools = [
-    {file = "types-setuptools-57.4.5.tar.gz", hash = "sha256:a4600efdca68a33204ad9c083fd9966d63aee61a7d007e912b6afc6ff57d6e02"},
-    {file = "types_setuptools-57.4.5-py3-none-any.whl", hash = "sha256:920a7c1ee120025e939a1707f8fd09a1266edbf7848eae7b8de7c5909a824cc8"},
+    {file = "types-setuptools-57.4.6.tar.gz", hash = "sha256:65ef8946fc31aed946177629e681861217aceb8fc9b75a44ba987d7eea9388aa"},
+    {file = "types_setuptools-57.4.6-py3-none-any.whl", hash = "sha256:b1be17770e830432571bcb81a78fed13df32ca787550ed575dfbc921816ad18a"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.0.1-py3-none-any.whl", hash = "sha256:7f001e5ac290a0c0401508864c7ec868be4e701886d5b573a9528ed3973d9d3b"},
