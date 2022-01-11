@@ -249,7 +249,7 @@ def get_entropies(
 
         if compounds[name].symmetry is not None:
             # The negative sign here seems correct. See equations (9) and (10)
-            # of doi:10.1002/qua.25686.
+            # of DOI:10.1002/qua.25686.
             entropy -= rx.change_reference_state(
                 compounds[name].symmetry, 1, temperature=temperature, pressure=pressure
             )

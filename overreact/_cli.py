@@ -799,7 +799,7 @@ def main(arguments=None):
         "--no-qrrho",
         help="disable the quasi-rigid rotor harmonic oscillator (QRRHO) "
         "approximations to both enthalpies and entropies (see "
-        "[doi:10.1021/jp509921r] and [doi:10.1002/chem.201200497])",
+        "DOI:10.1021/jp509921r and DOI:10.1002/chem.201200497)",
         choices=["both", "enthalpy", "entropy", "none"],
         default="both",
         dest="qrrho_descriptor",
@@ -862,7 +862,7 @@ def main(arguments=None):
 Licensed under the terms of the
 [{rx.__license__} License]({rx.__url_repo__}/blob/main/LICENSE).
 If you publish work using this software, **please cite
-[doi:{rx.__doi__}](https://zenodo.org/badge/latestdoi/214332027)**:
+[DOI:{rx.__doi__}](https://zenodo.org/badge/latestdoi/214332027)**:
 
 ```
 {rx.__citation__}
