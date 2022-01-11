@@ -111,7 +111,7 @@ scipy = ">=1.2.0"
 
 [[package]]
 name = "chemicals"
-version = "1.0.16"
+version = "1.0.17"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
@@ -867,14 +867,14 @@ pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 
 [[package]]
 name = "thermo"
-version = "0.2.11"
+version = "0.2.12"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 
 [package.dependencies]
-chemicals = ">=1.0.16"
+chemicals = ">=1.0.17"
 fluids = ">=1.0.15"
 pandas = "*"
 scipy = "*"
@@ -980,7 +980,7 @@ cclib = [
     {file = "cclib-1.7.1.tar.gz", hash = "sha256:0a1715a0c6c78437d17d65e3221e4d8eca9ad35ccf6ab153968b6a2a3e8399c8"},
 ]
 chemicals = [
-    {file = "chemicals-1.0.16.tar.gz", hash = "sha256:659a7b9464839d91f82dba0ea67d522727d15828d3645bd809c9758b33b9a36f"},
+    {file = "chemicals-1.0.17.tar.gz", hash = "sha256:5ca049e432c80ec30835612f4a6cac34bc065f15c1d874945b5bdc2f788f4261"},
 ]
 click = [
     {file = "click-8.0.3-py3-none-any.whl", hash = "sha256:353f466495adaeb40b6b5f592f9f91cb22372351c84caeb068132442a4518ef3"},
@@ -1607,7 +1607,7 @@ stevedore = [
     {file = "stevedore-3.5.0.tar.gz", hash = "sha256:f40253887d8712eaa2bb0ea3830374416736dc8ec0e22f5a65092c1174c44335"},
 ]
 thermo = [
-    {file = "thermo-0.2.11.tar.gz", hash = "sha256:7d5c1e5100c79f6c9f7332309fa5bf39148640beb4e4cc64a4732133ffeb7ea8"},
+    {file = "thermo-0.2.12.tar.gz", hash = "sha256:c802737948210700312b2e6402923e950d84aacd27a4aed1e69f6ce3c51c74cb"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
