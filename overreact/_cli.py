@@ -738,7 +738,7 @@ def main(arguments=None):
     )
     parser.add_argument(
         "path",
-        help="path to a source (`.k`) or compiled (.jk) model input file (if a source "
+        help="path to a source (`.k`) or compiled (`.jk`) model input file (if a source "
         "input file is given, but there is a compiled file available, the compiled "
         "file will be used; use --compile|-c to force recompilation of the "
         "source input file instead)",
@@ -766,7 +766,7 @@ def main(arguments=None):
         "--compile",
         # TODO(schneiderfelipe): should we consider --compile|-c always as a
         # do-nothing (no analysis)?
-        help="force recompile a source (`.k`) into a compiled (.jk) model input file",
+        help="force recompile a source (`.k`) into a compiled (`.jk`) model input file",
         action="store_true",
     )
     parser.add_argument(

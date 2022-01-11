@@ -47,7 +47,7 @@ def parse_model(path: Text, force_compile: bool = False):
     ----------
     path : str
         Path to the model or source input file.
-        If the final extension is not ``.jk`` or ``.k``, it is guessed.
+        If the final extension is not `.jk` or `.k`, it is guessed.
     force_compile : bool
         If True, a `.k` file will take precedence over any `.jk` file for reading. A
         `.jk` file is thus either generated or overwritten. This is sometimes
@@ -96,22 +96,22 @@ def parse_model(path: Text, force_compile: bool = False):
     """
     if not path.endswith((".k", ".jk")):
         path = path + ".jk"
-        logger.warning(f"assuming .jk file in {path}")
+        logger.warning(f"assuming `.jk` file in {path}")
     name, _ = os.path.splitext(path)
 
     path_jk = name + ".jk"
     if not force_compile and os.path.isfile(path_jk):
-        logger.info(f"parsing .jk file in {path_jk}")
+        logger.info(f"parsing `.jk` file in {path_jk}")
         return _parse_model(path_jk)
 
     path_k = name + ".k"
-    logger.info(f"parsing .k file in {path_k}")
+    logger.info(f"parsing `.k` file in {path_k}")
     if not os.path.isfile(path_k):
-        raise FileNotFoundError(f"no .k file found in {path_k}")
+        raise FileNotFoundError(f"no `.k` file found in {path_k}")
 
     model = _parse_source(path_k)
     with open(path_jk, "w") as f:
-        logger.info(f"writing .jk file in {path_jk}")
+        logger.info(f"writing `.jk` file in {path_jk}")
         f.write(_unparse_model(model))
 
     return model
