@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 
 __all__ = ["eyring"]
 
@@ -281,9 +281,9 @@ def convert_rate_constant(
 
 
 def eyring(
-    delta_freeenergy: float | np.ndarray,
+    delta_freeenergy: Union[float, np.ndarray],
     molecularity: Optional[int] = None,
-    temperature: float | np.ndarray = 298.15,
+    temperature: Union[float, np.ndarray] = 298.15,
     pressure: float = constants.atm,
     volume: Optional[float] = None,
 ):

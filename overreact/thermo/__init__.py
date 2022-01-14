@@ -9,7 +9,7 @@ __all__ = ["equilibrium_constant", "change_reference_state"]
 
 
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from scipy.misc import derivative
@@ -604,9 +604,9 @@ def get_delta(transform, property):
 
 
 def equilibrium_constant(
-    delta_freeenergy: float | np.ndarray,
-    delta_moles: Optional[int | np.ndarray] = None,
-    temperature: float | np.ndarray = 298.15,
+    delta_freeenergy: Union[float, np.ndarray],
+    delta_moles: Optional[Union[int, np.ndarray]] = None,
+    temperature: Union[float, np.ndarray] = 298.15,
     pressure: float = constants.atm,
     volume: Optional[float] = None,
 ):
@@ -751,7 +751,7 @@ def change_reference_state(
     new_reference: float = 1.0 / constants.liter,
     old_reference: Optional[float] = None,
     sign: int = 1,
-    temperature: float | np.ndarray = 298.15,
+    temperature: Union[float, np.ndarray] = 298.15,
     pressure: float = constants.atm,
     volume: Optional[float] = None,
 ):
