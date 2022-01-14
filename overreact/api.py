@@ -8,6 +8,9 @@ probably start here.
 """
 
 
+from __future__ import annotations
+
+
 from typing import Union
 
 __all__ = [
