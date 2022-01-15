@@ -3,14 +3,12 @@
 """Module dedicated to parsing and modeling of chemical reaction networks."""
 
 
-from __future__ import annotations
-
 __all__ = ["Scheme", "parse_reactions"]
 
 
 import itertools
 import re
-from typing import NamedTuple, Sequence, Text
+from typing import NamedTuple, Sequence, Text, Union
 
 import numpy as np
 
@@ -52,7 +50,7 @@ _abbr_environment = {
 }
 
 
-def _check_scheme(scheme_or_text: Scheme | Text) -> Scheme:
+def _check_scheme(scheme_or_text: Union[Scheme, Text]) -> Scheme:
     """Interface transparently between strings and schemes.
 
     Parameters
@@ -400,7 +398,7 @@ def is_transition_state(name):
     return False
 
 
-def parse_reactions(text: Text | Sequence[Text]) -> Scheme:
+def parse_reactions(text: Union[Text, Sequence[Text]]) -> Scheme:
     """
     Parse a kinetic model as a chemical reaction scheme.
 

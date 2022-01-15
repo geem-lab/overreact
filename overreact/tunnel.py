@@ -9,7 +9,7 @@ __all__ = ["eckart", "wigner"]
 
 
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from scipy.integrate import fixed_quad
@@ -53,7 +53,7 @@ def _check_nu(vibfreq: float) -> float:
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
-def wigner(vibfreq: float, temperature: float | np.ndarray = 298.15) -> float:
+def wigner(vibfreq: float, temperature: Union[float, np.ndarray] = 298.15) -> float:
     """Calculate the Wigner correction to quantum tunneling.
 
     Parameters
@@ -100,8 +100,8 @@ def eckart(
     vibfreq: float,
     delta_forward: float,
     delta_backward: Optional[float] = None,
-    temperature: float | np.ndarray = 298.15,
-) -> float:
+    temperature: Union[float, np.ndarray] = 298.15,
+) -> Union[float, np.ndarray]:
     """Calculate the Eckart correction to quantum tunneling.
 
     References are

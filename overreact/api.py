@@ -10,6 +10,9 @@ probably start here.
 
 from __future__ import annotations
 
+
+from typing import Union
+
 __all__ = [
     "get_k",
     "get_kappa",
@@ -258,7 +261,7 @@ def get_entropies(
     return np.array(entropies)
 
 
-def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
+def _check_qrrho(qrrho: Union[bool, tuple[bool, bool]]) -> tuple[bool, bool]:
     """Get options for QRRHO for both enthalpy and entropy.
 
     Parameters
@@ -306,7 +309,7 @@ def get_freeenergies(
     bias: float = 0.0,
     environment: Optional[Text] = None,
     method: Text = "standard",
-    qrrho: bool | tuple[bool, bool] = True,
+    qrrho: Union[bool, tuple[bool, bool]] = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
 ):
@@ -399,7 +402,7 @@ def get_k(
     compounds: Optional[dict] = None,
     bias: float = 0.0,
     tunneling: Text = "eckart",
-    qrrho: bool | tuple[bool, bool] = True,
+    qrrho: Union[bool, tuple[bool, bool]] = True,
     scale: Text = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
