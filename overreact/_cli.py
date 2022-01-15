@@ -64,8 +64,6 @@ class Report:
     Examples
     --------
     >>> from rich import print
-    >>> model = rx.parse_model("data/ethane/B97-3c/model.jk")
-    >>> print(Report(model)) # doctest: +SKIP
     ────────────────────────────────────────────────────────────────────────────────
     ╭──────────────────╮
     │ (read) reactions │
