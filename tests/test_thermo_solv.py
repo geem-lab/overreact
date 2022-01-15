@@ -11,7 +11,7 @@ from overreact import coords
 
 
 def test_entropy_liquid_phase():
-    """Validate selected values from Table 1 of doi:10.1021/acs.jctc.9b00214.
+    """Validate selected values from Table 1 of DOI:10.1021/acs.jctc.9b00214.
 
     Experimental values are actually used as reference.
     """
@@ -218,13 +218,13 @@ def test_entropy_liquid_phase():
 
 
 def test_translational_entropy_liquid_phase():
-    """Validate calculated volumes from Table S3 of doi:10.1039/C9CP03226F.
+    """Validate calculated volumes from Table S3 of DOI:10.1039/C9CP03226F.
 
     The original data seems to have errors, some severe. I *assumed* this is
     due to too few decimal places in the free volume and adjusted the precision
     for some entries accordingly.
 
-    The same systems are probed for the method of doi:10.1021/acs.jctc.9b00214
+    The same systems are probed for the method of DOI:10.1021/acs.jctc.9b00214
     in water and the gas phase translational entropy is also tested.
     """
     # H2O
@@ -870,7 +870,7 @@ def test_translational_entropy_liquid_phase():
 
 
 def test_sackur_tetrode_given_free_volumes():
-    """Reproduce calculated values from Table S3 of doi:10.1039/C9CP03226F.
+    """Reproduce calculated values from Table S3 of DOI:10.1039/C9CP03226F.
 
     The original data seems to have errors, some severe. I assumed this is due
     to too few decimal places in the free volume and adjusted the precision for

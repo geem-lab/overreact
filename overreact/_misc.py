@@ -497,7 +497,7 @@ def _get_chemical(
     >>> water.Vm
     1.806904e-5
     >>> water.permittivity
-    78.355308122325
+    78.4
     >>> water.isobaric_expansion
     0.000402256
     >>> water.omega

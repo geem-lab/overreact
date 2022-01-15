@@ -239,21 +239,21 @@ Items with an * are not necessary in our present approach, or are
 incorporated in chunks compatible with our methodology, but the effects are
 still taken in consideration.
 
-doi:10.1002/qua.25686:
+DOI:10.1002/qua.25686:
 - Corrections for reactions in solution:
   - Diffusion effect through Collins-Kimball theory
   - Electron transfer through Marcus theory
   - Some of the above are from QM-ORSA for reactions in solution*
 
-doi:10.1039/C5CP00628G:
+DOI:10.1039/C5CP00628G:
 - Anharmonicity
 - Molecular charge
 
-doi:10.1021/acs.jpca.8b06092:
+DOI:10.1021/acs.jpca.8b06092:
 - Variational transition state theory
 - Small curvature tunneling
 
-doi:10.1021/acscatal.7b00115:
+DOI:10.1021/acscatal.7b00115:
 - Degree of rate control
 - Degree of selective control
 - Brønsted-Evans-Polanyi (BEP) relations
@@ -261,20 +261,20 @@ doi:10.1021/acscatal.7b00115:
 - Use of degree of rate control to choose computational models at low level
 - Use of degree of rate control for screening catalysts
 
-doi:10.1039/c8cs00398j (lots of interesting things, some highlighted below):
+DOI:10.1039/c8cs00398j (lots of interesting things, some highlighted below):
 - Apparent activation energy
 - Degree of rate control
 - Linear free energy relationships
 - Process optimisation
 
-doi:10.1002/cphc.201100137:
+DOI:10.1002/cphc.201100137:
 - Slowest step of the reaction
 - Step with smallest rate constant
 - Step with highest free energy transition state
 - Step with rate constant that exerts the strongest effect
 - Energetic span model
 
-doi:10.1002/anie.200462544:
+DOI:10.1002/anie.200462544:
 - Reaction progress kinetic analysis
 - Differential and integral measurements
 - Data interrogation

@@ -81,9 +81,9 @@ def get_molecular_volume(
 
     Notes
     -----
-    For "izato", see equation 3 of doi:10.1039/C9CP03226F for the conceptual
+    For "izato", see equation 3 of DOI:10.1039/C9CP03226F for the conceptual
     details. There is theoretical support for the equation in the work of
-    Eyring (doi:10.1021/j150380a007).
+    Eyring (DOI:10.1021/j150380a007).
 
     Examples
     --------
@@ -186,7 +186,7 @@ def _garza(
     """Calculate cavity attributes according to A. Garza.
 
     This is mainly a helper function for calculating solvation entropy
-    according to doi:10.1021/acs.jctc.9b00214.
+    according to DOI:10.1021/acs.jctc.9b00214.
 
     Parameters
     ----------
@@ -214,7 +214,7 @@ def _garza(
     >>> _garza(10.0)
     66.51277879776
     >>> _garza(10.0, full_output=True)
-    (66.51277879776, 1.0, 0.7556589516232841)
+    (66.51277879776, 1.0, 0.755658951623284)
     >>> _garza(100.0)
     279.576566152594
     >>> _garza(100.0, full_output=True)
@@ -490,7 +490,7 @@ def _find_point_group_spheric(
     # http://web.mit.edu/5.03/www/readings/point_groups/point_groups.pdf
 
     # the following workflow is loosely inspired by some articles:
-    # 1. doi:10.1016/0097-8485(76)80004-6
+    # 1. DOI:10.1016/0097-8485(76)80004-6
     #     elif _has_3_C4(atomcoords):
     #         if _has_center_of_inversion(atomcoords):
     #             return "oh"
@@ -562,7 +562,7 @@ def _find_point_group_symmetric(
     )
 
     # the following workflow is loosely inspired by some articles:
-    # 1. doi:10.1016/0097-8485(76)80004-6
+    # 1. DOI:10.1016/0097-8485(76)80004-6
     # if _has_proper_ax_of_highest_order(atomcoords):
     #     if _has_proper_ax_larger_than_2_or_3_C2_perpendicular(
     #         atomcoords
@@ -1369,7 +1369,7 @@ def _operation(name, order=2, axis=None):
 def _classify_rotor(moments, rtol=0.0, atol=1.0e-2, slack=0.870):
     """Classify rotors based on moments of inertia.
 
-    See doi:10.1002/jcc.23493.
+    See DOI:10.1002/jcc.23493.
 
     Parameters
     ----------

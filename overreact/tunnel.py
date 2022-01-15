@@ -9,7 +9,7 @@ __all__ = ["eckart", "wigner"]
 
 
 import logging
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from scipy.integrate import fixed_quad
@@ -53,7 +53,7 @@ def _check_nu(vibfreq: float) -> float:
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
-def wigner(vibfreq: float, temperature: float | np.ndarray = 298.15) -> float:
+def wigner(vibfreq: float, temperature: Union[float, np.ndarray] = 298.15) -> float:
     """Calculate the Wigner correction to quantum tunneling.
 
     Parameters
@@ -100,8 +100,8 @@ def eckart(
     vibfreq: float,
     delta_forward: float,
     delta_backward: Optional[float] = None,
-    temperature: float | np.ndarray = 298.15,
-) -> float:
+    temperature: Union[float, np.ndarray] = 298.15,
+) -> Union[float, np.ndarray]:
     """Calculate the Eckart correction to quantum tunneling.
 
     References are
@@ -183,7 +183,7 @@ def eckart(
 def _eckart(u: float, alpha1: float, alpha2: Optional[float] = None) -> float:
     """Implement of the (unsymmetrical) Eckart tunneling approximation.
 
-    This is based on doi:10.1021/j100809a040 and doi:10.6028/jres.086.014.
+    This is based on DOI:10.1021/j100809a040 and DOI:10.6028/jres.086.014.
 
     Parameters
     ----------
@@ -205,7 +205,7 @@ def _eckart(u: float, alpha1: float, alpha2: Optional[float] = None) -> float:
     distribution using a mixed set of quadratures (Gauss quadrature for values
     below zero and Laguerre quadrature for values from zero to infinity). The
     orders for both quadratures are fixed and are the smallest numbers that
-    allow us to reproduce values from the literature (doi:10.1021/j100809a040).
+    allow us to reproduce values from the literature (DOI:10.1021/j100809a040).
 
     Both alpha1 and alpha2 should be non-negative.
 

@@ -24,7 +24,7 @@ overreact = 'overreact._cli:main'
 python = ">=3.8,<3.10"
 scipy = "^1.7.3"
 cclib = "^1.6.3"
-rich = {version = "^10.12.0", optional = true}
+rich = {version = ">=10.12,<12.0", optional = true}
 thermo = {version = "^0.2.10", optional = true}
 jax = {version = "^0.2.24", optional = true}
 jaxlib = {version = "^0.1.73", optional = true}
@@ -42,11 +42,11 @@ bandit = "^1.7.1"
 black = {version = "^21.12b0", allow-prereleases = true}
 flake8 = "^4.0.1"
 isort = "^5.10.1"
-pdoc = "^8.0.1"
-types-setuptools = "^57.4.4"
-mypy = "^0.920"
+pdoc = "^8.2.0"
+types-setuptools = "^57.4.7"
+mypy = "^0.931"
 debugpy = "^1.5.1"
-ipython = "^7.30.1"
+ipython = "^8.0.0"
 pytest-cov = "^3.0.0"
 seaborn = "^0.11.2"
 
