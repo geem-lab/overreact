@@ -227,7 +227,7 @@ def _garza(
     >>> _garza(10.0, environment="benzene")
     243.
     >>> _garza(10.0, full_output=True, environment="benzene")
-    (243., 3.29, 0.49937264868206155)
+    (243.12261049429017, 3.2883090676870737, 0.49937264868206177)
     >>> _garza(100.0, environment="benzene")
     665.
     >>> _garza(100.0, full_output=True, environment="benzene")
