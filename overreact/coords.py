@@ -223,7 +223,7 @@ def _garza(
     >>> _garza(1.0, environment="benzene")
     131.
     >>> _garza(1.0, full_output=True, environment="benzene")
-    (131., 3.35, 0.23178825099342945)
+    (131.62880267040674, 3.346488776666167, 0.2317882509934295)
     >>> _garza(10.0, environment="benzene")
     243.
     >>> _garza(10.0, full_output=True, environment="benzene")
