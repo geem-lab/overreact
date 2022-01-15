@@ -231,7 +231,7 @@ def _garza(
     >>> _garza(100.0, environment="benzene")
     665.
     >>> _garza(100.0, full_output=True, environment="benzene")
-    (665., 1.0, 1.0758657575737383)
+    (664.9854290692787, 1.0, 1.0758657575737385)
     """
     solvent = rx._misc._get_chemical(environment, temperature, pressure)
 
