@@ -1,17 +1,25 @@
-[![DOI](https://zenodo.org/badge/214332027.svg)](https://zenodo.org/badge/latestdoi/214332027)
-[![PyPI](https://img.shields.io/pypi/v/overreact)](https://pypi.org/project/overreact/)
-[![build](https://github.com/geem-lab/overreact/actions/workflows/python-package.yml/badge.svg)](https://github.com/geem-lab/overreact/actions/workflows/python-package.yml)
-[![codecov](https://codecov.io/gh/geem-lab/overreact/branch/main/graph/badge.svg?token=4WAVXCRXY8)](https://codecov.io/gh/geem-lab/overreact)
-[![GitHub license](https://img.shields.io/github/license/geem-lab/overreact)](https://github.com/geem-lab/overreact/blob/main/LICENSE)
+##
 
-[![User guide](https://img.shields.io/badge/user%20guide-available-blue)](https://geem-lab.github.io/overreact-guide/)
+<div align="center">
+    
+[![DOI](https://zenodo.org/badge/214332027.svg)](https://zenodo.org/badge/latestdoi/214332027) 
+[![User guide](https://img.shields.io/badge/user%20guide-available-blue)](https://geem-lab.github.io/overreact-guide/) 
+[![build](https://github.com/geem-lab/overreact/actions/workflows/python-package.yml/badge.svg)](https://github.com/geem-lab/overreact/actions/workflows/python-package.yml) 
+[![GitHub license](https://img.shields.io/github/license/geem-lab/overreact)](https://github.com/geem-lab/overreact/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/overreact)](https://pypi.org/project/overreact/) 
+    
 [![GitHub Discussions](https://img.shields.io/github/discussions/geem-lab/overreact)](https://github.com/geem-lab/overreact/discussions)
-[![GitHub issues](https://img.shields.io/github/issues-raw/geem-lab/overreact)](https://github.com/geem-lab/overreact/issues)
+[![codecov](https://codecov.io/gh/geem-lab/overreact/branch/main/graph/badge.svg?token=4WAVXCRXY8)](https://codecov.io/gh/geem-lab/overreact)
+[![GitHub issues](https://img.shields.io/github/issues-raw/geem-lab/overreact)](https://github.com/geem-lab/overreact/issues) 
+
 [![Made in Brazil 🇧🇷](https://img.shields.io/badge/made%20in-Brazil-009c3b)](https://pypi.org/project/overreact/)
+</div>
 
 <div align="center">
     <img alt="overreact" src="https://raw.githubusercontent.com/geem-lab/overreact-guide/master/logo.png" />
 </div>
+
+##
 
 **overreact** is a **library** and a **command-line tool** for building and
 analyzing
