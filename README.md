@@ -1,31 +1,43 @@
-##
+---
+<div align="center"> <p> <a href="https://pypi.org/project/overreact/" ><img
+src="https://img.shields.io/pypi/v/overreact" alt="PyPI" /></a> <a
+href="https://pypi.org/project/overreact/" ><img
+src="https://img.shields.io/pypi/pyversions/overreact" alt="Python Versions"
+/></a> <a
+href="https://github.com/geem-lab/overreact/actions/workflows/python-package.yml"
+><img
+src="https://github.com/geem-lab/overreact/actions/workflows/python-package.yml/badge.svg"
+alt="CI" /></a> <a href="https://codecov.io/gh/geem-lab/overreact" ><img
+src="https://codecov.io/gh/geem-lab/overreact/branch/main/graph/badge.svg?token=4WAVXCRXY8"
+alt="Coverage" /></a> <a
+href="https://github.com/geem-lab/overreact/blob/main/LICENSE" ><img
+src="https://img.shields.io/github/license/geem-lab/overreact" alt="License"
+/></a> </p>
 
-<div align="center">
+<p> <a href="https://geem-lab.github.io/overreact-guide/" ><img
+src="https://img.shields.io/badge/user%20guide-available-blue" alt="User guide"
+/></a> <a href="https://github.com/geem-lab/overreact/discussions" ><img
+src="https://img.shields.io/github/discussions/geem-lab/overreact" alt="GitHub
+Discussions" /></a> <a href="https://github.com/geem-lab/overreact/issues" ><img
+src="https://img.shields.io/github/issues-raw/geem-lab/overreact" alt="GitHub
+issues" /></a> </p>
 
-[![PyPI](https://img.shields.io/pypi/v/overreact)](https://pypi.org/project/overreact/)
-[![Python Versions](https://img.shields.io/pypi/pyversions/overreact)](https://pypi.org/project/overreact/)
-[![CI](https://github.com/geem-lab/overreact/actions/workflows/python-package.yml/badge.svg)](https://github.com/geem-lab/overreact/actions/workflows/python-package.yml)
-[![Coverage](https://codecov.io/gh/geem-lab/overreact/branch/main/graph/badge.svg?token=4WAVXCRXY8)](https://codecov.io/gh/geem-lab/overreact)
-[![License](https://img.shields.io/github/license/geem-lab/overreact)](https://github.com/geem-lab/overreact/blob/main/LICENSE)
+<p> <a href="https://pepy.tech/project/overreact" ><img
+src="https://pepy.tech/badge/overreact/month" alt="downloads/month" /></a> <a
+href="https://pepy.tech/project/overreact" ><img
+src="https://pepy.tech/badge/overreact" alt="total downloads" /></a> </p>
 
-[![User guide](https://img.shields.io/badge/user%20guide-available-blue)](https://geem-lab.github.io/overreact-guide/)
-[![GitHub Discussions](https://img.shields.io/github/discussions/geem-lab/overreact)](https://github.com/geem-lab/overreact/discussions)
-[![GitHub issues](https://img.shields.io/github/issues-raw/geem-lab/overreact)](https://github.com/geem-lab/overreact/issues)
+<p> <a href="https://zenodo.org/badge/latestdoi/214332027" ><img
+src="https://zenodo.org/badge/214332027.svg" alt="DOI" /></a> </p>
 
-[![downloads/month](https://pepy.tech/badge/overreact/month)](https://pepy.tech/project/overreact)
-[![total downloads](https://pepy.tech/badge/overreact)](https://pepy.tech/project/overreact)
+<p> <a href="https://github.com/geem-lab/overreact#funding" ><img
+src="https://img.shields.io/badge/made%20in-Brazil-009c3b" alt="Made in Brazil
+🇧🇷" /></a> </p> </div>
 
-[![DOI](https://zenodo.org/badge/214332027.svg)](https://zenodo.org/badge/latestdoi/214332027)
-
-[![Made in Brazil 🇧🇷](https://img.shields.io/badge/made%20in-Brazil-009c3b)](https://github.com/geem-lab/overreact#funding)
-
-</div>
-
-<div align="center">
-    <img alt="overreact" src="https://raw.githubusercontent.com/geem-lab/overreact-guide/master/logo.png" />
-</div>
-
-##
+<div align="center"> <img alt="overreact"
+src="https://raw.githubusercontent.com/geem-lab/overreact-guide/master/logo.png"
+/> </div>
+---
 
 **overreact** is a **library** and a **command-line tool** for building and
 analyzing homogeneous **microkinetic models** from **first-principles
