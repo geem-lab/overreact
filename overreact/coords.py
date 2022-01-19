@@ -218,20 +218,20 @@ def _garza(
     >>> _garza(100.0)
     279.576566152594
     >>> _garza(100.0, full_output=True)
-    (279.576566152594, 1.0, 1.6280178592103285)
+    (279.576566152594, 1.0, 1.628017859210329)
 
     >>> _garza(1.0, environment="benzene")
     131.
     >>> _garza(1.0, full_output=True, environment="benzene")
-    (131., 3.35, 0.23178825099342945)
+    (131., 3.35, 0.2317882509934295)
     >>> _garza(10.0, environment="benzene")
     243.
     >>> _garza(10.0, full_output=True, environment="benzene")
-    (243., 3.29, 0.49937264868206155)
+    (243., 3.29, 0.499372648682062)
     >>> _garza(100.0, environment="benzene")
     665.
     >>> _garza(100.0, full_output=True, environment="benzene")
-    (665., 1.0, 1.0758657575737383)
+    (665., 1.0, 1.07586575757374)
     """
     solvent = rx._misc._get_chemical(environment, temperature, pressure)
 
