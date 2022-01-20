@@ -80,10 +80,12 @@ def wigner(vibfreq: float, temperature: Union[float, np.ndarray] = 298.15) -> fl
     4.218
     >>> wigner(262.38)
     1.06680
-    >>> wigner(113.87)
-    1.01258
+    >>> wigner(190.5927)
+    1.03525
     >>> wigner(169.14)
     1.02776
+    >>> wigner(113.87)
+    1.01258
 
     """
     temperature = np.asarray(temperature)
@@ -151,6 +153,16 @@ def eckart(
     >>> eckart(3315.6, 3156.31)
     array(3.3)
 
+    And if either the forward or backward barrier is non-positive, we fall back
+    to the Wigner correction, but a warning is issued:
+
+    >>> eckart(190.5927, 109920.73434972763, -154.0231580734253)
+    1.03525
+    >>> eckart(190.5927, -154.0231580734253, 109920.73434972763)
+    1.03525
+    >>> eckart(190.5927, -154.0231580734253)
+    1.03525
+
     """
     temperature = np.asarray(temperature)
 
@@ -162,8 +174,15 @@ def eckart(
 
     logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
     logger.debug(f"backward potential barrier: {delta_backward} J/mol")
-    assert np.all(delta_forward >= 0.0), "delta_forward should be >= 0"
-    assert np.all(delta_backward >= 0.0), "delta_backward should be >= 0"
+
+    if delta_forward <= 0 or delta_backward <= 0:
+        logger.warning(
+            "forward or backward barrier is non-positive, falling back to Wigner correction"
+        )
+        return wigner(vibfreq, temperature)
+
+    assert np.all(delta_forward > 0), "forward barrier should be positive"
+    assert np.all(delta_backward > 0), "backward barrier should be positive"
 
     # convert energies in joules per mole to joules
     delta_forward = delta_forward / constants.N_A
@@ -219,7 +238,10 @@ def _eckart(u: float, alpha1: float, alpha2: Optional[float] = None) -> float:
     Unsymmetrical barrier:
 
     >>> _eckart(2, 0.5, 1.0)
-    1.13
+    1.125
+    >>> _eckart(2, 1.0, 0.5)
+    1.125
+
     """
     # minimum orders that pass tests (with same precision as order=100)
     gauss_n = 18
