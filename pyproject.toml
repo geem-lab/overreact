@@ -48,10 +48,10 @@ classifiers = [
 overreact = 'overreact._cli:main'
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.8,<3.11"
 
 cclib = "^1"
-scipy = "^1"
+scipy = "^1.7"
 
 jax = {version = "^0.2", optional = true}
 jaxlib = {version = "^0.1", optional = true}
