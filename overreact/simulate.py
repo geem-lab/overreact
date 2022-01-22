@@ -22,7 +22,20 @@ import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _found_jax
 
-EF = 5
+
+# Energetic advantage given to half-equilibrium reactions.
+#
+# Basically, the higher this value, the faster the equilibria will relax,
+# but the system will be less stable due to stiffness, so it will require
+# tighter convergence thresholds for mass conservation to be satisfied.
+#
+# **The value below was chosen after some experimentation
+# with a rather complex model.** This gives rise to a speedup of over a factor
+# of eight to equilibria, which seems reasonable. **This choice was made
+# using the standard ODE parameters (rtol=1e-3, atol=1e-6).**
+#
+# TODO: this should probably be exposed to the user and use the actual simulation temperature.
+EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 
 
 logger = logging.getLogger(__name__)
@@ -258,6 +271,9 @@ def _adjust_k(scheme, k, ef=EF):
         Reaction rate constant(s). Units match the concentration units given to
         the returned function ``dydt``.
     ef : float, optional
+        Equilibrium factor. This is a parameter that can be used to scale the
+        reaction rates associated to half-equilibrium reactions such that they
+        are faster than the other reactions.
 
     Returns
     -------
@@ -306,6 +322,10 @@ def _adjust_k(scheme, k, ef=EF):
 
             k[is_half_equilibrium] *= adjustment
             logger.warning(f"equilibria adjustment = {adjustment}")
+
+            k_slowest_equil = k[is_half_equilibrium].min()
+            k_fastest_react = k[~is_half_equilibrium].max()
+            logger.warning(f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}")
         else:
             # only equilibria
 
