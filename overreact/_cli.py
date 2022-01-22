@@ -144,9 +144,9 @@ class Report:
         bias=0.0,
         tunneling="eckart",
         method="Radau",
-        max_time=24 * 60 * 60,
-        rtol=1e-5,
-        atol=1e-11,
+        max_time=1 * 60 * 60,
+        rtol=1e-3,
+        atol=1e-6,
         box_style=box.SIMPLE,
     ):
         """Initialize a Report object."""
@@ -830,19 +830,19 @@ def main(arguments=None):
         "--max-time",
         help="maximum microkinetic simulation time (in s) allowed",
         type=float,
-        default=24 * 60 * 60,
+        default=1 * 60 * 60,
     )
     parser.add_argument(
         "--rtol",
         help="relative local error of the ODE system integrator",
         type=float,
-        default=1e-5,
+        default=1e-3,
     )
     parser.add_argument(
         "--atol",
         help="absolute local error of the ODE system integrator",
         type=float,
-        default=1e-11,
+        default=1e-6,
     )
     args = parser.parse_args(arguments)
 

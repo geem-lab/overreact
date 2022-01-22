@@ -57,7 +57,7 @@ else:
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
 def get_y(
-    dydt, y0, t_span=None, method="Radau", rtol=1e-5, atol=1e-11, max_time=24 * 60 * 60
+    dydt, y0, t_span=None, method="Radau", rtol=1e-3, atol=1e-6, max_time=1 * 60 * 60
 ):
     """Simulate a reaction scheme from its rate function.
 
@@ -557,8 +557,8 @@ def get_bias(
     temperature=298.15,
     pressure=constants.atm,
     method="Radau",
-    rtol=1e-5,
-    atol=1e-11,
+    rtol=1e-3,
+    atol=1e-6,
 ):
     r"""Estimate a energy bias for a given set of reference data points.
 
