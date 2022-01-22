@@ -151,6 +151,7 @@ def get_y(
         jac = dydt.jac
 
     # TODO(schneiderfelipe): log solve_ivp stuff.
+    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
     res = solve_ivp(
         dydt,
         t_span,
@@ -248,6 +249,7 @@ def get_dydt(scheme, k, ef=EF):
         _dydt = jit(_dydt)
 
         def _jac(t, y):
+            logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")
             # _jac(t, y)[i, j] == d f_i / d y_j
             # shape is (n_compounds, n_compounds)
             return jacfwd(lambda _y: _dydt(t, _y))(y)
