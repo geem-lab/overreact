@@ -585,7 +585,7 @@ python-versions = ">=2.6"
 
 [[package]]
 name = "pdoc"
-version = "8.3.0"
+version = "9.0.0"
 description = "API Documentation for Python Projects"
 category = "dev"
 optional = false
@@ -997,7 +997,7 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "fd324b44c5e651238677e0543fb961d42ffffbdf428ba1a7614fbfef940e8065"
+content-hash = "74ff5e67ffb28f105a524cc6d2d84d205be94abb0020414e8d3ec8d2eabd1dfa"
 
 [metadata.files]
 absl-py = [
@@ -1456,7 +1456,7 @@ pbr = [
     {file = "pbr-5.8.0.tar.gz", hash = "sha256:672d8ebee84921862110f23fcec2acea191ef58543d34dfe9ef3d9f13c31cddf"},
 ]
 pdoc = [
-    {file = "pdoc-8.3.0-py3-none-any.whl", hash = "sha256:98ed96e4889a5ef79bc750cb976e40e36c59b4ae2bd42528e5824d1c2495d205"},
+    {file = "pdoc-9.0.0-py3-none-any.whl", hash = "sha256:67729f6db11912e62d223aa002ca6949c567b7c37507325fb70c4675f0d9d6f3"},
 ]
 periodictable = [
     {file = "periodictable-1.6.0.tar.gz", hash = "sha256:52e925220005c20e97601e7b04ad6cebc271680947ab9adcbb1a796ddbaa0f23"},
