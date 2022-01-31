@@ -928,7 +928,7 @@ pbr = ">=2.0.0,<2.1.0 || >2.1.0"
 
 [[package]]
 name = "thermo"
-version = "0.2.12"
+version = "0.2.13"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
@@ -1664,7 +1664,7 @@ stevedore = [
     {file = "stevedore-3.5.0.tar.gz", hash = "sha256:f40253887d8712eaa2bb0ea3830374416736dc8ec0e22f5a65092c1174c44335"},
 ]
 thermo = [
-    {file = "thermo-0.2.12.tar.gz", hash = "sha256:c802737948210700312b2e6402923e950d84aacd27a4aed1e69f6ce3c51c74cb"},
+    {file = "thermo-0.2.13.tar.gz", hash = "sha256:df65464809ec5ee9729f92d4cf013717a4800fbd42f2c58255f3f828298d40a3"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
