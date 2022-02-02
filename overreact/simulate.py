@@ -621,7 +621,7 @@ def get_bias(
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
     >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal
-    -1.364171
+    -1.36
     """
     max_time = np.max(data["t"])
 
