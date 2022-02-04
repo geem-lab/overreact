@@ -70,7 +70,7 @@ flake8 = "^4"
 isort = "^5"
 mypy = "^0.931"
 pydocstyle = "^6"
-pytest = "^6"
+pytest = "^7"
 pytest-cov = "^3"
 types-setuptools = "^57"
 
