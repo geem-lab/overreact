@@ -493,7 +493,7 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "jax"
-version = "0.2.28"
+version = "0.3.0"
 description = "Differentiate, compile, and transform Numpy code."
 category = "main"
 optional = true
@@ -507,12 +507,13 @@ scipy = ">=1.2.1"
 typing_extensions = "*"
 
 [package.extras]
-cpu = ["jaxlib (==0.1.76)"]
-cuda = ["jaxlib (==0.1.76+cuda11.cudnn82)"]
-cuda11_cudnn805 = ["jaxlib (==0.1.76+cuda11.cudnn805)"]
-cuda11_cudnn82 = ["jaxlib (==0.1.76+cuda11.cudnn82)"]
+ci = ["jaxlib (==0.1.76)"]
+cpu = ["jaxlib (==0.3.0)"]
+cuda = ["jaxlib (==0.3.0+cuda11.cudnn82)"]
+cuda11_cudnn805 = ["jaxlib (==0.3.0+cuda11.cudnn805)"]
+cuda11_cudnn82 = ["jaxlib (==0.3.0+cuda11.cudnn82)"]
 minimum-jaxlib = ["jaxlib (==0.1.74)"]
-tpu = ["jaxlib (==0.1.76)", "libtpu-nightly (==0.1.dev20220128)", "requests"]
+tpu = ["jaxlib (==0.3.0)", "libtpu-nightly (==0.1.dev20220128)", "requests"]
 
 [[package]]
 name = "jaxlib"
@@ -1518,7 +1519,7 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "4b117f2831d70b39481df6680fb975d832030d0ab7e5441a354ab9bc369b6d7f"
+content-hash = "6c3b7c246d485e0dfeb8a223f280464218048ab2ae96a413cddfe49ad0e3a64e"
 
 [metadata.files]
 absl-py = [
@@ -1817,7 +1818,7 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 jax = [
-    {file = "jax-0.2.28.tar.gz", hash = "sha256:6568f39b00c9eea883c59f334d637e5da44030181094013875aabb702e055b87"},
+    {file = "jax-0.3.0.tar.gz", hash = "sha256:aac264ba7b91ec3677fff8d641a5f1e2fbaca99ca5091774cc712493036059df"},
 ]
 jaxlib = [
     {file = "jaxlib-0.3.0-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:172cae69926762c5664202afcbbb4700200ac982a9e8a04cd597db66bd28ae88"},
