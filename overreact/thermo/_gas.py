@@ -772,8 +772,8 @@ def _check_vibfreqs(vibfreqs=None, cutoff=-50.0):
     -----
     We probably profit from QRRHO in cases where small imaginary vibrational
     frequencies are present. Obviously, for this to make sense in a the QRRHO
-    context, values are only acceptable when smaller than ~100 cm**-1. More
-    reasonably, values should be smaller than ~50 cm**-1. This is the current
+    context, values are only acceptable when smaller than ~100 cm-1. More
+    reasonably, values should be smaller than ~50 cm-1. This is the current
     default. It is your responsability to ensure reliable values, which
     broadly means no imaginary frequency larger than this cutoff (unless we
     are dealing with transition states).
