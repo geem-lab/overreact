@@ -563,6 +563,13 @@ def parse_compounds(text, path=("",), select=None):
         # TODO(schneiderfelipe): this workaround still allow unused compounds
         # to be parsed! This should change in the future.
         compounds = {name: compounds[name] for name in select}
+
+    # Apply `extra_energy_term`s
+    for name in compounds:
+        if "extra_energy_term" in compounds[name]:
+            # TODO: this assumes that 1. there's a single `extra_energy_term` and 2. `energy` is present
+            compounds[name]["energy"] += compounds[name]["extra_energy_term"]
+
     return dotdict(compounds)
 
 
