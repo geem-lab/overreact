@@ -570,7 +570,15 @@ def get_k(
             pair = k[i : i + 2]
             _K = pair[0] / pair[1]
 
-            k[i : i + 2] = pair / pair.min()
+            denom = pair.min()
+            if denom == 0.0:
+                logger.warning(
+                    "found half-equilibrium reaction with zero rate constant: "
+                    "skipping equilibrium normalization"
+                )
+                denom = 1.0
+
+            k[i : i + 2] = pair / denom
             assert np.isclose(_K, k[i] / k[i + 1]), (
                 f"reaction rate constants {k[i]} and {k[i + 1]} for "
                 "equilibria could not be made to match the expected "
