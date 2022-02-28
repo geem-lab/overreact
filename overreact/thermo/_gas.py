@@ -264,8 +264,8 @@ def calc_rot_energy(moments=None, independent=False, weights=1.0, temperature=29
     gamma = (
         np.sum(weights * n)
         - np.sum(weights * rotational_temperatures) / (3.0 * temperature)  # extra
-        - np.sum(weights * rotational_temperatures ** 2)
-        / (45.0 * temperature ** 2)  # extra
+        - np.sum(weights * rotational_temperatures**2)
+        / (45.0 * temperature**2)  # extra
     )
 
     rotational_energy = constants.R * temperature * gamma / 2.0
@@ -409,7 +409,7 @@ def calc_rot_entropy(
         - 2.0 * np.log(symmetry_number)
         # The term below is an extra term that improves some linear molecules,
         # but is almost zero for most other molecules
-        - np.sum(weights * rotational_temperatures ** 2) / (90.0 * temperature ** 2)
+        - np.sum(weights * rotational_temperatures**2) / (90.0 * temperature**2)
     )
     if not independent and n > 2:
         gamma += np.log(np.pi)
@@ -438,7 +438,7 @@ def calc_rot_entropy(
         rotational_entropy = (
             rotational_entropy
             + _sackur_tetrode(atommasses, prefactor * (r_cav - r_g) ** 3, temperature)
-            - _sackur_tetrode(atommasses, prefactor * r_cav ** 3, temperature)
+            - _sackur_tetrode(atommasses, prefactor * r_cav**3, temperature)
         )
     if not independent:
         logger.info(f"rotational entropy = {rotational_entropy} J/mol·K")
@@ -645,7 +645,7 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
     debroglie_wavelength = constants.h / np.sqrt(
         2.0 * np.pi * total_mass * constants.k * temperature
     )
-    q_trans = volume / (constants.N_A * debroglie_wavelength ** 3)
+    q_trans = volume / (constants.N_A * debroglie_wavelength**3)
     assert q_trans > 1.0, (
         f"de Broglie wavelength {debroglie_wavelength} is too large for the gas to "
         "satisfy Maxwell–Boltzmann statistics (classical regime)"
@@ -694,10 +694,10 @@ def _rotational_temperature(moments=None):
     moments = np.atleast_1d(moments)
     moments[np.abs(moments) < 1e-63] = 0  # set almost zeros to exact zeros
     moments = (
-        moments[np.nonzero(moments)] * constants.atomic_mass * constants.angstrom ** 2
+        moments[np.nonzero(moments)] * constants.atomic_mass * constants.angstrom**2
     )
 
-    rotational_temperatures = constants.hbar ** 2 / (2.0 * constants.k * moments)
+    rotational_temperatures = constants.hbar**2 / (2.0 * constants.k * moments)
     logger.debug(f"rotational temperatures = {rotational_temperatures} K")
     return rotational_temperatures
 
@@ -836,10 +836,10 @@ def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):
     # and not by 2 * np.pi. The original paper says nothing about it (and the
     # equation 4 there is probably wrong), but the expression below reproduces
     # both Figure 2 of the original paper and the results returned by ORCA.
-    moments = constants.hbar ** 2 / (
+    moments = constants.hbar**2 / (
         2.0 * constants.k * _vibrational_temperature(vibfreqs) / np.pi
     )
-    moments = moments / (constants.atomic_mass * constants.angstrom ** 2)
+    moments = moments / (constants.atomic_mass * constants.angstrom**2)
     return moments * B_av / (moments + B_av)
 
 

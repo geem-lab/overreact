@@ -271,7 +271,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.116, 5e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -303,7 +303,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.125, 6e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -335,7 +335,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.144, 3e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -367,7 +367,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.148, 8e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -399,7 +399,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.161, 3e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -431,7 +431,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.151, 6e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -463,7 +463,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.152, 3e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -495,7 +495,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.133, 7e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -527,7 +527,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.164, 1.2e-1
     )
     assert rx.thermo.calc_trans_entropy(
@@ -559,7 +559,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.153, 5e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -591,7 +591,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.156, 4e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -687,7 +687,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.145, 9e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -719,7 +719,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.164, 3e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -751,7 +751,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.292, 6e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -783,7 +783,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.164, 3e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -815,7 +815,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.180, 4e-2
     )
     assert rx.thermo.calc_trans_entropy(
@@ -847,7 +847,7 @@ def test_translational_entropy_liquid_phase():
     free_volume = rx.thermo._solv.molar_free_volume(
         data.atomnos, data.atomcoords, method="izato"
     )
-    assert free_volume / (constants.angstrom ** 3 * constants.N_A) == pytest.approx(
+    assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.147, 7e-2
     )
     assert rx.thermo.calc_trans_entropy(

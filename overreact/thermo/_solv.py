@@ -113,10 +113,10 @@ def calc_cav_entropy(
             # next one is that actually shows up in the paper
             # + 3.0 * yoomy * ratio
             + 3.0 * ratio / omy
-            + (3.0 + 4.5 * yoomy) * yoomy * ratio ** 2
+            + (3.0 + 4.5 * yoomy) * yoomy * ratio**2
             # TODO(schneiderfelipe): the following term shows up in an old
             # paper, but not in Garza's model
-            + (y * solvent.Vm * pressure / (constants.R * temperature)) * ratio ** 3
+            + (y * solvent.Vm * pressure / (constants.R * temperature)) * ratio**3
         )
         return -constants.R * temperature * gamma
 
@@ -256,7 +256,7 @@ def molar_free_volume(
             atomnos, atomcoords, method="izato", full_output=True
         )
         r_M, r_cav = np.cbrt(vdw_volume), np.cbrt(cav_volume)
-        molar_free_volume = (r_cav - r_M) ** 3 * constants.angstrom ** 3 * constants.N_A
+        molar_free_volume = (r_cav - r_M) ** 3 * constants.angstrom**3 * constants.N_A
     elif method == "garza":
         # TODO(schneiderfelipe): test for the following solvents: water,
         # pentane, hexane, heptane and octane.
@@ -267,7 +267,7 @@ def molar_free_volume(
             temperature=temperature,
             pressure=pressure,
         )
-        molar_free_volume = N_cav * cav_volume * constants.angstrom ** 3 * constants.N_A
+        molar_free_volume = N_cav * cav_volume * constants.angstrom**3 * constants.N_A
     else:
         raise ValueError(f"unrecognized method: '{method}'")
     logger.debug(f"molar free volume = {molar_free_volume} Å³")

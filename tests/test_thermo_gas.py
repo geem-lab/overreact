@@ -57,13 +57,13 @@ def test_sanity_for_absolute_thermochemistry():
     moments = (
         np.array([23.57594, 88.34097, 88.34208])
         * constants.atomic_mass
-        * constants.bohr ** 2
+        * constants.bohr**2
     )
     assert rx.thermo._gas._rotational_temperature(
-        moments / (constants.atomic_mass * constants.angstrom ** 2)
+        moments / (constants.atomic_mass * constants.angstrom**2)
     ) == pytest.approx([3.67381, 0.98044, 0.98043], 2e-5)
     assert (
-        constants.hbar ** 2 / (2.0 * constants.h * moments)
+        constants.hbar**2 / (2.0 * constants.h * moments)
     ) / constants.giga == pytest.approx([76.55013, 20.42926, 20.42901])
 
     vibtemps = np.array(
@@ -98,11 +98,11 @@ def test_sanity_for_absolute_thermochemistry():
     elec_internal_energy = rx.thermo._gas.calc_elec_energy(0.0, 1.0)
     trans_internal_energy = rx.thermo._gas.calc_trans_energy()
     rot_internal_energy = rx.thermo._gas.calc_rot_energy(
-        moments / (constants.atomic_mass * constants.angstrom ** 2)
+        moments / (constants.atomic_mass * constants.angstrom**2)
     )
     vib_internal_energy = rx.thermo._gas.calc_vib_energy(vibfreqs)
     internal_energy = rx.thermo.calc_internal_energy(
-        0.0, 1.0, moments / (constants.atomic_mass * constants.angstrom ** 2), vibfreqs
+        0.0, 1.0, moments / (constants.atomic_mass * constants.angstrom**2), vibfreqs
     )
     assert elec_internal_energy == pytest.approx(0.0)
     assert trans_internal_energy / constants.kcal == pytest.approx(0.889, 4e-4)
@@ -120,14 +120,14 @@ def test_sanity_for_absolute_thermochemistry():
     elec_entropy = rx.thermo._gas.calc_elec_entropy(0.0, 1.0)
     trans_entropy = rx.thermo.calc_trans_entropy(atommasses)
     rot_entropy = rx.thermo._gas.calc_rot_entropy(
-        moments=moments / (constants.atomic_mass * constants.angstrom ** 2)
+        moments=moments / (constants.atomic_mass * constants.angstrom**2)
     )
     vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs)
     entropy = rx.thermo.calc_entropy(
         atommasses,
         energy=0.0,
         degeneracy=1.0,
-        moments=moments / (constants.atomic_mass * constants.angstrom ** 2),
+        moments=moments / (constants.atomic_mass * constants.angstrom**2),
         vibfreqs=vibfreqs,
     )
     assert elec_entropy == pytest.approx(0.0)
@@ -186,8 +186,8 @@ def test_enthalpy_ideal_gases():
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
     # H2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 85.3)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 85.3)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 6125 * constants.k * constants.centi / (constants.h * constants.c)
     internal_energy = rx.thermo.calc_internal_energy(
@@ -200,8 +200,8 @@ def test_enthalpy_ideal_gases():
 
     # O2
     degeneracy = 3
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 2.07)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 2.07)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 2256 * constants.k * constants.centi / (constants.h * constants.c)
     internal_energy = rx.thermo.calc_internal_energy(
@@ -219,8 +219,8 @@ def test_enthalpy_ideal_gases():
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
     # HCl
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 15.02)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 15.02)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 4227 * constants.k * constants.centi / (constants.h * constants.c)
     internal_energy = rx.thermo.calc_internal_energy(
@@ -232,8 +232,8 @@ def test_enthalpy_ideal_gases():
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
     # CO2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.561)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.561)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([3360, 954, 954, 1890])
@@ -250,11 +250,11 @@ def test_enthalpy_ideal_gases():
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
     # NH3
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 13.6)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 13.6)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 8.92)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 8.92)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([4800, 1360, 4880, 4880, 2330, 2330])
@@ -436,8 +436,8 @@ def test_entropy_ideal_diatomic_gases():
     temperature = 298.15
 
     # H2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 85.3)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 85.3)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 2
     vibfreq = 6125 * constants.k * constants.centi / (constants.h * constants.c)
@@ -451,8 +451,8 @@ def test_entropy_ideal_diatomic_gases():
 
     # O2
     degeneracy = 3
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 2.07)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 2.07)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 2
     vibfreq = 2256 * constants.k * constants.centi / (constants.h * constants.c)
@@ -466,8 +466,8 @@ def test_entropy_ideal_diatomic_gases():
     ) / constants.calorie == pytest.approx(49.0, 1e-5)
 
     # N2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 2.88)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 2.88)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 2
     vibfreq = 3374 * constants.k * constants.centi / (constants.h * constants.c)
@@ -480,8 +480,8 @@ def test_entropy_ideal_diatomic_gases():
     ) / constants.calorie == pytest.approx(45.7, 1e-2)
 
     # Cl2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.351)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.351)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 2
     vibfreq = 808 * constants.k * constants.centi / (constants.h * constants.c)
@@ -494,8 +494,8 @@ def test_entropy_ideal_diatomic_gases():
     ) / constants.calorie == pytest.approx(53.3, 1e-2)
 
     # HCl
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 15.02)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 15.02)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 4227 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_entropy(
@@ -503,8 +503,8 @@ def test_entropy_ideal_diatomic_gases():
     ) / constants.calorie == pytest.approx(44.6, 1e-3)
 
     # HBr
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 12.02)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 12.02)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 3787 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_entropy(
@@ -512,8 +512,8 @@ def test_entropy_ideal_diatomic_gases():
     ) / constants.calorie == pytest.approx(47.4, 1e-2)
 
     # HI
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 9.06)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 9.06)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 3266 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_entropy(
@@ -521,8 +521,8 @@ def test_entropy_ideal_diatomic_gases():
     ) / constants.calorie == pytest.approx(49.3, 1e-2)
 
     # CO
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 2.77)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 2.77)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 3103 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_entropy(
@@ -542,8 +542,8 @@ def test_internal_energy_ideal_diatomic_gases():
     temperature = 298.15
 
     # H2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 85.3)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 85.3)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 6125 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
@@ -552,8 +552,8 @@ def test_internal_energy_ideal_diatomic_gases():
 
     # O2
     degeneracy = 3
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 2.07)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 2.07)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 2256 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
@@ -564,8 +564,8 @@ def test_internal_energy_ideal_diatomic_gases():
     ) == pytest.approx(15580.08, 2e-5)
 
     # N2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 2.88)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 2.88)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 3374 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
@@ -573,8 +573,8 @@ def test_internal_energy_ideal_diatomic_gases():
     ) == pytest.approx(20216.25, 3e-6)
 
     # Cl2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.351)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.351)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 808 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
@@ -582,8 +582,8 @@ def test_internal_energy_ideal_diatomic_gases():
     ) == pytest.approx(10034.30, 4e-4)
 
     # HCl
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 15.02)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 15.02)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 4227 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
@@ -591,8 +591,8 @@ def test_internal_energy_ideal_diatomic_gases():
     ) == pytest.approx(23728.27, 2e-6)
 
     # HBr
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 12.02)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 12.02)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 3787 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
@@ -600,8 +600,8 @@ def test_internal_energy_ideal_diatomic_gases():
     ) == pytest.approx(21907.52, 2e-6)
 
     # HI
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 9.06)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 9.06)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 3266 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
@@ -609,8 +609,8 @@ def test_internal_energy_ideal_diatomic_gases():
     ) == pytest.approx(19750.22, 3e-6)
 
     # CO
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 2.77)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 2.77)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreq = 3103 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
@@ -631,8 +631,8 @@ def test_entropy_ideal_polyatomic_gases():
     temperature = 298.15
 
     # CO2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.561)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.561)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 2
     vibfreqs = (
@@ -650,11 +650,11 @@ def test_entropy_ideal_polyatomic_gases():
     ) / constants.calorie == pytest.approx(51.0, 1e-2)
 
     # NH3
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 13.6)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 13.6)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 8.92)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 8.92)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 3
     vibfreqs = (
@@ -672,14 +672,14 @@ def test_entropy_ideal_polyatomic_gases():
     ) / constants.calorie == pytest.approx(46.0, 1e-2)
 
     # NO2
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 11.5)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 11.5)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 0.624)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 0.624)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ic = (constants.hbar ** 2 / (2.0 * constants.k * 0.590)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ic = (constants.hbar**2 / (2.0 * constants.k * 0.590)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 2
     vibfreqs = (
@@ -698,14 +698,14 @@ def test_entropy_ideal_polyatomic_gases():
     ) / constants.calorie == pytest.approx(57.5, 1e-2)
 
     # ClO2
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 2.50)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 2.50)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 0.478)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 0.478)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ic = (constants.hbar ** 2 / (2.0 * constants.k * 0.400)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ic = (constants.hbar**2 / (2.0 * constants.k * 0.400)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 2
     vibfreqs = (
@@ -723,8 +723,8 @@ def test_entropy_ideal_polyatomic_gases():
     ) / constants.calorie == pytest.approx(59.6, 1e-2)
 
     # CH4
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 7.54)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 7.54)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 12
     vibfreqs = (
@@ -742,11 +742,11 @@ def test_entropy_ideal_polyatomic_gases():
     ) / constants.calorie == pytest.approx(44.5, 1e-3)
 
     # CH3Cl
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 7.32)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 7.32)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 0.637)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 0.637)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 3
     vibfreqs = (
@@ -764,8 +764,8 @@ def test_entropy_ideal_polyatomic_gases():
     ) / constants.calorie == pytest.approx(56.0, 1e-3)
 
     # CCl4
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.0823)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.0823)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     symmetry_number = 12
     vibfreqs = (
@@ -810,8 +810,8 @@ def test_internal_energy_ideal_polyatomic_gases():
     temperature = 298.15
 
     # CO2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.561)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.561)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([3360, 954, 954, 1890])
@@ -824,11 +824,11 @@ def test_internal_energy_ideal_polyatomic_gases():
     ) == pytest.approx(36655.77, 2e-4)
 
     # NH3
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 13.6)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 13.6)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 8.92)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 8.92)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([4800, 1360, 4880, 4880, 2330, 2330])
@@ -841,14 +841,14 @@ def test_internal_energy_ideal_polyatomic_gases():
     ) == pytest.approx(93077.53, 2e-5)
 
     # NO2
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 11.5)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 11.5)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 0.624)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 0.624)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ic = (constants.hbar ** 2 / (2.0 * constants.k * 0.590)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ic = (constants.hbar**2 / (2.0 * constants.k * 0.590)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([1900, 1980, 2330])
@@ -861,14 +861,14 @@ def test_internal_energy_ideal_polyatomic_gases():
     ) == pytest.approx(33291.99, 3e-5)
 
     # ClO2
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 2.50)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 2.50)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 0.478)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 0.478)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ic = (constants.hbar ** 2 / (2.0 * constants.k * 0.400)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ic = (constants.hbar**2 / (2.0 * constants.k * 0.400)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([1360, 640, 1600])
@@ -881,8 +881,8 @@ def test_internal_energy_ideal_polyatomic_gases():
     ) == pytest.approx(23284.32, 4e-4)
 
     # CH4
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 7.54)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 7.54)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([4170, 2180, 2180, 4320, 4320, 4320, 1870, 1870, 1870])
@@ -895,11 +895,11 @@ def test_internal_energy_ideal_polyatomic_gases():
     ) == pytest.approx(120179.00, 2e-5)
 
     # CH3Cl
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 7.32)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 7.32)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 0.637)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 0.637)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([4270, 1950, 1050, 4380, 4380, 2140, 2140, 1460, 1460])
@@ -912,8 +912,8 @@ def test_internal_energy_ideal_polyatomic_gases():
     ) == pytest.approx(104496.66, 4e-5)
 
     # CCl4
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.0823)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.0823)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([660, 310, 310, 1120, 1120, 1120, 450, 450, 450])
@@ -944,8 +944,8 @@ def test_heat_capacity_ideal_gases():
     temperature = 300.0
 
     # CO2
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.561)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.561)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([3360, 954, 954, 1890])
@@ -958,8 +958,8 @@ def test_heat_capacity_ideal_gases():
     ) / constants.R == pytest.approx(3.49, 1e-3)
 
     # N2O
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 0.603)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 0.603)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([3200, 850, 850, 1840])
@@ -974,11 +974,11 @@ def test_heat_capacity_ideal_gases():
     )  # book is wrong, this is correct
 
     # NH3
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 13.6)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 13.6)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 8.92)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 8.92)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([4800, 1360, 4880, 4880, 2330, 2330])
@@ -991,8 +991,8 @@ def test_heat_capacity_ideal_gases():
     ) / constants.R == pytest.approx(3.28, 1e-3)
 
     # CH4
-    i = (constants.hbar ** 2 / (2.0 * constants.k * 7.54)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    i = (constants.hbar**2 / (2.0 * constants.k * 7.54)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([4170, 2180, 2180, 4320, 4320, 4320, 1870, 1870, 1870])
@@ -1005,14 +1005,14 @@ def test_heat_capacity_ideal_gases():
     ) / constants.R == pytest.approx(3.30, 1e-2)
 
     # H2O
-    ia = (constants.hbar ** 2 / (2.0 * constants.k * 40.1)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ia = (constants.hbar**2 / (2.0 * constants.k * 40.1)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ib = (constants.hbar ** 2 / (2.0 * constants.k * 20.9)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ib = (constants.hbar**2 / (2.0 * constants.k * 20.9)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
-    ic = (constants.hbar ** 2 / (2.0 * constants.k * 13.4)) / (
-        constants.atomic_mass * constants.angstrom ** 2
+    ic = (constants.hbar**2 / (2.0 * constants.k * 13.4)) / (
+        constants.atomic_mass * constants.angstrom**2
     )
     vibfreqs = (
         np.array([5360, 5160, 2290])

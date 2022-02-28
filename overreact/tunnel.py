@@ -93,7 +93,7 @@ def wigner(vibfreq: float, temperature: Union[float, np.ndarray] = 298.15) -> fl
     nu = _check_nu(vibfreq)
     u = constants.h * nu / (constants.k * temperature)
 
-    kappa = 1.0 + (u ** 2) / 24.0
+    kappa = 1.0 + (u**2) / 24.0
     logger.info(f"Wigner tunneling coefficient: {kappa}")
     return kappa
 
@@ -255,7 +255,7 @@ def _eckart(u: float, alpha1: float, alpha2: Optional[float] = None) -> float:
     v1 = alpha1 * u / (two_pi)
     v2 = alpha2 * u / (two_pi)
 
-    d = 4.0 * alpha1 * alpha2 - np.pi ** 2
+    d = 4.0 * alpha1 * alpha2 - np.pi**2
     if d > 0:
         D = np.cosh(np.sqrt(d))
     else:

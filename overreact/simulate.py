@@ -22,7 +22,6 @@ import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _found_jax
 
-
 # Energetic advantage given to half-equilibrium reactions.
 #
 # Basically, the higher this value, the faster the equilibria will relax,

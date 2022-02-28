@@ -26,7 +26,7 @@ def test_basic_example_for_solvation_equilibria():
     temperature = 298.15
     pK = 4.756  # DOI:10.1063/1.1416902
 
-    acid_energy = -constants.R * temperature * np.log(10 ** -pK) / constants.kcal
+    acid_energy = -constants.R * temperature * np.log(10**-pK) / constants.kcal
     solv_energy = (
         -229.04018997
         - -229.075245654407
@@ -72,7 +72,7 @@ def test_basic_example_for_solvation_equilibria():
         # the following tests the reaction free energy from DOI:10.1063/1.1416902
         assert delta_freeenergies[0] == pytest.approx(27.147 * constants.kilo, 7e-3)
         assert delta_freeenergies[0] == pytest.approx(
-            -constants.R * temperature * np.log(10 ** -pK), 7e-3
+            -constants.R * temperature * np.log(10**-pK), 7e-3
         )
 
         k = rx.get_k(
@@ -265,7 +265,7 @@ def test_rate_constants_for_hickel1992():
         assert linregress.slope == pytest.approx(1.0, tols[0])
         assert linregress.intercept == pytest.approx(0.0, abs=tols[1])
 
-        assert linregress.rvalue ** 2 == pytest.approx(1.0, tols[2])
+        assert linregress.rvalue**2 == pytest.approx(1.0, tols[2])
         assert linregress.pvalue == pytest.approx(0.0, abs=tols[3])
         assert linregress.pvalue < 0.01
         assert linregress.stderr == pytest.approx(0.0, abs=tols[4])
@@ -380,7 +380,7 @@ def test_rate_constants_for_tanaka1996():
         assert linregress.slope == pytest.approx(1.0, tols[0])
         assert linregress.intercept == pytest.approx(0.0, abs=tols[1])
 
-        assert linregress.rvalue ** 2 == pytest.approx(1.0, tols[2])
+        assert linregress.rvalue**2 == pytest.approx(1.0, tols[2])
         assert linregress.pvalue == pytest.approx(0.0, abs=tols[3])
         assert linregress.pvalue < 0.01
         assert linregress.stderr == pytest.approx(0.0, abs=tols[4])

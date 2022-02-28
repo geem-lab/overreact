@@ -741,7 +741,7 @@ def equilibrium_constant(
         if volume is None:
             volume = molar_volume(temperature, pressure) * constants.kilo
 
-        equilibrium_constant *= volume ** delta_moles
+        equilibrium_constant *= volume**delta_moles
 
     logger.info(f"equilibrium constant = {equilibrium_constant}")
     return equilibrium_constant

@@ -60,7 +60,7 @@ def test_sanity_for_absolute_thermochemistry():
     )
     assert np.sum(data.atommasses) == pytest.approx(30.04695, 8e-4)
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
-    assert moments * constants.angstrom ** 2 / constants.bohr ** 2 == pytest.approx(
+    assert moments * constants.angstrom**2 / constants.bohr**2 == pytest.approx(
         [23.57594, 88.34097, 88.34208], 7e-2
     )
     assert data.vibfreqs == pytest.approx(vibfreqs, 1.8)  # just for sanity
@@ -151,7 +151,7 @@ def test_sanity_for_absolute_thermochemistry():
     )
     assert np.sum(data.atommasses) == pytest.approx(30.04695, 8e-4)
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
-    assert moments * constants.angstrom ** 2 / constants.bohr ** 2 == pytest.approx(
+    assert moments * constants.angstrom**2 / constants.bohr**2 == pytest.approx(
         [23.57594, 88.34097, 88.34208], 6e-2
     )
     assert data.vibfreqs == pytest.approx(vibfreqs, 3e-1)

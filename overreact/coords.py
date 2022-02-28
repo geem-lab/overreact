@@ -245,10 +245,10 @@ def _garza(
     # solvent_volume = coords.get_molecular_volume(data_S.atomnos,
     #                                              data_S.atomcoords)
     solvent_volume = solvent.Van_der_Waals_volume / (
-        constants.angstrom ** 3 * constants.N_A
+        constants.angstrom**3 * constants.N_A
     )
     r_free = np.cbrt(
-        solvent.Vm / (constants.angstrom ** 3 * constants.N_A) - solvent_volume
+        solvent.Vm / (constants.angstrom**3 * constants.N_A) - solvent_volume
     )
     r_M = np.cbrt(vdw_volume)
 
@@ -258,10 +258,10 @@ def _garza(
     r_S = np.cbrt(solvent_volume)
     ratio = r_M / r_S
 
-    area_free = r_free ** 2
-    area_S_total = r_S ** 2 + area_free
+    area_free = r_free**2
+    area_S_total = r_S**2 + area_free
 
-    x = max(area_free - r_M ** 2, 0.0) / area_S_total
+    x = max(area_free - r_M**2, 0.0) / area_S_total
     if np.isclose(x, 0.0):
         return cav_volume, 1.0, ratio
 
@@ -1593,7 +1593,7 @@ def inertia(atommasses, atomcoords, align=True):
     atomcoords = atomcoords - com
 
     w_coords = np.sqrt(atommasses)[:, np.newaxis] * atomcoords
-    squared_w_coords = w_coords ** 2
+    squared_w_coords = w_coords**2
 
     i_xx = np.sum(squared_w_coords[:, 1] + squared_w_coords[:, 2])
     i_yy = np.sum(squared_w_coords[:, 0] + squared_w_coords[:, 2])
@@ -1690,7 +1690,7 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
     nu = np.asarray(vibfreqs) * constants.c / constants.centi
     eigenvalues = (
         (2.0 * np.pi * nu) ** 2
-        * (constants.atomic_mass * constants.bohr ** 2)
+        * (constants.atomic_mass * constants.bohr**2)
         / constants.hartree
     )
     eigenvalues = np.block([eigenvalues, np.zeros(dof - len(eigenvalues))])
@@ -1740,7 +1740,7 @@ def calc_vibfreqs(hessian, atommasses):
     # molecules and transition states.
     eigenvalues = np.real(eigenvalues[eigenvalues > 0])[::-1]
     nu = np.sqrt(
-        eigenvalues * constants.hartree / (constants.atomic_mass * constants.bohr ** 2)
+        eigenvalues * constants.hartree / (constants.atomic_mass * constants.bohr**2)
     ) / (2.0 * np.pi)
     return nu * constants.centi / constants.c
 
@@ -1933,7 +1933,7 @@ def _equivalent_atoms(
 
         omega = np.mean(D, axis=0)
         sigma = np.std(D, axis=0)
-        delta = np.sqrt(np.sum(D ** 2, axis=0))
+        delta = np.sqrt(np.sum(D**2, axis=0))
 
         criteria = np.block([[omega], [sigma], [delta]]).T
         Z = linkage(pdist(criteria), method="single")
