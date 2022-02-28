@@ -149,7 +149,36 @@ def get_y(
     if hasattr(dydt, "jac"):
         jac = dydt.jac
 
-    # TODO(schneiderfelipe): log solve_ivp stuff.
+    # This should be small enough.
+    # It seems to be required by LSODA, but has no visible effect on Radau.
+    # I don't care about BDF.
+    #
+    # Estimates are based on
+    # - the estimated time it takes for hydrogen atoms bind to a graphene sheet,
+    # - the diffusion constant of n-pentane,
+    # - the reaction rate of H2CO3 dehydration by carbonic anhydrase,
+    # - the hundredth part of the timespan,
+    # - some numberical limits,
+    first_step = np.min(
+        [
+            1e-14,
+            1 / 27e9,
+            1 / 1.5e10,
+            (t_span[1] - t_span[0]) / 100.0,
+            np.finfo(np.float16).eps,
+            np.finfo(np.float32).eps,
+            np.finfo(np.float64).eps,
+            np.nextafter(np.float16(0), np.float16(1)),
+            np.nextafter(np.float32(0), np.float32(1)),
+            # np.nextafter(np.float64(0), np.float64(1)),  # Too small.
+        ]
+    )
+    logger.warning(f"first step = {first_step} s")
+
+    # Too large a max step breaks LSODA. A too small one breaks it too.
+    max_step = np.min([1.0, (t_span[1] - t_span[0]) / 100.0])
+    logger.warning(f"max step = {max_step} s")
+
     logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
     res = solve_ivp(
         dydt,
@@ -157,10 +186,13 @@ def get_y(
         y0,
         method=method,
         dense_output=True,
+        first_step=first_step,
+        max_step=max_step,
         rtol=rtol,
         atol=atol,
         jac=jac,
     )
+    logger.warning(res)
     y = res.sol
 
     def r(t):
