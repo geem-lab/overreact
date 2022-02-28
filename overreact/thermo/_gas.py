@@ -796,9 +796,12 @@ def _check_vibfreqs(vibfreqs=None, cutoff=-50.0):
     if vibfreqs is None:
         return np.array([])
     vibfreqs = np.atleast_1d(vibfreqs)
-    # TODO(schneiderfelipe): give a warning when we have two or more negative
-    # values outside the cutoff, since it is certainly a sign of a bad
-    # structure.
+
+    if len(vibfreqs[vibfreqs < 0]) > 0:
+        logger.warning(
+            f"imaginary frequencies found: using the absolute value of all above {-cutoff}i cm-1, ignoring the rest"
+        )
+
     return np.abs(vibfreqs[vibfreqs > cutoff])
 
 

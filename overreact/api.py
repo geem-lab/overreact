@@ -572,8 +572,9 @@ def get_k(
 
             k[i : i + 2] = pair / pair.min()
             assert np.isclose(_K, k[i] / k[i + 1]), (
-                "reaction rate constants for equilibria could not be made "
-                "to match the expected equilibrium constant value"
+                f"reaction rate constants {k[i]} and {k[i + 1]} for "
+                "equilibria could not be made to match the expected "
+                f"equilibrium constant value {_K}"
             )
 
             # loop over pairs of equilibria
