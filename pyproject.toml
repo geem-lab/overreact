@@ -55,7 +55,7 @@ scipy = "^1.8"
 
 jax = {version = "^0.3", optional = true}
 jaxlib = {version = "^0.3", optional = true}
-rich = {version = "^11", optional = true}
+rich = {version = "^12", optional = true}
 thermo = {version = "^0.2", optional = true}
 
 [tool.poetry.extras]
