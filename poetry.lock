@@ -1414,7 +1414,7 @@ test = ["pytest"]
 
 [[package]]
 name = "thermo"
-version = "0.2.14"
+version = "0.2.16"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
@@ -2449,7 +2449,7 @@ testpath = [
     {file = "testpath-0.6.0.tar.gz", hash = "sha256:2f1b97e6442c02681ebe01bd84f531028a7caea1af3825000f52345c30285e0f"},
 ]
 thermo = [
-    {file = "thermo-0.2.14.tar.gz", hash = "sha256:728b42e2d03fcbe16a5f850d2ddc817336338086202f532ac8129b501771afc8"},
+    {file = "thermo-0.2.16.tar.gz", hash = "sha256:6db6f9f06ef49c7402e8ff1d8f25707a1ec7ffcc509f32c84339fdcd9f0e27af"},
 ]
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
