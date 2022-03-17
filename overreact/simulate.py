@@ -169,7 +169,7 @@ def get_y(
             np.finfo(np.float32).eps,
             np.finfo(np.float64).eps,
             np.nextafter(np.float16(0), np.float16(1)),
-            np.nextafter(np.float32(0), np.float32(1)),
+            # np.nextafter(np.float33(0), np.float32(1)),  # Too small.
             # np.nextafter(np.float64(0), np.float64(1)),  # Too small.
         ]
     )
