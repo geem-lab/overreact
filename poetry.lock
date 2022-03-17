@@ -493,7 +493,7 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "jax"
-version = "0.3.1"
+version = "0.3.2"
 description = "Differentiate, compile, and transform Numpy code."
 category = "main"
 optional = true
@@ -508,12 +508,12 @@ typing_extensions = "*"
 
 [package.extras]
 ci = ["jaxlib (==0.3.0)"]
-cpu = ["jaxlib (==0.3.0)"]
-cuda = ["jaxlib (==0.3.0+cuda11.cudnn82)"]
-cuda11_cudnn805 = ["jaxlib (==0.3.0+cuda11.cudnn805)"]
-cuda11_cudnn82 = ["jaxlib (==0.3.0+cuda11.cudnn82)"]
-minimum-jaxlib = ["jaxlib (==0.1.74)"]
-tpu = ["jaxlib (==0.3.0)", "libtpu-nightly (==0.1.dev20220128)", "requests"]
+cpu = ["jaxlib (==0.3.2)"]
+cuda = ["jaxlib (==0.3.2+cuda11.cudnn82)"]
+cuda11_cudnn805 = ["jaxlib (==0.3.2+cuda11.cudnn805)"]
+cuda11_cudnn82 = ["jaxlib (==0.3.2+cuda11.cudnn82)"]
+minimum-jaxlib = ["jaxlib (==0.3.0)"]
+tpu = ["jaxlib (==0.3.2)", "libtpu-nightly (==0.1.dev20220315)", "requests"]
 
 [[package]]
 name = "jaxlib"
@@ -1818,7 +1818,7 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 jax = [
-    {file = "jax-0.3.1.tar.gz", hash = "sha256:bf8f36140a231ddd12d3f4c3a2e1f5aa029722cfcde9e24f99687483063f138e"},
+    {file = "jax-0.3.2.tar.gz", hash = "sha256:136a6cf6bf0ddf834e5e6c49f69ca4401425654512ab2b66144137dc82967d40"},
 ]
 jaxlib = [
     {file = "jaxlib-0.3.2-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:338daac14405104b1d193ff8b7ab1e91eb8cdfdf6329cd189f6d041e29a57355"},
