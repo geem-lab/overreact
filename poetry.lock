@@ -517,7 +517,7 @@ tpu = ["jaxlib (==0.3.0)", "libtpu-nightly (==0.1.dev20220128)", "requests"]
 
 [[package]]
 name = "jaxlib"
-version = "0.3.0"
+version = "0.3.2"
 description = "XLA library for JAX"
 category = "main"
 optional = true
@@ -1821,17 +1821,17 @@ jax = [
     {file = "jax-0.3.1.tar.gz", hash = "sha256:bf8f36140a231ddd12d3f4c3a2e1f5aa029722cfcde9e24f99687483063f138e"},
 ]
 jaxlib = [
-    {file = "jaxlib-0.3.0-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:172cae69926762c5664202afcbbb4700200ac982a9e8a04cd597db66bd28ae88"},
-    {file = "jaxlib-0.3.0-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:8cd10ff7635d1f77b704648acbed314a71cb4cb931986f1df1627f315abb921f"},
-    {file = "jaxlib-0.3.0-cp310-none-manylinux2010_x86_64.whl", hash = "sha256:f6e06414e3bc2e54693ba00ff92f172bdfdddb245dc87c501a56c08d286a1d14"},
-    {file = "jaxlib-0.3.0-cp37-none-macosx_10_9_x86_64.whl", hash = "sha256:4b3e13fcfc6adb6b71f8592c9958aef5b2bd3f1b6eaba90affb353b432e1625b"},
-    {file = "jaxlib-0.3.0-cp37-none-manylinux2010_x86_64.whl", hash = "sha256:c659369edca97c1a4221e81d133303897ae81f12221508d016367a85b7db7a54"},
-    {file = "jaxlib-0.3.0-cp38-none-macosx_10_9_x86_64.whl", hash = "sha256:b14d7fb7ddded11edd431c30dc15fa33c56c9e93f065c11a805c515494ab231d"},
-    {file = "jaxlib-0.3.0-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:9b6e8f78a1ca25ece6c9d78c8ece8c78abbeb5ea27561e8b78cf067ccdc48793"},
-    {file = "jaxlib-0.3.0-cp38-none-manylinux2010_x86_64.whl", hash = "sha256:9cfae3cddaae4495b387e3e0dfb5abf1f17d80cff7f4f8bcf5ae0de1e9aae56e"},
-    {file = "jaxlib-0.3.0-cp39-none-macosx_10_9_x86_64.whl", hash = "sha256:f74b81e9277baea5db0b221ce9d69f70355462bdd9a000ccc8c5cc52880132ec"},
-    {file = "jaxlib-0.3.0-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:ab83ff77dcd82840c4f7acc331f69ec7d7c4317d1b181b705a7391b887815eef"},
-    {file = "jaxlib-0.3.0-cp39-none-manylinux2010_x86_64.whl", hash = "sha256:01f055aa8a828445e5102e4f81bb50e6b43371bc28e79f1f8ea0a348f1263794"},
+    {file = "jaxlib-0.3.2-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:338daac14405104b1d193ff8b7ab1e91eb8cdfdf6329cd189f6d041e29a57355"},
+    {file = "jaxlib-0.3.2-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:6bc65f76c96dbeb8f2d5dc6a0fb7c0ab39642bec3e6fc6de00eb1f2a41401b91"},
+    {file = "jaxlib-0.3.2-cp310-none-manylinux2010_x86_64.whl", hash = "sha256:b8314f9ee62642d899d286456e83ad4de819e539f6100383a83d532b0ef0b97e"},
+    {file = "jaxlib-0.3.2-cp37-none-macosx_10_9_x86_64.whl", hash = "sha256:0a425b09836ed682dcdfc88e79595cbcd2987b55ac6219c382826f9ce4a7eb47"},
+    {file = "jaxlib-0.3.2-cp37-none-manylinux2010_x86_64.whl", hash = "sha256:8c1a670d868ffc0df217ff0faffca8c1855c5c844773f771ef70a68725ccff89"},
+    {file = "jaxlib-0.3.2-cp38-none-macosx_10_9_x86_64.whl", hash = "sha256:d1149dd4bb1f66d0a3e76337a59dcbd864ca98cabdc559e548b95fc874368200"},
+    {file = "jaxlib-0.3.2-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:21506c98bdd50e3feb21fac3d245a632ff71eed76ceac7d00b5e9ad9e9ce36f4"},
+    {file = "jaxlib-0.3.2-cp38-none-manylinux2010_x86_64.whl", hash = "sha256:3a42055bea0737d1559c79c0307f6510722a9b26b3c4b93f8efc043ec9d02502"},
+    {file = "jaxlib-0.3.2-cp39-none-macosx_10_9_x86_64.whl", hash = "sha256:455ed3749a50b105cbd4010f3c2b3e11378ce6ca828d90a3e69f6f7fc2af9bc9"},
+    {file = "jaxlib-0.3.2-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:a9db5f072b463f5ebc1d792ea41a8acc0821876f90c8fdf7c3d4e38e09b7ca64"},
+    {file = "jaxlib-0.3.2-cp39-none-manylinux2010_x86_64.whl", hash = "sha256:159ef0ec9afa7d0d6b4d1ef18aa49825db15173a86fe7bb879c2ecbbace4d9a9"},
 ]
 jedi = [
     {file = "jedi-0.18.1-py2.py3-none-any.whl", hash = "sha256:637c9635fcf47945ceb91cd7f320234a7be540ded6f3e99a50cb6febdfd1ba8d"},
