@@ -22,7 +22,7 @@ jobs:
               with:
                   submodules: true
             - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v3.0.0
+              uses: actions/setup-python@v3.1.0
               with:
                   python-version: ${{ matrix.python-version }}
             - name: Python Poetry Action
