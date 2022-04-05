@@ -95,16 +95,16 @@ def parse_model(path: Text, force_compile: bool = False):
     True
     """
     if not path.endswith((".k", ".jk")):
-        path = path + ".jk"
+        path = f"{path}.jk"
         logger.warning(f"assuming `.jk` file in {path}")
     name, _ = os.path.splitext(path)
 
-    path_jk = name + ".jk"
+    path_jk = f"{name}.jk"
     if not force_compile and os.path.isfile(path_jk):
         logger.info(f"parsing `.jk` file in {path_jk}")
         return _parse_model(path_jk)
 
-    path_k = name + ".k"
+    path_k = f"{name}.k"
     logger.info(f"parsing `.k` file in {path_k}")
     if not os.path.isfile(path_k):
         raise FileNotFoundError(f"no `.k` file found in {path_k}")

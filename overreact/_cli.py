@@ -910,7 +910,7 @@ Parsing and calculating (this may take a while)…
     report = Report(
         model,
         concentrations=args.concentrations,
-        savepath=os.path.splitext(args.path)[0] + ".csv",
+        savepath=f"{os.path.splitext(args.path)[0]}.csv",
         plot=args.plot,
         qrrho_descriptor=args.qrrho_descriptor,
         temperature=args.temperature,
