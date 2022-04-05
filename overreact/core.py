@@ -23,9 +23,9 @@ class Scheme(NamedTuple):
     See `overreact.io.parse_model`.
     """
 
-    compounds: Sequence[Text]
+    compounds: Sequence[str]
     """A descriptor of compounds."""
-    reactions: Sequence[Text]
+    reactions: Sequence[str]
     """A descriptor of reactions."""
     is_half_equilibrium: Sequence[bool]
     """An indicator of whether a reaction is half-equilibrium."""
@@ -50,7 +50,7 @@ _abbr_environment = {
 }
 
 
-def _check_scheme(scheme_or_text: Union[Scheme, Text]) -> Scheme:
+def _check_scheme(scheme_or_text: Union[Scheme, str]) -> Scheme:
     """Interface transparently between strings and schemes.
 
     Parameters
@@ -143,7 +143,7 @@ def get_transition_states(A, B, is_half_equilibrium):
 
 # TODO(schneiderfelipe): some of the more esoteric doctests should become
 # real tests.
-def unparse_reactions(scheme: Scheme) -> Text:
+def unparse_reactions(scheme: Scheme) -> str:
     """Unparse a kinetic model.
 
     Parameters
@@ -398,7 +398,7 @@ def is_transition_state(name):
     return False
 
 
-def parse_reactions(text: Union[Text, Sequence[Text]]) -> Scheme:
+def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:
     """
     Parse a kinetic model as a chemical reaction scheme.
 
@@ -592,9 +592,9 @@ def parse_reactions(text: Union[Text, Sequence[Text]]) -> Scheme:
     [open an issue](https://github.com/geem-lab/overreact/issues/), we'll be
     happy to hear from you.
     """
-    compounds: dict[Text, int] = dict()
+    compounds: dict[str, int] = dict()
     reactions: dict[
-        tuple[Text, Text, bool, Text], tuple[tuple[tuple[int, Text], ...], bool]
+        tuple[str, str, bool, str], tuple[tuple[tuple[int, str], ...], bool]
     ] = dict()
     A = list()  # coefficients between reactants and products
     B = list()  # coefficients between reactants and transition states
@@ -637,11 +637,9 @@ def parse_reactions(text: Union[Text, Sequence[Text]]) -> Scheme:
         A.append(A_vector)
         B.append(B_vector)
 
-    after_transitions: dict[
-        tuple[tuple[int, Text], ...], list[tuple[int, Text]]
-    ] = dict()
+    after_transitions: dict[tuple[tuple[int, str], ...], list[tuple[int, str]]] = dict()
     before_transitions: dict[
-        tuple[tuple[int, Text], ...], list[tuple[int, Text]]
+        tuple[tuple[int, str], ...], list[tuple[int, str]]
     ] = dict()
 
     for reactants, products, is_half_equilibrium in _parse_reactions(text):

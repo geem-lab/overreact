@@ -155,8 +155,8 @@ def get_enthalpies(compounds: dict, qrrho: bool = True, temperature: float = 298
 
 def get_entropies(
     compounds: dict,
-    environment: Optional[Text] = None,
-    method: Text = "standard",
+    environment: str | None = None,
+    method: str = "standard",
     qrrho: bool = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
@@ -260,7 +260,7 @@ def get_entropies(
     return np.array(entropies)
 
 
-def _check_qrrho(qrrho: Union[bool, tuple[bool, bool]]) -> tuple[bool, bool]:
+def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
     """Get options for QRRHO for both enthalpy and entropy.
 
     Parameters
@@ -306,9 +306,9 @@ def _check_qrrho(qrrho: Union[bool, tuple[bool, bool]]) -> tuple[bool, bool]:
 def get_freeenergies(
     compounds: dict,
     bias: float = 0.0,
-    environment: Optional[Text] = None,
-    method: Text = "standard",
-    qrrho: Union[bool, tuple[bool, bool]] = True,
+    environment: str | None = None,
+    method: str = "standard",
+    qrrho: bool | tuple[bool, bool] = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
 ):
@@ -398,16 +398,16 @@ def get_freeenergies(
 
 def get_k(
     scheme: Scheme,
-    compounds: Optional[dict] = None,
+    compounds: dict | None = None,
     bias: float = 0.0,
-    tunneling: Text = "eckart",
-    qrrho: Union[bool, tuple[bool, bool]] = True,
-    scale: Text = "l mol-1 s-1",
+    tunneling: str = "eckart",
+    qrrho: bool | tuple[bool, bool] = True,
+    scale: str = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
-    delta_freeenergies: Optional[float] = None,
-    molecularity: Optional[float] = None,
-    volume: Optional[float] = None,
+    delta_freeenergies: float | None = None,
+    molecularity: float | None = None,
+    volume: float | None = None,
 ) -> float:
     r"""Obtain reaction rate constants for a given reaction scheme.
 
@@ -633,7 +633,7 @@ def get_k(
 def get_kappa(
     scheme: Scheme,
     compounds: dict,
-    method: Text = "eckart",
+    method: str = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
 ):

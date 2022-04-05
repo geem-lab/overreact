@@ -281,11 +281,11 @@ def convert_rate_constant(
 
 
 def eyring(
-    delta_freeenergy: Union[float, np.ndarray],
-    molecularity: Optional[int] = None,
-    temperature: Union[float, np.ndarray] = 298.15,
+    delta_freeenergy: float | np.ndarray,
+    molecularity: int | None = None,
+    temperature: float | np.ndarray = 298.15,
     pressure: float = constants.atm,
-    volume: Optional[float] = None,
+    volume: float | None = None,
 ):
     r"""Calculate a reaction rate constant.
 

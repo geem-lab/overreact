@@ -604,11 +604,11 @@ def get_delta(transform, property):
 
 
 def equilibrium_constant(
-    delta_freeenergy: Union[float, np.ndarray],
-    delta_moles: Optional[Union[int, np.ndarray]] = None,
-    temperature: Union[float, np.ndarray] = 298.15,
+    delta_freeenergy: float | np.ndarray,
+    delta_moles: int | np.ndarray | None = None,
+    temperature: float | np.ndarray = 298.15,
     pressure: float = constants.atm,
-    volume: Optional[float] = None,
+    volume: float | None = None,
 ):
     r"""Calculate an equilibrium constant from a reaction [Gibbs free energy](https://en.wikipedia.org/wiki/Gibbs_free_energy).
 
@@ -749,11 +749,11 @@ def equilibrium_constant(
 
 def change_reference_state(
     new_reference: float = 1.0 / constants.liter,
-    old_reference: Optional[float] = None,
+    old_reference: float | None = None,
     sign: int = 1,
-    temperature: Union[float, np.ndarray] = 298.15,
+    temperature: float | np.ndarray = 298.15,
     pressure: float = constants.atm,
-    volume: Optional[float] = None,
+    volume: float | None = None,
 ):
     r"""Calculate an additive entropy correction to a change in reference states.
 

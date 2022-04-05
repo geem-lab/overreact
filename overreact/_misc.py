@@ -425,7 +425,7 @@ atomic_number = {
 
 
 def _check_package(
-    package: Text, found_package: bool, extra_flag: Optional[Text] = None
+    package: str, found_package: bool, extra_flag: Optional[str] = None
 ) -> None:
     """Raise an issue if a package was not found.
 

@@ -27,7 +27,7 @@ with warnings.catch_warnings():
 logger = logging.getLogger(__name__)
 
 
-def parse_model(path: Text, force_compile: bool = False):
+def parse_model(path: str, force_compile: bool = False):
     """Parse either a source or model input file, whichever is available.
 
     A **source input file** (also known as a `.k` file) contains all the information needed
@@ -170,7 +170,7 @@ def _parse_model(file_or_path):
     try:
         model = json.load(file_or_path)
     except AttributeError:
-        with open(file_or_path, "r") as stream:
+        with open(file_or_path) as stream:
             model = json.load(stream)
 
     if "scheme" in model:
@@ -233,7 +233,7 @@ def _parse_source(file_path_or_str):
 
     path = ("",)
     try:
-        with open(file_path_or_str, "r") as stream:
+        with open(file_path_or_str) as stream:
             lines = stream.readlines()
         dirname = os.path.dirname(file_path_or_str)
         if dirname not in path:
@@ -433,7 +433,7 @@ def _check_compounds(compounds):
                          (-0.011061, -0.030431, -0.027036)))}}
     """
     for name in compounds:
-        if isinstance(compounds[name], Text):
+        if isinstance(compounds[name], str):
             compounds[name] = read_logfile(compounds[name])
     return dict(compounds)
 
@@ -531,13 +531,13 @@ def parse_compounds(text, path=("",), select=None):
     compounds = defaultdict(dict)
     for line in lines:
         if ":" in line:
-            name, line = [x.strip() for x in line.split(":", 1)]
+            name, line = (x.strip() for x in line.split(":", 1))
         if not line:
             continue
 
         if name is not None:
             if "=" in line:
-                key, value = [x.strip() for x in line.split("=", 1)]
+                key, value = (x.strip() for x in line.split("=", 1))
             else:
                 key, value = "logfile", line
 
@@ -720,7 +720,7 @@ def _read_orca_hess(path):
            [ 0.0160095 , -0.20678153, -0.26060801, -0.00337537, -0.02800411,
             -0.02595917, -0.01263597,  0.23474251,  0.28651783]])
     """
-    with open(path, "r") as file:
+    with open(path) as file:
         while file:
             try:
                 line = next(file)
@@ -791,7 +791,7 @@ def _read_orca_logfile(path, minimal=True):
     atommasses = None
     vibfreqs = None
     hessian = None
-    with open(path, "r") as file:
+    with open(path) as file:
         while file:
             try:
                 line = next(file)
@@ -876,7 +876,7 @@ def _read_orca_logfile(path, minimal=True):
     data.update({"logfile": path, "mult": int(mult)})
 
     if atomcoords is None:
-        with open(path.replace(".out", ".xyz"), "r") as file:
+        with open(path.replace(".out", ".xyz")) as file:
             n = int(next(file))
             next(file)
 
