@@ -565,7 +565,7 @@ tpu = ["jaxlib (==0.3.2)", "libtpu-nightly (==0.1.dev20220315)", "requests"]
 
 [[package]]
 name = "jaxlib"
-version = "0.3.2"
+version = "0.3.5"
 description = "XLA library for JAX"
 category = "main"
 optional = true
@@ -1926,17 +1926,17 @@ jax = [
     {file = "jax-0.3.4.tar.gz", hash = "sha256:f26854ea8f5449493fadc2f70936c57b7e07b5eb91f81f710748e93e97ec785a"},
 ]
 jaxlib = [
-    {file = "jaxlib-0.3.2-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:338daac14405104b1d193ff8b7ab1e91eb8cdfdf6329cd189f6d041e29a57355"},
-    {file = "jaxlib-0.3.2-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:6bc65f76c96dbeb8f2d5dc6a0fb7c0ab39642bec3e6fc6de00eb1f2a41401b91"},
-    {file = "jaxlib-0.3.2-cp310-none-manylinux2010_x86_64.whl", hash = "sha256:b8314f9ee62642d899d286456e83ad4de819e539f6100383a83d532b0ef0b97e"},
-    {file = "jaxlib-0.3.2-cp37-none-macosx_10_9_x86_64.whl", hash = "sha256:0a425b09836ed682dcdfc88e79595cbcd2987b55ac6219c382826f9ce4a7eb47"},
-    {file = "jaxlib-0.3.2-cp37-none-manylinux2010_x86_64.whl", hash = "sha256:8c1a670d868ffc0df217ff0faffca8c1855c5c844773f771ef70a68725ccff89"},
-    {file = "jaxlib-0.3.2-cp38-none-macosx_10_9_x86_64.whl", hash = "sha256:d1149dd4bb1f66d0a3e76337a59dcbd864ca98cabdc559e548b95fc874368200"},
-    {file = "jaxlib-0.3.2-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:21506c98bdd50e3feb21fac3d245a632ff71eed76ceac7d00b5e9ad9e9ce36f4"},
-    {file = "jaxlib-0.3.2-cp38-none-manylinux2010_x86_64.whl", hash = "sha256:3a42055bea0737d1559c79c0307f6510722a9b26b3c4b93f8efc043ec9d02502"},
-    {file = "jaxlib-0.3.2-cp39-none-macosx_10_9_x86_64.whl", hash = "sha256:455ed3749a50b105cbd4010f3c2b3e11378ce6ca828d90a3e69f6f7fc2af9bc9"},
-    {file = "jaxlib-0.3.2-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:a9db5f072b463f5ebc1d792ea41a8acc0821876f90c8fdf7c3d4e38e09b7ca64"},
-    {file = "jaxlib-0.3.2-cp39-none-manylinux2010_x86_64.whl", hash = "sha256:159ef0ec9afa7d0d6b4d1ef18aa49825db15173a86fe7bb879c2ecbbace4d9a9"},
+    {file = "jaxlib-0.3.5-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:7226370fe68517de3bb8aa125996d4bdf30a850a130b1f743b93abee31f0fdbd"},
+    {file = "jaxlib-0.3.5-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:5c549c2cc248a45409c5b9cb0e67e69bc86f5447f6e7154eeb8588ac60f98818"},
+    {file = "jaxlib-0.3.5-cp310-none-manylinux2010_x86_64.whl", hash = "sha256:b6831e55e86a8ee2844c155b0cb6e95c042b1a79a0fd1110e66a9d6c65d321cd"},
+    {file = "jaxlib-0.3.5-cp37-none-macosx_10_9_x86_64.whl", hash = "sha256:156af754040034c7c9261416eaffabd7d84baa457ae2a102fa2e1ba52cedf878"},
+    {file = "jaxlib-0.3.5-cp37-none-manylinux2010_x86_64.whl", hash = "sha256:db24f91e721bdb76fbe4e8387c2b224a6d8d310ec13a7850ebad04385198600c"},
+    {file = "jaxlib-0.3.5-cp38-none-macosx_10_9_x86_64.whl", hash = "sha256:89d3166663990a2f52ce2a4f56995d9ae471b7dbcbff73bbcf4902b87979dd8b"},
+    {file = "jaxlib-0.3.5-cp38-none-macosx_11_0_arm64.whl", hash = "sha256:66b396b78ff1149e05f0b0e9fa2128f5aaa2e33b20bdcaaba3c86fcc29def92c"},
+    {file = "jaxlib-0.3.5-cp38-none-manylinux2010_x86_64.whl", hash = "sha256:bd2c13bcd40f61ef78de9be6763028438ed1d4d576485cec041ae09e9324383a"},
+    {file = "jaxlib-0.3.5-cp39-none-macosx_10_9_x86_64.whl", hash = "sha256:c14309e823a8233bdf840cdd88643b15b7a849a96bb88dface08a9c33bc410c1"},
+    {file = "jaxlib-0.3.5-cp39-none-macosx_11_0_arm64.whl", hash = "sha256:816e937d01449fb892db89797257a7e6c912080718b244359c5d238fe008d1c4"},
+    {file = "jaxlib-0.3.5-cp39-none-manylinux2010_x86_64.whl", hash = "sha256:0f52894ae10e5f2a64254a93edc8736e805086d049a920a2b47645b91646930a"},
 ]
 jedi = [
     {file = "jedi-0.18.1-py2.py3-none-any.whl", hash = "sha256:637c9635fcf47945ceb91cd7f320234a7be540ded6f3e99a50cb6febdfd1ba8d"},
@@ -2231,6 +2231,7 @@ pbr = [
 ]
 pdoc = [
     {file = "pdoc-11.0.0-py3-none-any.whl", hash = "sha256:36922f9eebf90a5e546ab4e7d92d4dbf9f2cdae7679fbc9b1a0906ef8ef03214"},
+    {file = "pdoc-11.0.0.tar.gz", hash = "sha256:722b4ff662574033de50b3061e55a81e5b0b54ff460f52f0c8a4abc25f08ce5b"},
 ]
 periodictable = [
     {file = "periodictable-1.6.0.tar.gz", hash = "sha256:52e925220005c20e97601e7b04ad6cebc271680947ab9adcbb1a796ddbaa0f23"},
