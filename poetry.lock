@@ -1259,7 +1259,7 @@ python-versions = "*"
 
 [[package]]
 name = "pyupgrade"
-version = "2.31.1"
+version = "2.32.0"
 description = "A tool to automatically upgrade syntax for newer versions."
 category = "dev"
 optional = false
@@ -1611,7 +1611,7 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "9f56ce8ab6b7806e1a84e9d695f8557225a059b667090291cd4b503248b5155d"
+content-hash = "27de8ae4efce01e544423318a9512b18ade9d92833121f685435803774a8677c"
 
 [metadata.files]
 absl-py = [
@@ -2231,6 +2231,7 @@ pbr = [
 ]
 pdoc = [
     {file = "pdoc-11.0.0-py3-none-any.whl", hash = "sha256:36922f9eebf90a5e546ab4e7d92d4dbf9f2cdae7679fbc9b1a0906ef8ef03214"},
+    {file = "pdoc-11.0.0.tar.gz", hash = "sha256:722b4ff662574033de50b3061e55a81e5b0b54ff460f52f0c8a4abc25f08ce5b"},
 ]
 periodictable = [
     {file = "periodictable-1.6.0.tar.gz", hash = "sha256:52e925220005c20e97601e7b04ad6cebc271680947ab9adcbb1a796ddbaa0f23"},
@@ -2409,8 +2410,8 @@ pytz = [
     {file = "pytz-2022.1.tar.gz", hash = "sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7"},
 ]
 pyupgrade = [
-    {file = "pyupgrade-2.31.1-py2.py3-none-any.whl", hash = "sha256:4060a7c20c79d373a3dcf34566b275c6de6cd2b034ad22465d3263fb0de82648"},
-    {file = "pyupgrade-2.31.1.tar.gz", hash = "sha256:22e0ad6dd39c4381805cb059f1e691b6315c62c0ebcec98a5f29d22cd186a72a"},
+    {file = "pyupgrade-2.32.0-py2.py3-none-any.whl", hash = "sha256:f45d4afb6ccdf7b0cea757958d0a11306324052668d9ff99d2bcb06bda46c00d"},
+    {file = "pyupgrade-2.32.0.tar.gz", hash = "sha256:6878116d364b72f0c0011dd62dfe96425041a5f753da298b6eacde0f9fd9c004"},
 ]
 pywin32 = [
     {file = "pywin32-303-cp310-cp310-win32.whl", hash = "sha256:6fed4af057039f309263fd3285d7b8042d41507343cd5fa781d98fcc5b90e8bb"},
