@@ -1498,7 +1498,7 @@ test = ["pytest"]
 
 [[package]]
 name = "thermo"
-version = "0.2.19"
+version = "0.2.20"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
@@ -2600,7 +2600,7 @@ testpath = [
     {file = "testpath-0.6.0.tar.gz", hash = "sha256:2f1b97e6442c02681ebe01bd84f531028a7caea1af3825000f52345c30285e0f"},
 ]
 thermo = [
-    {file = "thermo-0.2.19.tar.gz", hash = "sha256:5006dc35fb603ef55d5133cb205335e1201d850afb932e1b89390e60a9f8e106"},
+    {file = "thermo-0.2.20.tar.gz", hash = "sha256:432e07e77afbf23e73cbb61696a0744b7dd2af404c3eedc5c6ba30dfba38dd8e"},
 ]
 tokenize-rt = [
     {file = "tokenize_rt-4.2.1-py2.py3-none-any.whl", hash = "sha256:08a27fa032a81cf45e8858d0ac706004fcd523e8463415ddf1442be38e204ea8"},
