@@ -470,7 +470,11 @@ def test_can_understand_C3_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, 3.60567321e-14, 0.0], [-3.60567321e-14, 1.0, 0.0], [0.0, 0.0, 1.0]]
+            [
+                [1.0, 3.60567321e-14, 0.0],
+                [-3.60567321e-14, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+            ]
         )
     )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
@@ -927,7 +931,11 @@ def test_can_understand_C3v_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, 2.39535015e-12, 0.0], [-2.39535015e-12, 1.0, 0.0], [0.0, 0.0, 1.0]]
+            [
+                [1.0, 2.39535015e-12, 0.0],
+                [-2.39535015e-12, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+            ]
         ),
         abs=1e-6,
     )
@@ -1298,7 +1306,11 @@ def test_can_understand_D5_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, 0.0, 0.0], [0.0, 1.0, -2.49091225e-9], [0.0, 2.49091214e-9, 1.0]]
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, -2.49091225e-9],
+                [0.0, 2.49091214e-9, 1.0],
+            ]
         ),
         abs=1e-6,
     )
@@ -1537,7 +1549,11 @@ def test_can_understand_D3h_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, 0.0, 0.0], [0.0, 1.0, -5.44461143e-11], [0.0, 5.44456702e-11, 1.0]]
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, -5.44461143e-11],
+                [0.0, 5.44456702e-11, 1.0],
+            ]
         ),
         abs=1e-6,
     )
@@ -1865,7 +1881,11 @@ def test_can_understand_D5h_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, -1.44414533e-12, 0.0], [1.44414533e-12, 1.0, 0.0], [0.0, 0.0, 1.0]]
+            [
+                [1.0, -1.44414533e-12, 0.0],
+                [1.44414533e-12, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+            ]
         ),
         abs=1e-6,
     )
@@ -2206,7 +2226,11 @@ def test_can_understand_D8h_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, -2.34596450e-12, 0.0], [2.34596450e-12, 1.0, 0.0], [0.0, 0.0, 1.0]]
+            [
+                [1.0, -2.34596450e-12, 0.0],
+                [2.34596450e-12, 1.0, 0.0],
+                [0.0, 0.0, 1.0],
+            ]
         ),
         abs=1e-6,
     )
@@ -2430,7 +2454,11 @@ def test_can_understand_D3d_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, 0.0, 0.0], [0.0, 1.0, 4.65287808e-11], [0.0, -4.65286698e-11, 1.0]]
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, 4.65287808e-11],
+                [0.0, -4.65286698e-11, 1.0],
+            ]
         ),
         abs=1e-6,
     )
@@ -2623,7 +2651,11 @@ def test_can_understand_D5d_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, 0.0, 0.0], [0.0, 1.0, -3.14344106e-11], [0.0, 3.14344106e-11, 1.0]]
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, -3.14344106e-11],
+                [0.0, 3.14344106e-11, 1.0],
+            ]
         ),
         abs=1e-6,
     )
@@ -2708,7 +2740,11 @@ def test_can_understand_S4_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, 0.0, 0.0], [0.0, 1.0, -3.49142937e-12], [0.0, 3.49131835e-12, 1.0]]
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, 1.0, -3.49142937e-12],
+                [0.0, 3.49131835e-12, 1.0],
+            ]
         ),
         abs=1e-6,
     )
@@ -3137,7 +3173,11 @@ def test_can_understand_Oh_symmetry():
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(
         np.array(
-            [[1.0, 0.0, 0.0], [0.0, -1.0, -3.53539420e-12], [0.0, 3.53528318e-12, -1.0]]
+            [
+                [1.0, 0.0, 0.0],
+                [0.0, -1.0, -3.53539420e-12],
+                [0.0, 3.53528318e-12, -1.0],
+            ]
         )
     )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)

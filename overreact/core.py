@@ -330,7 +330,8 @@ def _get_environment(name):
     'n,n-dimethylformamide'
     """
     token = re.match(
-        r"\s*(?P<compound>[^\s\(\)]+)\s*(?P<environment>\([^\s\(\)]+\))?\s*", name
+        r"\s*(?P<compound>[^\s\(\)]+)\s*(?P<environment>\([^\s\(\)]+\))?\s*",
+        name,
     ).groupdict("(gas)")
     name = token["compound"]
 

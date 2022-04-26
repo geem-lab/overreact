@@ -260,7 +260,9 @@ def _parse_source(file_path_or_str):
         sections["scheme"] = rx.parse_reactions(sections["scheme"])
     if "compounds" in sections:
         sections["compounds"] = parse_compounds(
-            sections["compounds"], path=path, select=sections["scheme"].compounds
+            sections["compounds"],
+            path=path,
+            select=sections["scheme"].compounds,
         )
     return dotdict(sections)
 

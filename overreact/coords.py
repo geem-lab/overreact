@@ -167,7 +167,10 @@ def get_molecular_volume(
             # pentane, hexane, heptane and octane.
 
             cav_volume = _garza(
-                vdw_volume, environment, temperature=temperature, pressure=pressure
+                vdw_volume,
+                environment,
+                temperature=temperature,
+                pressure=pressure,
             )
             logger.debug(f"Garza cavity volume = {cav_volume} Å³")
             return (vdw_volume, cav_volume, vdw_err)
@@ -325,11 +328,39 @@ def symmetry_number(point_group):
         symmetry_number = 2
     elif point_group in {"c4", "c4v", "c4h", "d2", "d2d", "d2h", "s8", "vh"}:
         symmetry_number = 4
-    elif point_group in {"c12", "c12v", "c12h", "d6", "d6d", "d6h", "s24", "t", "td"}:
+    elif point_group in {
+        "c12",
+        "c12v",
+        "c12h",
+        "d6",
+        "d6d",
+        "d6h",
+        "s24",
+        "t",
+        "td",
+    }:
         symmetry_number = 12
-    elif point_group in {"c24", "c24v", "c24h", "d12", "d12d", "d12h", "s48", "oh"}:
+    elif point_group in {
+        "c24",
+        "c24v",
+        "c24h",
+        "d12",
+        "d12d",
+        "d12h",
+        "s48",
+        "oh",
+    }:
         symmetry_number = 24
-    elif point_group in {"c60", "c60v", "c60h", "d30", "d30d", "d30h", "s120", "ih"}:
+    elif point_group in {
+        "c60",
+        "c60v",
+        "c60h",
+        "d30",
+        "d30d",
+        "d30h",
+        "s120",
+        "ih",
+    }:
         symmetry_number = 60
     else:
         pieces = re.match(
@@ -460,7 +491,13 @@ def _find_point_group_linear(atomcoords, groups, rtol=0.0, atol=1.0e-2):
 
 
 def _find_point_group_spheric(
-    atomcoords, groups, axes, rotor_class, proper_axes=None, rtol=0.0, atol=1.0e-2
+    atomcoords,
+    groups,
+    axes,
+    rotor_class,
+    proper_axes=None,
+    rtol=0.0,
+    atol=1.0e-2,
 ):
     """Find point group for spheric tops.
 
@@ -505,7 +542,13 @@ def _find_point_group_spheric(
 
 
 def _find_point_group_asymmetric(
-    atomcoords, groups, axes, rotor_class, proper_axes=None, rtol=0.0, atol=1.0e-2
+    atomcoords,
+    groups,
+    axes,
+    rotor_class,
+    proper_axes=None,
+    rtol=0.0,
+    atol=1.0e-2,
 ):
     """Find point group for asymmetric tops.
 
@@ -521,9 +564,18 @@ def _find_point_group_asymmetric(
 
     if proper_axes:
         return _find_point_group_symmetric(
-            atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol
+            atomcoords,
+            groups,
+            axes,
+            rotor_class,
+            proper_axes,
+            rtol=rtol,
+            atol=atol,
         )
-    elif rotor_class[1] in {"regular planar", "irregular planar"} or _get_mirror_planes(
+    elif rotor_class[1] in {
+        "regular planar",
+        "irregular planar",
+    } or _get_mirror_planes(
         atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol
     ):
         return "Cs"
@@ -533,7 +585,13 @@ def _find_point_group_asymmetric(
 
 
 def _find_point_group_symmetric(
-    atomcoords, groups, axes, rotor_class, proper_axes=None, rtol=0.0, atol=1.0e-2
+    atomcoords,
+    groups,
+    axes,
+    rotor_class,
+    proper_axes=None,
+    rtol=0.0,
+    atol=1.0e-2,
 ):
     """Find point group for symmetric tops.
 
@@ -553,7 +611,13 @@ def _find_point_group_symmetric(
             count_twofold += 1
         if n_principal == count_twofold:
             return _find_point_group_symmetric_dihedral(
-                atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol
+                atomcoords,
+                groups,
+                axes,
+                rotor_class,
+                proper_axes,
+                rtol=rtol,
+                atol=atol,
             )
         if n < 2:
             break
@@ -586,7 +650,13 @@ def _find_point_group_symmetric(
 
 
 def _find_point_group_symmetric_dihedral(
-    atomcoords, groups, axes, rotor_class, proper_axes=None, rtol=0.0, atol=1.0e-2
+    atomcoords,
+    groups,
+    axes,
+    rotor_class,
+    proper_axes=None,
+    rtol=0.0,
+    atol=1.0e-2,
 ):
     """Find a dihedral point group for symmetric tops.
 
@@ -612,7 +682,13 @@ def _find_point_group_symmetric_dihedral(
 
 
 def _find_point_group_symmetric_nondihedral(
-    atomcoords, groups, axes, rotor_class, proper_axes=None, rtol=0.0, atol=1.0e-2
+    atomcoords,
+    groups,
+    axes,
+    rotor_class,
+    proper_axes=None,
+    rtol=0.0,
+    atol=1.0e-2,
 ):
     """Find a nondihedral point group for symmetric tops.
 
@@ -1946,7 +2022,8 @@ def _equivalent_atoms(
             plt.clf()
             for cluster in np.unique(clusters):
                 plt.scatter(
-                    criteria[clusters == cluster, 0], criteria[clusters == cluster, 1]
+                    criteria[clusters == cluster, 0],
+                    criteria[clusters == cluster, 1],
                 )
             for i, (atommass, _) in enumerate(zip(atommasses, clusters)):
                 plt.annotate(atommass, (criteria[i, 0], criteria[i, 1]))

@@ -102,7 +102,10 @@ def test_sanity_for_absolute_thermochemistry():
     )
     vib_internal_energy = rx.thermo._gas.calc_vib_energy(vibfreqs)
     internal_energy = rx.thermo.calc_internal_energy(
-        0.0, 1.0, moments / (constants.atomic_mass * constants.angstrom**2), vibfreqs
+        0.0,
+        1.0,
+        moments / (constants.atomic_mass * constants.angstrom**2),
+        vibfreqs,
     )
     assert elec_internal_energy == pytest.approx(0.0)
     assert trans_internal_energy / constants.kcal == pytest.approx(0.889, 4e-4)
@@ -116,7 +119,16 @@ def test_sanity_for_absolute_thermochemistry():
     )
     assert internal_energy / constants.kcal == pytest.approx(50.990, 1e-4)
 
-    atommasses = [12.0, 12.0, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783]
+    atommasses = [
+        12.0,
+        12.0,
+        1.00783,
+        1.00783,
+        1.00783,
+        1.00783,
+        1.00783,
+        1.00783,
+    ]
     elec_entropy = rx.thermo._gas.calc_elec_entropy(0.0, 1.0)
     trans_entropy = rx.thermo.calc_trans_entropy(atommasses)
     rot_entropy = rx.thermo._gas.calc_rot_entropy(
@@ -499,7 +511,10 @@ def test_entropy_ideal_diatomic_gases():
     )
     vibfreq = 4227 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_entropy(
-        [1.008, 35.45], moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature
+        [1.008, 35.45],
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(44.6, 1e-3)
 
     # HBr
@@ -508,7 +523,10 @@ def test_entropy_ideal_diatomic_gases():
     )
     vibfreq = 3787 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_entropy(
-        [1.008, 79.904], moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature
+        [1.008, 79.904],
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(47.4, 1e-2)
 
     # HI
@@ -517,7 +535,10 @@ def test_entropy_ideal_diatomic_gases():
     )
     vibfreq = 3266 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_entropy(
-        [1.008, 126.90], moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature
+        [1.008, 126.90],
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(49.3, 1e-2)
 
     # CO
@@ -526,7 +547,10 @@ def test_entropy_ideal_diatomic_gases():
     )
     vibfreq = 3103 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_entropy(
-        [12.011, 15.999], moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature
+        [12.011, 15.999],
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(
         46.2 + constants.R * np.log(2) / constants.calorie, 1e-2
     )
@@ -857,7 +881,10 @@ def test_internal_energy_ideal_polyatomic_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_internal_energy(
-        degeneracy=2, moments=[ia, ib, ic], vibfreqs=vibfreqs, temperature=temperature
+        degeneracy=2,
+        moments=[ia, ib, ic],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) == pytest.approx(33291.99, 3e-5)
 
     # ClO2

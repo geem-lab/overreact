@@ -434,7 +434,16 @@ class Report:
                     f"{delta_enthalpies[i] / constants.kcal:10.2f}",
                     f"{delta_entropies[i] / constants.calorie:11.2f}",
                 ]
-                dagger_row = [f"{i:d}", reaction, None, None, None, None, None, None]
+                dagger_row = [
+                    f"{i:d}",
+                    reaction,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ]
             else:
                 circ_row = [
                     f"{i:d}",
@@ -600,13 +609,20 @@ class Report:
                 Column("no", justify="right"),
                 Column("compound", justify="left"),
                 Column(f"t = {y.t_min:.1g} s", justify="right"),
-                Column(f"t = {y.t_max:.1g} s", justify="right", style="bright_green"),
+                Column(
+                    f"t = {y.t_max:.1g} s",
+                    justify="right",
+                    style="bright_green",
+                ),
                 title="initial and final concentrations\n〈M〉",
                 box=self.box_style,
             )
             for i, name in enumerate(scheme.compounds):
                 conc_table.add_row(
-                    f"{i:d}", name, f"{y(y.t_min)[i]:.3f}", f"{y(y.t_max)[i]:.3f}"
+                    f"{i:d}",
+                    name,
+                    f"{y(y.t_min)[i]:.3f}",
+                    f"{y(y.t_max)[i]:.3f}",
                 )
             yield conc_table
 

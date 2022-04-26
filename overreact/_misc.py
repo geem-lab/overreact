@@ -513,7 +513,14 @@ def _get_chemical(
 
 
 def broaden_spectrum(
-    x, x0, y0, distribution="gaussian", scale=1.0, fit_points=True, *args, **kwargs
+    x,
+    x0,
+    y0,
+    distribution="gaussian",
+    scale=1.0,
+    fit_points=True,
+    *args,
+    **kwargs,
 ):
     """Broaden a point spectrum.
 

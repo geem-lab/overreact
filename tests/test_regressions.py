@@ -129,7 +129,10 @@ def test_basic_example_for_solvation_phase_kinetics():
 
     # concentration correction, symmetry and tunneling included
     kappa = rx.tunnel.eckart(
-        986.79, 3.3 * constants.kcal, 16.4 * constants.kcal, temperature=temperatures
+        986.79,
+        3.3 * constants.kcal,
+        16.4 * constants.kcal,
+        temperature=temperatures,
     )
     assert kappa == pytest.approx([2.3, 2.3, 2.2, 2.1, 2.0, 1.9, 1.9], 9e-2)
 
@@ -194,7 +197,10 @@ def test_basic_example_for_gas_phase_kinetics():
     assert kappa[2] == pytest.approx(2.4, 1e-2)
 
     kappa = rx.tunnel.eckart(
-        1218, 4.1 * constants.kcal, 3.4 * constants.kcal, temperature=temperatures
+        1218,
+        4.1 * constants.kcal,
+        3.4 * constants.kcal,
+        temperature=temperatures,
     )
     assert kappa == pytest.approx([17.1, 4.0, 3.9, 2.3], 2.1e-2)
 
@@ -637,5 +643,6 @@ def test_logfiles_for_tanaka1996():
         6e-2,
     )
     assert data.vibfreqs == pytest.approx(
-        [-1218, 369, 369, 516, 962, 962, 1217, 1460, 1460, 3123, 3294, 3294], 7e-2
+        [-1218, 369, 369, 516, 962, 962, 1217, 1460, 1460, 3123, 3294, 3294],
+        7e-2,
     )  # UMP2/6-311G(3d,2p) from DOI:10.1002/qua.25686
