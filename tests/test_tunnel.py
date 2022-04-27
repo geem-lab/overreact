@@ -36,7 +36,7 @@ def test_eckart_tunneling_corrections_are_correct():
     assert rx.tunnel.eckart(59, 15781.6) == pytest.approx(1.01679385)
     assert rx.tunnel.eckart(158, 56813.61, 94689.35) == pytest.approx(1.02392807)
 
-    # a selection for testing higher precision from DOI:10.1021/j100809a040
+    # a selection for testing higher precision from doi:10.1021/j100809a040
     assert rx.tunnel.eckart(414.45, 15781.6, 15781.6) == pytest.approx(1.2, 9e-3)
     assert rx.tunnel.eckart(414.45, 1578.16, 1578.16) == pytest.approx(1.32, 2e-3)
     assert rx.tunnel.eckart(1243.35, 9468.94, 28406.81) == pytest.approx(3.39, 2e-4)
@@ -54,7 +54,7 @@ def test_eckart_is_symmetric():
 
 
 def test_low_level_eckart_against_johnston1962():
-    """Reproduce all values from Table 1 of DOI:10.1021/j100809a040."""
+    """Reproduce all values from Table 1 of doi:10.1021/j100809a040."""
     us = [2, 3, 4, 5, 6, 8, 10, 12, 16]  # columns
 
     # The first examples have very low barriers and comprise the "imaginary

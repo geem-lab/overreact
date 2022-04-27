@@ -202,7 +202,7 @@ def eckart(
 def _eckart(u: float, alpha1: float, alpha2: float | None = None) -> float:
     """Implement of the (unsymmetrical) Eckart tunneling approximation.
 
-    This is based on DOI:10.1021/j100809a040 and DOI:10.6028/jres.086.014.
+    This is based on doi:10.1021/j100809a040 and doi:10.6028/jres.086.014.
 
     Parameters
     ----------
@@ -224,7 +224,7 @@ def _eckart(u: float, alpha1: float, alpha2: float | None = None) -> float:
     distribution using a mixed set of quadratures (Gauss quadrature for values
     below zero and Laguerre quadrature for values from zero to infinity). The
     orders for both quadratures are fixed and are the smallest numbers that
-    allow us to reproduce values from the literature (DOI:10.1021/j100809a040).
+    allow us to reproduce values from the literature (doi:10.1021/j100809a040).
 
     Both alpha1 and alpha2 should be non-negative.
 

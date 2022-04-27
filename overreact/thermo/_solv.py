@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 # TODO(schneiderfelipe): C-PCM already includes the whole Gibbs free energy
-# associated with this (see DOI:10.1021/jp9716997 and references therein, e.g.,
-# DOI:10.1016/0009-2614(96)00349-1, DOI:10.1021/cr60304a002,
-# DOI:10.1002/jcc.540100504). As such, including this in the total free energy
+# associated with this (see doi:10.1021/jp9716997 and references therein, e.g.,
+# doi:10.1016/0009-2614(96)00349-1, doi:10.1021/cr60304a002,
+# doi:10.1002/jcc.540100504). As such, including this in the total free energy
 # might overcount energy contributions. As an alternative, I might want to
 # a. remove this contribution,
 # b. keep this and remove the contribution from the cavity enthalpy,
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # c. implement something closer to the original and do one of the
 #    cited in b. above.
 #
-# See DOI:10.1021/cr60304a002.
+# See doi:10.1021/cr60304a002.
 def calc_cav_entropy(
     atomnos,
     atomcoords,
@@ -40,7 +40,7 @@ def calc_cav_entropy(
 ):
     r"""Calculate the cavity entropy from scaled particle theory.
 
-    This implements the method due to A. Garza, see DOI:10.1021/acs.jctc.9b00214.
+    This implements the method due to A. Garza, see doi:10.1021/acs.jctc.9b00214.
 
     Parameters
     ----------
@@ -130,17 +130,17 @@ def calc_cav_entropy(
 # TODO(schneiderfelipe): the concept of free volume in polymer and membrane
 # sciences are related to the difference between the specific volume (inverse
 # of density) and the van der Waals volume (oftentimes multiplied by a factor,
-# normally 1.3), see DOI:10.1007/978-3-642-40872-4_279-5. This is very similar
+# normally 1.3), see doi:10.1007/978-3-642-40872-4_279-5. This is very similar
 # to the thing done here with "izato".
 #
 # Further theoretical support is given for the exact equation
-# used in the work of Eyring (DOI:10.1021/j150380a007), where it is also
+# used in the work of Eyring (doi:10.1021/j150380a007), where it is also
 # suggested that that the self-solvation (solvent molecule solvated by itself)
 # outer volume (here called cavity volume) should match the specific volume of
 # the solvent at that temperature and pressure.
 #
 # Further evidence that the free volume should change with temperature can be
-# found in DOI:10.1016/j.jct.2011.01.003. In fact, it is also shown there that
+# found in doi:10.1016/j.jct.2011.01.003. In fact, it is also shown there that
 # the rotational entropy is almost the same as for the ideal gas for molecules
 # that don't do hydrogen bonding at their boiling temperature. For molecules
 # that do hydrogen bonding, the rotational entropy gain should be taken into
@@ -151,7 +151,7 @@ def calc_cav_entropy(
 # up with an alpha that depends on temperature (and possibly pressure).
 # 2. I need to validate this by checking Trouton's and Hildebrand's laws for
 # apolar compounds, which should also give reasonable boiling temperatures and
-# free volumes of around 1 Å³ (see again DOI:10.1016/j.jct.2011.01.003).
+# free volumes of around 1 Å³ (see again doi:10.1016/j.jct.2011.01.003).
 # 3. Improve polar and hydrogen bonding molecules by adjusting their rotational
 # entropies.
 # 4. Some data evidence the possibility that the difference between gas and
@@ -210,9 +210,9 @@ def molar_free_volume(
 
     Notes
     -----
-    For "izato", see equation 3 of DOI:10.1039/C9CP03226F for the conceptual
+    For "izato", see equation 3 of doi:10.1039/C9CP03226F for the conceptual
     details. There is theoretical support for the equation in the work of
-    Eyring (DOI:10.1021/j150380a007).
+    Eyring (doi:10.1021/j150380a007).
 
     Examples
     --------

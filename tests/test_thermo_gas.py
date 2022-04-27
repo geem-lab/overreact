@@ -1078,7 +1078,7 @@ def test_equilibrium_constant_works():
         0.0
     )
 
-    # The following reproduces some data from DOI:10.1021/ic202081z for equilibria
+    # The following reproduces some data from doi:10.1021/ic202081z for equilibria
     # relevant to the decomposition of aqueous nitrous acid. Table 2 gives Gibbs free
     # energies at 298 K for two methods (G3B3 and CBS-QB3), whose average is used for
     # the calculation of equilibrium constants. The authors could not reproduce

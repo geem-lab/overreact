@@ -301,7 +301,7 @@ def calc_entropy(
     """Calculate entropy.
 
     Either the classical gas phase or solvation entropies are available. For
-    solvation entropies, the method of A. Garza (DOI:10.1021/acs.jctc.9b00214)
+    solvation entropies, the method of A. Garza (doi:10.1021/acs.jctc.9b00214)
     is available and recommended.
 
     Parameters

@@ -80,7 +80,7 @@ def smoluchowski(
     This is a work in progress!
 
     TODO(schneiderfelipe): THERE ARE DOUBTS ABOUT HOW TO SELECT
-    reactive_radius. DOI:10.1002/jcc.23409 HELPS CLARIFY SOME ASPECTS BUT
+    reactive_radius. doi:10.1002/jcc.23409 HELPS CLARIFY SOME ASPECTS BUT
     THERE'S STILL PROBLEMS. I BELIEVE THERE'S A RELATIONSHIP BETWEEN THE
     IMAGINARY FREQUENCY AND HOW FAR ATOMS MOVE CLOSE TO REACT, WHICH MIGHT
     GIVE SOME LIGHT. IN ANY CASE, I BELIEVE THAT THIS VALUE SHOULD BE LARGER
@@ -132,7 +132,7 @@ def smoluchowski(
 def collins_kimball(k_tst, k_diff):
     """Calculate reaction rate constant inclusing diffusion effects.
 
-    This implementation is based on DOI:10.1016/0095-8522(49)90023-9.
+    This implementation is based on doi:10.1016/0095-8522(49)90023-9.
 
     Examples
     --------
@@ -152,7 +152,7 @@ def convert_rate_constant(
 ):
     r"""Convert a reaction rate constant between common units.
 
-    The reference paper used for developing this function is DOI:10.1021/ed046p54.
+    The reference paper used for developing this function is doi:10.1021/ed046p54.
 
     Parameters
     ----------

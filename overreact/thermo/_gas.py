@@ -297,9 +297,9 @@ def calc_rot_entropy(
     exact for diatomics and approximate (?) for polyatomic molecules.
 
     For the liquid phase, the extra terms in the method of A. Garza are summed
-    (DOI:10.1021/acs.jctc.9b00214). This should be used together with
+    (doi:10.1021/acs.jctc.9b00214). This should be used together with
     ``method="garza"`` in `calc_trans_entropy`. I may implement the "izato"
-    method for rotational entropy in the future (DOI:10.1039/C9CP03226F), but
+    method for rotational entropy in the future (doi:10.1039/C9CP03226F), but
     this is *not* currently available.
 
     Parameters

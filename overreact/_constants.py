@@ -171,14 +171,14 @@ def vdw_radius(atomno):
     This function returns van der Waals radii as recommended in the 95th
     edition of the "CRC Handbook of Chemistry and Physics" (2014). This
     consists of Bondi radii (A. Bondi. "van der Waals Volumes and Radii". J.
-    Phys. Chem. 1964, 68, 3, 441-451. DOI:10.1021/j100785a001) together with
+    Phys. Chem. 1964, 68, 3, 441-451. doi:10.1021/j100785a001) together with
     the values recommended by Truhlar (M. Mantina et al. "Consistent van der
     Waals Radii for the Whole Main Group". J. Phys. Chem. A 2009, 113, 19,
-    5806-5812. DOI:10.1021/jp8111556). For hydrogen, the value recommended by
+    5806-5812. doi:10.1021/jp8111556). For hydrogen, the value recommended by
     Taylor is employed (R. Rowland et al. "Intermolecular Nonbonded Contact
     Distances in Organic Crystal Structures: Comparison with Distances Expected
     from van der Waals Radii". J. Phys. Chem. 1996, 100, 18, 7384-7391.
-    DOI:10.1021/jp953141+). Other elements receive values recommended by either
+    doi:10.1021/jp953141+). Other elements receive values recommended by either
     Hu (S.-Z., Hu. Kristallogr. 224, 375, 2009) or Guzei (Guzei, I. A. and
     Wendt, M., Dalton Trans., 2006, 3991, 2006). If neither are defined, we use
     2.0 Å as default.

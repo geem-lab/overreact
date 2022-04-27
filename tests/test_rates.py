@@ -118,7 +118,7 @@ def test_liquid_viscosities_are_correct():
         viscosity, 4e-3
     )
 
-    # - hexane (DOI:10.1063/1.555943):
+    # - hexane (doi:10.1063/1.555943):
     # TODO(schneiderfelipe): hexane: 178 K -- 340 K
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.295])
@@ -126,14 +126,14 @@ def test_liquid_viscosities_are_correct():
         viscosity, 5e-3
     )
 
-    # - acetone (DOI:10.1021/je00017a031):
+    # - acetone (doi:10.1021/je00017a031):
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.302])
     assert rx.rates.liquid_viscosity("acetone", temperature) == pytest.approx(
         viscosity, 2e-2
     )
 
-    # - heptane (DOI:10.1063/1.555943):
+    # - heptane (doi:10.1063/1.555943):
     # TODO(schneiderfelipe): heptane: 183 K -- 370 K
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.389])
@@ -141,7 +141,7 @@ def test_liquid_viscosities_are_correct():
         viscosity, 9e-5
     )
 
-    # - octane (DOI:10.1063/1.555943):
+    # - octane (doi:10.1063/1.555943):
     # TODO(schneiderfelipe): octane: 217 K -- 398 K
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.509])
@@ -165,7 +165,7 @@ def test_liquid_viscosities_are_correct():
         viscosity, 3e-2
     )
 
-    # - water (DOI:10.1002/9781118131473):
+    # - water (doi:10.1002/9781118131473):
     temperature = 273.15 + np.array(
         [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100]
     )
@@ -191,7 +191,7 @@ def test_liquid_viscosities_are_correct():
         viscosity, 6e-2
     )
 
-    # - water (DOI:10.1002/qua.25686):
+    # - water (doi:10.1002/qua.25686):
     temperature = np.array([298.15, 300, 310, 320, 330, 340, 350])
     viscosity = 1e-4 * np.array([8.90, 8.54, 6.94, 5.77, 4.90, 4.22, 3.69])
     assert rx.rates.liquid_viscosity("water", temperature) == pytest.approx(
@@ -205,7 +205,7 @@ def test_liquid_viscosities_are_correct():
         viscosity, 4e-3
     )
 
-    # - 2-propanol (DOI:10.1021/je00058a025):
+    # - 2-propanol (doi:10.1021/je00058a025):
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([2.052])
     assert rx.rates.liquid_viscosity("2-propanol", temperature) == pytest.approx(
@@ -280,7 +280,7 @@ def test_second_order_conversion_rates_match_literature():
 
     References are given in the comments."""
     for temperature in [200.0, 273.15, 298.15, 300.0, 373.15, 400.0]:
-        # to cm3 mol-1 s-1 (DOI:10.1021/ed046p54)
+        # to cm3 mol-1 s-1 (doi:10.1021/ed046p54)
         assert rx.rates.convert_rate_constant(
             1.0,
             "cm3 mol-1 s-1",
@@ -340,7 +340,7 @@ def test_second_order_conversion_rates_match_literature():
             temperature=temperature,
         ) == pytest.approx(82.06 * temperature, 4e-5)
 
-        # to l mol-1 s-1 (DOI:10.1021/ed046p54)
+        # to l mol-1 s-1 (doi:10.1021/ed046p54)
         assert rx.rates.convert_rate_constant(
             1.0,
             "l mol-1 s-1",
@@ -400,7 +400,7 @@ def test_second_order_conversion_rates_match_literature():
             temperature=temperature,
         ) == pytest.approx(8.206e-2 * temperature, 4e-5)
 
-        # to m3 mol-1 s-1 (DOI:10.1021/ed046p54)
+        # to m3 mol-1 s-1 (doi:10.1021/ed046p54)
         assert rx.rates.convert_rate_constant(
             1.0,
             "m3 mol-1 s-1",
@@ -460,7 +460,7 @@ def test_second_order_conversion_rates_match_literature():
             temperature=temperature,
         ) == pytest.approx(8.206e-5 * temperature, 4e-5)
 
-        # to cm3 particle-1 s-1 (DOI:10.1021/ed046p54)
+        # to cm3 particle-1 s-1 (doi:10.1021/ed046p54)
         assert rx.rates.convert_rate_constant(
             1.0,
             "cm3 particle-1 s-1",
@@ -520,7 +520,7 @@ def test_second_order_conversion_rates_match_literature():
             temperature=temperature,
         ) == pytest.approx(1.362e-22 * temperature)
 
-        # to mmHg-1 s-1 (DOI:10.1021/ed046p54)
+        # to mmHg-1 s-1 (doi:10.1021/ed046p54)
         assert rx.rates.convert_rate_constant(
             1.0,
             "mmHg-1 s-1",
@@ -595,7 +595,7 @@ def test_second_order_conversion_rates_match_literature():
             temperature=temperature,
         ) == pytest.approx(9.658e18 / temperature, 2e-4)
 
-        # to atm-1 s-1 (DOI:10.1021/ed046p54)
+        # to atm-1 s-1 (doi:10.1021/ed046p54)
         assert rx.rates.convert_rate_constant(
             1.0,
             "atm-1 s-1",
