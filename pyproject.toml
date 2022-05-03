@@ -10,8 +10,8 @@ authors = ["Felipe S. S. Schneider <schneider.felipe@posgrad.ufsc.br>",
 readme = "README.md"
 
 homepage = "https://geem-lab.github.io/overreact-guide/"
-repository = "https://github.com/geem-lab/overreact"
 documentation = "https://geem-lab.github.io/overreact-guide/"
+repository = "https://github.com/geem-lab/overreact"
 
 keywords = [
     "chemical-kinetics",
