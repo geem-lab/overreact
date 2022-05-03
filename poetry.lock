@@ -545,7 +545,7 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "jax"
-version = "0.3.8"
+version = "0.3.9"
 description = "Differentiate, compile, and transform Numpy code."
 category = "main"
 optional = true
@@ -1932,7 +1932,7 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 jax = [
-    {file = "jax-0.3.8.tar.gz", hash = "sha256:c2f11f197364ef5edbfa47da957ceec1ac15f3eee5255123c7bd22a8b9a04d95"},
+    {file = "jax-0.3.9.tar.gz", hash = "sha256:dc3f18bce28bb5e28cf4c6759c710293cf437c58d2741ab0fc3b30b06f74e4d3"},
 ]
 jaxlib = [
     {file = "jaxlib-0.3.7-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:66d289c33a51cf27f9e0fc1cec4914690267a9f1747ecc3c6588c92ed9c79bcd"},
