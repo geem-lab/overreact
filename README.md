@@ -144,9 +144,6 @@ Here's the reference in [BibTeX](http://www.bibtex.org/) format:
 }
 ```
 
-> **✏️** A paper describing **overreact** is currently being prepared. When it
-> is published, the above BibTeX entry will be updated.
-
 ## License
 
 **overreact** is open-source, released under the permissive **MIT license**. See
