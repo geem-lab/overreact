@@ -210,14 +210,14 @@ pycparser = "*"
 
 [[package]]
 name = "chemicals"
-version = "1.0.20"
+version = "1.0.21"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 
 [package.dependencies]
-fluids = ">=1.0.12"
+fluids = ">=1.0.21"
 numpy = "*"
 pandas = "*"
 scipy = "*"
@@ -1492,14 +1492,14 @@ test = ["pytest"]
 
 [[package]]
 name = "thermo"
-version = "0.2.20"
+version = "0.2.21"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 
 [package.dependencies]
-chemicals = ">=1.0.17"
+chemicals = ">=1.0.21"
 fluids = ">=1.0.15"
 pandas = "*"
 scipy = "*"
@@ -1775,7 +1775,7 @@ cffi = [
     {file = "cffi-1.15.0.tar.gz", hash = "sha256:920f0d66a896c2d99f0adbb391f990a84091179542c205fa53ce5787aff87954"},
 ]
 chemicals = [
-    {file = "chemicals-1.0.20.tar.gz", hash = "sha256:faa2a0b3e716c8e0a265ad0656e064208afde794b436535793540064c9fcdc49"},
+    {file = "chemicals-1.0.21.tar.gz", hash = "sha256:59f4ae1e6093f12a3f570458456d587f88ad27278f4abc39781ef0c035653314"},
 ]
 click = [
     {file = "click-8.1.2-py3-none-any.whl", hash = "sha256:24e1a4a9ec5bf6299411369b208c1df2188d9eb8d916302fe6bf03faed227f1e"},
@@ -2605,7 +2605,7 @@ terminado = [
     {file = "terminado-0.13.3.tar.gz", hash = "sha256:94d1cfab63525993f7d5c9b469a50a18d0cdf39435b59785715539dd41e36c0d"},
 ]
 thermo = [
-    {file = "thermo-0.2.20.tar.gz", hash = "sha256:432e07e77afbf23e73cbb61696a0744b7dd2af404c3eedc5c6ba30dfba38dd8e"},
+    {file = "thermo-0.2.21.tar.gz", hash = "sha256:c8e5459965710fa8903bb710bb17f7eebef6d38511113731f3455a2dc030b8c4"},
 ]
 tinycss2 = [
     {file = "tinycss2-1.1.1-py3-none-any.whl", hash = "sha256:fe794ceaadfe3cf3e686b22155d0da5780dd0e273471a51846d0a02bc204fec8"},
