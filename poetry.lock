@@ -545,7 +545,7 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "jax"
-version = "0.3.10"
+version = "0.3.12"
 description = "Differentiate, compile, and transform Numpy code."
 category = "main"
 optional = true
@@ -559,7 +559,7 @@ scipy = ">=1.2.1"
 typing_extensions = "*"
 
 [package.extras]
-ci = ["jaxlib (==0.3.7)"]
+ci = ["jaxlib (==0.3.10)"]
 cpu = ["jaxlib (==0.3.10)"]
 cuda = ["jaxlib (==0.3.10+cuda11.cudnn82)"]
 cuda11_cudnn805 = ["jaxlib (==0.3.10+cuda11.cudnn805)"]
@@ -1932,7 +1932,7 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 jax = [
-    {file = "jax-0.3.10.tar.gz", hash = "sha256:87aaa7a9708ee12ad3efb0b0feaa8873ed209750b256cc9b9a8fa1e3c1ede69c"},
+    {file = "jax-0.3.12.tar.gz", hash = "sha256:47dbf66c11d9737d385275d79c2eb40fc6302ab948e5373b10589e4d00ec93bc"},
 ]
 jaxlib = [
     {file = "jaxlib-0.3.10-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:7b6219b5cd22580ffcc723c789c248f3f62d4a395289308b99a3a9dbc0687bae"},
