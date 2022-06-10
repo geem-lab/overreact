@@ -68,7 +68,7 @@ bandit = "^1"
 black = {version = "^22", allow-prereleases = true}
 flake8 = "^4"
 isort = "^5"
-mypy = "^0.960"
+mypy = "^0.961"
 pydocstyle = "^6"
 pytest = "^7"
 pytest-cov = "^3"
