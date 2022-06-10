@@ -1000,7 +1000,7 @@ python-versions = ">=2.6"
 
 [[package]]
 name = "pdoc"
-version = "12.0.1"
+version = "12.0.2"
 description = "API Documentation for Python Projects"
 category = "dev"
 optional = false
@@ -2239,8 +2239,8 @@ pbr = [
     {file = "pbr-5.8.1.tar.gz", hash = "sha256:66bc5a34912f408bb3925bf21231cb6f59206267b7f63f3503ef865c1a292e25"},
 ]
 pdoc = [
-    {file = "pdoc-12.0.1-py3-none-any.whl", hash = "sha256:b27467651e5d8afa3cfc67ced2d978fb97e04ce91506579bba4d05b902fad096"},
-    {file = "pdoc-12.0.1.tar.gz", hash = "sha256:39f58c187f668e46485a51e7d4a3410484d054567e21937a5c28471dc03fc6de"},
+    {file = "pdoc-12.0.2-py3-none-any.whl", hash = "sha256:761a096b4dbc586c80d6b37baebf21ef467f22d6ea0532c3d5834abdb27c9862"},
+    {file = "pdoc-12.0.2.tar.gz", hash = "sha256:c63dc9050ec24b6baed6864a7d460814c620d3adbaee51c04b74eaa174b97dc6"},
 ]
 periodictable = [
     {file = "periodictable-1.6.0.tar.gz", hash = "sha256:52e925220005c20e97601e7b04ad6cebc271680947ab9adcbb1a796ddbaa0f23"},
