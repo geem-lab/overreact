@@ -362,7 +362,7 @@ numpy = ">=1.5.0"
 scipy = ">=0.9.0"
 
 [package.extras]
-"Coverage documentation" = ["wsgiref (>=0.1.2)", "coverage (>=4.0.3)", "pint"]
+coverage_documentation = ["wsgiref (>=0.1.2)", "coverage (>=4.0.3)", "pint"]
 
 [[package]]
 name = "flynt"
@@ -879,7 +879,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "notebook"
-version = "6.4.11"
+version = "6.4.12"
 description = "A web-based notebook environment for interactive computing"
 category = "dev"
 optional = false
@@ -1505,7 +1505,7 @@ pandas = "*"
 scipy = "*"
 
 [package.extras]
-"Coverage documentation" = ["wsgiref (>=0.1.2)", "coverage (>=4.0.3)"]
+coverage_documentation = ["wsgiref (>=0.1.2)", "coverage (>=4.0.3)"]
 
 [[package]]
 name = "tinycss2"
@@ -1885,6 +1885,7 @@ flatbuffers = [
     {file = "flatbuffers-2.0.tar.gz", hash = "sha256:12158ab0272375eab8db2d663ae97370c33f152b27801fa6024e1d6105fd4dd2"},
 ]
 fluids = [
+    {file = "fluids-1.0.21-py3-none-any.whl", hash = "sha256:a54f5252de271aa878c1d410e6c621f60321c99f4ef659de3d7df63394ae239d"},
     {file = "fluids-1.0.21.tar.gz", hash = "sha256:d65b313c3f681a6f0a2c3c17084d3062c210aa7cfdd4116c18c942d67bb8c100"},
 ]
 flynt = [
@@ -2166,8 +2167,8 @@ nest-asyncio = [
     {file = "nest_asyncio-1.5.5.tar.gz", hash = "sha256:e442291cd942698be619823a17a86a5759eabe1f8613084790de189fe9e16d65"},
 ]
 notebook = [
-    {file = "notebook-6.4.11-py3-none-any.whl", hash = "sha256:b4a6baf2eba21ce67a0ca11a793d1781b06b8078f34d06c710742e55f3eee505"},
-    {file = "notebook-6.4.11.tar.gz", hash = "sha256:709b1856a564fe53054796c80e17a67262071c86bfbdfa6b96aaa346113c555a"},
+    {file = "notebook-6.4.12-py3-none-any.whl", hash = "sha256:8c07a3bb7640e371f8a609bdbb2366a1976c6a2589da8ef917f761a61e3ad8b1"},
+    {file = "notebook-6.4.12.tar.gz", hash = "sha256:6268c9ec9048cff7a45405c990c29ac9ca40b0bc3ec29263d218c5e01f2b4e86"},
 ]
 numpy = [
     {file = "numpy-1.22.3-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:92bfa69cfbdf7dfc3040978ad09a48091143cffb778ec3b03fa170c494118d75"},
@@ -2605,6 +2606,7 @@ terminado = [
     {file = "terminado-0.13.3.tar.gz", hash = "sha256:94d1cfab63525993f7d5c9b469a50a18d0cdf39435b59785715539dd41e36c0d"},
 ]
 thermo = [
+    {file = "thermo-0.2.21-py3-none-any.whl", hash = "sha256:ab3568f3f770013c5409077d3db4263ee38cdf7e69e516f9acda37b8724a21f3"},
     {file = "thermo-0.2.21.tar.gz", hash = "sha256:c8e5459965710fa8903bb710bb17f7eebef6d38511113731f3455a2dc030b8c4"},
 ]
 tinycss2 = [
