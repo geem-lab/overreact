@@ -310,6 +310,36 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "etils"
+version = "0.6.0"
+description = "Collection of common python utils"
+category = "main"
+optional = true
+python-versions = ">=3.7"
+
+[package.dependencies]
+etils = {version = "*", extras = ["epy"], optional = true, markers = "extra == \"epath\""}
+importlib_resources = {version = "*", optional = true, markers = "extra == \"epath\""}
+typing_extensions = {version = "*", optional = true, markers = "extra == \"epy\""}
+zipp = {version = "*", optional = true, markers = "extra == \"epath\""}
+
+[package.extras]
+all = ["etils", "etils", "etils", "etils", "etils", "etils", "etils", "etils", "etils", "etils", "etils"]
+array-types = ["numpy"]
+dev = ["pytest", "pytest-subtests", "pytest-xdist", "pylint (>=2.6.0)", "yapf", "chex"]
+ecolab = ["jupyter", "numpy", "mediapy", "etils"]
+edc = ["etils"]
+enp = ["numpy", "etils"]
+epath = ["importlib-resources", "zipp", "etils"]
+epath-no-tf = ["etils"]
+epy = ["typing-extensions"]
+etqdm = ["absl-py", "tqdm", "etils"]
+etree = ["etils", "etils", "etils", "etils"]
+etree-dm = ["dm-tree", "etils"]
+etree-jax = ["jax", "etils"]
+etree-tf = ["tf-nightly", "etils"]
+
+[[package]]
 name = "executing"
 version = "0.8.3"
 description = "Get the currently executing AST node of a frame, and other information"
@@ -424,7 +454,7 @@ gitdb = ">=4.0.1,<5"
 name = "importlib-resources"
 version = "5.7.1"
 description = "Read resources from Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -545,7 +575,7 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "jax"
-version = "0.3.13"
+version = "0.3.14"
 description = "Differentiate, compile, and transform Numpy code."
 category = "main"
 optional = true
@@ -553,19 +583,20 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 absl-py = "*"
+etils = {version = "*", extras = ["epath"]}
 numpy = ">=1.19"
 opt_einsum = "*"
-scipy = ">=1.2.1"
+scipy = ">=1.5"
 typing_extensions = "*"
 
 [package.extras]
 ci = ["jaxlib (==0.3.10)"]
-cpu = ["jaxlib (==0.3.10)"]
-cuda = ["jaxlib (==0.3.10+cuda11.cudnn82)"]
-cuda11_cudnn805 = ["jaxlib (==0.3.10+cuda11.cudnn805)"]
-cuda11_cudnn82 = ["jaxlib (==0.3.10+cuda11.cudnn82)"]
+cpu = ["jaxlib (==0.3.14)"]
+cuda = ["jaxlib (==0.3.14+cuda11.cudnn82)"]
+cuda11_cudnn805 = ["jaxlib (==0.3.14+cuda11.cudnn805)"]
+cuda11_cudnn82 = ["jaxlib (==0.3.14+cuda11.cudnn82)"]
 minimum-jaxlib = ["jaxlib (==0.3.7)"]
-tpu = ["jaxlib (==0.3.10)", "libtpu-nightly (==0.1.dev20220504)", "requests"]
+tpu = ["jaxlib (==0.3.14)", "libtpu-nightly (==0.1.dev20220627)", "requests"]
 
 [[package]]
 name = "jaxlib"
@@ -1604,7 +1635,7 @@ notebook = ">=4.4.1"
 name = "zipp"
 version = "3.8.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -1868,6 +1899,10 @@ entrypoints = [
     {file = "entrypoints-0.4-py3-none-any.whl", hash = "sha256:f174b5ff827504fd3cd97cc3f8649f3693f51538c7e4bdf3ef002c8429d42f9f"},
     {file = "entrypoints-0.4.tar.gz", hash = "sha256:b706eddaa9218a19ebcd67b56818f05bb27589b1ca9e8d797b74affad4ccacd4"},
 ]
+etils = [
+    {file = "etils-0.6.0-py3-none-any.whl", hash = "sha256:e47b14402f2fc883c70a394e86b3236e4929cfd90187fba58d2f4d3eb2e07c05"},
+    {file = "etils-0.6.0.tar.gz", hash = "sha256:6677241051835d0db11c4947bcad938f57b51ea102290624f892f1e4e51b70e5"},
+]
 executing = [
     {file = "executing-0.8.3-py2.py3-none-any.whl", hash = "sha256:d1eef132db1b83649a3905ca6dd8897f71ac6f8cac79a7e58a1a09cf137546c9"},
     {file = "executing-0.8.3.tar.gz", hash = "sha256:c6554e21c6b060590a6d3be4b82fb78f8f0194d809de5ea7df1c093763311501"},
@@ -1933,7 +1968,7 @@ isort = [
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
 jax = [
-    {file = "jax-0.3.13.tar.gz", hash = "sha256:4ab4865b7007a36e2894a4aff8baf3ffeb6e51e435403c59ba9bc3f741ca3504"},
+    {file = "jax-0.3.14.tar.gz", hash = "sha256:d5f7695ce43b7345b4a095f4733dd46336945057dbfb63e0a28eafa74c41fe62"},
 ]
 jaxlib = [
     {file = "jaxlib-0.3.10-cp310-none-macosx_10_9_x86_64.whl", hash = "sha256:7b6219b5cd22580ffcc723c789c248f3f62d4a395289308b99a3a9dbc0687bae"},
