@@ -72,7 +72,7 @@ mypy = "^0.961"
 pydocstyle = "^6"
 pytest = "^7"
 pytest-cov = "^3"
-types-setuptools = "^57"
+types-setuptools = "^64"
 
 debugpy = "^1"
 ipython = "^8"
