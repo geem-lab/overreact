@@ -185,7 +185,7 @@ dev = ["black (==22.3.0)", "flake8 (==4.0.1)", "hashin (==0.17.0)", "mypy (==0.9
 
 [[package]]
 name = "cclib"
-version = "1.7.1"
+version = "1.7.2"
 description = "cclib: parsers and algorithms for computational chemistry"
 category = "main"
 optional = false
@@ -1753,7 +1753,7 @@ bleach = [
     {file = "bleach-5.0.0.tar.gz", hash = "sha256:c6d6cc054bdc9c83b48b8083e236e5f00f238428666d2ce2e083eaa5fd568565"},
 ]
 cclib = [
-    {file = "cclib-1.7.1.tar.gz", hash = "sha256:0a1715a0c6c78437d17d65e3221e4d8eca9ad35ccf6ab153968b6a2a3e8399c8"},
+    {file = "cclib-1.7.2.tar.gz", hash = "sha256:bb16b422382f47ead65f92b6cd2d812409436c8306e0c5b049056337a11dfc3a"},
 ]
 cffi = [
     {file = "cffi-1.15.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:c2502a1a03b6312837279c8c1bd3ebedf6c12c4228ddbad40912d671ccc8a962"},
