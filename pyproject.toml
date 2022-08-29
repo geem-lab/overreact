@@ -66,7 +66,7 @@ solvents = ["thermo"]
 [tool.poetry.dev-dependencies]
 bandit = "^1"
 black = {version = "^22", allow-prereleases = true}
-flake8 = "^4"
+flake8 = "^5"
 isort = "^5"
 mypy = "^0.971"
 pydocstyle = "^6"
