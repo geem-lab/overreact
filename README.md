@@ -28,8 +28,10 @@ src="https://pepy.tech/badge/overreact/month" alt="downloads/month" /></a> <a
 href="https://pepy.tech/project/overreact" ><img
 src="https://pepy.tech/badge/overreact" alt="total downloads" /></a> </p>
 
-<p> <a href="https://zenodo.org/badge/latestdoi/214332027" ><img
-src="https://zenodo.org/badge/214332027.svg" alt="DOI" /></a> </p>
+<p> <a href="https://doi.org/10.1002/jcc.26861" ><img
+src="https://img.shields.io/badge/DOI-10.1002%2Fjcc.26861-blue" alt="DOI" /></a>
+<a href="https://doi.org/10.5281/zenodo.5730603"><img
+src="https://zenodo.org/badge/DOI/10.5281/zenodo.5730603.svg" alt="DOI" /></a> /p>
 
 <p> <a href="https://github.com/geem-lab/overreact#funding" ><img
 src="https://img.shields.io/badge/made%20in-Brazil-009c3b" alt="Made in Brazil
@@ -123,24 +125,22 @@ If you use **overreact** in your research, please cite:
 > F. S. S. Schneider and G. F. Caramori. _**geem-lab/overreact**: a tool for
 > creating and analyzing microkinetic models built from computational chemistry
 > data, v1.0.2_. **2021**.
-> [DOI:10.5281/zenodo.5730603](https://zenodo.org/badge/latestdoi/214332027).
+> [doi:10.1002/jcc.26861](https://doi.org/10.1002/jcc.26861).
 > Freely available at: <<https://github.com/geem-lab/overreact>>.
 
 Here's the reference in [BibTeX](http://www.bibtex.org/) format:
 
 ```bibtex
-@misc{overreact2021,
-  howpublished = {\url{https://github.com/geem-lab/overreact}}
-  year = {2021},
-  author = {Schneider, F. S. S. and Caramori, G. F.},
-  title = {
-    \textbf{geem-lab/overreact}: a tool for creating and analyzing
-    microkinetic models built from computational chemistry data, v1.0.2
-  },
-  doi = {10.5281/zenodo.5730603},
-  url = {https://zenodo.org/record/5730603},
-  publisher = {Zenodo},
-  copyright = {Open Access}
+@article{2022,
+  title={Overreact, an in silico lab: Automative quantum chemical microkinetic simulations for complex chemical reactions},
+  ISSN={1096-987X},
+  url={http://dx.doi.org/10.1002/jcc.26861},
+  DOI={10.1002/jcc.26861},
+  journal={Journal of Computational Chemistry},
+  publisher={Wiley},
+  author={Schneider, Felipe S. S. and Caramori, Giovanni F.},
+  year={2022},
+  month={Apr}
 }
 ```
 

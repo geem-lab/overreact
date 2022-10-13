@@ -748,7 +748,7 @@ def main(arguments=None):
 
         Licensed under the terms of the {rx.__license__} License.
         If you publish work using this software, please cite
-        https://doi.org/{rx.__doi__}.
+        https://doi.org/{rx.__doi__} and https://doi.org/{rx.__zenodo_doi__}.
         """,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -878,10 +878,12 @@ def main(arguments=None):
 Licensed under the terms of the
 [{rx.__license__} License]({rx.__url_repo__}/blob/main/LICENSE).
 If you publish work using this software, **please cite
-[DOI:{rx.__doi__}](https://zenodo.org/badge/latestdoi/214332027)**:
+[doi:{rx.__doi__}](https://doi.org/{rx.__doi__})
+*and*
+[doi:{rx.__zenodo_doi__}](https://doi.org/{rx.__zenodo_doi__})**:
 
 ```
-{rx.__citation__}
+{rx.__citations__}
 ```
 
 Read the user guide at [{rx.__url_guide__}]({rx.__url_guide__}) for more information

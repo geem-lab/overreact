@@ -42,7 +42,7 @@ classifiers = [
 "Bug Tracker" = "https://github.com/geem-lab/overreact/issues"
 "Discussions" = "https://github.com/geem-lab/overreact/discussions"
 
-"Citation" = "https://zenodo.org/badge/latestdoi/214332027"
+"Citation" = "https://doi.org/10.1002/jcc.26861"
 
 [tool.poetry.scripts]
 overreact = 'overreact._cli:main'
