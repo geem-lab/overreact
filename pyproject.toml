@@ -48,7 +48,7 @@ classifiers = [
 overreact = 'overreact._cli:main'
 
 [tool.poetry.dependencies]
-python = ">=3.6,<3.11"
+python = ">=3.8,<3.11"
 
 cclib = "^1"
 scipy = "^1.9"
