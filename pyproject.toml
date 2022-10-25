@@ -63,7 +63,7 @@ cli = ["rich"]
 fast = ["jax", "jaxlib"]
 solvents = ["thermo"]
 
-[tool.poetry.dev.dependencies]
+[tool.poetry.dev-dependencies]
 bandit = "^1"
 black = {version = "^22", allow-prereleases = true}
 debugpy = "^1"
