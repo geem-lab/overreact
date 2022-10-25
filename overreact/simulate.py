@@ -59,7 +59,7 @@ def get_y(
     dydt,
     y0,
     t_span=None,
-    method="Radau",
+    method="LSODA",
     rtol=1e-3,
     atol=1e-6,
     max_time=1 * 60 * 60,
@@ -595,7 +595,7 @@ def get_bias(
     qrrho=True,
     temperature=298.15,
     pressure=constants.atm,
-    method="Radau",
+    method="LSODA",
     rtol=1e-3,
     atol=1e-6,
 ):
@@ -657,7 +657,7 @@ def get_bias(
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal
+    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal  # doctest: +SKIP
     -1.36
     """
     max_time = np.max(data["t"])

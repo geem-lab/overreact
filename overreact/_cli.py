@@ -143,7 +143,7 @@ class Report:
         pressure=constants.atm,
         bias=0.0,
         tunneling="eckart",
-        method="Radau",
+        method="LSODA",
         max_time=1 * 60 * 60,
         rtol=1e-3,
         atol=1e-6,
@@ -840,7 +840,7 @@ def main(arguments=None):
         help="integrator used in solving the ODE system of the microkinetic "
         "simulation",
         choices=["BDF", "Radau", "LSODA"],
-        default="Radau",
+        default="LSODA",
     )
     parser.add_argument(
         "--max-time",
