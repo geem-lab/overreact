@@ -1,4 +1,12 @@
 [[package]]
+name = "absl-py"
+version = "1.3.0"
+description = "Abseil Python Common Libraries, see https://github.com/abseil/abseil-py."
+category = "main"
+optional = true
+python-versions = ">=3.6"
+
+[[package]]
 name = "anyio"
 version = "3.6.2"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
@@ -351,6 +359,36 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "etils"
+version = "0.8.0"
+description = "Collection of common python utils"
+category = "main"
+optional = true
+python-versions = ">=3.7"
+
+[package.dependencies]
+etils = {version = "*", extras = ["epy"], optional = true, markers = "extra == \"epath\""}
+importlib_resources = {version = "*", optional = true, markers = "extra == \"epath\""}
+typing_extensions = {version = "*", optional = true, markers = "extra == \"epath\""}
+zipp = {version = "*", optional = true, markers = "extra == \"epath\""}
+
+[package.extras]
+lazy-imports = ["etils"]
+etree-tf = ["etils", "tf-nightly"]
+etree-jax = ["etils", "jax"]
+etree-dm = ["etils", "dm-tree"]
+etree = ["etils", "etils", "etils", "etils"]
+etqdm = ["etils", "tqdm", "absl-py"]
+epy = ["typing-extensions"]
+epath = ["etils", "zipp", "typing-extensions", "importlib-resources"]
+enp = ["etils", "numpy"]
+edc = ["etils"]
+ecolab = ["etils", "etils", "mediapy", "numpy", "jupyter"]
+dev = ["chex", "yapf", "pylint (>=2.6.0)", "pytest-xdist", "pytest-subtests", "pytest"]
+array-types = ["etils"]
+all = ["etils", "etils", "etils", "etils", "etils", "etils", "etils", "etils", "etils", "etils", "etils"]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.0.0rc9"
 description = "Backport of PEP 654 (exception groups)"
@@ -495,7 +533,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "flake8 
 name = "importlib-resources"
 version = "5.10.0"
 description = "Read resources from Python packages"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -613,6 +651,45 @@ pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 requirements_deprecated_finder = ["pipreqs", "pip-api"]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
 plugins = ["setuptools"]
+
+[[package]]
+name = "jax"
+version = "0.3.23"
+description = "Differentiate, compile, and transform Numpy code."
+category = "main"
+optional = true
+python-versions = ">=3.7"
+
+[package.dependencies]
+absl-py = "*"
+etils = {version = "*", extras = ["epath"]}
+numpy = ">=1.20"
+opt_einsum = "*"
+scipy = ">=1.5"
+typing_extensions = "*"
+
+[package.extras]
+australis = ["protobuf (>=3.13,<4)"]
+ci = ["jaxlib (==0.3.22)"]
+cpu = ["jaxlib (==0.3.22)"]
+cuda = ["jaxlib (==0.3.22+cuda11.cudnn82)"]
+cuda11_cudnn805 = ["jaxlib (==0.3.22+cuda11.cudnn805)"]
+cuda11_cudnn82 = ["jaxlib (==0.3.22+cuda11.cudnn82)"]
+minimum-jaxlib = ["jaxlib (==0.3.15)"]
+tpu = ["jaxlib (==0.3.22)", "libtpu-nightly (==0.1.dev20221011)", "requests"]
+
+[[package]]
+name = "jaxlib"
+version = "0.3.22"
+description = "XLA library for JAX"
+category = "main"
+optional = true
+python-versions = ">=3.7"
+
+[package.dependencies]
+absl-py = "*"
+numpy = ">=1.20"
+scipy = ">=1.5"
 
 [[package]]
 name = "jedi"
@@ -1035,6 +1112,21 @@ description = "NumPy is the fundamental package for array computing with Python.
 category = "main"
 optional = false
 python-versions = ">=3.8"
+
+[[package]]
+name = "opt-einsum"
+version = "3.3.0"
+description = "Optimizing numpys einsum function"
+category = "main"
+optional = true
+python-versions = ">=3.5"
+
+[package.dependencies]
+numpy = ">=1.7"
+
+[package.extras]
+docs = ["sphinx (==1.2.3)", "sphinxcontrib-napoleon", "sphinx-rtd-theme", "numpydoc"]
+tests = ["pytest", "pytest-cov", "pytest-pep8"]
 
 [[package]]
 name = "packaging"
@@ -1822,7 +1914,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 name = "zipp"
 version = "3.10.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -1832,15 +1924,16 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "flake8 
 
 [extras]
 cli = ["rich"]
-fast = []
+fast = ["jax", "jaxlib"]
 solvents = ["thermo"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.11"
-content-hash = "07a90c29f00d5ccbb9e25e1460653ea1195b2c170c391d44b9651163b6ff9780"
+content-hash = "557f775c70ba01995a827d332419faca33eebf89b2ccb3b4adba1666721fda3f"
 
 [metadata.files]
+absl-py = []
 anyio = []
 appnope = [
     {file = "appnope-0.1.3-py2.py3-none-any.whl", hash = "sha256:265a455292d0bd8a72453494fa24df5a11eb18373a60c7c0430889f22548605e"},
@@ -1884,6 +1977,7 @@ decorator = [
 defusedxml = []
 dill = []
 entrypoints = []
+etils = []
 exceptiongroup = []
 executing = []
 fastjsonschema = []
@@ -1911,6 +2005,8 @@ isort = [
     {file = "isort-5.10.1-py3-none-any.whl", hash = "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7"},
     {file = "isort-5.10.1.tar.gz", hash = "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"},
 ]
+jax = []
+jaxlib = []
 jedi = [
     {file = "jedi-0.18.1-py2.py3-none-any.whl", hash = "sha256:637c9635fcf47945ceb91cd7f320234a7be540ded6f3e99a50cb6febdfd1ba8d"},
     {file = "jedi-0.18.1.tar.gz", hash = "sha256:74137626a64a99c8eb6ae5832d99b3bdd7d29a3850fe2aa80a4126b2a7d949ab"},
@@ -1982,6 +2078,7 @@ nest-asyncio = []
 notebook = []
 notebook-shim = []
 numpy = []
+opt-einsum = []
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
     {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
