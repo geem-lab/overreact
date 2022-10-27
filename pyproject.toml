@@ -78,7 +78,7 @@ pdoc = "^12"
 pydocstyle = "^6"
 pytest = "^7.2.0"
 pytest-cov = "^3"
-pyupgrade = "^2.37.3"
+pyupgrade = "^3.1.0"
 seaborn = "^0.11"
 types-setuptools = "^65"
 
