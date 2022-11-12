@@ -1124,7 +1124,7 @@ python-versions = ">=2.6"
 
 [[package]]
 name = "pdoc"
-version = "12.2.0"
+version = "12.2.2"
 description = "API Documentation for Python Projects"
 category = "dev"
 optional = false
@@ -1137,7 +1137,7 @@ MarkupSafe = "*"
 pygments = ">=2.12.0"
 
 [package.extras]
-dev = ["flake8", "hypothesis", "mypy", "pytest", "pytest-cov", "pytest-timeout", "tox"]
+dev = ["autoflake", "black", "flake8", "hypothesis", "mypy", "pytest", "pytest-cov", "pytest-timeout", "pyupgrade", "reorder-python-imports", "tox", "yesqa"]
 
 [[package]]
 name = "periodictable"
@@ -2569,8 +2569,8 @@ pbr = [
     {file = "pbr-5.11.0.tar.gz", hash = "sha256:b97bc6695b2aff02144133c2e7399d5885223d42b7912ffaec2ca3898e673bfe"},
 ]
 pdoc = [
-    {file = "pdoc-12.2.0-py3-none-any.whl", hash = "sha256:043ab59983ea166ba15c9950eca3683194e5fbc7bbcdd61595f95d18fdc5c05c"},
-    {file = "pdoc-12.2.0.tar.gz", hash = "sha256:1a4f2ca3f02772941b7b7fe85cb50b9b0c86ed4c2417bcf7d0bd7ad189ae1ba8"},
+    {file = "pdoc-12.2.2-py3-none-any.whl", hash = "sha256:c89adf5b9353760e8916f4ae45af68f3771f3d02285e4503897ff00b1cc4e4a6"},
+    {file = "pdoc-12.2.2.tar.gz", hash = "sha256:9a501661ec5b51599e0084ad7eefe2f77009a0e77fd6f6e91555682f2edd7889"},
 ]
 periodictable = [
     {file = "periodictable-1.6.1-py2.py3-none-any.whl", hash = "sha256:5b02d7171e6a8bcb7060b086c6150ac4152a36b70edcd34e5549981d84d31eed"},
