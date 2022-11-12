@@ -1,12 +1,4 @@
 [[package]]
-name = "absl-py"
-version = "1.3.0"
-description = "Abseil Python Common Libraries, see https://github.com/abseil/abseil-py."
-category = "main"
-optional = true
-python-versions = ">=3.6"
-
-[[package]]
 name = "anyio"
 version = "3.6.2"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
@@ -624,14 +616,13 @@ tpu = ["jaxlib (==0.3.24)", "libtpu-nightly (==0.1.dev20221103)", "requests"]
 
 [[package]]
 name = "jaxlib"
-version = "0.3.22"
+version = "0.3.24"
 description = "XLA library for JAX"
 category = "main"
 optional = true
 python-versions = ">=3.7"
 
 [package.dependencies]
-absl-py = "*"
 numpy = ">=1.20"
 scipy = ">=1.5"
 
@@ -1799,10 +1790,6 @@ python-versions = ">=3.8,<3.11"
 content-hash = "458af925556f0f760dbf375fe358ee62d9f3a778b2c1c9296eee3a9642f23b56"
 
 [metadata.files]
-absl-py = [
-    {file = "absl-py-1.3.0.tar.gz", hash = "sha256:463c38a08d2e4cef6c498b76ba5bd4858e4c6ef51da1a5a1f27139a022e20248"},
-    {file = "absl_py-1.3.0-py3-none-any.whl", hash = "sha256:34995df9bd7a09b3b8749e230408f5a2a2dd7a68a0d33c12a3d0cb15a041a507"},
-]
 anyio = [
     {file = "anyio-3.6.2-py3-none-any.whl", hash = "sha256:fbbe32bd270d2a2ef3ed1c5d45041250284e31fc0a4df4a5a6071842051a51e3"},
     {file = "anyio-3.6.2.tar.gz", hash = "sha256:25ea0d673ae30af41a0c442f81cf3b38c7e79fdc7b60335a4c14e05eb0947421"},
@@ -2211,17 +2198,20 @@ jax = [
     {file = "jax-0.3.24.tar.gz", hash = "sha256:54c0002926a1898e7c7afdc2a14fbdcac04188bcaa359bc3389a30ea464a513a"},
 ]
 jaxlib = [
-    {file = "jaxlib-0.3.22-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:6cea1023e4fe62c4d4340f9c0eeeb0c184dcabd7f2cb30a92bdaab742acd5680"},
-    {file = "jaxlib-0.3.22-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ec8af9e5984191c72a7e86b9e9654117c4301400b6c2ce0a1470e47d5c3ace6d"},
-    {file = "jaxlib-0.3.22-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:c36c28d2393ed4174490dc1f4994506de6dd23801cf0a827d0c07470831c594e"},
-    {file = "jaxlib-0.3.22-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:651522950a8492bacc28e3c5bfc1be213891b3bf2f5488e22513f976cec323ee"},
-    {file = "jaxlib-0.3.22-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:05bacb0f0e379db65b5bc2ae3829adbfa47fb560ee737533f578943feff51529"},
-    {file = "jaxlib-0.3.22-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:5f28d826118da92c6d9ae0765be5969a5419168bda623763ef9145019f2e6d96"},
-    {file = "jaxlib-0.3.22-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:7caf7661f757c6c4abc7ec6b6b44b5d59314a91c610279f31f93dc4545c1dc04"},
-    {file = "jaxlib-0.3.22-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:415a82b095b54246a716f45204c9bd6bf26163ade0ae07733f866b2ecf0ff5ba"},
-    {file = "jaxlib-0.3.22-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:34737fd98fadbe9e0422a8ab302e2981aff23e1700d2a1f148d1271697c23f2b"},
-    {file = "jaxlib-0.3.22-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:a93c9cd0f20daba2bf630f041476552dc21a6ecd529a3482355a74dd7ba33f86"},
-    {file = "jaxlib-0.3.22-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:eecad425ae6a1889ef92bba2b92af1070fcc7fbd2d4c8c7976b8393476ff1629"},
+    {file = "jaxlib-0.3.24-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:c73e0716f3c473b8f5a17a239d27771e8de2b745b29cbb2467fb6a5815affe45"},
+    {file = "jaxlib-0.3.24-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:ac9f1df0b097e4540df1aeefb4cf241be1e413194d69837a852adc79239a728f"},
+    {file = "jaxlib-0.3.24-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:ac17008698a7fd603cb8a39299ebf0559f6cec3c9f64b0020d33f5d539075559"},
+    {file = "jaxlib-0.3.24-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:f4c8f52dd222cf54dfecb4616b72b162e296e12341b58d86f61631f6aac65de5"},
+    {file = "jaxlib-0.3.24-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:0d3c979e40dc6c1b7831504cc277e4a40d3f62f2ef11f363009dbb19a8450de5"},
+    {file = "jaxlib-0.3.24-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:62df5c7d666d960e43f4f455e49e8d13fd77d9f298abc8ec59c12a78844b2d0e"},
+    {file = "jaxlib-0.3.24-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:fe664cac2786f377a88b17da4e2b0cb060c7066db49ada4596aa8024543170d8"},
+    {file = "jaxlib-0.3.24-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:09d940e1e95fed8a927e7f59d9f4bfff78242ade1cc1aad5a203181bc9eead05"},
+    {file = "jaxlib-0.3.24-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:f8ee0fc1f6abfc9285d323a06d791ae4b2bedc89e38d49dc1a1c4fa06f40732b"},
+    {file = "jaxlib-0.3.24-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:dd1406d9553ce5c8c868afd0a07e76a6ddbb965e5846eeaf960438a395fa88d0"},
+    {file = "jaxlib-0.3.24-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:ba1bf3766c1cc33dd5fc08d0468980c2fa42c26f5ad08f369fbf3e74dd5c24cb"},
+    {file = "jaxlib-0.3.24-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:7eab08c684473d3141c271250c83c8534e6d1460b34e334998846bfb4f5c3c66"},
+    {file = "jaxlib-0.3.24-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:cee54f5cdfcf4a60c42f775ff59dc2a97cb2660db943b9b05865c093753da4a2"},
+    {file = "jaxlib-0.3.24-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:75ab498c064cdea988a0a85209557edd0359c722bb886bd1426e57e8529a083e"},
 ]
 jedi = [
     {file = "jedi-0.18.1-py2.py3-none-any.whl", hash = "sha256:637c9635fcf47945ceb91cd7f320234a7be540ded6f3e99a50cb6febdfd1ba8d"},
