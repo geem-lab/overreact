@@ -1705,7 +1705,7 @@ test = ["pre-commit", "pytest"]
 
 [[package]]
 name = "types-setuptools"
-version = "65.5.0.2"
+version = "65.5.0.3"
 description = "Typing stubs for setuptools"
 category = "dev"
 optional = false
@@ -3035,8 +3035,8 @@ traitlets = [
     {file = "traitlets-5.5.0.tar.gz", hash = "sha256:b122f9ff2f2f6c1709dab289a05555be011c87828e911c0cf4074b85cb780a79"},
 ]
 types-setuptools = [
-    {file = "types-setuptools-65.5.0.2.tar.gz", hash = "sha256:9847de6d7087fb1dd4a88c2a21543d1b86a6179c36744f081974303fe2f30f50"},
-    {file = "types_setuptools-65.5.0.2-py3-none-any.whl", hash = "sha256:2d33e4ef0d35cd2da48a143eb02184f58398381ddb1f772eff20ccc4126fec13"},
+    {file = "types-setuptools-65.5.0.3.tar.gz", hash = "sha256:17769171f5f2a2dc69b25c0d3106552a5cda767bbf6b36cb6212b26dae5aa9fc"},
+    {file = "types_setuptools-65.5.0.3-py3-none-any.whl", hash = "sha256:9254c32b0cc91c486548e7d7561243b5bd185402a383e93c6691e1b9bc8d86e2"},
 ]
 typing-extensions = [
     {file = "typing_extensions-4.4.0-py3-none-any.whl", hash = "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"},
