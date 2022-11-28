@@ -376,15 +376,18 @@ coverage-documentation = ["coverage (>=4.0.3)", "pint", "wsgiref (>=0.1.2)"]
 
 [[package]]
 name = "flynt"
-version = "0.76"
+version = "0.77"
 description = "CLI tool to convert a python project's %-formatted strings to f-strings."
 category = "dev"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 astor = "*"
 tomli = ">=1.1.0"
+
+[package.extras]
+dev = ["build", "pre-commit", "pytest", "pytest-cov", "twine"]
 
 [[package]]
 name = "fonttools"
@@ -1704,7 +1707,7 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.10"
-content-hash = "db2e521e5cdc387c760819a8ec75778a77fb35bc166474861db9195aa59c9f71"
+content-hash = "dd3f14b2d1c90e647497fa642823cc2b70aabd5eb3292df406cc4fb6f55232c9"
 
 [metadata.files]
 anyio = [
@@ -2056,8 +2059,8 @@ fluids = [
     {file = "fluids-1.0.22-py3-none-any.whl", hash = "sha256:3fd993843518589c2c8452666b893b5fb2412b662fb8d9c88e00c3aee89eb30a"},
 ]
 flynt = [
-    {file = "flynt-0.76-py3-none-any.whl", hash = "sha256:fc122c5f589b0c4d019d7d33597f4925fd886a8e6fb3cbadb918e4baa3661687"},
-    {file = "flynt-0.76.tar.gz", hash = "sha256:7a99c5a550ea9e8c21203f6999ed8ce69cbad7bc8465268469777cf06413193a"},
+    {file = "flynt-0.77-py3-none-any.whl", hash = "sha256:2863ac8ec19d6ec8d29e760546e6ced644baf6dff3c7cdc77e03abbd29b80f14"},
+    {file = "flynt-0.77.tar.gz", hash = "sha256:2bd1b37043ad88a3f3c3c34a76fc0b64d24e5f03d36ea6b48cb69cc642bff17e"},
 ]
 fonttools = [
     {file = "fonttools-4.38.0-py3-none-any.whl", hash = "sha256:820466f43c8be8c3009aef8b87e785014133508f0de64ec469e4efb643ae54fb"},
