@@ -68,7 +68,7 @@ bandit = "^1"
 black = {version = "^22", allow-prereleases = true}
 debugpy = "^1"
 flake8 = "^5"
-flynt = "^0.76"
+flynt = "^0.77"
 ipython = "^8"
 isort = "^5"
 jupyter = "^1.0.0"
