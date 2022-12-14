@@ -53,7 +53,7 @@ python = ">=3.8,<3.11"
 cclib = "^1"
 scipy = "^1.9"
 
-jax = {version = "^0.3", optional = true}
+jax = {version = "^0.4", optional = true}
 jaxlib = {version = "^0.3", optional = true}
 rich = {version = "^12", optional = true}
 thermo = {version = "^0.2", optional = true}
