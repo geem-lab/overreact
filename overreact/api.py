@@ -159,7 +159,7 @@ def get_enthalpies(
 
 def get_entropies(
     compounds: dict,
-    environment: Opional[str] = None,  # noqa: F821, RUF100
+    environment: Optional[str] = None,  # noqa: UP007
     method: str = "standard",
     qrrho: bool = True,  # noqa: FBT001, FBT002
     temperature: float = 298.15,

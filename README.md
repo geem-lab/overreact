@@ -140,16 +140,15 @@ for more details.
 
 If you use **overreact** in your research, please cite:
 
-> F. S. S. Schneider and G. F. Caramori. _**geem-lab/overreact**: a tool for
-> creating and analyzing microkinetic models built from computational chemistry
-> data, v1.0.2_. **2021**.
+> Schneider, F. S. S.; Caramori, G. F.
+> _**Overreact**, an in Silico Lab: Automative Quantum Chemical Microkinetic Simulations for Complex Chemical Reactions_.
+> Journal of Computational Chemistry **2022**, 44 (3), 209–217.
 > [doi:10.1002/jcc.26861](https://doi.org/10.1002/jcc.26861).
-> Freely available at: <<https://github.com/geem-lab/overreact>>.
 
 Here's the reference in [BibTeX](http://www.bibtex.org/) format:
 
 ```bibtex
-@article{2022,
+@article{overreact_2022,
   title={Overreact, an in silico lab: Automative quantum chemical microkinetic simulations for complex chemical reactions},
   ISSN={1096-987X},
   url={http://dx.doi.org/10.1002/jcc.26861},
