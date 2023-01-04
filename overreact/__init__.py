@@ -87,9 +87,9 @@ __citations__ = (
   month        = {Nov}
 }
 """.replace(  # noqa: E501
-        "DOI_PLACEHOLDER", __doi__
+        "ZENODO_DOI_PLACEHOLDER", __zenodo_doi__
     )
-    .replace("ZENODO_DOI_PLACEHOLDER", __zenodo_doi__)
+    .replace("DOI_PLACEHOLDER", __doi__)
     .replace("URL_REPO_PLACEHOLDER", __url_repo__)
     .replace("VERSION_PLACEHOLDER", __version__)
 )
