@@ -10,7 +10,7 @@ from overreact import _constants as constants
 from overreact import coords
 
 
-def test_get_enthalpies():
+def test_get_enthalpies():  # noqa: D103
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     assert rx.get_delta(
         model.scheme.B, rx.get_enthalpies(model.compounds, qrrho=False)
@@ -23,7 +23,8 @@ def test_get_entropies():
     """Ensure get_entropies match some logfiles.
 
     It is worth mentioning that, currently, ORCA uses QRRHO in entropy
-    calculations, but not for enthalpies."""
+    calculations, but not for enthalpies.
+    """
     model = rx.parse_model("data/ethane/B97-3c/model.k")
     assert 298.15 * rx.get_delta(
         model.scheme.B, rx.get_entropies(model.compounds, environment="gas")
@@ -52,7 +53,7 @@ def test_get_entropies():
     )
 
 
-def test_get_freeenergies():
+def test_get_freeenergies():  # noqa: D103
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
 

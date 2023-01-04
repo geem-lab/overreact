@@ -2,7 +2,8 @@
 
 """Regressions against experimental/reference values.
 
-This also tests the high-level application programming interface."""
+This also tests the high-level application programming interface.
+"""
 
 import numpy as np
 import pytest
@@ -24,7 +25,7 @@ def test_basic_example_for_solvation_equilibria():
     """
     model = rx.parse_model("data/acetate/Orca4/model.k")
     temperature = 298.15
-    pK = 4.756  # doi:10.1063/1.1416902
+    pK = 4.756  # doi:10.1063/1.1416902  # noqa: N806
 
     acid_energy = -constants.R * temperature * np.log(10**-pK) / constants.kcal
     solv_energy = (
@@ -82,7 +83,7 @@ def test_basic_example_for_solvation_equilibria():
 
 
 def test_basic_example_for_solvation_phase_kinetics():
-    """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
+    """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
 
     This uses raw data from from doi:10.1002/qua.25686 and no calls from
     overreact.api.
@@ -144,7 +145,7 @@ def test_basic_example_for_solvation_phase_kinetics():
 
 
 def test_basic_example_for_gas_phase_kinetics():
-    """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
+    """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
 
     This uses raw data from from doi:10.1002/qua.25686 and no calls from
     overreact.api.
@@ -214,7 +215,7 @@ def test_basic_example_for_gas_phase_kinetics():
 
 
 def test_rate_constants_for_hickel1992():
-    """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
+    """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
 
     Data is as cited in doi:10.1002/qua.25686 and is experimental except when
     otherwise indicated in the comments.
@@ -247,7 +248,6 @@ def test_rate_constants_for_hickel1992():
             rx.get_k(
                 model.scheme,
                 model.compounds,
-                # tunneling="eckart",  # this is default
                 qrrho=(False, True),
                 scale="M-1 s-1",
                 temperature=temperature,
@@ -262,7 +262,7 @@ def test_rate_constants_for_hickel1992():
     assert np.log10(k_cla) == pytest.approx(np.log10(k_cla_ref), 8e-3)
     assert np.log10(k_eck) == pytest.approx(np.log10(k_eck_ref), 5e-3)
 
-    for k, k_ref, tols in zip(
+    for k, k_ref, tols in zip(  # noqa: B905
         [k_cla, k_eck],
         [k_cla_ref, k_eck_ref],
         [(1.0e-1, 0.62, 2e-3, 5e-8, 3e-2), (1.1e-1, 0.75, 2e-3, 3e-8, 2e-2)],
@@ -278,7 +278,7 @@ def test_rate_constants_for_hickel1992():
 
 
 def test_rate_constants_for_tanaka1996():
-    """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
+    """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
 
     Data is as cited in doi:10.1007/BF00058703 and doi:10.1002/qua.25686 and
     is experimental except when otherwise indicated in the comments.
@@ -355,7 +355,6 @@ def test_rate_constants_for_tanaka1996():
             rx.get_k(
                 model.scheme,
                 model.compounds,
-                # tunneling="eckart",  # this is default
                 qrrho=True,
                 scale="cm3 particle-1 s-1",
                 temperature=temperature,
@@ -373,7 +372,7 @@ def test_rate_constants_for_tanaka1996():
     assert np.log10(k_eck) == pytest.approx(np.log10(k_eck_ref), 2e-2)
     assert np.log10(k_eck[:-1]) == pytest.approx(np.log10(k_exp), 3e-3)
 
-    for k, k_ref, tols in zip(
+    for k, k_ref, tols in zip(  # noqa: B905
         [k_cla, k_eck, k_eck[:-1]],
         [k_cla_ref, k_eck_ref, k_exp],
         [
@@ -393,7 +392,7 @@ def test_rate_constants_for_tanaka1996():
 
 
 def test_delta_energies_for_hickel1992():
-    """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
+    """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
 
     Data is as cited in doi:10.1002/qua.25686 and is experimental except when
     otherwise indicated in the comments.
@@ -441,7 +440,7 @@ def test_delta_energies_for_hickel1992():
 
 
 def test_delta_energies_for_tanaka1996():
-    """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
+    """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
 
     Data is as cited in doi:10.1007/BF00058703 and doi:10.1002/qua.25686 and
     is experimental except when otherwise indicated in the comments.
@@ -501,7 +500,7 @@ def test_delta_energies_for_tanaka1996():
 
 
 def test_logfiles_for_hickel1992():
-    """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
+    """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
 
     Data is as cited in doi:10.1002/qua.25686 and is experimental except when
     otherwise indicated in the comments.
@@ -512,7 +511,6 @@ def test_logfiles_for_hickel1992():
     theory = "UM06-2X"
     basisset = "6-311++G(d,p)"
 
-    # NH3(w)
     data = datasets.logfiles["hickel1992"][f"NH3@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
     assert rx.coords.symmetry_number(point_group) == 3
@@ -524,7 +522,6 @@ def test_logfiles_for_hickel1992():
         [1065.8, 1621.5, 1620.6, 3500.2, 3615.5, 3617.3], 4e-2
     )  # M06-2X/6-311++G(d,p) from doi:10.1002/qua.25686
 
-    # OH·(w)
     data = datasets.logfiles["hickel1992"][f"OH·@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
     assert rx.coords.symmetry_number(point_group) == 1
@@ -534,7 +531,6 @@ def test_logfiles_for_hickel1992():
         [3724.3], 2e-2
     )  # M06-2X/6-311++G(d,p) from doi:10.1002/qua.25686
 
-    # NH2·(w)
     data = datasets.logfiles["hickel1992"][f"NH2·@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
     assert rx.coords.symmetry_number(point_group) == 2
@@ -546,7 +542,6 @@ def test_logfiles_for_hickel1992():
         [1471.2, 3417.6, 3500.8], 9e-3
     )  # M06-2X/6-311++G(d,p) from doi:10.1002/qua.25686
 
-    # H2O(w)
     data = datasets.logfiles["hickel1992"][f"H2O@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
     assert rx.coords.symmetry_number(point_group) == 2
@@ -558,7 +553,6 @@ def test_logfiles_for_hickel1992():
         [1570.4, 3847.9, 3928.9], 6e-3
     )  # M06-2X/6-311++G(d,p) from doi:10.1002/qua.25686
 
-    # NH3·OH#(w)
     data = datasets.logfiles["hickel1992"][f"NH3·OH@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
     assert rx.coords.symmetry_number(point_group) == 1
@@ -568,7 +562,7 @@ def test_logfiles_for_hickel1992():
 
 
 def test_logfiles_for_tanaka1996():
-    """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
+    """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
 
     Data is as cited in doi:10.1007/BF00058703 and doi:10.1002/qua.25686 and
     is experimental except when otherwise indicated in the comments.

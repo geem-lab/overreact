@@ -9,7 +9,6 @@ __all__ = ["equilibrium_constant", "change_reference_state"]
 
 
 import logging
-from typing import Optional, Union
 
 import numpy as np
 from scipy.misc import derivative
@@ -61,7 +60,7 @@ def calc_trans_entropy(
         entropies such as in
         [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
         and
-        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204-3214](https://doi.org/10.1021/acs.jctc.9b00214).
         Head over to the
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
@@ -104,7 +103,7 @@ def calc_trans_entropy(
     >>> calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="benzene",
     ...                    method="garza")
     121.7
-    """
+    """  # noqa: E501
     # TODO(schneiderfelipe): This is probably an ugly hack for zero temperature and
     # certainly wrong (https://physics.stackexchange.com/a/400431/77366).
     # See https://physics.stackexchange.com/a/468649/77366 and
@@ -116,8 +115,10 @@ def calc_trans_entropy(
 
     if environment in {"gas", None} or method == "standard":
         volume = molar_volume(temperature=temperature, pressure=pressure)
-    elif environment == "solid":
-        raise ValueError(f"environment not yet implemented: {environment}")
+    elif environment == "solid":  # noqa: RET506
+        raise ValueError(
+            f"environment not yet implemented: {environment}"  # noqa: EM102
+        )  # noqa: RUF100
     else:
         assert atomnos is not None, "atomnos must be provided"
         assert atomcoords is not None, "atomcoords must be provided"
@@ -144,7 +145,7 @@ def calc_internal_energy(
     degeneracy=1,
     moments=None,
     vibfreqs=None,
-    qrrho=True,
+    qrrho=True,  # noqa: FBT002
     temperature=298.15,
 ):
     """Calculate internal energy.
@@ -164,7 +165,7 @@ def calc_internal_energy(
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon and others (see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -194,7 +195,7 @@ def calc_internal_energy(
     ...     degeneracy=degeneracy)  # F
     4039.
 
-    """
+    """  # noqa: E501
     internal_energy = (
         calc_trans_energy(temperature=temperature)
         + calc_elec_energy(energy, degeneracy, temperature=temperature)
@@ -212,7 +213,7 @@ def calc_enthalpy(
     degeneracy=1,
     moments=None,
     vibfreqs=None,
-    qrrho=True,
+    qrrho=True,  # noqa: FBT002
     temperature=298.15,
 ):
     """Calculate enthalpy.
@@ -234,7 +235,7 @@ def calc_enthalpy(
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon and others (see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -263,7 +264,7 @@ def calc_enthalpy(
     ...               degeneracy=degeneracy)  # F
     6518.
 
-    """
+    """  # noqa: E501
     temperature = np.asarray(temperature)
 
     enthalpy = (
@@ -294,7 +295,7 @@ def calc_entropy(
     vibfreqs=None,
     environment="gas",
     method="standard",
-    qrrho=True,
+    qrrho=True,  # noqa: FBT002
     temperature=298.15,
     pressure=constants.atm,
 ):
@@ -330,7 +331,7 @@ def calc_entropy(
         entropies such as in
         [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
         and
-        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204-3214](https://doi.org/10.1021/acs.jctc.9b00214).
         Head over to the
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
@@ -389,7 +390,7 @@ def calc_entropy(
 
     >>> calc_entropy(1.008, 1, [[0, 0, 0]], environment="water")  # doctest: +SKIP
     10.5
-    """
+    """  # noqa: E501
     entropy = (
         calc_trans_entropy(
             atommasses=atommasses,
@@ -419,8 +420,10 @@ def calc_entropy(
 
     if environment in {"gas", None}:
         pass
-    elif environment == "solid":
-        raise ValueError(f"environment not yet implemented: {environment}")
+    elif environment == "solid":  # noqa: RET506
+        raise ValueError(
+            f"environment not yet implemented: {environment}"  # noqa: EM102
+        )  # noqa: RUF100
     else:
         concentration_correction = -change_reference_state(
             temperature=temperature, pressure=pressure
@@ -450,7 +453,7 @@ def calc_heat_capacity(
     degeneracy=1,
     moments=None,
     vibfreqs=None,
-    qrrho=True,
+    qrrho=True,  # noqa: FBT002
     temperature=298.15,
     dx=3e-5,
     order=3,
@@ -472,7 +475,7 @@ def calc_heat_capacity(
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon and others (see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -506,7 +509,7 @@ def calc_heat_capacity(
     ...     degeneracy=degeneracy)  # F
     14.43
 
-    """
+    """  # noqa: D202, E501
 
     def func(temperature):
         return calc_internal_energy(
@@ -560,7 +563,7 @@ def get_molecularity(transform):
     return np.where(res > 0, res, 1)
 
 
-def get_delta(transform, property):
+def get_delta(transform, property):  # noqa: A002
     """Calculate deltas according to reactions.
 
     Delta properties are differences in a property between the final and
@@ -730,7 +733,7 @@ def equilibrium_constant(
 
     You can easily check that the above values match the values given
     [here](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
-    """
+    """  # noqa: E501
     temperature = np.asarray(temperature)
 
     equilibrium_constant = np.exp(
@@ -834,7 +837,7 @@ def change_reference_state(
         old_reference = 1.0 / volume
 
     res = sign * constants.R * np.log(new_reference / old_reference)
-    return res
+    return res  # noqa: RET504
 
 
 # TODO(schneiderfelipe): we need a concrete example of this for testing.

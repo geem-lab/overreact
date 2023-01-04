@@ -59,30 +59,41 @@ jax = { version = "^0.4", optional = true }
 jaxlib = { version = "^0.4", optional = true }
 rich = { version = "^13", optional = true }
 thermo = { version = "^0.2", optional = true }
+# I NEED MATPLOTLIB
 
 [tool.poetry.extras]
 cli = ["rich"]
 fast = ["jax", "jaxlib"]
 solvents = ["thermo"]
 
-[tool.poetry.dev-dependencies]
-bandit = "^1"
+[tool.poetry.group.dev.dependencies]
 black = { version = "^22", allow-prereleases = true }
 debugpy = "^1"
-flake8 = "^5"
 flynt = "^0.77"
 ipython = "^8"
-isort = "^5"
 jupyter = "^1.0.0"
 matplotlib = "^3"
 mypy = "^0.991"
 pdoc = "^12"
+perflint = "^0.7.1"
 pytest = "^7.2.0"
 pytest-cov = "^4"
-pyupgrade = "^3.3.1"
+ruff = "^0.0.210"
 seaborn = "^0.12"
 types-setuptools = "^65"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
+
+[tool.ruff]
+select = ["ALL"]
+ignore = [
+  "ANN001", # MissingTypeFunctionArgument
+  "ANN201", # MissingReturnTypePublicFunction
+  "ANN202", # MissingReturnTypePrivateFunction
+  "S101",   # AssertUsed
+]
+
+[tool.ruff.pydocstyle]
+convention = "numpy"

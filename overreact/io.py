@@ -13,7 +13,6 @@ import textwrap
 import warnings
 from collections import defaultdict
 from collections.abc import MutableMapping
-from typing import Text
 
 import numpy as np
 
@@ -27,7 +26,7 @@ with warnings.catch_warnings():
 logger = logging.getLogger(__name__)
 
 
-def parse_model(path: str, force_compile: bool = False):
+def parse_model(path: str, force_compile: bool = False):  # noqa: FBT001, FBT002
     """Parse either a source or model input file, whichever is available.
 
     A **source input file** (also known as a `.k` file) contains all the information needed
@@ -93,7 +92,7 @@ def parse_model(path: str, force_compile: bool = False):
     >>> model_from_source = parse_model("data/ethane/B97-3c/model")
     >>> model_from_source == model
     True
-    """
+    """  # noqa: E501
     if not path.endswith((".k", ".jk")):
         path = f"{path}.jk"
         logger.warning(f"assuming `.jk` file in {path}")
@@ -107,7 +106,8 @@ def parse_model(path: str, force_compile: bool = False):
     path_k = f"{name}.k"
     logger.info(f"parsing `.k` file in {path_k}")
     if not os.path.isfile(path_k):
-        raise FileNotFoundError(f"no `.k` file found in {path_k}")
+        # TODO: add a nice error message here and everywhere?
+        raise FileNotFoundError(f"no `.k` file found in {path_k}")  # noqa: EM102
 
     model = _parse_source(path_k)
     with open(path_jk, "w") as f:
@@ -179,7 +179,7 @@ def _parse_model(file_or_path):
     return dotdict(model)
 
 
-def _parse_source(file_path_or_str):
+def _parse_source(file_path_or_str):  # noqa: C901
     """Parse a source input file (also known as a `.k` file).
 
     A source input file contains all the information needed to create a model input file
@@ -440,7 +440,7 @@ def _check_compounds(compounds):
     return dict(compounds)
 
 
-def parse_compounds(text, path=("",), select=None):
+def parse_compounds(text, path=("",), select=None):  # noqa: C901
     """Parse a set of compounds.
 
     Parameters
@@ -548,6 +548,7 @@ def parse_compounds(text, path=("",), select=None):
                 value = value.strip('"')
                 for p in path:
                     try:
+                        # TODO: move on to use pathlib.
                         logger.info(f"trying to read {os.path.join(p, value)}")
                         compounds[name].update(read_logfile(os.path.join(p, value)))
                     except FileNotFoundError:
@@ -556,7 +557,7 @@ def parse_compounds(text, path=("",), select=None):
                     break
                 if not success:
                     raise FileNotFoundError(
-                        f"could not find logfile '{value}' in path: {path}"
+                        f"could not find logfile '{value}' in path: {path}"  # noqa: E501, EM102
                     )
             else:
                 # one-line JSON-encoded object
@@ -569,7 +570,7 @@ def parse_compounds(text, path=("",), select=None):
     # Apply `extra_energy_term`s
     for name in compounds:
         if "extra_energy_term" in compounds[name]:
-            # TODO: this assumes that 1. there's a single `extra_energy_term` and 2. `energy` is present
+            # TODO: this assumes that 1. there's a single `extra_energy_term` and 2. `energy` is present  # noqa: E501
             compounds[name]["energy"] += compounds[name]["extra_energy_term"]
 
     return dotdict(compounds)
@@ -644,7 +645,7 @@ def read_logfile(path):
                    (0.0, 0.0, 0.0)))}
     """
     if not (parser := ccopen(path)):
-        raise FileNotFoundError(f"could not find logfile '{path}'")
+        raise FileNotFoundError(f"could not find logfile '{path}'")  # noqa: EM102
     origin = parser.__class__.__name__.lower()
     logger.info(f"reading a {origin} logfile: {path}")
     try:
@@ -678,9 +679,15 @@ def read_logfile(path):
         # cclib has failed.
         if origin == "orca":
             try:
+                # TODO(schneiderfelipe): only run the code below if we know it is
+                # an ORCA logfile. The code in this final section should be very
+                # specific in supplying *only* things cclib is not (yet) able to
+                # parse. Should we add a check for this as well?
                 data = _read_orca_logfile(path, minimal=False)
             except FileNotFoundError:
-                raise FileNotFoundError(f"could not parse logfile: '{path}'")
+                raise FileNotFoundError(  # noqa: B904
+                    f"could not parse logfile: '{path}'"  # noqa: EM102
+                )  # noqa: RUF100
         else:
             raise
     return dotdict(data)
@@ -738,14 +745,14 @@ def _read_orca_hess(path):
                     columns = [int(j) for j in line.split()]
                     for i in range(n):
                         entries = next(file).split()[1:]  # first is same as i
-                        for j, entry in zip(columns, entries):
+                        for j, entry in zip(columns, entries):  # noqa: B905
                             hessian[i, j] = float(entry)
                     line = next(file).strip()
         return hessian
 
 
 # heavily inspired by pieces of cclib
-def _read_orca_logfile(path, minimal=True):
+def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
     """Read an ORCA logfile.
 
     This function is a temporary reader, to be used until cclib supports all
@@ -910,7 +917,7 @@ def _read_orca_logfile(path, minimal=True):
 
 
 # https://stackoverflow.com/a/23689767/4039050
-class dotdict(dict):
+class dotdict(dict):  # noqa: N801
     """Access dictionary attributes through dot.notation.
 
     This object is meant to be immutable, so that it can be hashed.
@@ -939,7 +946,7 @@ class dotdict(dict):
     <class 'overreact.io.dotdict'>
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:  # noqa: ANN101, ANN002, ANN003
         super().__init__(*args, **kwargs)
 
         for key, val in self.items():
@@ -950,7 +957,7 @@ class dotdict(dict):
 
     __getattr__ = dict.get
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value):  # noqa: ANN101, ARG002, ANN204
         """
         Set an item.
 
@@ -961,18 +968,18 @@ class dotdict(dict):
         NotImplementedError
             If one attempts to change a value.
         """
-        raise NotImplementedError("dotdict objects are immutable")
+        raise NotImplementedError("dotdict objects are immutable")  # noqa: EM101
 
     # https://stackoverflow.com/a/1151686/4039050
     # https://stackoverflow.com/a/1151705/4039050
-    def __hash__(self):
+    def __hash__(self):  # noqa: ANN101, ANN204, D105
         return hash(self._key())
 
     # https://stackoverflow.com/a/16162138/4039050
-    def _key(self):
+    def _key(self):  # noqa: ANN101
         return (frozenset(self), frozenset(self.items()))
 
-    def __eq__(self, other):
+    def __eq__(self, other):  # noqa: ANN101, ANN204, D105
         return self._key() == other._key()
 
 
@@ -982,10 +989,10 @@ class _LazyDict(MutableMapping):
 
     _function = None
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:  # noqa: ANN101, ANN002, ANN003
         self._dict = dict(*args, **kwargs)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key):  # noqa: ANN101, ANN204
         """Evaluate value."""
         value = self._dict[key]
         if not isinstance(value, dict):
@@ -993,21 +1000,21 @@ class _LazyDict(MutableMapping):
 
             value = data
             self._dict[key] = data
-        return value
+        return value  # noqa: RET504
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value):  # noqa: ANN101, ANN204
         """Store value lazily."""
         self._dict[key] = value
 
-    def __delitem__(self, key):
+    def __delitem__(self, key):  # noqa: ANN101, ANN204
         """Delete value."""
         return self._dict[key]
 
-    def __iter__(self):
+    def __iter__(self):  # noqa: ANN101, ANN204
         """Iterate over dictionary."""
         return iter(self._dict)
 
-    def __len__(self):
+    def __len__(self):  # noqa: ANN101, ANN204
         """Evaluate size of dictionary."""
         return len(self._dict)
 
@@ -1015,12 +1022,19 @@ class _LazyDict(MutableMapping):
 class InterfaceFormatter(logging.Formatter):
     """Simple logging interface."""
 
-    def __init__(self, fmt=None, datefmt=None, style="%", *args, **kwargs):
+    def __init__(
+        self,  # noqa: ANN101
+        fmt=None,
+        datefmt=None,
+        style="%",
+        *args,  # noqa: ANN002
+        **kwargs,  # noqa: ANN003
+    ) -> None:  # noqa: RUF100
         super().__init__(fmt=fmt, datefmt=datefmt, style=style)
         self.wrapper = textwrap.TextWrapper(*args, **kwargs)
         self.tab = 4 * " "
 
-    def format(self, record):
+    def format(self, record):  # noqa: ANN101, A003
         """Format log message."""
         self.wrapper.initial_indent = self.tab
         self.wrapper.subsequent_indent = 2 * self.tab

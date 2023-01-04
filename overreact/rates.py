@@ -5,8 +5,6 @@
 
 from __future__ import annotations
 
-from typing import Optional, Union
-
 __all__ = ["eyring"]
 
 
@@ -21,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @np.vectorize
-def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
+def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):  # noqa: A002
     """Dynamic viscosity of a solvent.
 
     This function requires the `thermo` package for obtaining property values.
@@ -142,7 +140,7 @@ def collins_kimball(k_tst, k_diff):
     return k_tst * k_diff / (k_tst + k_diff)
 
 
-def convert_rate_constant(
+def convert_rate_constant(  # noqa: C901
     val,
     new_scale,
     old_scale="l mol-1 s-1",
@@ -228,7 +226,6 @@ def convert_rate_constant(
     ...     == convert_rate_constant(1.0, "mmHg-1 s-1", molecularity=2)
     True
     """
-    # new_scale, old_scale = new_scale.lower(), old_scale.lower()
     for alt, ref in [("M-1", "l mol-1"), ("ml", "cm3"), ("torr-1", "mmHg-1")]:
         new_scale, old_scale = new_scale.replace(alt, ref), old_scale.replace(alt, ref)
 
@@ -255,7 +252,7 @@ def convert_rate_constant(
     elif old_scale == "atm-1 s-1":
         factor = rx.thermo.molar_volume(temperature, pressure) * constants.kilo
     else:
-        raise ValueError(f"old unit not recognized: {old_scale}")
+        raise ValueError(f"old unit not recognized: {old_scale}")  # noqa: EM102
 
     # now we convert l mol-1 s-1 to what we need
     if new_scale == "cm3 mol-1 s-1":
@@ -273,7 +270,7 @@ def convert_rate_constant(
     elif new_scale == "atm-1 s-1":
         factor *= 1.0 / (rx.thermo.molar_volume(temperature, pressure) * constants.kilo)
     else:
-        raise ValueError(f"new unit not recognized: {new_scale}")
+        raise ValueError(f"new unit not recognized: {new_scale}")  # noqa: EM102
 
     factor **= molecularity - 1
     logger.info(f"conversion factor ({old_scale} to {new_scale}) = {factor}")

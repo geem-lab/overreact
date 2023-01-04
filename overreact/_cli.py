@@ -54,7 +54,7 @@ class Report:
     qrrho : bool, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r))
         and S. Grimme (entropy correction, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
         on top of the classical RRHO.
@@ -130,10 +130,10 @@ class Report:
     For half-equilibria, only ratios make sense: in simulations, equilibria will be
     adjusted to be faster than all other reactions.
     ────────────────────────────────────────────────────────────────────────────────
-    """
+    """  # noqa: E501
 
     def __init__(
-        self,
+        self,  # noqa: ANN101
         model,
         concentrations=None,
         savepath=None,
@@ -148,7 +148,7 @@ class Report:
         rtol=1e-3,
         atol=1e-6,
         box_style=box.SIMPLE,
-    ):
+    ) -> None:
         """Initialize a Report object."""
         self.model = model
         self.concentrations = concentrations
@@ -173,7 +173,7 @@ class Report:
         self.atol = atol
         self.box_style = box_style
 
-    def __rich_console__(self, console, options):
+    def __rich_console__(self, console, options):  # noqa: ANN101, ARG002, ANN204
         """
         Implement Rich Console protocol.
 
@@ -190,7 +190,7 @@ class Report:
         yield from self._yield_kinetics()
         yield Markdown("---")
 
-    def _yield_scheme(self):
+    def _yield_scheme(self):  # noqa: ANN101
         """Produce a renderables describing the reaction scheme.
 
         This is meant to be used from within `__rich_console__`.
@@ -232,7 +232,7 @@ class Report:
             parsed_table.add_row(*row)
         yield parsed_table
 
-    def _yield_compounds(self):
+    def _yield_compounds(self):  # noqa: ANN101
         """Produce a renderables describing the compounds.
 
         This is meant to be used from within `__rich_console__`.
@@ -251,7 +251,9 @@ class Report:
             if not self.model.compounds[name]:
                 undefined_compounds.append(name)
         if undefined_compounds:
-            raise ValueError(f"undefined compounds: {', '.join(undefined_compounds)}")
+            raise ValueError(
+                f"undefined compounds: {', '.join(undefined_compounds)}"  # noqa: EM102
+            )  # noqa: RUF100
 
         logfiles_table = Table(
             Column("no", justify="right"),
@@ -298,7 +300,7 @@ class Report:
         yield logfiles_table
         yield compounds_table
 
-    def _yield_thermochemistry(self):
+    def _yield_thermochemistry(self):  # noqa: ANN101
         """Produce a renderables describing the thermochemistry of the reaction scheme.
 
         This is meant to be used from within `__rich_console__`.
@@ -374,7 +376,7 @@ class Report:
             * rx.get_reaction_entropies(
                 scheme.A, temperature=self.temperature, pressure=self.pressure
             ),
-        ), "reaction free energies do not match reaction enthalpies and reaction entropies"
+        ), "reaction free energies do not match reaction enthalpies and reaction entropies"  # noqa: E501
 
         delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
         delta_activation_energies = rx.get_delta(scheme.B, energies)
@@ -396,7 +398,7 @@ class Report:
             * rx.get_reaction_entropies(
                 scheme.B, temperature=self.temperature, pressure=self.pressure
             ),
-        ), "activation free energies do not match activation enthalpies and activation entropies"
+        ), "activation free energies do not match activation enthalpies and activation entropies"  # noqa: E501
 
         circ_table = Table(
             Column("no", justify="right"),
@@ -471,7 +473,7 @@ class Report:
         yield circ_table
         yield dagger_table
 
-    def _yield_kinetics(self):
+    def _yield_kinetics(self):  # noqa: ANN101, C901
         """Produce a renderables describing the kinetics of the system.
 
         This is meant to be used from within `__rich_console__`.
@@ -585,7 +587,7 @@ class Report:
             f"{self.bias} J/mol."
         )
         yield Markdown(
-            "For **half-equilibria**, only ratios make sense: in simulations, **equilibria will be adjusted to be faster than all other reactions**."
+            "For **half-equilibria**, only ratios make sense: in simulations, **equilibria will be adjusted to be faster than all other reactions**."  # noqa: E501
         )
 
         if self.concentrations is not None and self.concentrations:
@@ -657,7 +659,7 @@ class Report:
             for i, name in enumerate(scheme.compounds):
                 if not rx.is_transition_state(name):
                     res = minimize_scalar(
-                        lambda t: -r(t)[i],
+                        lambda t: -r(t)[i],  # noqa: B023
                         bounds=(y.t_min, (t_max + y.t_max) / 2),
                         method="bounded",
                     )
@@ -716,8 +718,9 @@ def _prepare_simulation(scheme, k, concentrations):
         try:
             quantity = float(quantity)
         except (IndexError, ValueError):
-            raise ValueError(
-                "badly formatted concentrations: " f"'{' '.join(concentrations)}'"
+            raise ValueError(  # noqa: B904
+                "badly formatted concentrations: "  # noqa: EM102
+                f"'{' '.join(concentrations)}'"  # noqa: RUF100
             )
 
         d[name] = quantity
@@ -754,7 +757,7 @@ def main(arguments=None):
     )
     parser.add_argument(
         "path",
-        help="path to a source (`.k`) or compiled (`.jk`) model input file (if a source "
+        help="path to a source (`.k`) or compiled (`.jk`) model input file (if a source "  # noqa: E501
         "input file is given, but there is a compiled file available, the compiled "
         "file will be used; use --compile|-c to force recompilation of the "
         "source input file instead)",
@@ -792,9 +795,7 @@ def main(arguments=None):
         "'active' species only (i.e., the ones that actually change "
         "concentration during the simulation) or a single compound name (e.g. "
         "'NH3(w)')",
-        # TODO(schneiderfelipe): validate inputs to avoid "ValueError:
-        # tuple.index(x): x not in tuple"
-        # choices=["active", "all", "none"],
+        # TODO(schneiderfelipe): validate inputs to avoid ValueError?
         default="none",
     )
     parser.add_argument(
@@ -831,7 +832,8 @@ def main(arguments=None):
     parser.add_argument(
         "-p",
         "--pressure",
-        help="set working pressure (in pascals) to be used in " "thermochemistry",
+        help="set working pressure (in pascals) to be used in "
+        "thermochemistry",  # noqa: RUF100
         type=float,
         default=constants.atm,
     )
@@ -944,4 +946,6 @@ Parsing and calculating (this may take a while)…
 
 
 if __name__ == "__main__":
+    # TODO: catch exceptions here and print a nice error
+    # (we can reraise them later if we want).
     main()

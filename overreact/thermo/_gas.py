@@ -193,7 +193,9 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     return electronic_entropy
 
 
-def calc_rot_energy(moments=None, independent=False, weights=1.0, temperature=298.15):
+def calc_rot_energy(
+    moments=None, independent=False, weights=1.0, temperature=298.15  # noqa: FBT002
+):  # noqa: RUF100
     r"""Calculate the rotational energy of an ideal gas.
 
     This function uses the truncation of equation 6-48 of Statistical
@@ -210,7 +212,7 @@ def calc_rot_energy(moments=None, independent=False, weights=1.0, temperature=29
         Whether rotational degrees of freedom should be considered independent
         (this is to be mainly used in the quasi-RRHO approach of M.
         Head-Gordon, see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)).
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)).
     weights : array-like, optional
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -239,7 +241,7 @@ def calc_rot_energy(moments=None, independent=False, weights=1.0, temperature=29
     >>> calc_rot_energy()
     0.0
 
-    """
+    """  # noqa: E501
     temperature = np.asarray(temperature)
 
     if np.isclose(temperature, 0.0):
@@ -282,7 +284,7 @@ def calc_rot_entropy(
     symmetry_number=1,
     environment="gas",
     method="standard",
-    independent=False,
+    independent=False,  # noqa: FBT002
     weights=1.0,
     temperature=298.15,
     pressure=constants.atm,
@@ -320,7 +322,7 @@ def calc_rot_entropy(
         entropies such as in
         [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
         and
-        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204-3214](https://doi.org/10.1021/acs.jctc.9b00214).
         Head over to the
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
@@ -381,7 +383,7 @@ def calc_rot_entropy(
     ...                  atommasses=data.atommasses, atomnos=data.atomnos,
     ...                  atomcoords=data.atomcoords)
     47.1
-    """
+    """  # noqa: E501
     temperature = np.asarray(temperature)
 
     if np.isclose(temperature, 0.0):
@@ -417,13 +419,15 @@ def calc_rot_entropy(
     rotational_entropy = constants.R * gamma / 2.0
     if environment in {"gas", None} or method == "standard":
         pass
-    elif environment == "solid":
-        raise ValueError(f"environment not yet implemented: {environment}")
+    elif environment == "solid":  # noqa: RET506
+        raise ValueError(
+            f"environment not yet implemented: {environment}"  # noqa: EM102
+        )  # noqa: RUF100
     else:
         assert atomnos is not None, "atomnos must be given"
         assert atomcoords is not None, "atomcoords must be given"
         vdw_volume = coords.get_molecular_volume(atomnos, atomcoords)
-        cav_volume, N_cav, _ = coords._garza(
+        cav_volume, N_cav, _ = coords._garza(  # noqa: N806
             vdw_volume,
             environment,
             full_output=True,
@@ -445,7 +449,7 @@ def calc_rot_entropy(
     return rotational_entropy
 
 
-def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
+def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):  # noqa: FBT002
     r"""Calculate the vibrational energy of an ideal gas.
 
     This function uses equation 8-7 of Statistical Thermodynamics, McQuarrie,
@@ -459,7 +463,7 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscilator (QRRHO) approximation of
         M. Head-Gordon and others (see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -496,7 +500,7 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
     >>> calc_vib_energy()
     0.0
 
-    """
+    """  # noqa: E501
     vibrational_temperature = _vibrational_temperature(vibfreqs)
     if not vibrational_temperature.size:
         logger.warning("assuming zero vibrational energy for atomic system")
@@ -533,7 +537,7 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
 # TODO(schneiderfelipe): construct corrections using anharmonicity (probably
 # using corrections from a Morse potential). See also problem 6-24 of
 # Statistical Thermodynamics, McQuarrie.
-def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
+def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):  # noqa: FBT002
     r"""Calculate the vibrational entropy of an ideal gas.
 
     This function calculates the third and fourth terms of equation 6-54 of
@@ -580,7 +584,7 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
     >>> calc_vib_entropy()
     0.0
 
-    """
+    """  # noqa: E501
     if np.isclose(temperature, 0.0):
         logger.warning("assuming vibrational entropy zero at zero temperature")
         return 0.0
@@ -648,7 +652,7 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
     q_trans = volume / (constants.N_A * debroglie_wavelength**3)
     assert q_trans > 1.0, (
         f"de Broglie wavelength {debroglie_wavelength} is too large for the gas to "
-        "satisfy Maxwell–Boltzmann statistics (classical regime)"
+        "satisfy Maxwell-Boltzmann statistics (classical regime)"
     )
     return constants.R * (np.log(q_trans) + 2.5)
 
@@ -799,14 +803,14 @@ def _check_vibfreqs(vibfreqs=None, cutoff=-50.0):
 
     if len(vibfreqs[vibfreqs < 0]) > 0:
         logger.warning(
-            f"imaginary frequencies found: using the absolute value of all above {-cutoff}i cm-1, ignoring the rest"
+            f"imaginary frequencies found: using the absolute value of all above {-cutoff}i cm-1, ignoring the rest"  # noqa: E501
         )
 
     return np.abs(vibfreqs[vibfreqs > cutoff])
 
 
 # B_av was chosen as 1.0e-44 / (atomic_mass * angstrom**2)
-def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):
+def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):  # noqa: N803
     """Calculate moments of inertia for a free rotors with the same frequencies.
 
     This is part of the quasi-RRHO approach of S. Grimme, see
@@ -831,7 +835,7 @@ def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):
     array([0.52913])
     >>> _vibrational_moment([5.0, 10.0])
     array([10.41,  5.250])
-    """
+    """  # noqa: E501
     # TODO(schneiderfelipe): should we receive vibrational temperatures and
     # avoid calling it twice when calling calc_vib_entropy?
 
@@ -883,7 +887,7 @@ def _head_gordon_damping(vibfreqs, omega=103.61231288246945, alpha=4):
     array([6.e-06, 6.e-06, 4.e-04, 5.e-01])
     >>> _head_gordon_damping([-55.0, -5.0, 5.0, 15.0, 100.0])
     array([6.e-06, 6.e-06, 4.e-04, 5.e-01])
-    """
+    """  # noqa: E501
     vibfreqs = _check_vibfreqs(vibfreqs)
     return 1.0 / (1.0 + (omega / vibfreqs) ** alpha)
 

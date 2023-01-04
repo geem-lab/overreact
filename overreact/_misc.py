@@ -6,7 +6,6 @@ Ideally, the functions here will be transferred to other modules in the future.
 """
 
 from functools import lru_cache as cache
-from typing import Optional, Text
 
 import numpy as np
 from scipy.stats import cauchy, norm
@@ -425,7 +424,7 @@ atomic_number = {
 
 
 def _check_package(
-    package: str, found_package: bool, extra_flag: Optional[str] = None
+    package: str, found_package: bool, extra_flag: str | None = None  # noqa: FBT001
 ) -> None:
     """Raise an issue if a package was not found.
 
@@ -454,7 +453,7 @@ def _check_package(
     Traceback (most recent call last):
       ...
     ImportError: You must install `rich` to use this functionality: `pip install rich` (or `pip install "overreact[cli]"`)
-    """
+    """  # noqa: E501
     if not found_package:
         message = (
             f"You must install `{package}` to use this functionality: "
@@ -468,7 +467,11 @@ def _check_package(
 # TODO(schneiderfelipe): what does this function returns for identifier="gas"
 # or identifier="solvent"?
 def _get_chemical(
-    identifier, temperature=298.15, pressure=constants.atm, *args, **kwargs
+    identifier,
+    temperature=298.15,
+    pressure=constants.atm,
+    *args,  # noqa: ANN002
+    **kwargs,  # noqa: ANN003
 ):
     """Wrap `thermo.Chemical`.
 
@@ -518,9 +521,9 @@ def broaden_spectrum(
     y0,
     distribution="gaussian",
     scale=1.0,
-    fit_points=True,
-    *args,
-    **kwargs,
+    fit_points=True,  # noqa: FBT002
+    *args,  # noqa: ANN002
+    **kwargs,  # noqa: ANN003
 ):
     """Broaden a point spectrum.
 
@@ -577,8 +580,11 @@ def broaden_spectrum(
 
     s = np.sum(
         [
-            yp * distribution.pdf(x, xp, scale=scale, *args, **kwargs)
-            for xp, yp in zip(x0, y0)
+            yp
+            * distribution.pdf(
+                x, xp, scale=scale, *args, **kwargs  # noqa: RUF004, B026
+            )  # noqa: RUF100
+            for xp, yp in zip(x0, y0)  # noqa: B905
         ],
         axis=0,
     )
@@ -624,7 +630,7 @@ def totuple(a):
         return a
 
 
-def halton(num, dim=None, jump=1, cranley_patterson=True):
+def halton(num, dim=None, jump=1, cranley_patterson=True):  # noqa: FBT002
     """Calculate Halton low-discrepancy sequences.
 
     Those sequences are good performers for Quasi-Monte Carlo numerical

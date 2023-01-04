@@ -28,4 +28,4 @@ for name in os.listdir(data_path):
 if __name__ == "__main__":
     for name in logfiles:
         for compound in logfiles[name]:
-            print(name, compound, logfiles[name][compound].logfile)
+            print(name, compound, logfiles[name][compound].logfile)  # noqa: T201

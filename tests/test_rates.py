@@ -15,16 +15,20 @@ def test_sanity_for_chemical_kinetics():
     This partially ensures we do similar analysis as Gaussian, see
     https://gaussian.com/thermo/.
     """
-    freeenergies_H = np.array(
+    freeenergies_H = np.array(  # noqa: N806
         [-98.579127, -454.557870, -553.109488, -98.001318, -455.146251]
     )
-    freeenergies_D = np.array(
+    freeenergies_D = np.array(  # noqa: N806
         [-98.582608, -454.557870, -553.110424, -98.001318, -455.149092]
     )
 
     scheme = rx.parse_reactions("FH + Cl -> FHCl‡ -> F + HCl")
-    delta_freeenergies_H = rx.thermo.get_delta(scheme.B, freeenergies_H)[0]
-    delta_freeenergies_D = rx.thermo.get_delta(scheme.B, freeenergies_D)[0]
+    delta_freeenergies_H = rx.thermo.get_delta(scheme.B, freeenergies_H)[  # noqa: N806
+        0
+    ]  # noqa: RUF100
+    delta_freeenergies_D = rx.thermo.get_delta(scheme.B, freeenergies_D)[  # noqa: N806
+        0
+    ]  # noqa: RUF100
     assert delta_freeenergies_H == pytest.approx(0.027509)
     assert delta_freeenergies_H * (constants.hartree * constants.N_A) / (
         constants.kcal
@@ -34,11 +38,11 @@ def test_sanity_for_chemical_kinetics():
         constants.kcal
     ) == pytest.approx(18.86, 5e-5)
 
-    k_H = rx.get_k(
+    k_H = rx.get_k(  # noqa: N806
         scheme,
         delta_freeenergies=delta_freeenergies_H * constants.hartree * constants.N_A,
     )
-    k_D = rx.get_k(
+    k_D = rx.get_k(  # noqa: N806
         scheme,
         delta_freeenergies=delta_freeenergies_D * constants.hartree * constants.N_A,
     )
@@ -278,7 +282,8 @@ def test_second_order_conversion_rate_example():
 def test_second_order_conversion_rates_match_literature():
     """Ensure calculated second order factors are correct.
 
-    References are given in the comments."""
+    References are given in the comments.
+    """
     for temperature in [200.0, 273.15, 298.15, 300.0, 373.15, 400.0]:
         # to cm3 mol-1 s-1 (doi:10.1021/ed046p54)
         assert rx.rates.convert_rate_constant(
@@ -673,7 +678,8 @@ def test_second_order_conversion_rates_match_literature():
 def test_third_order_conversion_rates_match_literature():
     """Ensure calculated third order factors are correct.
 
-    References are given in the comments."""
+    References are given in the comments.
+    """
     for temperature in [200.0, 273.15, 298.15, 300.0, 373.15, 400.0]:
         # to cm3 mol-1 s-1
         # (<https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds67.pdf>)

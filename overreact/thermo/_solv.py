@@ -187,7 +187,7 @@ def molar_free_volume(
         entropies such as in
         [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
         and
-        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204-3214](https://doi.org/10.1021/acs.jctc.9b00214).
         Head over to the
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
@@ -250,17 +250,17 @@ def molar_free_volume(
     >>> molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
     ...     / (constants.angstrom ** 3 * constants.N_A)
     593.
-    """
+    """  # noqa: E501
     if method == "izato":
         vdw_volume, cav_volume, _ = coords.get_molecular_volume(
             atomnos, atomcoords, method="izato", full_output=True
         )
-        r_M, r_cav = np.cbrt(vdw_volume), np.cbrt(cav_volume)
+        r_M, r_cav = np.cbrt(vdw_volume), np.cbrt(cav_volume)  # noqa: N806
         molar_free_volume = (r_cav - r_M) ** 3 * constants.angstrom**3 * constants.N_A
     elif method == "garza":
         # TODO(schneiderfelipe): test for the following solvents: water,
         # pentane, hexane, heptane and octane.
-        cav_volume, N_cav, _ = coords._garza(
+        cav_volume, N_cav, _ = coords._garza(  # noqa: N806
             coords.get_molecular_volume(atomnos, atomcoords),
             environment,
             full_output=True,
@@ -269,6 +269,6 @@ def molar_free_volume(
         )
         molar_free_volume = N_cav * cav_volume * constants.angstrom**3 * constants.N_A
     else:
-        raise ValueError(f"unrecognized method: '{method}'")
+        raise ValueError(f"unrecognized method: '{method}'")  # noqa: EM102
     logger.debug(f"molar free volume = {molar_free_volume} Å³")
     return molar_free_volume

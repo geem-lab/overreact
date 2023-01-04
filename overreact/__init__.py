@@ -2,36 +2,57 @@
 
 """
 .. include:: ../README.md
-"""
+"""  # noqa: D200, D400
 __docformat__ = "restructuredtext"
 
 import pkg_resources as _pkg_resources
 
-from overreact.api import get_enthalpies  # noqa: F401
-from overreact.api import get_entropies  # noqa: F401
-from overreact.api import get_freeenergies  # noqa: F401
-from overreact.api import get_internal_energies  # noqa: F401
-from overreact.api import get_k  # noqa: F401
-from overreact.api import get_kappa  # noqa: F401
-from overreact.core import Scheme  # noqa: F401
-from overreact.core import get_transition_states  # noqa: F401
-from overreact.core import is_transition_state  # noqa: F401
-from overreact.core import parse_reactions  # noqa: F401
-from overreact.core import unparse_reactions  # noqa: F401
-from overreact.io import parse_compounds  # noqa: F401
-from overreact.io import parse_model  # noqa: F401
-from overreact.simulate import get_bias  # noqa: F401
-from overreact.simulate import get_dydt  # noqa: F401
-from overreact.simulate import get_fixed_scheme  # noqa: F401
-from overreact.simulate import get_y  # noqa: F401
-from overreact.thermo import change_reference_state  # noqa: F401
-from overreact.thermo import get_delta  # noqa: F401
-from overreact.thermo import get_reaction_entropies  # noqa: F401
+from overreact.api import (
+    get_enthalpies,
+    get_entropies,
+    get_freeenergies,
+    get_internal_energies,
+    get_k,
+    get_kappa,
+)
+from overreact.core import (
+    Scheme,
+    get_transition_states,
+    is_transition_state,
+    parse_reactions,
+    unparse_reactions,
+)
+from overreact.io import parse_compounds, parse_model
+from overreact.simulate import get_bias, get_dydt, get_fixed_scheme, get_y
+from overreact.thermo import change_reference_state, get_delta, get_reaction_entropies
+
+__all__ = [
+    "Scheme",
+    "change_reference_state",
+    "get_bias",
+    "get_delta",
+    "get_dydt",
+    "get_enthalpies",
+    "get_entropies",
+    "get_fixed_scheme",
+    "get_freeenergies",
+    "get_internal_energies",
+    "get_k",
+    "get_kappa",
+    "get_reaction_entropies",
+    "get_transition_states",
+    "get_y",
+    "is_transition_state",
+    "parse_compounds",
+    "parse_model",
+    "parse_reactions",
+    "unparse_reactions",
+]
 
 __version__ = _pkg_resources.get_distribution(__name__).version
 __license__ = "MIT"  # I'm too lazy to get it from setup.py...
 
-__headline__ = "📈 Create and analyze chemical microkinetic models built from computational chemistry data."
+__headline__ = "📈 Create and analyze chemical microkinetic models built from computational chemistry data."  # noqa: E501
 
 __url_repo__ = "https://github.com/geem-lab/overreact"
 __url_issues__ = f"{__url_repo__}/issues"
@@ -65,7 +86,7 @@ __citations__ = (
   year         = {2021},
   month        = {Nov}
 }
-""".replace(
+""".replace(  # noqa: E501
         "DOI_PLACEHOLDER", __doi__
     )
     .replace("ZENODO_DOI_PLACEHOLDER", __zenodo_doi__)

@@ -3,6 +3,7 @@
 """Module dedicated to classifying molecules into point groups."""
 
 
+# TODO: add types to this module
 from __future__ import annotations
 
 __all__ = ["find_point_group", "symmetry_number"]
@@ -27,7 +28,7 @@ logger = logging.getLogger(__name__)
 def get_molecular_volume(
     atomnos,
     atomcoords,
-    full_output=False,
+    full_output=False,  # noqa: FBT002
     environment="water",
     method="garza",
     temperature=298.15,
@@ -55,7 +56,7 @@ def get_molecular_volume(
         entropies such as in
         [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
         and
-        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204-3214](https://doi.org/10.1021/acs.jctc.9b00214).
         Head over to the
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
@@ -121,7 +122,7 @@ def get_molecular_volume(
     >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True,
     ...                      environment="benzene")
     (80., 593., 0.1)
-    """
+    """  # noqa: E501
     atomnos = np.atleast_1d(atomnos)
     _, _, atomcoords = inertia(np.ones_like(atomnos), atomcoords)
     vdw_radii = constants.vdw_radius(atomnos)
@@ -157,7 +158,7 @@ def get_molecular_volume(
     vdw_err = np.std(vdw_volumes)
     logger.info(f"van der Waals volume = {vdw_volume} ± {vdw_err} Å³")
     if full_output:
-        if method == "izato":
+        if method == "izato":  # noqa: RET505
             cav_volume = np.mean(cav_volumes)
             cav_err = np.std(cav_volumes)
             logger.debug(f"Izato cavity volume = {cav_volume} ± {cav_err} Å³")
@@ -175,14 +176,14 @@ def get_molecular_volume(
             logger.debug(f"Garza cavity volume = {cav_volume} Å³")
             return (vdw_volume, cav_volume, vdw_err)
         else:
-            raise ValueError(f"unavailable method: '{method}'")
+            raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102
     return vdw_volume
 
 
 def _garza(
     vdw_volume,
     environment="water",
-    full_output=False,
+    full_output=False,  # noqa: FBT002
     temperature=298.15,
     pressure=constants.atm,
 ):
@@ -241,34 +242,30 @@ def _garza(
     # TODO(schneiderfelipe): things to do:
     # 1. check correctness of this function,
     # 2. check it is called correctly everywhere,
-    # 3. transfer the following commented code to get_chemical (it will become
-    # a complete abstraction of the solvent/molecular properties):
-    #
-    # data_S = datasets.logfiles[solvent.name]
-    # solvent_volume = coords.get_molecular_volume(data_S.atomnos,
-    #                                              data_S.atomcoords)
+    # 3. create a complete abstraction of the solvent/molecular properties:
+
     solvent_volume = solvent.Van_der_Waals_volume / (
         constants.angstrom**3 * constants.N_A
     )
     r_free = np.cbrt(
         solvent.Vm / (constants.angstrom**3 * constants.N_A) - solvent_volume
     )
-    r_M = np.cbrt(vdw_volume)
+    r_M = np.cbrt(vdw_volume)  # noqa: N806
 
     cav_volume = (r_M + r_free) ** 3
     if not full_output:
         return cav_volume
-    r_S = np.cbrt(solvent_volume)
+    r_S = np.cbrt(solvent_volume)  # noqa: N806
     ratio = r_M / r_S
 
     area_free = r_free**2
-    area_S_total = r_S**2 + area_free
+    area_S_total = r_S**2 + area_free  # noqa: N806
 
     x = max(area_free - r_M**2, 0.0) / area_S_total
     if np.isclose(x, 0.0):
         return cav_volume, 1.0, ratio
 
-    N_x = 4.0 * np.cbrt(cav_volume) ** 2 / area_S_total
+    N_x = 4.0 * np.cbrt(cav_volume) ** 2 / area_S_total  # noqa: N806
     return cav_volume, 1.0 + N_x * x / (1.0 - x), ratio
 
 
@@ -278,7 +275,7 @@ def symmetry_number(point_group):
     This function has a set of the most common point groups precomputed, but is
     able to calculate the symmetry number if it is not found in known tables.
     Most precomputed values are from
-    [*Theor Chem Account* **2007** 118, 813–826](https://doi.org/10.1007/s00214-007-0328-0).
+    [*Theor Chem Account* **2007** 118, 813-826](https://doi.org/10.1007/s00214-007-0328-0).
 
     Parameters
     ----------
@@ -319,7 +316,7 @@ def symmetry_number(point_group):
     3
     >>> symmetry_number("T")
     12
-    """
+    """  # noqa: E501
     point_group = point_group.strip().lower()
 
     if point_group in {"c1", "ci", "cs", "c∞v", "k", "r3"}:
@@ -374,7 +371,7 @@ def symmetry_number(point_group):
         elif pieces["letter"] == "s":
             symmetry_number = int(pieces["number"]) // 2
         else:
-            raise ValueError(f"unknown point group: '{point_group}'")
+            raise ValueError(f"unknown point group: '{point_group}'")  # noqa: EM102
 
     logger.info(f"symmetry number = {symmetry_number}")
     return symmetry_number
@@ -484,7 +481,7 @@ def _find_point_group_linear(atomcoords, groups, rtol=0.0, atol=1.0e-2):
 
     See find_point_group for information on parameters and return values.
     """
-    if _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
+    if _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):  # noqa: RET505
         return "D∞h"
     else:
         return "C∞v"
@@ -515,7 +512,7 @@ def _find_point_group_spheric(
         )
 
     for n, _ in proper_axes:
-        if n == 5:
+        if n == 5:  # noqa: RET505
             return "Ih"
         elif n < 5:
             break
@@ -526,19 +523,8 @@ def _find_point_group_spheric(
     # see too
     # http://web.mit.edu/5.03/www/readings/point_groups/point_groups.pdf
 
-    # the following workflow is loosely inspired by some articles:
+    # the employed workflow is loosely inspired by some articles:
     # 1. doi:10.1016/0097-8485(76)80004-6
-    #     elif _has_3_C4(atomcoords):
-    #         if _has_center_of_inversion(atomcoords):
-    #             return "oh"
-    #         else:
-    #             return "o"
-    #     elif _has_3_S4_parallel_to_C2(atomcoords):
-    #         return "td"
-    #     elif _has_center_of_inversion(atomcoords):
-    #         return "th"
-    #     else:
-    #         return "t"
 
 
 def _find_point_group_asymmetric(
@@ -562,7 +548,7 @@ def _find_point_group_asymmetric(
             atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol
         )
 
-    if proper_axes:
+    if proper_axes:  # noqa: RET505
         return _find_point_group_symmetric(
             atomcoords,
             groups,
@@ -625,28 +611,8 @@ def _find_point_group_symmetric(
         atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol
     )
 
-    # the following workflow is loosely inspired by some articles:
+    # the employed workflow is loosely inspired by some articles:
     # 1. doi:10.1016/0097-8485(76)80004-6
-    # if _has_proper_ax_of_highest_order(atomcoords):
-    #     if _has_proper_ax_larger_than_2_or_3_C2_perpendicular(
-    #         atomcoords
-    #     ):
-    #         if _has_S2n_parallel_to_Cn(atomcoords):
-    #             if _has_n_sigma_d(atomcoords):
-    #                 return "dnd"
-    #             else:
-    #                 return "s2n"
-    #         elif _has_nC2_perpendicular_to_Cn(atomcoords):
-    #             if _has_sigma_h(atomcoords):
-    #                 return "dnh"
-    #             else:
-    #                 return "dn"
-    #         elif _has_n_sigma_v(atomcoords):
-    #             return "cnv"
-    #         elif _has_sigma_h(atomcoords):
-    #             return "cnh"
-    #         else:
-    #             return "cn"
 
 
 def _find_point_group_symmetric_dihedral(
@@ -673,7 +639,7 @@ def _find_point_group_symmetric_dihedral(
     )
 
     if mirror_axes:
-        if mirror_axes[0][0] == "h":
+        if mirror_axes[0][0] == "h":  # noqa: RET505
             return f"D{proper_axes[0][0]}h"
         elif len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
             # all vertical mirror planes are dihedral for Dnd point groups
@@ -705,7 +671,7 @@ def _find_point_group_symmetric_nondihedral(
     )
 
     if mirror_axes:
-        if mirror_axes[0][0] == "h":
+        if mirror_axes[0][0] == "h":  # noqa: RET505
             return f"C{proper_axes[0][0]}h"
         elif len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
             return f"C{proper_axes[0][0]}v"
@@ -727,14 +693,14 @@ def _update_proper_axes(
     rtol,
     atol,
     nondeg_axes=None,
-    normalize=False,
+    normalize=False,  # noqa: FBT002
 ):
     """Update axes with ax, and return it with added order (or None).
 
     Helper function for _get_proper_axes.
     """
     if nondeg_axes is None:
-        nondeg_axes = list()
+        nondeg_axes = []
 
     if normalize:
         norm = np.linalg.norm(ax)
@@ -763,7 +729,7 @@ def _update_proper_axes(
     return axes, None
 
 
-def _get_proper_axes(
+def _get_proper_axes(  # noqa: C901
     atomcoords, groups, axes, rotor_class, rtol=0.0, atol=1.0e-2, slack=0.735
 ):
     """Get proper symmetry axes and their orders.
@@ -819,14 +785,14 @@ def _get_proper_axes(
     rtol, atol = slack * rtol, slack * atol
 
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
-        return list()
+        return []
 
     axes = np.asarray(axes)
     atomcoords = np.asarray(atomcoords)
     orders = _guess_orders(groups, rotor_class)
 
-    found_axes = list()
-    nondeg_axes = list()
+    found_axes = []
+    nondeg_axes = []
     if rotor_class[0] == "symmetric prolate":
         nondeg_axes = [axes[:, 0]]
         found_axes, order = _update_proper_axes(
@@ -957,7 +923,14 @@ def _guess_orders(groups, rotor_class):
 
 
 def _update_improper_axes(
-    n, ax, axes, atomcoords, groups, rtol, atol, normalize=False  # found axes
+    n,
+    ax,
+    axes,
+    atomcoords,
+    groups,
+    rtol,
+    atol,
+    normalize=False,  # found axes  # noqa: FBT002
 ):
     """Update axes with ax and return it.
 
@@ -1036,7 +1009,7 @@ def _get_improper_axes(
     rtol, atol = slack * rtol, slack * atol
 
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
-        return list()
+        return []
 
     axes = np.asarray(axes)
     atomcoords = np.asarray(atomcoords)
@@ -1046,7 +1019,7 @@ def _get_improper_axes(
             atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol
         )
 
-    found_axes = list()
+    found_axes = []
     for n, ax in proper_axes:
         found_axes = _update_improper_axes(
             n,
@@ -1069,14 +1042,14 @@ def _update_mirror_axes(
     atol,
     proper_axes,
     nondeg_axes=None,
-    normalize=False,
+    normalize=False,  # noqa: FBT002
 ):
     """Update axes with ax and return it.
 
     Helper function for _get_mirror_planes.
     """
     if nondeg_axes is None:
-        nondeg_axes = list()
+        nondeg_axes = []
 
     if normalize:
         norm = np.linalg.norm(ax)
@@ -1090,7 +1063,9 @@ def _update_mirror_axes(
         return axes
 
     if all(
-        _is_symmetric(atomcoords[group], _operation("σ", axis=ax), rtol=rtol, atol=atol)
+        _is_symmetric(
+            atomcoords[group], _operation("sigma", axis=ax), rtol=rtol, atol=atol
+        )
         for group in groups[::-1]
     ):
         class_ = ""
@@ -1111,7 +1086,7 @@ def _update_mirror_axes(
     return axes
 
 
-def _get_mirror_planes(
+def _get_mirror_planes(  # noqa: C901
     atomcoords,
     groups,
     axes,
@@ -1176,7 +1151,7 @@ def _get_mirror_planes(
     rtol, atol = slack * rtol, slack * atol
 
     if rotor_class[1] == "atomic" or len(atomcoords) == 1:
-        return list()
+        return []
 
     axes = np.asarray(axes)
     atomcoords = np.asarray(atomcoords)
@@ -1189,13 +1164,13 @@ def _get_mirror_planes(
     def _kf(x):
         """Order function for returned list."""
         c, v = x
-        if c:
+        if c:  # noqa: RET505
             return -ord(c), v
         else:
             return 0, v
 
-    found_axes = list()
-    nondeg_axes = list()
+    found_axes = []
+    nondeg_axes = []
     if rotor_class[0] == "symmetric prolate":
         nondeg_axes = [axes[:, 0]]
         found_axes = _update_mirror_axes(
@@ -1393,15 +1368,15 @@ def _operation(name, order=2, axis=None):
     array([[ 0., -1., 0.],
            [ 1.,  0., 0.],
            [ 0.,  0., 1.]])
-    >>> _operation("σ", axis=[0, 0, 1])
+    >>> _operation("sigma", axis=[0, 0, 1])
     array([[ 1., 0.,  0.],
            [ 0., 1.,  0.],
            [ 0., 0., -1.]])
-    >>> _operation("σ", axis=[0, 1, 0])
+    >>> _operation("sigma", axis=[0, 1, 0])
     array([[ 1.,  0., 0.],
            [ 0., -1., 0.],
            [ 0.,  0., 1.]])
-    >>> _operation("σ", axis=[1, 0, 0])
+    >>> _operation("sigma", axis=[1, 0, 0])
     array([[-1., 0., 0.],
            [ 0., 1., 0.],
            [ 0., 0., 1.]])
@@ -1421,25 +1396,26 @@ def _operation(name, order=2, axis=None):
     if axis is None:
         axis = np.array([0, 0, 1])
 
-    if name == "i":
+    if name == "i":  # noqa: RET505
         return -np.eye(3)
     elif name == "e":
         return np.eye(3)
-    elif name in {"c", "σ", "sigma", "s"}:  # normalize axis
+    elif name in {"c", "σ", "sigma", "s"}:  # noqa: RUF001
+        # normalize axis
         axis = np.asarray(axis)
         axis = axis / np.linalg.norm(axis)
 
         if name in {"c", "s"}:
             rotation = Rotation.from_rotvec(2.0 * np.pi * axis / order).as_matrix()
-        if name in {"σ", "sigma", "s"}:
+        if name in {"σ", "sigma", "s"}:  # noqa: RUF001
             reflection = np.eye(3) - 2.0 * np.outer(axis, axis)
         if name == "c":
             return rotation
-        elif name in {"σ", "sigma"}:
+        elif name in {"σ", "sigma"}:  # noqa: RUF001
             return reflection
         elif name == "s":
             return rotation @ reflection
-    raise ValueError(f"unknown operation: '{name}'")
+    raise ValueError(f"unknown operation: '{name}'")  # noqa: EM102
 
 
 def _classify_rotor(moments, rtol=0.0, atol=1.0e-2, slack=0.870):
@@ -1603,17 +1579,17 @@ def gyradius(atommasses, atomcoords, method="iupac"):
     """
     com = np.average(atomcoords, axis=0, weights=atommasses)
     atomcoords = atomcoords - com
-    if method == "iupac":
+    if method == "iupac":  # noqa: RET505
         return np.sqrt(
             np.average(np.diag(atomcoords @ atomcoords.T), weights=atommasses)
         )
     elif method == "mean":
         return np.sqrt(np.mean(np.diag(atomcoords @ atomcoords.T)))
     else:
-        raise ValueError(f"unavailable method: '{method}'")
+        raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102
 
 
-def inertia(atommasses, atomcoords, align=True):
+def inertia(atommasses, atomcoords, align=True):  # noqa: FBT002
     r"""Calculate primary moments and axes from the inertia tensor.
 
     Parameters
@@ -1686,8 +1662,6 @@ def inertia(atommasses, atomcoords, align=True):
     if align:
         return inertia(atommasses, atomcoords @ axes, align=False)
     logger.debug(f"moments = {moments} amu·Å²")
-    # logger.debug(f"axes = {axes} Å")
-    # logger.debug(f"atomcoords = {atomcoords} Å")
     return moments, axes, atomcoords
 
 
@@ -1750,15 +1724,15 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
             -0.01313383, -0.00678954,  0.25045664,  0.29443748]])
     """
     dof = 3 * len(atommasses)
-    L_cart = np.asarray(vibdisps).reshape((len(vibfreqs), dof)).T
+    L_cart = np.asarray(vibdisps).reshape((len(vibfreqs), dof)).T  # noqa: N806
     # this function is correct until here
 
-    L_cart = np.linalg.qr(L_cart, mode="complete")[0]
+    L_cart = np.linalg.qr(L_cart, mode="complete")[0]  # noqa: N806
 
     atommasses_sqrt = np.sqrt([mass for mass in atommasses for _ in range(3)])
-    D = eckart_transform(atommasses, atomcoords)
-    M = np.diag(1.0 / atommasses_sqrt)
-    L = np.linalg.solve(M @ D, L_cart)
+    D = eckart_transform(atommasses, atomcoords)  # noqa: N806
+    M = np.diag(1.0 / atommasses_sqrt)  # noqa: N806
+    L = np.linalg.solve(M @ D, L_cart)  # noqa: N806
 
     assert np.allclose(M @ D @ L, L_cart), "L_cart is not orthogonal"
 
@@ -1912,21 +1886,24 @@ def eckart_transform(atommasses, atomcoords):
     y *= np.sqrt(atommasses[:, np.newaxis])
     z *= np.sqrt(atommasses[:, np.newaxis])
 
-    D_trans = np.block([x.reshape(1, dof).T, y.reshape(1, dof).T, z.reshape(1, dof).T])
-    D_rot = np.array(
+    D_trans = np.block(  # noqa: N806
+        [x.reshape(1, dof).T, y.reshape(1, dof).T, z.reshape(1, dof).T]
+    )  # noqa: RUF100
+    D_rot = np.array(  # noqa: N806
         [
             np.cross((atomcoords @ axes)[i], axes[:, j]) / np.sqrt(atommasses[i])
             for i in range(natom)
             for j in range(3)
         ]
     )
-    D = np.block([D_trans, D_rot])
+    D = np.block([D_trans, D_rot])  # noqa: N806
     return np.linalg.qr(D, mode="complete")[0]
 
 
-# thresh >= 0.106
-def _equivalent_atoms(
-    atommasses, atomcoords, method="cluster", thresh=0.106, plot=False
+# NOTE(schneiderfelipe): thresh was found to be reasonable
+# when greater than or equal to 0.106.
+def _equivalent_atoms(  # noqa: C901
+    atommasses, atomcoords, method="cluster", thresh=0.106, plot=False  # noqa: FBT002
 ):
     """Generate groups of symmetry equivalent atoms.
 
@@ -1986,14 +1963,14 @@ def _equivalent_atoms(
     [1, 2, 3]
 
     """
-    if len(atommasses) == 1:  # atom
+    if len(atommasses) == 1:  # atom  # noqa: RET505
         return [[0]]
     elif len(atommasses) == 2:  # diatomic molecule
         if atommasses[0] == atommasses[1]:
             return [[0, 1]]
         return [[0], [1]]
 
-    groups = list()
+    groups = []
 
     def _update_groups_with_condition(condition, groups):
         # condition is assumed to be an array-like of bool
@@ -2001,18 +1978,14 @@ def _equivalent_atoms(
         return groups
 
     if method == "cluster":
-        D = squareform(pdist(atomcoords))
-        # mu = np.outer(atommasses, atommasses) / np.add.outer(
-        #     atommasses, atommasses
-        # )  # reduced masses
-        # D = mu * D  # does this help?
+        D = squareform(pdist(atomcoords))  # noqa: N806
 
         omega = np.mean(D, axis=0)
         sigma = np.std(D, axis=0)
         delta = np.sqrt(np.sum(D**2, axis=0))
 
         criteria = np.block([[omega], [sigma], [delta]]).T
-        Z = linkage(pdist(criteria), method="single")
+        Z = linkage(pdist(criteria), method="single")  # noqa: N806
         clusters = fcluster(Z, thresh, criterion="distance")
 
         # TODO(schneiderfelipe): this was for debug and should eventually be removed.
@@ -2025,7 +1998,7 @@ def _equivalent_atoms(
                     criteria[clusters == cluster, 0],
                     criteria[clusters == cluster, 1],
                 )
-            for i, (atommass, _) in enumerate(zip(atommasses, clusters)):
+            for i, (atommass, _) in enumerate(zip(atommasses, clusters)):  # noqa: B905
                 plt.annotate(atommass, (criteria[i, 0], criteria[i, 1]))
             plt.xlabel("omega")
             plt.ylabel("sigma")
@@ -2041,6 +2014,6 @@ def _equivalent_atoms(
         for mass in np.unique(atommasses):
             groups = _update_groups_with_condition(atommasses == mass, groups)
     else:
-        raise ValueError(f"unavailable method: '{method}'")
+        raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102
 
     return sorted(groups, key=len)

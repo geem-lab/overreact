@@ -8,5 +8,5 @@ pdoc overreact \
   --logo-link "/overreact" \
   --math \
   --search \
-  --show-source
-# --output-directory docs/
+  --show-source \
+  "$@"

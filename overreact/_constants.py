@@ -6,24 +6,43 @@ Most of this data comes from `scipy.constants`.
 """
 
 import numpy as np
-from scipy.constants import N_A  # noqa: F401
-from scipy.constants import R  # noqa: F401
-from scipy.constants import angstrom  # noqa: F401
-from scipy.constants import atm  # noqa: F401
-from scipy.constants import atomic_mass  # noqa: F401
-from scipy.constants import bar  # noqa: F401
-from scipy.constants import c  # noqa: F401
-from scipy.constants import calorie  # noqa: F401
-from scipy.constants import centi  # noqa: F401
-from scipy.constants import eV  # noqa: F401
-from scipy.constants import giga  # noqa: F401
-from scipy.constants import h  # noqa: F401
-from scipy.constants import hbar  # noqa: F401
-from scipy.constants import k  # noqa: F401
-from scipy.constants import kilo  # noqa: F401
-from scipy.constants import liter  # noqa: F401
-from scipy.constants import torr  # noqa: F401
-from scipy.constants import physical_constants
+from scipy.constants import (
+    N_A,
+    R,
+    angstrom,
+    atm,
+    atomic_mass,
+    bar,
+    c,
+    calorie,
+    centi,
+    eV,
+    giga,
+    h,
+    hbar,
+    k,
+    kilo,
+    liter,
+    physical_constants,
+    torr,
+)
+
+__all__ = [
+    "N_A",
+    "R",
+    "angstrom",
+    "atm",
+    "atomic_mass",
+    "bar",
+    "c",
+    "eV",
+    "giga",
+    "h",
+    "hbar",
+    "k",
+    "liter",
+    "torr",
+]
 
 hartree, _, _ = physical_constants["Hartree energy"]
 bohr, _, _ = physical_constants["Bohr radius"]

@@ -8,7 +8,7 @@ __all__ = ["Scheme", "parse_reactions"]
 
 import itertools
 import re
-from typing import NamedTuple, Sequence, Text, Union
+from typing import NamedTuple, Sequence
 
 import numpy as np
 
@@ -32,7 +32,7 @@ class Scheme(NamedTuple):
     A: np.ndarray
     """A matrix of stoichiometric coefficients between reactants and products."""
     B: np.ndarray
-    """A matrix of stoichiometric coefficients between reactants and transition states."""
+    """A matrix of stoichiometric coefficients between reactants and transition states."""  # noqa: E501
 
 
 _abbr_environment = {
@@ -50,7 +50,7 @@ _abbr_environment = {
 }
 
 
-def _check_scheme(scheme_or_text: Union[Scheme, str]) -> Scheme:
+def _check_scheme(scheme_or_text: Scheme | str) -> Scheme:
     """Interface transparently between strings and schemes.
 
     Parameters
@@ -81,7 +81,7 @@ def _check_scheme(scheme_or_text: Union[Scheme, str]) -> Scheme:
     return parse_reactions(scheme_or_text)
 
 
-def get_transition_states(A, B, is_half_equilibrium):
+def get_transition_states(A, B, is_half_equilibrium):  # noqa: N803
     """Return the indices of transition states for each reaction.
 
     Parameters
@@ -341,7 +341,7 @@ def _get_environment(name):
 
     if environment in _abbr_environment:
         environment = _abbr_environment[environment]
-    return environment
+    return environment  # noqa: RET504
 
 
 def is_transition_state(name):
@@ -399,7 +399,7 @@ def is_transition_state(name):
     return False
 
 
-def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:
+def parse_reactions(text: str | Sequence[str]) -> Scheme:  # noqa: C901
     """
     Parse a kinetic model as a chemical reaction scheme.
 
@@ -420,7 +420,7 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:
     -----
     The model description should comply with the mini-language for systems of
     reactions. A semi-formal definition of the grammar in
-    [Backus–Naur form](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)
+    [Backus-Naur form](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)
     is given below:
 
              equation ::= equation_side arrow equation_side
@@ -593,12 +593,12 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:
     [open an issue](https://github.com/geem-lab/overreact/issues/), we'll be
     happy to hear from you.
     """
-    compounds: dict[str, int] = dict()
+    compounds: dict[str, int] = {}
     reactions: dict[
         tuple[str, str, bool, str], tuple[tuple[tuple[int, str], ...], bool]
-    ] = dict()
-    A = list()  # coefficients between reactants and products
-    B = list()  # coefficients between reactants and transition states
+    ] = {}
+    A = []  # coefficients between reactants and products  # noqa: N806
+    B = []  # coefficients between reactants and transition states  # noqa: N806
 
     def _add_reaction(reactants, products, is_half_equilibrium, transition):
         """Local helper function with side-effects."""
@@ -613,13 +613,13 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:
         # found new reaction
         reactions[(reactants, products, is_half_equilibrium, transition)] = None
 
-        A_vector = np.zeros(len(compounds))
+        A_vector = np.zeros(len(compounds))  # noqa: N806
         for coefficient, reactant in reactants:
             A_vector[compounds[reactant]] = -coefficient
-        B_vector = A_vector
+        B_vector = A_vector  # noqa: N806
 
         if transition is not None:
-            B_vector = A_vector.copy()
+            B_vector = A_vector.copy()  # noqa: N806
 
             # it's assumed that
             #   1. there's a singe transition compound, and
@@ -633,15 +633,13 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:
             is_half_equilibrium
             and (products, reactants, is_half_equilibrium, transition) in reactions
         ):
-            B_vector = np.zeros(len(compounds))
+            B_vector = np.zeros(len(compounds))  # noqa: N806
 
         A.append(A_vector)
         B.append(B_vector)
 
-    after_transitions: dict[tuple[tuple[int, str], ...], list[tuple[int, str]]] = dict()
-    before_transitions: dict[
-        tuple[tuple[int, str], ...], list[tuple[int, str]]
-    ] = dict()
+    after_transitions: dict[tuple[tuple[int, str], ...], list[tuple[int, str]]] = {}
+    before_transitions: dict[tuple[tuple[int, str], ...], list[tuple[int, str]]] = {}
 
     for reactants, products, is_half_equilibrium in _parse_reactions(text):
         if (reactants, products, False, None) in reactions or (
@@ -663,7 +661,7 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:
         # it's assumed that if a transition shows up,
         #   1. it's the only compound in its side of the reaction, and
         #   2. its coefficient equals one
-        if is_transition_state(reactants[-1][-1]):
+        if is_transition_state(reactants[-1][-1]):  # noqa: RET507
             for before_reactants in before_transitions.get(reactants, []):
                 _add_reaction(
                     before_reactants, products, is_half_equilibrium, reactants
@@ -753,7 +751,7 @@ def _parse_reactions(text):
             continue
 
         pieces = re.split(r"\s*(->|<=>|<-)\s*", line)
-        for reactants, arrow, products in zip(
+        for reactants, arrow, products in zip(  # noqa: B905
             pieces[:-2:2], pieces[1:-1:2], pieces[2::2]
         ):
             if arrow == "<-":

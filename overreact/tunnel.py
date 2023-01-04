@@ -9,7 +9,6 @@ __all__ = ["eckart", "wigner"]
 
 
 import logging
-from typing import Optional, Union
 
 import numpy as np
 from scipy.integrate import fixed_quad
@@ -49,7 +48,9 @@ def _check_nu(vibfreq: float) -> float:
     True
     """
     if np.isclose(vibfreq, 0.0).any():
-        raise ValueError(f"vibfreq should not be zero for tunneling: {vibfreq}")
+        raise ValueError(
+            f"vibfreq should not be zero for tunneling: {vibfreq}"  # noqa: EM102
+        )  # noqa: RUF100
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
@@ -107,7 +108,7 @@ def eckart(
     """Calculate the Eckart correction to quantum tunneling.
 
     References are
-    [*J. Phys. Chem.* **1962**, 66, 3, 532–533](https://doi.org/10.1021/j100809a040)
+    [*J. Phys. Chem.* **1962**, 66, 3, 532-533](https://doi.org/10.1021/j100809a040)
     and
     [*J. Res. Natl. Inst. Stand. Technol.*, **1981**, 86, 357](https://doi.org/10.6028/jres.086.014).
 
@@ -163,7 +164,7 @@ def eckart(
     >>> eckart(190.5927, -154.0231580734253)
     1.03525
 
-    """
+    """  # noqa: E501
     temperature = np.asarray(temperature)
 
     nu = _check_nu(vibfreq)
@@ -177,7 +178,7 @@ def eckart(
 
     if delta_forward <= 0 or delta_backward <= 0:
         logger.warning(
-            "forward or backward barrier is non-positive, falling back to Wigner correction"
+            "forward or backward barrier is non-positive, falling back to Wigner correction"  # noqa: E501
         )
         return wigner(vibfreq, temperature)
 
@@ -257,20 +258,20 @@ def _eckart(u: float, alpha1: float, alpha2: float | None = None) -> float:
 
     d = 4.0 * alpha1 * alpha2 - np.pi**2
     if d > 0:
-        D = np.cosh(np.sqrt(d))
+        D = np.cosh(np.sqrt(d))  # noqa: N806
     else:
-        D = np.cos(np.sqrt(np.abs(d)))
+        D = np.cos(np.sqrt(np.abs(d)))  # noqa: N806
 
     sqrt_alpha1 = np.sqrt(alpha1)
     sqrt_alpha2 = np.sqrt(alpha2)
-    F = (
+    F = (  # noqa: N806
         np.sqrt(2.0)
         * sqrt_alpha1
         * sqrt_alpha2
         / (np.sqrt(np.pi) * (sqrt_alpha1 + sqrt_alpha2))
     )
 
-    def f(eps, with_exp=True):
+    def f(eps, with_exp=True):  # noqa: FBT002
         """Transmission function multiplied or not by the Boltzmann weight."""
         a1 = F * np.sqrt((eps + v1) / u)
         a2 = F * np.sqrt((eps + v2) / u)

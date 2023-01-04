@@ -7,6 +7,7 @@ the time simulations.
 """
 
 
+# TODO: type this module.
 from __future__ import annotations
 
 __all__ = ["get_y", "get_dydt", "get_fixed_scheme"]
@@ -33,7 +34,7 @@ from overreact._misc import _found_jax
 # of eight to equilibria, which seems reasonable. **This choice was made
 # using the standard ODE parameters (rtol=1e-3, atol=1e-6).**
 #
-# TODO: this should probably be exposed to the user and use the actual simulation temperature.
+# TODO: this should probably be exposed to the user and use the actual simulation temperature.  # noqa: E501
 EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 
 
@@ -45,7 +46,7 @@ if _found_jax:
     from jax import jacfwd, jit
     from jax.config import config
 
-    config.update("jax_enable_x64", True)
+    config.update("jax_enable_x64", True)  # noqa: FBT003
 else:
     logger.warning(
         "Install JAX to have just-in-time compilation: "
@@ -167,16 +168,14 @@ def get_y(
     # - some numberical limits,
     first_step = np.min(
         [
-            1e-14,
-            1 / 27e9,
+            1e-14,  # Too small?
+            1 / 27e9,  # Too small?
             1 / 1.5e10,
             (t_span[1] - t_span[0]) / 100.0,
             np.finfo(np.float16).eps,
             np.finfo(np.float32).eps,
-            np.finfo(np.float64).eps,
+            np.finfo(np.float64).eps,  # Too small?
             np.nextafter(np.float16(0), np.float16(1)),
-            # np.nextafter(np.float33(0), np.float32(1)),  # Too small.
-            # np.nextafter(np.float64(0), np.float64(1)),  # Too small.
         ]
     )
     logger.warning(f"first step = {first_step} s")
@@ -205,7 +204,7 @@ def get_y(
         # TODO(schneiderfelipe): this is probably not the best way to
         # vectorize a function!
         try:
-            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T)]).T
+            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T)]).T  # noqa: B905
         except TypeError:
             return dydt(t, y(t))
 
@@ -273,11 +272,11 @@ def get_dydt(scheme, k, ef=EF):
 
     """
     scheme = rx.core._check_scheme(scheme)
-    A = jnp.asarray(scheme.A)
-    M = jnp.where(A > 0, 0, -A).T
+    A = jnp.asarray(scheme.A)  # noqa: N806
+    M = jnp.where(A > 0, 0, -A).T  # noqa: N806
     k_adj = _adjust_k(scheme, k, ef=ef)
 
-    def _dydt(t, y):
+    def _dydt(t, y):  # noqa: ARG001
         r = k_adj * jnp.prod(jnp.power(y, M), axis=1)
         return jnp.dot(A, r)
 
@@ -285,10 +284,11 @@ def get_dydt(scheme, k, ef=EF):
         # Using JAX for JIT compilation is much faster.
         _dydt = jit(_dydt)
 
+        # NOTE(schneiderfelipe): the following function is defined
+        # such that _jac(t, y)[i, j] == d f_i / d y_j,
+        # with shape of (n_compounds, n_compounds).
         def _jac(t, y):
             logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")
-            # _jac(t, y)[i, j] == d f_i / d y_j
-            # shape is (n_compounds, n_compounds)
             return jacfwd(lambda _y: _dydt(t, _y))(y)
 
         _dydt.jac = _jac
@@ -370,9 +370,6 @@ def _adjust_k(scheme, k, ef=EF):
 
             # set the smallest one to be equal to one
             k = k / k.min()
-    # else:
-    #     # only zero or more true reactions (no equilibria)
-    #     pass
 
     return jnp.asarray(k)
 
@@ -534,7 +531,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_k = np.asarray(k, dtype=float).copy()
     new_reactions = []
     for i, (reaction, is_half_equilibrium) in enumerate(
-        zip(scheme.reactions, scheme.is_half_equilibrium)
+        zip(scheme.reactions, scheme.is_half_equilibrium)  # noqa: B905
     ):
         for reactants, products, _ in rx.core._parse_reactions(reaction):
             new_reactants = tuple(
@@ -558,20 +555,20 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_reactions = tuple(r for r in rx.core._unparse_reactions(new_reactions))
     new_is_half_equilibrium = scheme.is_half_equilibrium
 
-    new_A = []
-    new_B = []
+    new_A = []  # noqa: N806
+    new_B = []  # noqa: N806
     new_compounds = []
-    for i, (compound, row_A, row_B) in enumerate(
-        zip(scheme.compounds, scheme.A, scheme.B)
-    ):
+    for compound, row_A, row_B in zip(  # noqa: B905, N806
+        scheme.compounds, scheme.A, scheme.B
+    ):  # noqa: RUF100
         if compound not in fixed_y0:
             new_compounds.append(compound)
             new_A.append(row_A)
             new_B.append(row_B)
 
     new_compounds = tuple(new_compounds)
-    new_A = tuple(new_A)
-    new_B = tuple(new_B)
+    new_A = tuple(new_A)  # noqa: N806
+    new_B = tuple(new_B)  # noqa: N806
 
     return (
         rx.core.Scheme(
@@ -592,7 +589,7 @@ def get_bias(
     data,
     y0,
     tunneling="eckart",
-    qrrho=True,
+    qrrho=True,  # noqa: FBT002
     temperature=298.15,
     pressure=constants.atm,
     method="LSODA",
@@ -618,7 +615,7 @@ def get_bias(
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r)) and S. Grimme (entropy correction, see
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) and S. Grimme (entropy correction, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -659,7 +656,7 @@ def get_bias(
     ...                  2.632179124780495175e-5]}
     >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal  # doctest: +SKIP
     -1.36
-    """
+    """  # noqa: E501
     max_time = np.max(data["t"])
 
     def f(bias):

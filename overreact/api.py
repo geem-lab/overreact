@@ -5,12 +5,10 @@ This module contains the high-level application programming interface.
 
 If you intend to use **overreact** as a library in a project, you should
 probably start here.
-"""
+"""  # noqa: D404
 
 
 from __future__ import annotations
-
-from typing import Union
 
 __all__ = [
     "get_k",
@@ -24,7 +22,6 @@ __all__ = [
 
 import logging
 import warnings
-from typing import Optional, Text
 
 import numpy as np
 from scipy.misc import derivative
@@ -38,7 +35,9 @@ logger = logging.getLogger(__name__)
 
 
 def get_internal_energies(
-    compounds: dict, qrrho: bool = True, temperature: float = 298.15
+    compounds: dict,
+    qrrho: bool = True,  # noqa: FBT001, FBT002
+    temperature: float = 298.15,  # noqa: RUF100
 ):
     """Obtain internal energies for compounds at a given temperature.
 
@@ -51,7 +50,7 @@ def get_internal_energies(
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon and others (see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r))
         on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -69,7 +68,7 @@ def get_internal_energies(
     >>> (internal_energies - internal_energies.min()) / constants.kcal
     array([0. , 2.20053981])
 
-    """
+    """  # noqa: E501
     compounds = rx.io._check_compounds(compounds)
     internal_energies = []
     for name in compounds:
@@ -92,7 +91,11 @@ def get_internal_energies(
     return np.array(internal_energies)
 
 
-def get_enthalpies(compounds: dict, qrrho: bool = True, temperature: float = 298.15):
+def get_enthalpies(
+    compounds: dict,
+    qrrho: bool = True,  # noqa: FBT001, FBT002
+    temperature: float = 298.15,  # noqa: RUF100
+):  # noqa: RUF100
     """Obtain enthalpies for compounds at a given temperature.
 
     Parameters
@@ -104,7 +107,7 @@ def get_enthalpies(compounds: dict, qrrho: bool = True, temperature: float = 298
     qrrho : bool, optional
         Apply the quasi-rigid rotor harmonic oscillator (QRRHO) approximation of
         M. Head-Gordon and others (see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r))
         on top of the classical RRHO.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
@@ -130,7 +133,7 @@ def get_enthalpies(compounds: dict, qrrho: bool = True, temperature: float = 298
     >>> zero_enthalpies = get_enthalpies(model.compounds, temperature=0)
     >>> (enthalpies - zero_enthalpies) / constants.kcal
     array([2.78, 2.50])
-    """
+    """  # noqa: E501
     compounds = rx.io._check_compounds(compounds)
     enthalpies = []
     for name in compounds:
@@ -157,7 +160,7 @@ def get_entropies(
     compounds: dict,
     environment: str | None = None,
     method: str = "standard",
-    qrrho: bool = True,
+    qrrho: bool = True,  # noqa: FBT001, FBT002
     temperature: float = 298.15,
     pressure: float = constants.atm,
 ):
@@ -180,7 +183,7 @@ def get_entropies(
         entropies such as in
         [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
         and
-        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204-3214](https://doi.org/10.1021/acs.jctc.9b00214).
         Head over to the
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
@@ -213,7 +216,7 @@ def get_entropies(
     >>> sol_entropies = get_entropies(model.compounds, environment="solvent")
     >>> (sol_entropies - entropies) / constants.calorie
     array([-6.35360874, -6.35360874])
-    """
+    """  # noqa: E501
     compounds = rx.io._check_compounds(compounds)
     entropies = []
     for name in compounds:
@@ -271,7 +274,7 @@ def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
     qrrho : bool or tuple-like
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r))
         and S. Grimme (entropy correction, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
         on top of the classical RRHO.
@@ -295,15 +298,15 @@ def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
     (True, False)
     >>> _check_qrrho((False, True))
     (False, True)
-    """
-    if qrrho is True:
+    """  # noqa: E501
+    if qrrho is True:  # noqa: RET505
         return True, True
     elif qrrho is False:
         return False, False
     elif isinstance(qrrho, tuple):
         return qrrho
     else:
-        raise ValueError(f"unrecognized QRRHO specification: {qrrho}")
+        raise ValueError(f"unrecognized QRRHO specification: {qrrho}")  # noqa: EM102
 
 
 def get_freeenergies(
@@ -311,7 +314,7 @@ def get_freeenergies(
     bias: float = 0.0,
     environment: str | None = None,
     method: str = "standard",
-    qrrho: bool | tuple[bool, bool] = True,
+    qrrho: bool | tuple[bool, bool] = True,  # noqa: FBT002
     temperature: float = 298.15,
     pressure: float = constants.atm,
 ):
@@ -335,7 +338,7 @@ def get_freeenergies(
         entropies such as in
         [*Phys. Chem. Chem. Phys.*, **2019**, 21, 18920-18929](https://doi.org/10.1039/C9CP03226F)
         and
-        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204–3214](https://doi.org/10.1021/acs.jctc.9b00214).
+        [*J. Chem. Theory Comput.* **2019**, 15, 5, 3204-3214](https://doi.org/10.1021/acs.jctc.9b00214).
         Head over to the
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
@@ -343,7 +346,7 @@ def get_freeenergies(
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r))
         and S. Grimme (entropy correction, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
         on top of the classical RRHO.
@@ -382,7 +385,7 @@ def get_freeenergies(
     array([-1., -1.])
     >>> get_freeenergies(model.compounds, bias=[1.0, -1.0]) - freeenergies
     array([ 1., -1.])
-    """
+    """  # noqa: E501
     qrrho_enthalpy, qrrho_entropy = _check_qrrho(qrrho)
     enthalpies = get_enthalpies(
         compounds, qrrho=qrrho_enthalpy, temperature=temperature
@@ -404,7 +407,7 @@ def get_k(
     compounds: dict | None = None,
     bias: float = 0.0,
     tunneling: str = "eckart",
-    qrrho: bool | tuple[bool, bool] = True,
+    qrrho: bool | tuple[bool, bool] = True,  # noqa: FBT002
     scale: str = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
@@ -431,7 +434,7 @@ def get_k(
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordonand others (enthalpy correction, see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r))
         and S. Grimme (entropy correction, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
         on top of the classical RRHO.
@@ -490,7 +493,7 @@ def get_k(
 
     The units of the returned reaction rate constants can be selected for
     non-unimolecular processes. The following is an attempt to reproduce
-    [*J Atmos Chem*, **1996** 23, 37–49](https://doi.org/10.1007/BF00058703) for
+    [*J Atmos Chem*, **1996** 23, 37-49](https://doi.org/10.1007/BF00058703) for
     the reaction of proton-withdrawal by a chloride radical from the methane
     molecule
     :math:`\ce{CH4 + \cdot Cl -> [H3C\cdots H\cdots Cl]^\ddagger -> H3C\cdot + HCl}`:
@@ -526,7 +529,7 @@ def get_k(
     ...       bias=np.array([0.0, 0.0, -1.4, 0.0, 0.0]) * constants.kcal,
     ...       temperature=300.0, scale="cm3 particle-1 s-1")
     array([1.1e-12])
-    """
+    """  # noqa: E501
     qrrho_enthalpy, qrrho_entropy = _check_qrrho(qrrho)
     scheme = rx.core._check_scheme(scheme)
     if compounds is not None:
@@ -555,12 +558,10 @@ def get_k(
     if molecularity is None:
         molecularity = rx.thermo.get_molecularity(scheme.A)
 
+    # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
+    # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
     k = rates.eyring(
         delta_freeenergies,
-        # NOTE(schneiderfelipe): using molecularity here messes rate constant
-        # units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
-        #
-        # molecularity=molecularity,
         temperature=temperature,
         pressure=pressure,
         volume=volume,
@@ -571,7 +572,7 @@ def get_k(
     while i < len(scheme.is_half_equilibrium):
         if scheme.is_half_equilibrium[i]:
             pair = k[i : i + 2]
-            _K = pair[0] / pair[1]
+            _K = pair[0] / pair[1]  # noqa: N806
 
             denom = pair.min()
             if denom == 0.0:
@@ -637,7 +638,7 @@ def get_kappa(
     scheme: Scheme,
     compounds: dict,
     method: str = "eckart",
-    qrrho: bool = True,
+    qrrho: bool = True,  # noqa: FBT001, FBT002
     temperature: float = 298.15,
 ):
     r"""Obtain tunneling transmission coefficients at a given temperature.
@@ -661,7 +662,7 @@ def get_kappa(
     qrrho : bool, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see
-        [*J. Phys. Chem. C* **2015**, 119, 4, 1840–1850](http://dx.doi.org/10.1021/jp509921r))
+        [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r))
         and S. Grimme (entropy correction, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497))
         on top of the classical RRHO.
@@ -700,15 +701,13 @@ def get_kappa(
 
     >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
     array([8.e+10])
-    """
+    """  # noqa: E501
     scheme = rx.core._check_scheme(scheme)
     compounds = rx.io._check_compounds(compounds)
 
     if method == "eckart":
-        # TODO(schneiderfelipe): We need electronic energies + ZPE here, so we
+        # NOTE(schneiderfelipe): We need electronic energies + ZPE here, so we
         # get smaller transmission coefficients.
-        #
-        # energies = [compounds[name].energy for name in scheme.compounds]
         energies = get_enthalpies(compounds, qrrho=qrrho, temperature=0.0)
         delta_forward = rx.get_delta(scheme.B, energies)  # B - A
         delta_backward = delta_forward - rx.get_delta(
@@ -743,7 +742,7 @@ def get_kappa(
             elif method in {"none", None}:
                 kappa = 1.0
             else:
-                raise ValueError(f"unavailable method: '{method}'")
+                raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102
 
             kappas.append(kappa)
 
@@ -763,7 +762,7 @@ def get_drc(
     y0,
     t_span=None,
     method="LSODA",
-    qrrho=True,
+    qrrho=True,  # noqa: FBT002
     scale="l mol-1 s-1",
     temperature=298.15,
     dx=1.5e3,  # joules
@@ -796,14 +795,9 @@ def get_drc(
             scheme,
             compounds=compounds,
             bias=bias,
-            # tunneling=tunneling,
             qrrho=qrrho,
             scale=scale,
             temperature=temperature,
-            # pressure=pressure,
-            # delta_freeenergies=delta_freeenergies,
-            # molecularity=molecularity,
-            # volume=volume,
         )
         _, r = rx.get_y(rx.get_dydt(scheme, k), y0=y0, t_span=t_span, method=method)
 

@@ -1175,7 +1175,8 @@ def test_can_calculate_reaction_entropies():
     """Ensure we can calculate reaction translational entropies.
 
     This contribution is due to indistinguishability of some reactants or
-    products."""
+    products.
+    """
     assert rx.thermo.get_reaction_entropies([-1, 1]) == pytest.approx(0.0)
     assert rx.thermo.get_reaction_entropies([-2, 1]) == pytest.approx(
         -constants.R * np.log(2)
