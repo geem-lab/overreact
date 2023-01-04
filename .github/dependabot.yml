@@ -5,20 +5,20 @@
 
 version: 2
 updates:
-    # Maintain dependencies for GitHub Actions
-    - package-ecosystem: "github-actions"
-      directory: "/" # Location of package manifests
-      schedule:
-          interval: "daily"
-      # Raise pull requests for version updates
-      # against the `main` branch
-      target-branch: "main"
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    # Raise pull requests for version updates
+    # against the `main` branch
+    target-branch: "main"
 
-    # Maintain dependencies for pip
-    - package-ecosystem: "pip" # See documentation for possible values
-      directory: "/" # Location of package manifests
-      schedule:
-          interval: "daily"
-      # Raise pull requests for version updates
-      # against the `main` branch
-      target-branch: "main"
+  # Maintain dependencies for pip
+  - package-ecosystem: "pip" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    # Raise pull requests for version updates
+    # against the `main` branch
+    target-branch: "main"

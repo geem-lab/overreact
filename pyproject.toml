@@ -67,7 +67,7 @@ fast = ["jax", "jaxlib"]
 solvents = ["thermo"]
 
 [tool.poetry.group.dev.dependencies]
-black = { version = "^22", allow-prereleases = true }
+black = {version = "^23.1a1", allow-prereleases = true}
 debugpy = "^1"
 flynt = "^0.77"
 ipython = "^8"
@@ -78,7 +78,7 @@ pdoc = "^12"
 perflint = "^0.7.1"
 pytest = "^7.2.0"
 pytest-cov = "^4"
-ruff = "^0.0.210"
+ruff = {version = "^0.0.210", allow-prereleases = true}
 seaborn = "^0.12"
 types-setuptools = "^65"
 
