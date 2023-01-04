@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "overreact"
-version = "1.0.2"
+version = "1.1.0"
 description = "⚛️📈 Create and analyze chemical microkinetic models built from computational chemistry data"
 license = "MIT"
 
