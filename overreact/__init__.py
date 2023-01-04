@@ -61,30 +61,33 @@ __url_pypi__ = "https://pypi.org/project/overreact/"
 __url_guide__ = "https://geem-lab.github.io/overreact-guide/"
 
 __doi__ = "10.1002/jcc.26861"
-__zenodo_doi__ = "10.5281/zenodo.5730603"
-__citations__ = (
+__zenodo_doi__ = "10.5281/zenodo.7504800"
+__citations__ = (  # TODO: read from CITATION.bib
     r"""
-@article{overreact_paper2022,
-  title        = {Overreact, an in silico lab: Automative quantum chemical microkinetic simulations for complex chemical reactions},
-  url          = {http://dx.doi.org/DOI_PLACEHOLDER},
-  author       = {Schneider, Felipe S. S. and Caramori, Giovanni F.},
-  DOI          = {DOI_PLACEHOLDER},
-  ISSN         = {1096-987X},
-  journal      = {Journal of Computational Chemistry},
-  publisher    = {Wiley},
-  year         = {2022},
-  month        = {Apr}
+    @article{overreact_paper2022,
+  title         = {Overreact, an in silico lab: Automative quantum chemical microkinetic simulations for complex chemical reactions},
+  author        = {Schneider, Felipe S. S. and Caramori, Giovanni F.},
+  year          = {2022},
+  month         = {Apr},
+  journal       = {Journal of Computational Chemistry},
+  publisher     = {Wiley},
+  volume        = {44},
+  number        = {3},
+  pages         = {209-217},
+  doi           = {DOI_PLACEHOLDER},
+  issn          = {1096-987x},
+  url           = {http://dx.doi.org/DOI_PLACEHOLDER},
 }
 @software{overreact_software2021,
-  title        = {geem-lab/overreact: vVERSION_PLACEHOLDER | Zenodo},
-  version      = {vVERSION_PLACEHOLDER},
-  howpublished = {\url{URL_REPO_PLACEHOLDER}},
-  url          = {https://doi.org/ZENODO_DOI_PLACEHOLDER},
-  author       = {Schneider, Felipe S. S. and Caramori, Giovanni F.},
-  DOI          = {ZENODO_DOI_PLACEHOLDER},
-  publisher    = {Zenodo},
-  year         = {2021},
-  month        = {Nov}
+  title         = {geem-lab/overreact: vVERSION_PLACEHOLDER \vert{} Zenodo},
+  author        = {Felipe S. S. Schneider and Let\'{\i}cia M. P. Madureira and  Giovanni F. Caramori},
+  year          = {2023},
+  month         = {Jan},
+  publisher     = {Zenodo},
+  doi           = {ZENODO_DOI_PLACEHOLDER},
+  url           = {https://doi.org/ZENODO_DOI_PLACEHOLDER},
+  version       = {vVERSION_PLACEHOLDER},
+  howpublished  = {\url{URL_REPO_PLACEHOLDER}},
 }
 """.replace(  # noqa: E501
         "ZENODO_DOI_PLACEHOLDER", __zenodo_doi__

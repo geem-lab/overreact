@@ -41,8 +41,8 @@
 <a href="https://doi.org/10.1002/jcc.26861" >
 <img src="https://img.shields.io/badge/DOI-10.1002%2Fjcc.26861-blue" alt="DOI" />
 </a>
-<a href="https://doi.org/10.5281/zenodo.5730603">
-<img src="https://zenodo.org/badge/DOI/10.5281/zenodo.5730603.svg" alt="DOI" />
+<a href="https://doi.org/10.5281/zenodo.7504800">
+<img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7504800.svg" alt="DOI" />
 </a>
 </p>
 <p>
@@ -151,26 +151,29 @@ Here's the reference in [BibTeX](http://www.bibtex.org/) format:
 
 ```bibtex
 @article{overreact_paper2022,
-  title        = {Overreact, an in silico lab: Automative quantum chemical microkinetic simulations for complex chemical reactions},
-  url          = {http://dx.doi.org/10.1002/jcc.26861},
-  author       = {Schneider, Felipe S. S. and Caramori, Giovanni F.},
-  DOI          = {10.1002/jcc.26861},
-  ISSN         = {1096-987X},
-  journal      = {Journal of Computational Chemistry},
-  publisher    = {Wiley},
-  year         = {2022},
-  month        = {Apr}
+  title         = {Overreact, an in silico lab: Automative quantum chemical microkinetic simulations for complex chemical reactions},
+  author        = {Schneider, Felipe S. S. and Caramori, Giovanni F.},
+  year          = {2022},
+  month         = {Apr},
+  journal       = {Journal of Computational Chemistry},
+  publisher     = {Wiley},
+  volume        = {44},
+  number        = {3},
+  pages         = {209–217},
+  doi           = {10.1002/jcc.26861},
+  issn          = {1096-987x},
+  url           = {http://dx.doi.org/10.1002/jcc.26861},
 }
 @software{overreact_software2021,
-  title        = {geem-lab/overreact: v1.1.0 | Zenodo},
-  version      = {v1.1.0},
-  howpublished = {\url{https://github.com/geem-lab/overreact}},
-  url          = {https://doi.org/10.5281/zenodo.5730603},
-  author       = {Schneider, Felipe S. S. and Caramori, Giovanni F.},
-  DOI          = {10.5281/zenodo.5730603},
-  publisher    = {Zenodo},
-  year         = {2021},
-  month        = {Nov}
+  title         = {geem-lab/overreact: v1.1.0 \vert{} Zenodo},
+  author        = {Felipe S. S. Schneider and Let\'{\i}cia M. P. Madureira and  Giovanni F. Caramori},
+  year          = {2023},
+  month         = {Jan},
+  publisher     = {Zenodo},
+  doi           = {10.5281/zenodo.7504800},
+  url           = {https://doi.org/10.5281/zenodo.7504800},
+  version       = {v1.1.0},
+  howpublished  = {\url{https://github.com/geem-lab/overreact}},
 }
 ```
 
