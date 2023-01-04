@@ -9,6 +9,7 @@ __all__ = ["eyring"]
 
 
 import logging
+from typing import Optional, Union
 
 import numpy as np
 
@@ -278,11 +279,11 @@ def convert_rate_constant(  # noqa: C901
 
 
 def eyring(
-    delta_freeenergy: float | np.ndarray,
-    molecularity: int | None = None,
-    temperature: float | np.ndarray = 298.15,
+    delta_freeenergy: Union[float, np.ndarray],  # noqa: UP007
+    molecularity: Optional[int] = None,  # noqa: UP007
+    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
     pressure: float = constants.atm,
-    volume: float | None = None,
+    volume: Optional[float] = None,  # noqa: UP007
 ):
     r"""Calculate a reaction rate constant.
 

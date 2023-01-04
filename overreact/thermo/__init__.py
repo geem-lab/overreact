@@ -9,6 +9,7 @@ __all__ = ["equilibrium_constant", "change_reference_state"]
 
 
 import logging
+from typing import Optional, Union
 
 import numpy as np
 from scipy.misc import derivative
@@ -607,11 +608,11 @@ def get_delta(transform, property):  # noqa: A002
 
 
 def equilibrium_constant(
-    delta_freeenergy: float | np.ndarray,
-    delta_moles: int | np.ndarray | None = None,
-    temperature: float | np.ndarray = 298.15,
+    delta_freeenergy: Union[float, np.ndarray],  # noqa: UP007
+    delta_moles: Optional[Union[int, np.ndarray]] = None,  # noqa: UP007
+    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
     pressure: float = constants.atm,
-    volume: float | None = None,
+    volume: Optional[float] = None,  # noqa: UP007
 ):
     r"""Calculate an equilibrium constant from a reaction [Gibbs free energy](https://en.wikipedia.org/wiki/Gibbs_free_energy).
 
@@ -752,11 +753,11 @@ def equilibrium_constant(
 
 def change_reference_state(
     new_reference: float = 1.0 / constants.liter,
-    old_reference: float | None = None,
+    old_reference: Optional[float] = None,  # noqa: UP007
     sign: int = 1,
-    temperature: float | np.ndarray = 298.15,
+    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
     pressure: float = constants.atm,
-    volume: float | None = None,
+    volume: Optional[float] = None,  # noqa: UP007
 ):
     r"""Calculate an additive entropy correction to a change in reference states.
 

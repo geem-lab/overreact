@@ -22,6 +22,7 @@ __all__ = [
 
 import logging
 import warnings
+from typing import Optional, Union
 
 import numpy as np
 from scipy.misc import derivative
@@ -158,7 +159,7 @@ def get_enthalpies(
 
 def get_entropies(
     compounds: dict,
-    environment: str | None = None,
+    environment: Opional[str] = None,  # noqa: F821, RUF100
     method: str = "standard",
     qrrho: bool = True,  # noqa: FBT001, FBT002
     temperature: float = 298.15,
@@ -266,7 +267,9 @@ def get_entropies(
     return np.array(entropies)
 
 
-def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
+def _check_qrrho(
+    qrrho: Union[bool, tuple[bool, bool]]  # noqa: UP007
+) -> tuple[bool, bool]:  # noqa: RUF100
     """Get options for QRRHO for both enthalpy and entropy.
 
     Parameters
@@ -312,9 +315,9 @@ def _check_qrrho(qrrho: bool | tuple[bool, bool]) -> tuple[bool, bool]:
 def get_freeenergies(
     compounds: dict,
     bias: float = 0.0,
-    environment: str | None = None,
+    environment: Optional[str] = None,  # noqa: UP007
     method: str = "standard",
-    qrrho: bool | tuple[bool, bool] = True,  # noqa: FBT002
+    qrrho: Union[bool | tuple[bool, bool]] = True,  # noqa: FBT002, UP007
     temperature: float = 298.15,
     pressure: float = constants.atm,
 ):
@@ -404,16 +407,16 @@ def get_freeenergies(
 
 def get_k(
     scheme: Scheme,
-    compounds: dict | None = None,
+    compounds: Optional[dict] = None,  # noqa: UP007
     bias: float = 0.0,
     tunneling: str = "eckart",
-    qrrho: bool | tuple[bool, bool] = True,  # noqa: FBT002
+    qrrho: Union[bool | tuple[bool, bool]] = True,  # noqa: FBT002, UP007
     scale: str = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
-    delta_freeenergies: float | None = None,
-    molecularity: float | None = None,
-    volume: float | None = None,
+    delta_freeenergies: Optional[float] = None,  # noqa: UP007
+    molecularity: Optional[float] = None,  # noqa: UP007
+    volume: Optional[float] = None,  # noqa: UP007
 ) -> float:
     r"""Obtain reaction rate constants for a given reaction scheme.
 

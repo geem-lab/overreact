@@ -6,6 +6,7 @@ Ideally, the functions here will be transferred to other modules in the future.
 """
 
 from functools import lru_cache as cache
+from typing import Optional
 
 import numpy as np
 from scipy.stats import cauchy, norm
@@ -424,7 +425,9 @@ atomic_number = {
 
 
 def _check_package(
-    package: str, found_package: bool, extra_flag: str | None = None  # noqa: FBT001
+    package: str,
+    found_package: bool,  # noqa: FBT001
+    extra_flag: Optional[str] = None,  # noqa: RUF100
 ) -> None:
     """Raise an issue if a package was not found.
 
@@ -584,7 +587,7 @@ def broaden_spectrum(
             * distribution.pdf(
                 x, xp, scale=scale, *args, **kwargs  # noqa: RUF004, B026
             )  # noqa: RUF100
-            for xp, yp in zip(x0, y0)  # noqa: B905
+            for xp, yp in zip(x0, y0)
         ],
         axis=0,
     )

@@ -262,7 +262,7 @@ def test_rate_constants_for_hickel1992():
     assert np.log10(k_cla) == pytest.approx(np.log10(k_cla_ref), 8e-3)
     assert np.log10(k_eck) == pytest.approx(np.log10(k_eck_ref), 5e-3)
 
-    for k, k_ref, tols in zip(  # noqa: B905
+    for k, k_ref, tols in zip(
         [k_cla, k_eck],
         [k_cla_ref, k_eck_ref],
         [(1.0e-1, 0.62, 2e-3, 5e-8, 3e-2), (1.1e-1, 0.75, 2e-3, 3e-8, 2e-2)],
@@ -372,7 +372,7 @@ def test_rate_constants_for_tanaka1996():
     assert np.log10(k_eck) == pytest.approx(np.log10(k_eck_ref), 2e-2)
     assert np.log10(k_eck[:-1]) == pytest.approx(np.log10(k_exp), 3e-3)
 
-    for k, k_ref, tols in zip(  # noqa: B905
+    for k, k_ref, tols in zip(
         [k_cla, k_eck, k_eck[:-1]],
         [k_cla_ref, k_eck_ref, k_exp],
         [

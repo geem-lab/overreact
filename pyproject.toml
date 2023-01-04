@@ -67,7 +67,7 @@ fast = ["jax", "jaxlib"]
 solvents = ["thermo"]
 
 [tool.poetry.group.dev.dependencies]
-black = {version = "^23.1a1", allow-prereleases = true}
+black = { version = "^23.1a1", allow-prereleases = true }
 debugpy = "^1"
 flynt = "^0.77"
 ipython = "^8"
@@ -78,7 +78,7 @@ pdoc = "^12"
 perflint = "^0.7.1"
 pytest = "^7.2.0"
 pytest-cov = "^4"
-ruff = {version = "^0.0.210", allow-prereleases = true}
+ruff = { version = "^0.0.210", allow-prereleases = true }
 seaborn = "^0.12"
 types-setuptools = "^65"
 
@@ -87,6 +87,7 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core>=1.0.0"]
 
 [tool.ruff]
+target-version = "py38"
 select = ["ALL"]
 ignore = [
   "ANN001", # MissingTypeFunctionArgument

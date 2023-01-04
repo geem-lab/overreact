@@ -1998,7 +1998,7 @@ def _equivalent_atoms(  # noqa: C901
                     criteria[clusters == cluster, 0],
                     criteria[clusters == cluster, 1],
                 )
-            for i, (atommass, _) in enumerate(zip(atommasses, clusters)):  # noqa: B905
+            for i, (atommass, _) in enumerate(zip(atommasses, clusters)):
                 plt.annotate(atommass, (criteria[i, 0], criteria[i, 1]))
             plt.xlabel("omega")
             plt.ylabel("sigma")

@@ -204,7 +204,7 @@ def get_y(
         # TODO(schneiderfelipe): this is probably not the best way to
         # vectorize a function!
         try:
-            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T)]).T  # noqa: B905
+            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T)]).T
         except TypeError:
             return dydt(t, y(t))
 
@@ -531,7 +531,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_k = np.asarray(k, dtype=float).copy()
     new_reactions = []
     for i, (reaction, is_half_equilibrium) in enumerate(
-        zip(scheme.reactions, scheme.is_half_equilibrium)  # noqa: B905
+        zip(scheme.reactions, scheme.is_half_equilibrium)
     ):
         for reactants, products, _ in rx.core._parse_reactions(reaction):
             new_reactants = tuple(
@@ -558,7 +558,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_A = []  # noqa: N806
     new_B = []  # noqa: N806
     new_compounds = []
-    for compound, row_A, row_B in zip(  # noqa: B905, N806
+    for compound, row_A, row_B in zip(  # noqa: N806
         scheme.compounds, scheme.A, scheme.B
     ):  # noqa: RUF100
         if compound not in fixed_y0:

@@ -8,7 +8,7 @@ __all__ = ["Scheme", "parse_reactions"]
 
 import itertools
 import re
-from typing import NamedTuple, Sequence
+from typing import NamedTuple, Sequence, Union
 
 import numpy as np
 
@@ -50,7 +50,7 @@ _abbr_environment = {
 }
 
 
-def _check_scheme(scheme_or_text: Scheme | str) -> Scheme:
+def _check_scheme(scheme_or_text: Union[Scheme, str]) -> Scheme:
     """Interface transparently between strings and schemes.
 
     Parameters
@@ -399,7 +399,7 @@ def is_transition_state(name):
     return False
 
 
-def parse_reactions(text: str | Sequence[str]) -> Scheme:  # noqa: C901
+def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
     """
     Parse a kinetic model as a chemical reaction scheme.
 
@@ -751,7 +751,7 @@ def _parse_reactions(text):
             continue
 
         pieces = re.split(r"\s*(->|<=>|<-)\s*", line)
-        for reactants, arrow, products in zip(  # noqa: B905
+        for reactants, arrow, products in zip(
             pieces[:-2:2], pieces[1:-1:2], pieces[2::2]
         ):
             if arrow == "<-":

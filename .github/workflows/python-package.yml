@@ -43,6 +43,9 @@ jobs:
         run: |
           poetry run ruff . --show-source
 
+      - name: Lint with Black
+        uses: psf/black@stable
+
       - name: Test with pytest
         run: |
           poetry run pytest --cov=. --cov-report=xml
