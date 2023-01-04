@@ -37,7 +37,7 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"API documentation" = "https://geem-lab.github.io/overreact/overreact.html"
+"API documentation" = "https://geem-lab.github.io/overreact/"
 
 "PyPI" = "https://pypi.org/project/overreact/"
 
