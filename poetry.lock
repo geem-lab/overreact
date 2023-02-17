@@ -1002,13 +1002,13 @@ requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "jax"
-version = "0.4.1"
+version = "0.4.4"
 description = "Differentiate, compile, and transform Numpy code."
 category = "main"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "jax-0.4.1.tar.gz", hash = "sha256:b795a75ca2eabb5d20b83f1aa1e1038dafeca89ee74c9ac6e2b919215cadf427"},
+    {file = "jax-0.4.4.tar.gz", hash = "sha256:39b07e07343ed7c74492ee5e75db77456d3afdd038a322671f09fc748f6392cb"},
 ]
 
 [package.dependencies]
@@ -1018,13 +1018,13 @@ scipy = ">=1.5"
 
 [package.extras]
 australis = ["protobuf (>=3.13,<4)"]
-ci = ["jaxlib (==0.4.0)"]
-cpu = ["jaxlib (==0.4.1)"]
-cuda = ["jaxlib (==0.4.1+cuda11.cudnn86)"]
-cuda11-cudnn82 = ["jaxlib (==0.4.1+cuda11.cudnn82)"]
-cuda11-cudnn86 = ["jaxlib (==0.4.1+cuda11.cudnn86)"]
-minimum-jaxlib = ["jaxlib (==0.3.22)"]
-tpu = ["jaxlib (==0.4.1)", "libtpu-nightly (==0.1.dev20221212)", "requests"]
+ci = ["jaxlib (==0.4.3)"]
+cpu = ["jaxlib (==0.4.4)"]
+cuda = ["jaxlib (==0.4.4+cuda11.cudnn86)"]
+cuda11-cudnn82 = ["jaxlib (==0.4.4+cuda11.cudnn82)"]
+cuda11-cudnn86 = ["jaxlib (==0.4.4+cuda11.cudnn86)"]
+minimum-jaxlib = ["jaxlib (==0.4.2)"]
+tpu = ["jaxlib (==0.4.4)", "libtpu-nightly (==0.1.dev20230216)", "requests"]
 
 [[package]]
 name = "jaxlib"
