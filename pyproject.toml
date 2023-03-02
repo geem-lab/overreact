@@ -80,7 +80,7 @@ pytest = "^7.2.0"
 pytest-cov = "^4"
 ruff = { version = "^0.0.210", allow-prereleases = true }
 seaborn = "^0.12"
-types-setuptools = "^65"
+types-setuptools = ">=65,<68"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
