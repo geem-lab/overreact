@@ -1016,13 +1016,13 @@ requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "jax"
-version = "0.4.4"
+version = "0.4.5"
 description = "Differentiate, compile, and transform Numpy code."
 category = "main"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "jax-0.4.4.tar.gz", hash = "sha256:39b07e07343ed7c74492ee5e75db77456d3afdd038a322671f09fc748f6392cb"},
+    {file = "jax-0.4.5.tar.gz", hash = "sha256:1633e56d34b18ddfa7d2a216ce214fa6fa712d36552532aaa71da416aede7268"},
 ]
 
 [package.dependencies]
@@ -1032,12 +1032,12 @@ scipy = ">=1.5"
 
 [package.extras]
 australis = ["protobuf (>=3.13,<4)"]
-ci = ["jaxlib (==0.4.3)"]
+ci = ["jaxlib (==0.4.4)"]
 cpu = ["jaxlib (==0.4.4)"]
 cuda = ["jaxlib (==0.4.4+cuda11.cudnn86)"]
 cuda11-cudnn82 = ["jaxlib (==0.4.4+cuda11.cudnn82)"]
 cuda11-cudnn86 = ["jaxlib (==0.4.4+cuda11.cudnn86)"]
-minimum-jaxlib = ["jaxlib (==0.4.2)"]
+minimum-jaxlib = ["jaxlib (==0.4.4)"]
 tpu = ["jaxlib (==0.4.4)", "libtpu-nightly (==0.1.dev20230216)", "requests"]
 
 [[package]]
