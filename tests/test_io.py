@@ -281,7 +281,7 @@ def test_compare_rrho_with_orca_logfile():  # noqa: PLR0915
         moments=moments,
         vibfreqs=data.vibfreqs,
     )
-    zpe = rx.thermo._gas.calc_vib_energy(
+    zpe = rx.thermo._gas.calc_vib_energy(  # noqa: SLF001
         vibfreqs=data.vibfreqs,
         temperature=0.0,
     )
@@ -310,7 +310,7 @@ def test_compare_rrho_with_orca_logfile():  # noqa: PLR0915
         energy=data.energy,
         degeneracy=data.mult,
     )
-    vib_entropy = rx.thermo._gas.calc_vib_entropy(
+    vib_entropy = rx.thermo._gas.calc_vib_entropy(  # noqa: SLF001
         vibfreqs=data.vibfreqs,
     )
     rot_entropy = rx.thermo._gas.calc_rot_entropy(  # noqa: SLF001
@@ -475,7 +475,7 @@ def test_compare_qrrho_with_orca_logfile():  # noqa: PLR0915
         energy=data.energy,
         degeneracy=data.mult,
     )
-    vib_energy = rx.thermo._gas.calc_vib_energy(
+    vib_energy = rx.thermo._gas.calc_vib_energy(  # noqa: SLF001
         vibfreqs=data.vibfreqs,
         qrrho=False,
     )
@@ -500,7 +500,7 @@ def test_compare_qrrho_with_orca_logfile():  # noqa: PLR0915
         energy=data.energy,
         degeneracy=data.mult,
     )
-    vib_entropy = rx.thermo._gas.calc_vib_entropy(
+    vib_entropy = rx.thermo._gas.calc_vib_entropy(  # noqa: SLF001
         vibfreqs=data.vibfreqs,
     )
     rot_entropy = rx.thermo._gas.calc_rot_entropy(  # noqa: SLF001

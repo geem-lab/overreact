@@ -693,7 +693,11 @@ class Report:
                         active[i] = True
 
             t.update(
-                np.geomspace(np.min([_t for _t in t if _t > 0.0]), t_max, num=num),
+                np.geomspace(
+                    np.min([_t for _t in t if _t > 0.0]),
+                    t_max,
+                    num=num,
+                ),
             )
             t = np.array(sorted(t))
             if self.plot not in {"none", None}:

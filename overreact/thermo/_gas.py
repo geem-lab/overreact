@@ -258,7 +258,7 @@ def calc_rot_energy(
 
     if not independent and np.any(rotational_temperatures >= 0.2 * temperature):
         logger.warning(
-            f"rotational temperatures probably too high for {temperature} K: "  # noqa: G004
+            f"rotational temperatures probably too high for {temperature} K: "  # noqa: E501, G004
             f"{rotational_temperatures[rotational_temperatures >= 0.2 * temperature]}",
         )
 
@@ -397,7 +397,7 @@ def calc_rot_entropy(  # noqa: PLR0913
 
     if not independent and np.any(rotational_temperatures >= 0.2 * temperature):
         logger.warning(
-            f"rotational temperatures probably too high for {temperature} K: "  # noqa: G004
+            f"rotational temperatures probably too high for {temperature} K: "  # noqa: E501, G004
             f"{rotational_temperatures[rotational_temperatures >= 0.2 * temperature]}",
         )
 
@@ -742,7 +742,7 @@ def _vibrational_temperature(vibfreqs=None):
 
     vibrational_temperatures = constants.h * nu / constants.k
     logger.debug(
-        f"vibrational temperatures = {vibrational_temperatures} K",
+        f"vibrational temperatures = {vibrational_temperatures} K",  # noqa: G004
     )
     return vibrational_temperatures
 

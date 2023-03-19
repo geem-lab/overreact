@@ -122,11 +122,11 @@ def test_parse_works():  # noqa: PLR0915
 def test_private_functions_work():
     """Ensure private functions work as expected."""
     assert list(rx.core._parse_side("A")) == [(1, "A")]  # noqa: SLF001
-    assert list(rx.core._parse_side("A")) == list(
-        rx.core._parse_side("1 A"),
+    assert list(rx.core._parse_side("A")) == list(  # noqa: SLF001
+        rx.core._parse_side("1 A"),  # noqa: SLF001
     )
-    assert list(rx.core._parse_side("A")) == list(
-        rx.core._parse_side("1A"),
+    assert list(rx.core._parse_side("A")) == list(  # noqa: SLF001
+        rx.core._parse_side("1A"),  # noqa: SLF001
     )
     assert list(rx.core._parse_side("500 A")) == [(500, "A")]  # noqa: SLF001
     assert list(rx.core._parse_side("A + 2 B + 500 D")) == [  # noqa: SLF001
@@ -141,7 +141,7 @@ def test_private_functions_work():
 
     assert (
         rx.core._unparse_side(  # noqa: SLF001
-            rx.core._parse_side(
+            rx.core._parse_side(  # noqa: SLF001
                 " 2  *A*1*   +    40B1     +      chlorophyll",
             ),
         )
@@ -160,7 +160,7 @@ def test_private_functions_work():
         (((1, "A"),), ((20, "B"),), False),
     ]
     assert list(
-        rx.core._parse_reactions("E + S <=> ES -> ES‡ -> E + P"),
+        rx.core._parse_reactions("E + S <=> ES -> ES‡ -> E + P"),  # noqa: SLF001
     ) == [
         (((1, "E"), (1, "S")), ((1, "ES"),), True),
         (((1, "ES"),), ((1, "E"), (1, "S")), True),
@@ -169,7 +169,7 @@ def test_private_functions_work():
     ]
 
     assert list(
-        rx.core._unparse_reactions([(((1, "A"),), ((1, "B"),), True)]),
+        rx.core._unparse_reactions([(((1, "A"),), ((1, "B"),), True)]),  # noqa: SLF001
     ) == [
         "A -> B",
     ]
@@ -195,7 +195,7 @@ def test_private_functions_work():
 
     assert list(
         rx.core._unparse_reactions(  # noqa: SLF001
-            rx.core._parse_reactions(
+            rx.core._parse_reactions(  # noqa: SLF001
                 "1 A -> 2 B <- C <=> 40 D <- E\nA -> 2 B <=> C",
             ),
         ),

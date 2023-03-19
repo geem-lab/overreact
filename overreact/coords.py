@@ -162,7 +162,7 @@ def get_molecular_volume(  # noqa: PLR0913
             cav_volume = np.mean(cav_volumes)
             cav_err = np.std(cav_volumes)
             logger.debug(
-                f"Izato cavity volume = {cav_volume} ± {cav_err} Å³",
+                f"Izato cavity volume = {cav_volume} ± {cav_err} Å³",  # noqa: G004
             )
             return (vdw_volume, cav_volume, max(vdw_err, cav_err))
         elif method == "garza":  # noqa: RET505
@@ -374,8 +374,8 @@ def symmetry_number(point_group):
         elif pieces["letter"] == "s":
             symmetry_number = int(pieces["number"]) // 2
         else:
-            raise ValueError(
-                f"unknown point group: '{point_group}'",
+            raise ValueError(  # noqa: TRY003
+                f"unknown point group: '{point_group}'",  # noqa: EM102
             )
 
     logger.info(f"symmetry number = {symmetry_number}")  # noqa: G004

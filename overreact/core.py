@@ -691,7 +691,7 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
     return Scheme(
         compounds=tuple(compounds),
         reactions=tuple(_unparse_reactions(reactions)),
-        is_half_equilibrium=rx._misc.totuple(
+        is_half_equilibrium=rx._misc.totuple(  # noqa: SLF001
             [reaction[2] for reaction in reactions],
         ),
         A=rx._misc.totuple(  # noqa: SLF001

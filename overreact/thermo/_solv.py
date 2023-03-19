@@ -100,7 +100,7 @@ def calc_cav_entropy(  # noqa: PLR0913
             pressure=pressure,
         )
 
-        solvent = rx._misc._get_chemical(
+        solvent = rx._misc._get_chemical(  # noqa: SLF001
             environment,
             temperature,
             pressure,

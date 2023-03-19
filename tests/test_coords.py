@@ -22,7 +22,7 @@ def test_can_understand_K_symmetry():  # noqa: N802
     assert len(groups[0]) == 1
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("spheric", "atomic")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -67,7 +67,7 @@ def test_can_understand_C1_symmetry():  # noqa: N802
     assert len(groups[4]) == 1
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -110,7 +110,7 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -152,7 +152,7 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
     assert len(groups[3]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -194,7 +194,7 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
     assert len(groups[3]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -239,7 +239,7 @@ def test_can_understand_Ci_symmetry():  # noqa: N802, PLR0915
     assert len(groups[3]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -284,7 +284,7 @@ def test_can_understand_Ci_symmetry():  # noqa: N802, PLR0915
     assert len(groups[7]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -326,7 +326,7 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
     assert len(groups[1]) == 1
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "linear")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -365,7 +365,7 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
     assert len(groups[2]) == 1
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "linear")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -408,7 +408,7 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802, PLR0915
     assert len(groups[0]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "linear")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -450,7 +450,7 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "linear")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -497,7 +497,7 @@ def test_can_understand_C2_symmetry():  # noqa: N802
     assert len(groups[1]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -537,7 +537,7 @@ def test_can_understand_C2_symmetry():  # noqa: N802
     assert len(groups[2]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -584,7 +584,7 @@ def test_can_understand_C3_symmetry():  # noqa: N802, PLR0915
     assert len(groups[3]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -643,7 +643,7 @@ def test_can_understand_C3_symmetry():  # noqa: N802, PLR0915
     assert len(groups[11]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -687,7 +687,7 @@ def test_can_understand_C2h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -734,7 +734,7 @@ def test_can_understand_C2h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[3]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -786,7 +786,7 @@ def test_can_understand_C3h_symmetry():  # noqa: N802
     assert len(groups[2]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -834,7 +834,7 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -880,7 +880,7 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -930,7 +930,7 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[4]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -982,7 +982,7 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[4]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1031,7 +1031,7 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[5]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1085,7 +1085,7 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[4]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1134,7 +1134,7 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[5]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1185,7 +1185,7 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1248,7 +1248,7 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1301,7 +1301,7 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1360,7 +1360,7 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
     assert len(groups[4]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1417,7 +1417,7 @@ def test_can_understand_C4v_symmetry():  # noqa: N802
     assert len(groups[2]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1467,7 +1467,7 @@ def test_can_understand_C5v_symmetry():  # noqa: N802
     assert len(groups[3]) == 10  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1536,7 +1536,7 @@ def test_can_understand_D2_symmetry():  # noqa: N802
     assert len(groups[6]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1588,7 +1588,7 @@ def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
     assert len(groups[6]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1645,7 +1645,7 @@ def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
     assert len(groups[6]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1711,7 +1711,7 @@ def test_can_understand_D5_symmetry():  # noqa: N802
     assert len(groups[2]) == 10  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1773,7 +1773,7 @@ def test_can_understand_D2h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1826,7 +1826,7 @@ def test_can_understand_D2h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1882,7 +1882,7 @@ def test_can_understand_D2h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -1940,7 +1940,7 @@ def test_can_understand_D2h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2009,7 +2009,7 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2077,7 +2077,7 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2144,7 +2144,7 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2197,7 +2197,7 @@ def test_can_understand_D4h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2259,7 +2259,7 @@ def test_can_understand_D4h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2356,7 +2356,7 @@ def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 5  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2411,7 +2411,7 @@ def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 10  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2494,7 +2494,7 @@ def test_can_understand_D6h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2600,7 +2600,7 @@ def test_can_understand_D7h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 7  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2713,7 +2713,7 @@ def test_can_understand_D8h_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 8  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2841,7 +2841,7 @@ def test_can_understand_D2d_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2899,7 +2899,7 @@ def test_can_understand_D2d_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 8  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -2964,7 +2964,7 @@ def test_can_understand_D3d_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3037,7 +3037,7 @@ def test_can_understand_D3d_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3111,7 +3111,7 @@ def test_can_understand_D4d_symmetry():  # noqa: N802
     assert len(groups[0]) == 8  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3198,7 +3198,7 @@ def test_can_understand_D5d_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 10  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3301,7 +3301,7 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
     assert len(groups[3]) == 8  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3344,7 +3344,7 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
     assert len(groups[2]) == 8  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3396,7 +3396,7 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
     assert len(groups[11]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3444,7 +3444,7 @@ def test_can_understand_Td_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3535,7 +3535,7 @@ def test_can_understand_Td_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 4  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3638,7 +3638,7 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 8  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3790,7 +3790,7 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 6  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -3945,7 +3945,7 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 12  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -4049,7 +4049,7 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
     assert len(groups[1]) == 20  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -4179,7 +4179,7 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
     assert len(groups[0]) == 60  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -4438,7 +4438,7 @@ def test_match_regression_logfiles():  # noqa: PLR0915
     assert len(groups[1]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -4472,7 +4472,7 @@ def test_match_regression_logfiles():  # noqa: PLR0915
     assert len(groups[2]) == 3  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,
@@ -4493,7 +4493,7 @@ def test_match_regression_logfiles():  # noqa: PLR0915
     assert len(groups[2]) == 2  # noqa: PLR2004
     rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(
+    proper_axes = coords._get_proper_axes(  # noqa: SLF001
         atomcoords,
         groups,
         axes,

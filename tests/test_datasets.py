@@ -29,7 +29,7 @@ def test_logfile_retrieval():
             assert np.asarray(data1[key]) == pytest.approx(np.asarray(data2[key]))
 
     data1 = rx.io.read_logfile(
-        os.path.join(
+        os.path.join(  # noqa: PTH118
             datasets.data_path,
             "symmetries",
             "ferrocene-staggered.out",

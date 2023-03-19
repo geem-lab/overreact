@@ -89,7 +89,9 @@ def test_sanity_for_absolute_thermochemistry():
         ],
     )
     vibfreqs = vibtemps * constants.k * constants.centi / (constants.h * constants.c)
-    assert rx.thermo._gas._vibrational_temperature(vibfreqs) == pytest.approx(
+    assert rx.thermo._gas._vibrational_temperature(
+        vibfreqs,
+    ) == pytest.approx(
         vibtemps,
     )
     zpe = rx.thermo._gas.calc_vib_energy(vibfreqs, temperature=0.0)  # noqa: SLF001
@@ -1237,7 +1239,7 @@ def test_change_reference_state_works_for_symmetry():
 # frequencies using the QRRHO model.
 def test_head_gordon_damping():
     """Ensure the Head-Gordon damping for the treatment of QRRHO is done correctly."""
-    assert rx.thermo._gas._head_gordon_damping(-70.0) == pytest.approx(
+    assert rx.thermo._gas._head_gordon_damping(-70.0) == pytest.approx(  # noqa: SLF001
         [],
     )
     assert rx.thermo._gas._head_gordon_damping(-40.0) == pytest.approx(  # noqa: SLF001
@@ -1246,25 +1248,25 @@ def test_head_gordon_damping():
     assert rx.thermo._gas._head_gordon_damping(-10.0) == pytest.approx(  # noqa: SLF001
         rx.thermo._gas._head_gordon_damping(10.0),  # noqa: SLF001
     )
-    assert rx.thermo._gas._head_gordon_damping(1.0) == pytest.approx(
+    assert rx.thermo._gas._head_gordon_damping(1.0) == pytest.approx(  # noqa: SLF001
         8.67669882e-9,
     )
-    assert rx.thermo._gas._head_gordon_damping(10.0) == pytest.approx(
+    assert rx.thermo._gas._head_gordon_damping(10.0) == pytest.approx(  # noqa: SLF001
         8.67594611e-5,
     )
-    assert rx.thermo._gas._head_gordon_damping(100.0) == pytest.approx(
+    assert rx.thermo._gas._head_gordon_damping(100.0) == pytest.approx(  # noqa: SLF001
         0.5,
         8e-2,
     )
-    assert rx.thermo._gas._head_gordon_damping(200.0) == pytest.approx(
+    assert rx.thermo._gas._head_gordon_damping(200.0) == pytest.approx(  # noqa: SLF001
         1.0,
         7e-2,
     )
-    assert rx.thermo._gas._head_gordon_damping(300.0) == pytest.approx(
+    assert rx.thermo._gas._head_gordon_damping(300.0) == pytest.approx(  # noqa: SLF001
         1.0,
         2e-2,
     )
-    assert rx.thermo._gas._head_gordon_damping(1000.0) == pytest.approx(
+    assert rx.thermo._gas._head_gordon_damping(1000.0) == pytest.approx(  # noqa: SLF001
         1.0,
         2e-4,
     )

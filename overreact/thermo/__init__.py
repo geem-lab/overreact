@@ -138,7 +138,7 @@ def calc_trans_entropy(  # noqa: PLR0913
         temperature=temperature,
     )
     logger.info(
-        f"translational entropy = {translational_entropy} J/mol·K",
+        f"translational entropy = {translational_entropy} J/mol·K",  # noqa: G004
     )
     return translational_entropy
 
@@ -437,7 +437,7 @@ def calc_entropy(  # noqa: PLR0913
             pressure=pressure,
         )
         logger.debug(
-            f"concentration correction = {concentration_correction} J/mol·K",
+            f"concentration correction = {concentration_correction} J/mol·K",  # noqa: G004
         )
         entropy = entropy + concentration_correction
         if method == "standard":

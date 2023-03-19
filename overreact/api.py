@@ -313,8 +313,8 @@ def _check_qrrho(
     elif isinstance(qrrho, tuple):
         return qrrho
     else:
-        raise ValueError(
-            f"unrecognized QRRHO specification: {qrrho}",
+        raise ValueError(  # noqa: TRY003
+            f"unrecognized QRRHO specification: {qrrho}",  # noqa: EM102
         )
 
 
@@ -751,7 +751,7 @@ def get_kappa(
                         )
                     except RuntimeWarning as e:
                         logger.warning(
-                            f"using Wigner tunneling correction: {e}",
+                            f"using Wigner tunneling correction: {e}",  # noqa: G004
                         )
                         kappa = tunnel.wigner(vibfreq, temperature=temperature)
             elif method == "wigner":
@@ -759,8 +759,8 @@ def get_kappa(
             elif method in {"none", None}:
                 kappa = 1.0
             else:
-                raise ValueError(
-                    f"unavailable method: '{method}'",
+                raise ValueError(  # noqa: TRY003
+                    f"unavailable method: '{method}'",  # noqa: EM102
                 )
 
             kappas.append(kappa)

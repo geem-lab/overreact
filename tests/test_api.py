@@ -99,7 +99,7 @@ def test_compare_calc_star_with_get_star():
     for bias in np.array([-1, 0, 1]) * constants.kcal:
         for environment in ["gas", "solvent"]:
             for qrrho in [True, False, (False, True)]:
-                qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(
+                qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(  # noqa: SLF001
                     qrrho,
                 )
                 for temperature in [200, 298.15, 400]:

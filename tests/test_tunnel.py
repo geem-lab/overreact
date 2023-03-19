@@ -71,49 +71,49 @@ def test_low_level_eckart_against_johnston1962():  # noqa: C901, PLR0912, PLR091
 
     gammas = [1.13, 1.21, 1.29, 1.38, 1.47, 1.68, 1.93, 2.22, 2.94]
     for u, gamma in zip(us, gammas):
-        assert rx.tunnel._eckart(u, 0.5, 1) == pytest.approx(
+        assert rx.tunnel._eckart(u, 0.5, 1) == pytest.approx(  # noqa: SLF001
             gamma,
             2e-2,
         )
 
     gammas = [1.09, 1.14, 1.20, 1.27, 1.34, 1.51, 1.71, 1.94, 2.53]
     for u, gamma in zip(us, gammas):
-        assert rx.tunnel._eckart(u, 0.5, 2) == pytest.approx(
+        assert rx.tunnel._eckart(u, 0.5, 2) == pytest.approx(  # noqa: SLF001
             gamma,
             9e-3,
         )
 
     gammas = [1.04, 1.07, 1.11, 1.16, 1.22, 1.35, 1.50, 1.69, 2.16]
     for u, gamma in zip(us, gammas):
-        assert rx.tunnel._eckart(u, 0.5, 4) == pytest.approx(
+        assert rx.tunnel._eckart(u, 0.5, 4) == pytest.approx(  # noqa: SLF001
             gamma,
             1e-2,
         )
 
     gammas = [0.99, 1.00, 1.03, 1.06, 1.11, 1.21, 1.34, 1.49, 1.88]
     for u, gamma in zip(us, gammas):
-        assert rx.tunnel._eckart(u, 0.5, 8) == pytest.approx(
+        assert rx.tunnel._eckart(u, 0.5, 8) == pytest.approx(  # noqa: SLF001
             gamma,
             9e-3,
         )
 
     gammas = [0.96, 0.97, 0.99, 1.02, 1.06, 1.15, 1.26, 1.40, 1.76]
     for u, gamma in zip(us, gammas):
-        assert rx.tunnel._eckart(u, 0.5, 12) == pytest.approx(
+        assert rx.tunnel._eckart(u, 0.5, 12) == pytest.approx(  # noqa: SLF001
             gamma,
             8e-3,
         )
 
     gammas = [0.94, 0.95, 0.97, 0.99, 1.02, 1.11, 1.22, 1.35, 1.68]
     for u, gamma in zip(us, gammas):
-        assert rx.tunnel._eckart(u, 0.5, 16) == pytest.approx(
+        assert rx.tunnel._eckart(u, 0.5, 16) == pytest.approx(  # noqa: SLF001
             gamma,
             8e-3,
         )
 
     gammas = [0.93, 0.94, 0.95, 0.97, 1.00, 1.08, 1.19, 1.31, 1.64]
     for u, gamma in zip(us, gammas):
-        assert rx.tunnel._eckart(u, 0.5, 20) == pytest.approx(
+        assert rx.tunnel._eckart(u, 0.5, 20) == pytest.approx(  # noqa: SLF001
             gamma,
             1e-2,
         )
@@ -217,42 +217,42 @@ def test_low_level_eckart_against_johnston1962():  # noqa: C901, PLR0912, PLR091
 
     gammas = [1.2, 1.5, 2.1, 3.1, 5.2, 22, 162, 1970]
     for u, gamma in zip(us[:-1], gammas):
-        assert rx.tunnel._eckart(u, 12, 12) == pytest.approx(
+        assert rx.tunnel._eckart(u, 12, 12) == pytest.approx(  # noqa: SLF001
             gamma,
             2e-2,
         )
 
     gammas = [1.2, 1.5, 2.1, 3.1, 5.4, 25, 220, 3300]
     for u, gamma in zip(us[:-1], gammas):
-        assert rx.tunnel._eckart(u, 12, 16) == pytest.approx(
+        assert rx.tunnel._eckart(u, 12, 16) == pytest.approx(  # noqa: SLF001
             gamma,
             2e-2,
         )
 
     gammas = [1.2, 1.5, 2.1, 3.1, 5.4, 26, 246, 3920]
     for u, gamma in zip(us[:-1], gammas):
-        assert rx.tunnel._eckart(u, 12, 20) == pytest.approx(
+        assert rx.tunnel._eckart(u, 12, 20) == pytest.approx(  # noqa: SLF001
             gamma,
             2e-2,
         )
 
     gammas = [1.2, 1.5, 2.1, 3.2, 5.7, 32, 437]
     for u, gamma in zip(us[:-2], gammas):
-        assert rx.tunnel._eckart(u, 16, 16) == pytest.approx(
+        assert rx.tunnel._eckart(u, 16, 16) == pytest.approx(  # noqa: SLF001
             gamma,
             2e-2,
         )
 
     gammas = [1.2, 1.5, 2.1, 3.2, 5.9, 37, 616]
     for u, gamma in zip(us[:-2], gammas):
-        assert rx.tunnel._eckart(u, 16, 20) == pytest.approx(
+        assert rx.tunnel._eckart(u, 16, 20) == pytest.approx(  # noqa: SLF001
             gamma,
             2e-2,
         )
 
     gammas = [1.2, 1.5, 2.1, 3.2, 6.1, 46, 1150]
     for u, gamma in zip(us[:-2], gammas):
-        assert rx.tunnel._eckart(u, 20, 20) == pytest.approx(
+        assert rx.tunnel._eckart(u, 20, 20) == pytest.approx(  # noqa: SLF001
             gamma,
             4e-2,
         )

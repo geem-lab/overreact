@@ -275,7 +275,7 @@ def convert_rate_constant(  # noqa: C901, PLR0912, PLR0913
 
     factor **= molecularity - 1
     logger.info(
-        f"conversion factor ({old_scale} to {new_scale}) = {factor}",
+        f"conversion factor ({old_scale} to {new_scale}) = {factor}",  # noqa: G004
     )
     return val * factor
 

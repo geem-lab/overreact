@@ -7,7 +7,7 @@ import os
 import overreact as rx
 
 data_path = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "../data/"),
+    os.path.join(os.path.dirname(__file__), "../data/"),  # noqa: PTH118, PTH120
 )
 
 
@@ -25,7 +25,7 @@ for name in os.listdir(data_path):
                             "@.",
                             "",
                         )
-                    ] = os.path.join(
+                    ] = os.path.join(  # noqa: PTH118
                         root,
                         filename,
                     )

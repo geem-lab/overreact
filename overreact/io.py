@@ -107,8 +107,8 @@ def parse_model(path: str, force_compile: bool = False):  # noqa: FBT001, FBT002
     logger.info(f"parsing `.k` file in {path_k}")  # noqa: G004
     if not os.path.isfile(path_k):  # noqa: PTH113
         # TODO: add a nice error message here and everywhere?
-        raise FileNotFoundError(
-            f"no `.k` file found in {path_k}",
+        raise FileNotFoundError(  # noqa: TRY003
+            f"no `.k` file found in {path_k}",  # noqa: EM102
         )
 
     model = _parse_source(path_k)
@@ -550,10 +550,10 @@ def parse_compounds(text, path=("",), select=None):  # noqa: C901, PLR0912
                     try:
                         # TODO: move on to use pathlib.
                         logger.info(
-                            f"trying to read {os.path.join(p, value)}",
+                            f"trying to read {os.path.join(p, value)}",  # noqa: PTH118, G004
                         )
                         compounds[name].update(
-                            read_logfile(os.path.join(p, value)),
+                            read_logfile(os.path.join(p, value)),  # noqa: PTH118
                         )
                     except FileNotFoundError:
                         continue
@@ -649,8 +649,8 @@ def read_logfile(path):
                    (0.0, 0.0, 0.0)))}
     """
     if not (parser := ccopen(path)):
-        raise FileNotFoundError(
-            f"could not find logfile '{path}'",
+        raise FileNotFoundError(  # noqa: TRY003
+            f"could not find logfile '{path}'",  # noqa: EM102
         )
     origin = parser.__class__.__name__.lower()
     logger.info(f"reading a {origin} logfile: {path}")  # noqa: G004
@@ -974,8 +974,8 @@ class dotdict(dict):  # noqa: N801
         NotImplementedError
             If one attempts to change a value.
         """
-        raise NotImplementedError(
-            "dotdict objects are immutable",
+        raise NotImplementedError(  # noqa: TRY003
+            "dotdict objects are immutable",  # noqa: EM101
         )
 
     # https://stackoverflow.com/a/1151686/4039050

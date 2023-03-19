@@ -365,7 +365,7 @@ def _adjust_k(scheme, k, ef=EF):
             k_slowest_equil = k[is_half_equilibrium].min()
             k_fastest_react = k[~is_half_equilibrium].max()
             logger.warning(
-                f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}",
+                f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}",  # noqa: G004
             )
         else:
             # only equilibria
@@ -535,7 +535,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     for i, (reaction, is_half_equilibrium) in enumerate(
         zip(scheme.reactions, scheme.is_half_equilibrium),
     ):
-        for reactants, products, _ in rx.core._parse_reactions(
+        for reactants, products, _ in rx.core._parse_reactions(  # noqa: SLF001
             reaction,
         ):
             new_reactants = tuple(
