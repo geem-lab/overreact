@@ -20,7 +20,7 @@ for name in os.listdir(data_path):
                 if filename.endswith(".out"):
                     logfiles[name][
                         f"{filename[:-4]}@{os.path.relpath(root, walk_dir)}".replace(
-                            "@.", ""
+                            "@.", "",
                         )
                     ] = os.path.join(root, filename)
 

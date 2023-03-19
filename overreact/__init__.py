@@ -90,7 +90,7 @@ __citations__ = (  # TODO: read from CITATION.bib
   howpublished  = {\url{URL_REPO_PLACEHOLDER}},
 }
 """.replace(  # noqa: E501
-        "ZENODO_DOI_PLACEHOLDER", __zenodo_doi__
+        "ZENODO_DOI_PLACEHOLDER", __zenodo_doi__,
     )
     .replace("DOI_PLACEHOLDER", __doi__)
     .replace("URL_REPO_PLACEHOLDER", __url_repo__)

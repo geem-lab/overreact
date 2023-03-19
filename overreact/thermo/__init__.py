@@ -116,9 +116,9 @@ def calc_trans_entropy(
 
     if environment in {"gas", None} or method == "standard":
         volume = molar_volume(temperature=temperature, pressure=pressure)
-    elif environment == "solid":  # noqa: RET506
+    elif environment == "solid":
         raise ValueError(
-            f"environment not yet implemented: {environment}"  # noqa: EM102
+            f"environment not yet implemented: {environment}",  # noqa: EM102
         )  # noqa: RUF100
     else:
         assert atomnos is not None, "atomnos must be provided"
@@ -133,7 +133,7 @@ def calc_trans_entropy(
         )
 
     translational_entropy = rx.thermo._gas._sackur_tetrode(
-        atommasses, volume, temperature=temperature
+        atommasses, volume, temperature=temperature,
     )
     logger.info(f"translational entropy = {translational_entropy} J/mol·K")
     return translational_entropy
@@ -403,7 +403,7 @@ def calc_entropy(
             pressure=pressure,
         )
         + calc_elec_entropy(
-            energy=energy, degeneracy=degeneracy, temperature=temperature
+            energy=energy, degeneracy=degeneracy, temperature=temperature,
         )
         + calc_rot_entropy(
             atommasses=atommasses,
@@ -421,13 +421,13 @@ def calc_entropy(
 
     if environment in {"gas", None}:
         pass
-    elif environment == "solid":  # noqa: RET506
+    elif environment == "solid":
         raise ValueError(
-            f"environment not yet implemented: {environment}"  # noqa: EM102
+            f"environment not yet implemented: {environment}",  # noqa: EM102
         )  # noqa: RUF100
     else:
         concentration_correction = -change_reference_state(
-            temperature=temperature, pressure=pressure
+            temperature=temperature, pressure=pressure,
         )
         logger.debug(f"concentration correction = {concentration_correction} J/mol·K")
         entropy = entropy + concentration_correction
@@ -510,7 +510,7 @@ def calc_heat_capacity(
     ...     degeneracy=degeneracy)  # F
     14.43
 
-    """  # noqa: D202, E501
+    """  # noqa: E501
 
     def func(temperature):
         return calc_internal_energy(
@@ -738,7 +738,7 @@ def equilibrium_constant(
     temperature = np.asarray(temperature)
 
     equilibrium_constant = np.exp(
-        -np.atleast_1d(delta_freeenergy) / (constants.R * temperature)
+        -np.atleast_1d(delta_freeenergy) / (constants.R * temperature),
     )
 
     if delta_moles is not None:

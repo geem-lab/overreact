@@ -77,7 +77,7 @@ def get_internal_energies(
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
-            compounds[name].atommasses, compounds[name].atomcoords
+            compounds[name].atommasses, compounds[name].atomcoords,
         )
 
         internal_energy = rx.thermo.calc_internal_energy(
@@ -142,7 +142,7 @@ def get_enthalpies(
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
-            compounds[name].atommasses, compounds[name].atomcoords
+            compounds[name].atommasses, compounds[name].atomcoords,
         )
 
         enthalpy = rx.thermo.calc_enthalpy(
@@ -227,13 +227,13 @@ def get_entropies(
             point_group = compounds[name].point_group
         else:
             point_group = coords.find_point_group(
-                compounds[name].atommasses, compounds[name].atomcoords
+                compounds[name].atommasses, compounds[name].atomcoords,
             )
         symmetry_number = coords.symmetry_number(point_group)
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
-            compounds[name].atommasses, compounds[name].atomcoords
+            compounds[name].atommasses, compounds[name].atomcoords,
         )
 
         if environment is None:
@@ -268,7 +268,7 @@ def get_entropies(
 
 
 def _check_qrrho(
-    qrrho: Union[bool, tuple[bool, bool]]  # noqa: UP007
+    qrrho: Union[bool, tuple[bool, bool]],  # noqa: UP007
 ) -> tuple[bool, bool]:  # noqa: RUF100
     """Get options for QRRHO for both enthalpy and entropy.
 
@@ -302,7 +302,7 @@ def _check_qrrho(
     >>> _check_qrrho((False, True))
     (False, True)
     """  # noqa: E501
-    if qrrho is True:  # noqa: RET505
+    if qrrho is True:
         return True, True
     elif qrrho is False:
         return False, False
@@ -391,7 +391,7 @@ def get_freeenergies(
     """  # noqa: E501
     qrrho_enthalpy, qrrho_entropy = _check_qrrho(qrrho)
     enthalpies = get_enthalpies(
-        compounds, qrrho=qrrho_enthalpy, temperature=temperature
+        compounds, qrrho=qrrho_enthalpy, temperature=temperature,
     )
     entropies = get_entropies(
         compounds,
@@ -553,9 +553,9 @@ def get_k(
 
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_freeenergies = rx.get_delta(
-            scheme.B, freeenergies
+            scheme.B, freeenergies,
         ) - temperature * rx.get_reaction_entropies(
-            scheme.B, temperature=temperature, pressure=pressure
+            scheme.B, temperature=temperature, pressure=pressure,
         )
 
     if molecularity is None:
@@ -581,7 +581,7 @@ def get_k(
             if denom == 0.0:
                 logger.warning(
                     "found half-equilibrium reaction with zero rate constant: "
-                    "skipping equilibrium normalization"
+                    "skipping equilibrium normalization",
                 )
                 denom = 1.0
 
@@ -598,7 +598,7 @@ def get_k(
 
     logger.info(
         "(classical) reaction rate constants: "
-        f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹"
+        f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
     )
     if tunneling not in {"none", None}:
         if compounds is not None:
@@ -615,11 +615,11 @@ def get_k(
             # be probably unnecessary.
             logger.warning(
                 "assuming unitary tunneling coefficients due to incomplete "
-                "compound data"
+                "compound data",
             )
         logger.info(
             "(tunneling) reaction rate constants: "
-            f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹"
+            f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
         )
 
     # TODO(schneiderfelipe): ensure diffusional limit for reactions in
@@ -714,12 +714,12 @@ def get_kappa(
         energies = get_enthalpies(compounds, qrrho=qrrho, temperature=0.0)
         delta_forward = rx.get_delta(scheme.B, energies)  # B - A
         delta_backward = delta_forward - rx.get_delta(
-            scheme.A, energies
+            scheme.A, energies,
         )  # B - C == B - A - (C - A)
 
     kappas = []
     for i, ts in enumerate(
-        rx.get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium)
+        rx.get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium),
     ):
         if ts is None:
             kappas.append(1.0)
@@ -754,7 +754,7 @@ def get_kappa(
     vec_kappas = np.asarray(kappas).flatten()
     logger.info(
         "(quantum) tunneling coefficients: "
-        f"{', '.join([f'{kappa:7.3g}' for kappa in vec_kappas])}"
+        f"{', '.join([f'{kappa:7.3g}' for kappa in vec_kappas])}",
     )
     return vec_kappas
 

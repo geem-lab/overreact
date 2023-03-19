@@ -173,7 +173,7 @@ class Report:
         self.atol = atol
         self.box_style = box_style
 
-    def __rich_console__(self, console, options):  # noqa: ANN101, ARG002, ANN204
+    def __rich_console__(self, console, options):  # noqa: ANN101, ANN204
         """
         Implement Rich Console protocol.
 
@@ -202,7 +202,7 @@ class Report:
         scheme = rx.core._check_scheme(self.model.scheme)
 
         raw_table = Table(
-            title="(read) reactions", box=self.box_style, show_header=False
+            title="(read) reactions", box=self.box_style, show_header=False,
         )
         raw_table.add_column(justify="left")
         for r in rx.core.unparse_reactions(scheme).split("\n"):
@@ -210,7 +210,7 @@ class Report:
         yield Panel(raw_table, expand=False)
 
         transition_states = rx.core.get_transition_states(
-            scheme.A, scheme.B, scheme.is_half_equilibrium
+            scheme.A, scheme.B, scheme.is_half_equilibrium,
         )
 
         parsed_table = Table(
@@ -252,7 +252,7 @@ class Report:
                 undefined_compounds.append(name)
         if undefined_compounds:
             raise ValueError(
-                f"undefined compounds: {', '.join(undefined_compounds)}"  # noqa: EM102
+                f"undefined compounds: {', '.join(undefined_compounds)}",  # noqa: EM102
             )  # noqa: RUF100
 
         logfiles_table = Table(
@@ -282,12 +282,12 @@ class Report:
             vibfreqs_text = None
             if data.vibfreqs is not None:
                 vibfreqs_text = Text(
-                    ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]])
+                    ", ".join([f"{vibfreq:+7.1f}" for vibfreq in data.vibfreqs[:3]]),
                 )
                 vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
 
             point_group = coords.find_point_group(
-                atommasses=data.atommasses, atomcoords=data.atomcoords
+                atommasses=data.atommasses, atomcoords=data.atomcoords,
             )
             compounds_table.add_row(
                 f"{i:d}",
@@ -312,19 +312,19 @@ class Report:
         scheme = rx.core._check_scheme(self.model.scheme)
 
         molecular_masses = np.array(
-            [np.sum(data.atommasses) for name, data in self.model.compounds.items()]
+            [np.sum(data.atommasses) for name, data in self.model.compounds.items()],
         )
         energies = np.array(
-            [data.energy for name, data in self.model.compounds.items()]
+            [data.energy for name, data in self.model.compounds.items()],
         )
         internal_energies = rx.get_internal_energies(
-            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
+            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature,
         )
         enthalpies = rx.get_enthalpies(
-            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
+            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature,
         )
         entropies = rx.get_entropies(
-            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature
+            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature,
         )
         freeenergies = enthalpies - self.temperature * entropies
         assert np.allclose(
@@ -366,7 +366,7 @@ class Report:
         delta_enthalpies = rx.get_delta(scheme.A, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_entropies = rx.get_delta(scheme.A, entropies) + rx.get_reaction_entropies(
-            scheme.A, temperature=self.temperature, pressure=self.pressure
+            scheme.A, temperature=self.temperature, pressure=self.pressure,
         )
         delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
         assert np.allclose(
@@ -374,7 +374,7 @@ class Report:
             rx.get_delta(scheme.A, freeenergies)
             - self.temperature
             * rx.get_reaction_entropies(
-                scheme.A, temperature=self.temperature, pressure=self.pressure
+                scheme.A, temperature=self.temperature, pressure=self.pressure,
             ),
         ), "reaction free energies do not match reaction enthalpies and reaction entropies"  # noqa: E501
 
@@ -384,9 +384,9 @@ class Report:
         delta_activation_enthalpies = rx.get_delta(scheme.B, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_activation_entropies = rx.get_delta(
-            scheme.B, entropies
+            scheme.B, entropies,
         ) + rx.get_reaction_entropies(
-            scheme.B, temperature=self.temperature, pressure=self.pressure
+            scheme.B, temperature=self.temperature, pressure=self.pressure,
         )
         delta_activation_freeenergies = (
             delta_activation_enthalpies - self.temperature * delta_activation_entropies
@@ -396,7 +396,7 @@ class Report:
             rx.get_delta(scheme.B, freeenergies)
             - self.temperature
             * rx.get_reaction_entropies(
-                scheme.B, temperature=self.temperature, pressure=self.pressure
+                scheme.B, temperature=self.temperature, pressure=self.pressure,
             ),
         ), "activation free energies do not match activation enthalpies and activation entropies"  # noqa: E501
 
@@ -584,15 +584,15 @@ class Report:
         yield kinetics_table
         yield Markdown(
             "Only in the table above, all Gibbs free energies were biased by "
-            f"{self.bias} J/mol."
+            f"{self.bias} J/mol.",
         )
         yield Markdown(
-            "For **half-equilibria**, only ratios make sense: in simulations, **equilibria will be adjusted to be faster than all other reactions**."  # noqa: E501
+            "For **half-equilibria**, only ratios make sense: in simulations, **equilibria will be adjusted to be faster than all other reactions**.",  # noqa: E501
         )
 
         if self.concentrations is not None and self.concentrations:
             scheme, k, y0 = _prepare_simulation(
-                self.model.scheme, k["M⁻ⁿ⁺¹·s⁻¹"], self.concentrations
+                self.model.scheme, k["M⁻ⁿ⁺¹·s⁻¹"], self.concentrations,
             )
 
             # TODO(schneiderfelipe): encapsulate everything in a function that depends
@@ -649,7 +649,7 @@ class Report:
 
             t_max, i = y.t_max, 0
             while i < n_max and np.allclose(
-                y(t_max)[active] / factor, reference, atol=alpha
+                y(t_max)[active] / factor, reference, atol=alpha,
             ):
                 t_max = step * t_max
                 i += 1
@@ -720,7 +720,7 @@ def _prepare_simulation(scheme, k, concentrations):
         except (IndexError, ValueError):
             raise ValueError(  # noqa: B904
                 "badly formatted concentrations: "  # noqa: EM102
-                f"'{' '.join(concentrations)}'"  # noqa: RUF100
+                f"'{' '.join(concentrations)}'",  # noqa: RUF100
             )
 
         d[name] = quantity
@@ -770,7 +770,7 @@ def main(arguments=None):
         nargs="*",
     )
     parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {rx.__version__}"
+        "--version", action="version", version=f"%(prog)s {rx.__version__}",
     )
     parser.add_argument(
         "-v",
@@ -915,13 +915,13 @@ Inputs:
 - Tunneling      = {args.tunneling}
 
 Parsing and calculating (this may take a while)…
-            """
+            """,
         ),
         justify="left",
     )
 
     logging.basicConfig(
-        level=levels[min(len(levels) - 1, args.verbose)], stream=sys.stdout
+        level=levels[min(len(levels) - 1, args.verbose)], stream=sys.stdout,
     )
     for handler in logging.root.handlers:
         handler.setFormatter(rx.io.InterfaceFormatter("%(message)s"))

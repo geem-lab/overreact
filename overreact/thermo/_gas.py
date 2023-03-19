@@ -187,14 +187,14 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     q_elec = np.sum(q_elec_terms)
 
     electronic_entropy = constants.R * np.log(q_elec) + np.sum(
-        energy * q_elec_terms
+        energy * q_elec_terms,
     ) / (temperature * q_elec)
     logger.info(f"electronic entropy = {electronic_entropy} J/mol·K")
     return electronic_entropy
 
 
 def calc_rot_energy(
-    moments=None, independent=False, weights=1.0, temperature=298.15  # noqa: FBT002
+    moments=None, independent=False, weights=1.0, temperature=298.15,  # noqa: FBT002
 ):  # noqa: RUF100
     r"""Calculate the rotational energy of an ideal gas.
 
@@ -256,13 +256,10 @@ def calc_rot_energy(
     if not independent and np.any(rotational_temperatures >= 0.2 * temperature):
         logger.warning(
             f"rotational temperatures probably too high for {temperature} K: "
-            f"{rotational_temperatures[rotational_temperatures >= 0.2 * temperature]}"
+            f"{rotational_temperatures[rotational_temperatures >= 0.2 * temperature]}",
         )
 
-    if not independent:
-        n = len(rotational_temperatures)
-    else:
-        n = 1.0
+    n = len(rotational_temperatures) if not independent else 1.0
     gamma = (
         np.sum(weights * n)
         - np.sum(weights * rotational_temperatures) / (3.0 * temperature)  # extra
@@ -398,13 +395,10 @@ def calc_rot_entropy(
     if not independent and np.any(rotational_temperatures >= 0.2 * temperature):
         logger.warning(
             f"rotational temperatures probably too high for {temperature} K: "
-            f"{rotational_temperatures[rotational_temperatures >= 0.2 * temperature]}"
+            f"{rotational_temperatures[rotational_temperatures >= 0.2 * temperature]}",
         )
 
-    if not independent:
-        n = len(rotational_temperatures)
-    else:
-        n = 1.0
+    n = len(rotational_temperatures) if not independent else 1.0
     gamma = (
         np.sum(weights * n * (1.0 + np.log(temperature)))
         - np.sum(weights * np.log(rotational_temperatures))
@@ -419,9 +413,9 @@ def calc_rot_entropy(
     rotational_entropy = constants.R * gamma / 2.0
     if environment in {"gas", None} or method == "standard":
         pass
-    elif environment == "solid":  # noqa: RET506
+    elif environment == "solid":
         raise ValueError(
-            f"environment not yet implemented: {environment}"  # noqa: EM102
+            f"environment not yet implemented: {environment}",  # noqa: EM102
         )  # noqa: RUF100
     else:
         assert atomnos is not None, "atomnos must be given"
@@ -506,10 +500,7 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):  # noqa: FBT
         logger.warning("assuming zero vibrational energy for atomic system")
         return 0.0
 
-    if qrrho:
-        weights = _head_gordon_damping(vibfreqs)
-    else:
-        weights = 1.0
+    weights = _head_gordon_damping(vibfreqs) if qrrho else 1.0
 
     # the zero point energy (ZPE) is given below
     gamma = np.sum(weights * vibrational_temperature) / 2.0
@@ -519,7 +510,7 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):  # noqa: FBT
     else:
         energy_fraction = vibrational_temperature / temperature
         gamma += np.sum(
-            weights * vibrational_temperature / (np.exp(energy_fraction) - 1.0)
+            weights * vibrational_temperature / (np.exp(energy_fraction) - 1.0),
         )
 
     vibrational_energy = constants.R * gamma
@@ -596,10 +587,7 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):  # noqa: FB
         logger.warning("assuming zero vibrational entropy for atomic system")
         return 0.0
 
-    if qrrho:
-        weights = _head_gordon_damping(vibfreqs)
-    else:
-        weights = 1.0
+    weights = _head_gordon_damping(vibfreqs) if qrrho else 1.0
 
     energy_fraction = vibrational_temperature / temperature
     gamma = np.sum(
@@ -607,7 +595,7 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):  # noqa: FB
         * (
             energy_fraction / (np.exp(energy_fraction) - 1.0)
             - np.log(1.0 - np.exp(-energy_fraction))
-        )
+        ),
     )
 
     vibrational_entropy = constants.R * gamma
@@ -647,7 +635,7 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
 
     total_mass = np.sum(atommasses) * constants.atomic_mass
     debroglie_wavelength = constants.h / np.sqrt(
-        2.0 * np.pi * total_mass * constants.k * temperature
+        2.0 * np.pi * total_mass * constants.k * temperature,
     )
     q_trans = volume / (constants.N_A * debroglie_wavelength**3)
     assert q_trans > 1.0, (
@@ -803,7 +791,7 @@ def _check_vibfreqs(vibfreqs=None, cutoff=-50.0):
 
     if len(vibfreqs[vibfreqs < 0]) > 0:
         logger.warning(
-            f"imaginary frequencies found: using the absolute value of all above {-cutoff}i cm-1, ignoring the rest"  # noqa: E501
+            f"imaginary frequencies found: using the absolute value of all above {-cutoff}i cm-1, ignoring the rest",  # noqa: E501
         )
 
     return np.abs(vibfreqs[vibfreqs > cutoff])

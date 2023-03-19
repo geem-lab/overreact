@@ -50,13 +50,13 @@ def _check_nu(vibfreq: float) -> float:
     """
     if np.isclose(vibfreq, 0.0).any():
         raise ValueError(
-            f"vibfreq should not be zero for tunneling: {vibfreq}"  # noqa: EM102
+            f"vibfreq should not be zero for tunneling: {vibfreq}",  # noqa: EM102
         )  # noqa: RUF100
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
 def wigner(
-    vibfreq: float, temperature: Union[float, np.ndarray] = 298.15  # noqa: UP007
+    vibfreq: float, temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
 ) -> float:  # noqa: RUF100
     """Calculate the Wigner correction to quantum tunneling.
 
@@ -181,7 +181,7 @@ def eckart(
 
     if delta_forward <= 0 or delta_backward <= 0:
         logger.warning(
-            "forward or backward barrier is non-positive, falling back to Wigner correction"  # noqa: E501
+            "forward or backward barrier is non-positive, falling back to Wigner correction",  # noqa: E501
         )
         return wigner(vibfreq, temperature)
 
@@ -204,7 +204,7 @@ def eckart(
 
 @np.vectorize
 def _eckart(
-    u: float, alpha1: float, alpha2: Optional[float] = None  # noqa: UP007
+    u: float, alpha1: float, alpha2: Optional[float] = None,  # noqa: UP007
 ) -> float:  # noqa: RUF100
     """Implement of the (unsymmetrical) Eckart tunneling approximation.
 

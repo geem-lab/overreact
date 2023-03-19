@@ -50,7 +50,7 @@ if _found_jax:
 else:
     logger.warning(
         "Install JAX to have just-in-time compilation: "
-        'pip install jax (or pip install "overreact[fast]")'
+        'pip install jax (or pip install "overreact[fast]")',
     )
     jnp = np
 
@@ -145,7 +145,7 @@ def get_y(
                     np.max(y0) / 2.0,  # zeroth-order halflife
                     np.log(2.0),  # first-order halflife
                     1.0 / np.min(y0[np.nonzero(y0)]),  # second-order halflife
-                ]
+                ],
             ) / np.min(dydt.k)
             logger.info(f"largest halflife guess = {halflife_estimate} s")
 
@@ -531,7 +531,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_k = np.asarray(k, dtype=float).copy()
     new_reactions = []
     for i, (reaction, is_half_equilibrium) in enumerate(
-        zip(scheme.reactions, scheme.is_half_equilibrium)
+        zip(scheme.reactions, scheme.is_half_equilibrium),
     ):
         for reactants, products, _ in rx.core._parse_reactions(reaction):
             new_reactants = tuple(
@@ -559,7 +559,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_B = []  # noqa: N806
     new_compounds = []
     for compound, row_A, row_B in zip(  # noqa: N806
-        scheme.compounds, scheme.A, scheme.B
+        scheme.compounds, scheme.A, scheme.B,
     ):  # noqa: RUF100
         if compound not in fixed_y0:
             new_compounds.append(compound)
@@ -673,7 +673,7 @@ def get_bias(
         # TODO(schneiderfelipe): support schemes with fixed concentrations
         dydt = rx.get_dydt(scheme, k)
         y, _ = rx.get_y(
-            dydt, y0=y0, method=method, rtol=rtol, atol=atol, max_time=max_time
+            dydt, y0=y0, method=method, rtol=rtol, atol=atol, max_time=max_time,
         )
 
         yhat = y(data["t"])
@@ -682,7 +682,7 @@ def get_bias(
                 (yhat[i] - data[name]) ** 2
                 for (i, name) in enumerate(compounds)
                 if name in data
-            ]
+            ],
         )
 
     res = minimize_scalar(f)

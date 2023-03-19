@@ -179,7 +179,7 @@ def _parse_model(file_or_path):
     return dotdict(model)
 
 
-def _parse_source(file_path_or_str):  # noqa: C901
+def _parse_source(file_path_or_str):
     """Parse a source input file (also known as a `.k` file).
 
     A source input file contains all the information needed to create a model input file
@@ -237,7 +237,7 @@ def _parse_source(file_path_or_str):  # noqa: C901
             lines = stream.readlines()
         dirname = os.path.dirname(file_path_or_str)
         if dirname not in path:
-            path = path + (dirname,)
+            path = (*path, dirname)
     except OSError:
         lines = file_path_or_str.split("\n")
     except TypeError:
@@ -249,10 +249,7 @@ def _parse_source(file_path_or_str):  # noqa: C901
             continue
 
         if line[0] == "$":
-            if line[1:] == "end":
-                name = None
-            else:
-                name = line[1:]
+            name = None if line[1:] == "end" else line[1:]
         elif name is not None:
             sections[name].append(line)
 
@@ -356,7 +353,7 @@ def _unparse_source(model):
             source += f" {compound}:\n"
             for key in model.compounds[compound]:
                 inline_json = json.dumps(
-                    model.compounds[compound][key], ensure_ascii=False
+                    model.compounds[compound][key], ensure_ascii=False,
                 )
                 source += f"  {key}={inline_json}\n"
         source += "$end\n"
@@ -557,7 +554,7 @@ def parse_compounds(text, path=("",), select=None):  # noqa: C901
                     break
                 if not success:
                     raise FileNotFoundError(
-                        f"could not find logfile '{value}' in path: {path}"  # noqa: E501, EM102
+                        f"could not find logfile '{value}' in path: {path}",  # noqa: E501, EM102
                     )
             else:
                 # one-line JSON-encoded object
@@ -686,7 +683,7 @@ def read_logfile(path):
                 data = _read_orca_logfile(path, minimal=False)
             except FileNotFoundError:
                 raise FileNotFoundError(  # noqa: B904
-                    f"could not parse logfile: '{path}'"  # noqa: EM102
+                    f"could not parse logfile: '{path}'",  # noqa: EM102
                 )  # noqa: RUF100
         else:
             raise
@@ -900,7 +897,7 @@ def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
         {
             "atomnos": rx._misc.totuple(atomnos),
             "atomcoords": rx._misc.totuple(atomcoords),
-        }
+        },
     )
 
     if atommasses is None:
@@ -957,7 +954,7 @@ class dotdict(dict):  # noqa: N801
 
     __getattr__ = dict.get
 
-    def __setitem__(self, key, value):  # noqa: ANN101, ARG002, ANN204
+    def __setitem__(self, key, value):  # noqa: ANN101, ANN204
         """
         Set an item.
 
@@ -1000,7 +997,7 @@ class _LazyDict(MutableMapping):
 
             value = data
             self._dict[key] = data
-        return value  # noqa: RET504
+        return value
 
     def __setitem__(self, key, value):  # noqa: ANN101, ANN204
         """Store value lazily."""
