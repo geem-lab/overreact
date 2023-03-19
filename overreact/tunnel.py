@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to quantum tunneling approximations."""
 
@@ -49,7 +49,7 @@ def _check_nu(vibfreq: float) -> float:
     True
     """
     if np.isclose(vibfreq, 0.0).any():
-        raise ValueError(
+        raise ValueError(  # noqa: TRY003
             f"vibfreq should not be zero for tunneling: {vibfreq}",  # noqa: EM102
         )  # noqa: RUF100
     return np.abs(vibfreq) * constants.c / constants.centi
@@ -99,7 +99,7 @@ def wigner(
     u = constants.h * nu / (constants.k * temperature)
 
     kappa = 1.0 + (u**2) / 24.0
-    logger.info(f"Wigner tunneling coefficient: {kappa}")
+    logger.info(f"Wigner tunneling coefficient: {kappa}")  # noqa: G004
     return kappa
 
 
@@ -177,8 +177,8 @@ def eckart(
     if delta_backward is None:
         delta_backward = delta_forward
 
-    logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
-    logger.debug(f"backward potential barrier: {delta_backward} J/mol")
+    logger.debug(f"forward  potential barrier: {delta_forward} J/mol")  # noqa: G004
+    logger.debug(f"backward potential barrier: {delta_backward} J/mol")  # noqa: G004
 
     if delta_forward <= 0 or delta_backward <= 0:
         logger.warning(
@@ -199,7 +199,7 @@ def eckart(
     alpha2 = two_pi * delta_backward / (constants.h * nu)
 
     kappa = _eckart(u, alpha1, alpha2)
-    logger.info(f"Eckart tunneling coefficient: {kappa}")
+    logger.info(f"Eckart tunneling coefficient: {kappa}")  # noqa: G004
     return kappa
 
 
@@ -265,7 +265,7 @@ def _eckart(
     v2 = alpha2 * u / (two_pi)
 
     d = 4.0 * alpha1 * alpha2 - np.pi**2
-    if d > 0:
+    if d > 0:  # noqa: SIM108
         D = np.cosh(np.sqrt(d))  # noqa: N806
     else:
         D = np.cos(np.sqrt(np.abs(d)))  # noqa: N806

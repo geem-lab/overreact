@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """
 This module contains the high-level application programming interface.
@@ -30,7 +30,7 @@ from scipy.misc import derivative
 import overreact as rx
 from overreact import _constants as constants
 from overreact import coords, rates, tunnel
-from overreact.core import Scheme
+from overreact.core import Scheme  # noqa: TCH001
 
 logger = logging.getLogger(__name__)
 
@@ -70,10 +70,10 @@ def get_internal_energies(
     array([0. , 2.20053981])
 
     """  # noqa: E501
-    compounds = rx.io._check_compounds(compounds)
+    compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
     internal_energies = []
     for name in compounds:
-        logger.info(f"calculate internal energy: {name}")
+        logger.info(f"calculate internal energy: {name}")  # noqa: G004
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
@@ -136,10 +136,10 @@ def get_enthalpies(
     >>> (enthalpies - zero_enthalpies) / constants.kcal
     array([2.78, 2.50])
     """  # noqa: E501
-    compounds = rx.io._check_compounds(compounds)
+    compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
     enthalpies = []
     for name in compounds:
-        logger.info(f"calculate enthalpy: {name}")
+        logger.info(f"calculate enthalpy: {name}")  # noqa: G004
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
@@ -159,7 +159,7 @@ def get_enthalpies(
     return np.array(enthalpies)
 
 
-def get_entropies(
+def get_entropies(  # noqa: PLR0913
     compounds: dict,
     environment: Optional[str] = None,  # noqa: UP007
     method: str = "standard",
@@ -220,10 +220,10 @@ def get_entropies(
     >>> (sol_entropies - entropies) / constants.calorie
     array([-6.35360874, -6.35360874])
     """  # noqa: E501
-    compounds = rx.io._check_compounds(compounds)
+    compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
     entropies = []
     for name in compounds:
-        logger.info(f"calculate entropy: {name}")
+        logger.info(f"calculate entropy: {name}")  # noqa: G004
 
         if "point_group" in compounds[name]:
             point_group = compounds[name].point_group
@@ -241,7 +241,7 @@ def get_entropies(
         )
 
         if environment is None:
-            environment = rx.core._get_environment(name)
+            environment = rx.core._get_environment(name)  # noqa: SLF001
         entropy = rx.thermo.calc_entropy(
             atommasses=compounds[name].atommasses,
             atomcoords=compounds[name].atomcoords,
@@ -308,15 +308,17 @@ def _check_qrrho(
     """  # noqa: E501
     if qrrho is True:
         return True, True
-    elif qrrho is False:
+    elif qrrho is False:  # noqa: RET505
         return False, False
     elif isinstance(qrrho, tuple):
         return qrrho
     else:
-        raise ValueError(f"unrecognized QRRHO specification: {qrrho}")  # noqa: EM102
+        raise ValueError(
+            f"unrecognized QRRHO specification: {qrrho}",
+        )
 
 
-def get_freeenergies(
+def get_freeenergies(  # noqa: PLR0913
     compounds: dict,
     bias: float = 0.0,
     environment: Optional[str] = None,  # noqa: UP007
@@ -411,7 +413,7 @@ def get_freeenergies(
     return enthalpies - temperature * entropies + np.asarray(bias)
 
 
-def get_k(
+def get_k(  # noqa: PLR0913
     scheme: Scheme,
     compounds: Optional[dict] = None,  # noqa: UP007
     bias: float = 0.0,
@@ -540,9 +542,9 @@ def get_k(
     array([1.1e-12])
     """  # noqa: E501
     qrrho_enthalpy, qrrho_entropy = _check_qrrho(qrrho)
-    scheme = rx.core._check_scheme(scheme)
+    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
     if compounds is not None:
-        compounds = rx.io._check_compounds(compounds)
+        compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
     if delta_freeenergies is None:
         assert compounds is not None, "compounds could not be inferred"
         freeenergies = get_freeenergies(
@@ -587,7 +589,7 @@ def get_k(
             _K = pair[0] / pair[1]  # noqa: N806
 
             denom = pair.min()
-            if denom == 0.0:
+            if denom == 0.0:  # noqa: PLR2004
                 logger.warning(
                     "found half-equilibrium reaction with zero rate constant: "
                     "skipping equilibrium normalization",
@@ -606,7 +608,7 @@ def get_k(
         i += 1
 
     logger.info(
-        "(classical) reaction rate constants: "
+        "(classical) reaction rate constants: "  # noqa: G004
         f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
     )
     if tunneling not in {"none", None}:
@@ -627,7 +629,7 @@ def get_k(
                 "compound data",
             )
         logger.info(
-            "(tunneling) reaction rate constants: "
+            "(tunneling) reaction rate constants: "  # noqa: G004
             f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
         )
 
@@ -714,8 +716,8 @@ def get_kappa(
     >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
     array([8.e+10])
     """  # noqa: E501
-    scheme = rx.core._check_scheme(scheme)
-    compounds = rx.io._check_compounds(compounds)
+    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
+    compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
 
     if method == "eckart":
         # NOTE(schneiderfelipe): We need electronic energies + ZPE here, so we
@@ -748,14 +750,18 @@ def get_kappa(
                             temperature=temperature,
                         )
                     except RuntimeWarning as e:
-                        logger.warning(f"using Wigner tunneling correction: {e}")
+                        logger.warning(
+                            f"using Wigner tunneling correction: {e}",
+                        )
                         kappa = tunnel.wigner(vibfreq, temperature=temperature)
             elif method == "wigner":
                 kappa = tunnel.wigner(vibfreq, temperature=temperature)
             elif method in {"none", None}:
                 kappa = 1.0
             else:
-                raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102
+                raise ValueError(
+                    f"unavailable method: '{method}'",
+                )
 
             kappas.append(kappa)
 
@@ -763,13 +769,13 @@ def get_kappa(
     # somewhere else?
     vec_kappas = np.asarray(kappas).flatten()
     logger.info(
-        "(quantum) tunneling coefficients: "
+        "(quantum) tunneling coefficients: "  # noqa: G004
         f"{', '.join([f'{kappa:7.3g}' for kappa in vec_kappas])}",
     )
     return vec_kappas
 
 
-def get_drc(
+def get_drc(  # noqa: PLR0913
     scheme,
     compounds,
     y0,

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to parsing and modeling of chemical reaction networks."""
 
@@ -676,7 +676,7 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
             else:
                 after_transitions[reactants] = [products]
             continue
-        elif is_transition_state(products[-1][-1]):
+        elif is_transition_state(products[-1][-1]):  # noqa: RET507
             for after_products in after_transitions.get(products, []):
                 _add_reaction(reactants, after_products, is_half_equilibrium, products)
 
@@ -691,13 +691,15 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
     return Scheme(
         compounds=tuple(compounds),
         reactions=tuple(_unparse_reactions(reactions)),
-        is_half_equilibrium=rx._misc.totuple([reaction[2] for reaction in reactions]),
-        A=rx._misc.totuple(
+        is_half_equilibrium=rx._misc.totuple(
+            [reaction[2] for reaction in reactions],
+        ),
+        A=rx._misc.totuple(  # noqa: SLF001
             np.block(
                 [[vector, np.zeros(len(compounds) - len(vector))] for vector in A],
             ).T,
         ),
-        B=rx._misc.totuple(
+        B=rx._misc.totuple(  # noqa: SLF001
             np.block(
                 [[vector, np.zeros(len(compounds) - len(vector))] for vector in B],
             ).T,
@@ -750,7 +752,7 @@ def _parse_reactions(text):
     except AttributeError:
         lines = text
     for line in lines:
-        line = line.split("//")[0].strip()
+        line = line.split("//")[0].strip()  # noqa: PLW2901
         if not line:
             continue
 
@@ -761,9 +763,9 @@ def _parse_reactions(text):
             pieces[2::2],
         ):
             if arrow == "<-":
-                reactants, products, arrow = products, reactants, "->"
-            reactants = tuple(_parse_side(reactants))
-            products = tuple(_parse_side(products))
+                reactants, products, arrow = products, reactants, "->"  # noqa: PLW2901
+            reactants = tuple(_parse_side(reactants))  # noqa: PLW2901
+            products = tuple(_parse_side(products))  # noqa: PLW2901
 
             if arrow == "<=>":
                 yield reactants, products, True
@@ -831,7 +833,7 @@ def _parse_side(side):
 
     """
     for token in re.split(r"\s+\+\s+", side):
-        token = re.match(
+        token = re.match(  # noqa: PLW2901
             r"\s*(?P<coefficient>\d+)?\s*(?P<compound>[^\s]+)\s*",
             token,
         ).groupdict(1)

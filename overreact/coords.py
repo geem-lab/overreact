@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to classifying molecules into point groups."""
 
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 # TODO(schneiderfelipe): alpha should depend on temperature?
-def get_molecular_volume(
+def get_molecular_volume(  # noqa: PLR0913
     atomnos,
     atomcoords,
     full_output=False,  # noqa: FBT002
@@ -136,7 +136,7 @@ def get_molecular_volume(
     if full_output and method == "izato":
         cav_volumes = []
     for _ in range(trials):
-        points = rx._misc.halton(n, 3)
+        points = rx._misc.halton(n, 3)  # noqa: SLF001
         points = v1 + points * (v2 - v1)
         tree = KDTree(points)
 
@@ -156,14 +156,16 @@ def get_molecular_volume(
 
     vdw_volume = np.mean(vdw_volumes)
     vdw_err = np.std(vdw_volumes)
-    logger.info(f"van der Waals volume = {vdw_volume} ± {vdw_err} Å³")
+    logger.info(f"van der Waals volume = {vdw_volume} ± {vdw_err} Å³")  # noqa: G004
     if full_output:
         if method == "izato":
             cav_volume = np.mean(cav_volumes)
             cav_err = np.std(cav_volumes)
-            logger.debug(f"Izato cavity volume = {cav_volume} ± {cav_err} Å³")
+            logger.debug(
+                f"Izato cavity volume = {cav_volume} ± {cav_err} Å³",
+            )
             return (vdw_volume, cav_volume, max(vdw_err, cav_err))
-        elif method == "garza":
+        elif method == "garza":  # noqa: RET505
             # TODO(schneiderfelipe): test for the following solvents: water,
             # pentane, hexane, heptane and octane.
 
@@ -173,10 +175,10 @@ def get_molecular_volume(
                 temperature=temperature,
                 pressure=pressure,
             )
-            logger.debug(f"Garza cavity volume = {cav_volume} Å³")
+            logger.debug(f"Garza cavity volume = {cav_volume} Å³")  # noqa: G004
             return (vdw_volume, cav_volume, vdw_err)
         else:
-            raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102
+            raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102, TRY003
     return vdw_volume
 
 
@@ -237,7 +239,7 @@ def _garza(
     >>> _garza(100.0, full_output=True, environment="benzene")
     (665., 1.0, 1.07586575757374)
     """
-    solvent = rx._misc._get_chemical(environment, temperature, pressure)
+    solvent = rx._misc._get_chemical(environment, temperature, pressure)  # noqa: SLF001
 
     # TODO(schneiderfelipe): things to do:
     # 1. check correctness of this function,
@@ -372,9 +374,11 @@ def symmetry_number(point_group):
         elif pieces["letter"] == "s":
             symmetry_number = int(pieces["number"]) // 2
         else:
-            raise ValueError(f"unknown point group: '{point_group}'")  # noqa: EM102
+            raise ValueError(
+                f"unknown point group: '{point_group}'",
+            )
 
-    logger.info(f"symmetry number = {symmetry_number}")
+    logger.info(f"symmetry number = {symmetry_number}")  # noqa: G004
     return symmetry_number
 
 
@@ -420,7 +424,7 @@ def find_point_group(atommasses, atomcoords, proper_axes=None, rtol=0.0, atol=1.
     """
     if len(atommasses) == 1:  # atom
         point_group = "K"
-    elif len(atommasses) == 2:  # diatomic molecule
+    elif len(atommasses) == 2:  # diatomic molecule  # noqa: PLR2004
         point_group = "D∞h" if atommasses[0] == atommasses[1] else "C∞v"
     else:
         groups = _equivalent_atoms(atommasses, atomcoords)
@@ -476,7 +480,7 @@ def find_point_group(atommasses, atomcoords, proper_axes=None, rtol=0.0, atol=1.
                     atol=atol,
                 )
 
-    logger.info(f"point group = {point_group}")
+    logger.info(f"point group = {point_group}")  # noqa: G004
     return point_group
 
 
@@ -489,11 +493,11 @@ def _find_point_group_linear(atomcoords, groups, rtol=0.0, atol=1.0e-2):
     """
     if _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
         return "D∞h"
-    else:
+    else:  # noqa: RET505
         return "C∞v"
 
 
-def _find_point_group_spheric(
+def _find_point_group_spheric(  # noqa: PLR0913
     atomcoords,
     groups,
     axes,
@@ -523,9 +527,9 @@ def _find_point_group_spheric(
         )
 
     for n, _ in proper_axes:
-        if n == 5:
+        if n == 5:  # noqa: PLR2004
             return "Ih"
-        elif n < 5:
+        elif n < 5:  # noqa: PLR2004, RET505
             break
     return "Oh"
 
@@ -538,7 +542,7 @@ def _find_point_group_spheric(
     # 1. doi:10.1016/0097-8485(76)80004-6
 
 
-def _find_point_group_asymmetric(
+def _find_point_group_asymmetric(  # noqa: PLR0913
     atomcoords,
     groups,
     axes,
@@ -574,7 +578,7 @@ def _find_point_group_asymmetric(
             rtol=rtol,
             atol=atol,
         )
-    elif rotor_class[1] in {
+    elif rotor_class[1] in {  # noqa: RET505
         "regular planar",
         "irregular planar",
     } or _get_mirror_planes(
@@ -592,7 +596,7 @@ def _find_point_group_asymmetric(
     return "C1"
 
 
-def _find_point_group_symmetric(
+def _find_point_group_symmetric(  # noqa: PLR0913
     atomcoords,
     groups,
     axes,
@@ -620,7 +624,7 @@ def _find_point_group_symmetric(
 
     count_twofold = 0
     for n, _ in proper_axes:
-        if n == 2:
+        if n == 2:  # noqa: PLR2004
             count_twofold += 1
         if n_principal == count_twofold:
             return _find_point_group_symmetric_dihedral(
@@ -632,7 +636,7 @@ def _find_point_group_symmetric(
                 rtol=rtol,
                 atol=atol,
             )
-        if n < 2:
+        if n < 2:  # noqa: PLR2004
             break
     return _find_point_group_symmetric_nondihedral(
         atomcoords,
@@ -648,7 +652,7 @@ def _find_point_group_symmetric(
     # 1. doi:10.1016/0097-8485(76)80004-6
 
 
-def _find_point_group_symmetric_dihedral(
+def _find_point_group_symmetric_dihedral(  # noqa: PLR0913
     atomcoords,
     groups,
     axes,
@@ -691,7 +695,7 @@ def _find_point_group_symmetric_dihedral(
     return f"D{proper_axes[0][0]}"
 
 
-def _find_point_group_symmetric_nondihedral(
+def _find_point_group_symmetric_nondihedral(  # noqa: PLR0913
     atomcoords,
     groups,
     axes,
@@ -745,7 +749,7 @@ def _find_point_group_symmetric_nondihedral(
     return f"C{proper_axes[0][0]}"
 
 
-def _update_proper_axes(
+def _update_proper_axes(  # noqa: PLR0913
     ax,
     axes,  # found axes
     atomcoords,
@@ -790,7 +794,7 @@ def _update_proper_axes(
     return axes, None
 
 
-def _get_proper_axes(  # noqa: C901
+def _get_proper_axes(  # noqa: C901, PLR0912, PLR0913
     atomcoords,
     groups,
     axes,
@@ -909,7 +913,7 @@ def _get_proper_axes(  # noqa: C901
                 nondeg_axes=nondeg_axes,
                 normalize=True,
             )
-            if rotor_class[0] == "spheric" and order == 5:
+            if rotor_class[0] == "spheric" and order == 5:  # noqa: PLR2004
                 return sorted(found_axes, reverse=True)
 
             for b in group[:i]:
@@ -925,11 +929,11 @@ def _get_proper_axes(  # noqa: C901
                     nondeg_axes=nondeg_axes,
                     normalize=True,
                 )
-                if rotor_class[0] == "spheric" and order == 5:
+                if rotor_class[0] == "spheric" and order == 5:  # noqa: PLR2004
                     return sorted(found_axes, reverse=True)
 
     if rotor_class[0] == "spheric":
-        twofold_axes = [ax for o, ax in found_axes if o == 2]
+        twofold_axes = [ax for o, ax in found_axes if o == 2]  # noqa: PLR2004
         for i, ax_a in enumerate(twofold_axes):
             for ax_b in twofold_axes[:i]:
                 ax = np.cross(ax_a, ax_b)
@@ -944,7 +948,7 @@ def _get_proper_axes(  # noqa: C901
                     nondeg_axes=nondeg_axes,
                     normalize=True,
                 )
-                if order == 5:
+                if order == 5:  # noqa: PLR2004
                     return sorted(found_axes, reverse=True)
 
     return sorted(found_axes, reverse=True)
@@ -989,7 +993,7 @@ def _guess_orders(groups, rotor_class):
     return range(2, max_order + 1)
 
 
-def _update_improper_axes(
+def _update_improper_axes(  # noqa: PLR0913
     n,
     ax,
     axes,
@@ -1025,7 +1029,7 @@ def _update_improper_axes(
     return axes
 
 
-def _get_improper_axes(
+def _get_improper_axes(  # noqa: PLR0913
     atomcoords,
     groups,
     axes,
@@ -1105,7 +1109,7 @@ def _get_improper_axes(
     return sorted(found_axes, reverse=True)
 
 
-def _update_mirror_axes(
+def _update_mirror_axes(  # noqa: PLR0913
     ax,
     axes,  # found axes
     atomcoords,
@@ -1161,7 +1165,7 @@ def _update_mirror_axes(
     return axes
 
 
-def _get_mirror_planes(  # noqa: C901
+def _get_mirror_planes(  # noqa: C901, PLR0913
     atomcoords,
     groups,
     axes,
@@ -1246,7 +1250,7 @@ def _get_mirror_planes(  # noqa: C901
         c, v = x
         if c:
             return -ord(c), v
-        else:
+        else:  # noqa: RET505
             return 0, v
 
     found_axes = []
@@ -1478,7 +1482,7 @@ def _operation(name, order=2, axis=None):
 
     if name == "i":
         return -np.eye(3)
-    elif name == "e":
+    elif name == "e":  # noqa: RET505
         return np.eye(3)
     elif name in {"c", "σ", "sigma", "s"}:  # noqa: RUF001
         # normalize axis
@@ -1495,7 +1499,7 @@ def _operation(name, order=2, axis=None):
             return reflection
         elif name == "s":
             return rotation @ reflection
-    raise ValueError(f"unknown operation: '{name}'")  # noqa: EM102
+    raise ValueError(f"unknown operation: '{name}'")  # noqa: EM102, TRY003
 
 
 def _classify_rotor(moments, rtol=0.0, atol=1.0e-2, slack=0.870):
@@ -1672,10 +1676,10 @@ def gyradius(atommasses, atomcoords, method="iupac"):
         return np.sqrt(
             np.average(np.diag(atomcoords @ atomcoords.T), weights=atommasses),
         )
-    elif method == "mean":
+    elif method == "mean":  # noqa: RET505
         return np.sqrt(np.mean(np.diag(atomcoords @ atomcoords.T)))
     else:
-        raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102
+        raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102, TRY003
 
 
 def inertia(atommasses, atomcoords, align=True):  # noqa: FBT002
@@ -1750,7 +1754,7 @@ def inertia(atommasses, atomcoords, align=True):  # noqa: FBT002
     moments, axes = np.linalg.eigh(inertia_tensor)
     if align:
         return inertia(atommasses, atomcoords @ axes, align=False)
-    logger.debug(f"moments = {moments} amu·Å²")
+    logger.debug(f"moments = {moments} amu·Å²")  # noqa: G004
     return moments, axes, atomcoords
 
 
@@ -2058,7 +2062,7 @@ def _equivalent_atoms(  # noqa: C901
     """
     if len(atommasses) == 1:  # atom
         return [[0]]
-    elif len(atommasses) == 2:  # diatomic molecule
+    elif len(atommasses) == 2:  # diatomic molecule  # noqa: PLR2004, RET505
         if atommasses[0] == atommasses[1]:
             return [[0, 1]]
         return [[0], [1]]
@@ -2108,6 +2112,6 @@ def _equivalent_atoms(  # noqa: C901
         for mass in np.unique(atommasses):
             groups = _update_groups_with_condition(atommasses == mass, groups)
     else:
-        raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102
+        raise ValueError(f"unavailable method: '{method}'")  # noqa: EM102, TRY003
 
     return sorted(groups, key=len)

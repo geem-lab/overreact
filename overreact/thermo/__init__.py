@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to the calculation of thermodynamic properties."""
 
@@ -31,7 +31,7 @@ from overreact.thermo._gas import (
 logger = logging.getLogger(__name__)
 
 
-def calc_trans_entropy(
+def calc_trans_entropy(  # noqa: PLR0913
     atommasses,
     atomnos=None,
     atomcoords=None,
@@ -117,13 +117,13 @@ def calc_trans_entropy(
     if environment in {"gas", None} or method == "standard":
         volume = molar_volume(temperature=temperature, pressure=pressure)
     elif environment == "solid":
-        raise ValueError(
+        raise ValueError(  # noqa: TRY003
             f"environment not yet implemented: {environment}",  # noqa: EM102
         )  # noqa: RUF100
     else:
         assert atomnos is not None, "atomnos must be provided"
         assert atomcoords is not None, "atomcoords must be provided"
-        volume = rx.thermo._solv.molar_free_volume(
+        volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
             atomnos=atomnos,
             atomcoords=atomcoords,
             environment=environment,
@@ -132,18 +132,20 @@ def calc_trans_entropy(
             pressure=pressure,
         )
 
-    translational_entropy = rx.thermo._gas._sackur_tetrode(
+    translational_entropy = rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         atommasses,
         volume,
         temperature=temperature,
     )
-    logger.info(f"translational entropy = {translational_entropy} J/mol·K")
+    logger.info(
+        f"translational entropy = {translational_entropy} J/mol·K",
+    )
     return translational_entropy
 
 
 # TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
 # naming for the whole package?
-def calc_internal_energy(
+def calc_internal_energy(  # noqa: PLR0913
     energy=0.0,
     degeneracy=1,
     moments=None,
@@ -205,13 +207,13 @@ def calc_internal_energy(
         + calc_rot_energy(moments, temperature=temperature)
         + calc_vib_energy(vibfreqs, qrrho=qrrho, temperature=temperature)
     )
-    logger.info(f"internal energy = {internal_energy} J/mol")
+    logger.info(f"internal energy = {internal_energy} J/mol")  # noqa: G004
     return internal_energy
 
 
 # TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
 # naming for the whole package?
-def calc_enthalpy(
+def calc_enthalpy(  # noqa: PLR0913
     energy=0.0,
     degeneracy=1,
     moments=None,
@@ -281,13 +283,13 @@ def calc_enthalpy(
         )
         + constants.R * temperature
     )
-    logger.info(f"enthalpy = {enthalpy} J/mol")
+    logger.info(f"enthalpy = {enthalpy} J/mol")  # noqa: G004
     return enthalpy
 
 
 # TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
 # naming for the whole package?
-def calc_entropy(
+def calc_entropy(  # noqa: PLR0913
     atommasses,
     atomnos=None,
     atomcoords=None,
@@ -426,7 +428,7 @@ def calc_entropy(
     if environment in {"gas", None}:
         pass
     elif environment == "solid":
-        raise ValueError(
+        raise ValueError(  # noqa: TRY003
             f"environment not yet implemented: {environment}",  # noqa: EM102
         )  # noqa: RUF100
     else:
@@ -434,7 +436,9 @@ def calc_entropy(
             temperature=temperature,
             pressure=pressure,
         )
-        logger.debug(f"concentration correction = {concentration_correction} J/mol·K")
+        logger.debug(
+            f"concentration correction = {concentration_correction} J/mol·K",
+        )
         entropy = entropy + concentration_correction
         if method == "standard":
             pass
@@ -443,18 +447,18 @@ def calc_entropy(
             assert atomcoords is not None, "atomcoords must be provided"
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
-            entropy = entropy + rx.thermo._solv.calc_cav_entropy(
+            entropy = entropy + rx.thermo._solv.calc_cav_entropy(  # noqa: SLF001
                 atomnos=atomnos,
                 atomcoords=atomcoords,
                 environment=environment,
                 temperature=temperature,
                 pressure=pressure,
             )  # TODO(schneiderfelipe): check extra options for calc_cav_entropy.
-    logger.info(f"entropy = {entropy} J/mol·K")
+    logger.info(f"entropy = {entropy} J/mol·K")  # noqa: G004
     return entropy
 
 
-def calc_heat_capacity(
+def calc_heat_capacity(  # noqa: PLR0913
     energy=0.0,
     degeneracy=1,
     moments=None,
@@ -528,7 +532,7 @@ def calc_heat_capacity(
         )
 
     heat_capacity = derivative(func, x0=temperature, dx=dx, n=1, order=order)
-    logger.info(f"heat capacity = {heat_capacity} J/mol·K")
+    logger.info(f"heat capacity = {heat_capacity} J/mol·K")  # noqa: G004
     return heat_capacity
 
 
@@ -752,11 +756,11 @@ def equilibrium_constant(
 
         equilibrium_constant *= volume**delta_moles
 
-    logger.info(f"equilibrium constant = {equilibrium_constant}")
+    logger.info(f"equilibrium constant = {equilibrium_constant}")  # noqa: G004
     return equilibrium_constant
 
 
-def change_reference_state(
+def change_reference_state(  # noqa: PLR0913
     new_reference: float = 1.0 / constants.liter,
     old_reference: Optional[float] = None,  # noqa: UP007
     sign: int = 1,

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Small toy datasets for tests and benchmark."""
 
@@ -6,15 +6,17 @@ import os
 
 import overreact as rx
 
-data_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "../data/"))
+data_path = os.path.normpath(
+    os.path.join(os.path.dirname(__file__), "../data/"),
+)
 
 
 logfiles = {}
 for name in os.listdir(data_path):
-    walk_dir = os.path.join(data_path, name)
-    if os.path.isdir(walk_dir):
-        logfiles[name] = rx.io._LazyDict()
-        logfiles[name]._function = rx.io.read_logfile
+    walk_dir = os.path.join(data_path, name)  # noqa: PTH118
+    if os.path.isdir(walk_dir):  # noqa: PTH112
+        logfiles[name] = rx.io._LazyDict()  # noqa: SLF001
+        logfiles[name]._function = rx.io.read_logfile  # noqa: SLF001
         for root, _, files in os.walk(walk_dir):
             for filename in files:
                 if filename.endswith(".out"):
@@ -23,7 +25,10 @@ for name in os.listdir(data_path):
                             "@.",
                             "",
                         )
-                    ] = os.path.join(root, filename)
+                    ] = os.path.join(
+                        root,
+                        filename,
+                    )
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Basic I/O operations (such as reading source **input files**)."""
 
@@ -95,23 +95,25 @@ def parse_model(path: str, force_compile: bool = False):  # noqa: FBT001, FBT002
     """  # noqa: E501
     if not path.endswith((".k", ".jk")):
         path = f"{path}.jk"
-        logger.warning(f"assuming `.jk` file in {path}")
-    name, _ = os.path.splitext(path)
+        logger.warning(f"assuming `.jk` file in {path}")  # noqa: G004
+    name, _ = os.path.splitext(path)  # noqa: PTH122
 
     path_jk = f"{name}.jk"
-    if not force_compile and os.path.isfile(path_jk):
-        logger.info(f"parsing `.jk` file in {path_jk}")
+    if not force_compile and os.path.isfile(path_jk):  # noqa: PTH113
+        logger.info(f"parsing `.jk` file in {path_jk}")  # noqa: G004
         return _parse_model(path_jk)
 
     path_k = f"{name}.k"
-    logger.info(f"parsing `.k` file in {path_k}")
-    if not os.path.isfile(path_k):
+    logger.info(f"parsing `.k` file in {path_k}")  # noqa: G004
+    if not os.path.isfile(path_k):  # noqa: PTH113
         # TODO: add a nice error message here and everywhere?
-        raise FileNotFoundError(f"no `.k` file found in {path_k}")  # noqa: EM102
+        raise FileNotFoundError(
+            f"no `.k` file found in {path_k}",
+        )
 
     model = _parse_source(path_k)
-    with open(path_jk, "w") as f:
-        logger.info(f"writing `.jk` file in {path_jk}")
+    with open(path_jk, "w") as f:  # noqa: PTH123
+        logger.info(f"writing `.jk` file in {path_jk}")  # noqa: G004
         f.write(_unparse_model(model))
 
     return model
@@ -170,7 +172,7 @@ def _parse_model(file_or_path):
     try:
         model = json.load(file_or_path)
     except AttributeError:
-        with open(file_or_path) as stream:
+        with open(file_or_path) as stream:  # noqa: PTH123
             model = json.load(stream)
 
     if "scheme" in model:
@@ -233,9 +235,9 @@ def _parse_source(file_path_or_str):
 
     path = ("",)
     try:
-        with open(file_path_or_str) as stream:
+        with open(file_path_or_str) as stream:  # noqa: PTH123
             lines = stream.readlines()
-        dirname = os.path.dirname(file_path_or_str)
+        dirname = os.path.dirname(file_path_or_str)  # noqa: PTH120
         if dirname not in path:
             path = (*path, dirname)
     except OSError:
@@ -244,7 +246,7 @@ def _parse_source(file_path_or_str):
         lines = file_path_or_str
 
     for line in lines:
-        line = line.split("//")[0].strip()
+        line = line.split("//")[0].strip()  # noqa: PLW2901
         if not line:
             continue
 
@@ -438,7 +440,7 @@ def _check_compounds(compounds):
     return dict(compounds)
 
 
-def parse_compounds(text, path=("",), select=None):  # noqa: C901
+def parse_compounds(text, path=("",), select=None):  # noqa: C901, PLR0912
     """Parse a set of compounds.
 
     Parameters
@@ -531,7 +533,7 @@ def parse_compounds(text, path=("",), select=None):  # noqa: C901
     compounds = defaultdict(dict)
     for line in lines:
         if ":" in line:
-            name, line = (x.strip() for x in line.split(":", 1))
+            name, line = (x.strip() for x in line.split(":", 1))  # noqa: PLW2901
         if not line:
             continue
 
@@ -547,14 +549,18 @@ def parse_compounds(text, path=("",), select=None):  # noqa: C901
                 for p in path:
                     try:
                         # TODO: move on to use pathlib.
-                        logger.info(f"trying to read {os.path.join(p, value)}")
-                        compounds[name].update(read_logfile(os.path.join(p, value)))
+                        logger.info(
+                            f"trying to read {os.path.join(p, value)}",
+                        )
+                        compounds[name].update(
+                            read_logfile(os.path.join(p, value)),
+                        )
                     except FileNotFoundError:
                         continue
                     success = True
                     break
                 if not success:
-                    raise FileNotFoundError(
+                    raise FileNotFoundError(  # noqa: TRY003
                         f"could not find logfile '{value}' in path: {path}",  # noqa: E501, EM102
                     )
             else:
@@ -643,9 +649,11 @@ def read_logfile(path):
                    (0.0, 0.0, 0.0)))}
     """
     if not (parser := ccopen(path)):
-        raise FileNotFoundError(f"could not find logfile '{path}'")  # noqa: EM102
+        raise FileNotFoundError(
+            f"could not find logfile '{path}'",
+        )
     origin = parser.__class__.__name__.lower()
-    logger.info(f"reading a {origin} logfile: {path}")
+    logger.info(f"reading a {origin} logfile: {path}")  # noqa: G004
     try:
         ccdata = parser.parse()
         data = {
@@ -653,11 +661,11 @@ def read_logfile(path):
             # This energy may lack dispersion, solvation, correlation, etc.
             "energy": ccdata.scfenergies[-1] * constants.eV * constants.N_A,
             "mult": ccdata.mult,
-            "atomnos": rx._misc.totuple(ccdata.atomnos),
-            "atommasses": rx._misc.totuple(ccdata.atommasses),
-            "atomcoords": rx._misc.totuple(ccdata.atomcoords[-1]),
-            "vibfreqs": rx._misc.totuple(ccdata.vibfreqs),
-            "vibdisps": rx._misc.totuple(ccdata.vibdisps),
+            "atomnos": rx._misc.totuple(ccdata.atomnos),  # noqa: SLF001
+            "atommasses": rx._misc.totuple(ccdata.atommasses),  # noqa: SLF001
+            "atomcoords": rx._misc.totuple(ccdata.atomcoords[-1]),  # noqa: SLF001
+            "vibfreqs": rx._misc.totuple(ccdata.vibfreqs),  # noqa: SLF001
+            "vibdisps": rx._misc.totuple(ccdata.vibdisps),  # noqa: SLF001
         }
 
         # This solves a current bug in cclib (see
@@ -683,7 +691,7 @@ def read_logfile(path):
                 # parse. Should we add a check for this as well?
                 data = _read_orca_logfile(path, minimal=False)
             except FileNotFoundError:
-                raise FileNotFoundError(  # noqa: B904
+                raise FileNotFoundError(  # noqa: B904, TRY003, TRY200
                     f"could not parse logfile: '{path}'",  # noqa: EM102
                 )  # noqa: RUF100
         else:
@@ -727,7 +735,7 @@ def _read_orca_hess(path):
            [ 0.0160095 , -0.20678153, -0.26060801, -0.00337537, -0.02800411,
             -0.02595917, -0.01263597,  0.23474251,  0.28651783]])
     """
-    with open(path) as file:
+    with open(path) as file:  # noqa: PTH123
         while file:
             try:
                 line = next(file)
@@ -750,7 +758,7 @@ def _read_orca_hess(path):
 
 
 # heavily inspired by pieces of cclib
-def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
+def _read_orca_logfile(path, minimal=True):  # noqa: FBT002, PLR0915
     """Read an ORCA logfile.
 
     This function is a temporary reader, to be used until cclib supports all
@@ -798,7 +806,7 @@ def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
     atommasses = None
     vibfreqs = None
     hessian = None
-    with open(path) as file:
+    with open(path) as file:  # noqa: PTH123
         while file:
             try:
                 line = next(file)
@@ -823,7 +831,7 @@ def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
                     while len(line) > 1:
                         atom, x, y, z = line.split()
                         if atom[-1] != ">":
-                            atomnos.append(rx._misc.atomic_number[atom])
+                            atomnos.append(rx._misc.atomic_number[atom])  # noqa: SLF001
                             atomcoords.append([float(x), float(y), float(z)])
                         line = next(file)
 
@@ -872,7 +880,7 @@ def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
     if hessian is None:
         try:
             hessian = _read_orca_hess(path.replace(".out", ".hess"))
-            data.update({"hessian": rx._misc.totuple(hessian)})
+            data.update({"hessian": rx._misc.totuple(hessian)})  # noqa: SLF001
         except FileNotFoundError:
             pass
 
@@ -883,7 +891,7 @@ def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
     data.update({"logfile": path, "mult": int(mult)})
 
     if atomcoords is None:
-        with open(path.replace(".out", ".xyz")) as file:
+        with open(path.replace(".out", ".xyz")) as file:  # noqa: PTH123
             n = int(next(file))
             next(file)
 
@@ -892,12 +900,12 @@ def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
             for _ in range(n):
                 line = next(file)
                 atom, x, y, z = line.split()
-                atomnos.append(rx._misc.atomic_number[atom])
+                atomnos.append(rx._misc.atomic_number[atom])  # noqa: SLF001
                 atomcoords.append([float(x), float(y), float(z)])
     data.update(
         {
-            "atomnos": rx._misc.totuple(atomnos),
-            "atomcoords": rx._misc.totuple(atomcoords),
+            "atomnos": rx._misc.totuple(atomnos),  # noqa: SLF001
+            "atomcoords": rx._misc.totuple(atomcoords),  # noqa: SLF001
         },
     )
 
@@ -905,11 +913,11 @@ def _read_orca_logfile(path, minimal=True):  # noqa: FBT002
         logger.warning("using atomic masses from periodic table")
         atommasses = []
         for n in atomnos:
-            atommasses.append(rx._misc.atomic_mass[n])
-    data.update({"atommasses": rx._misc.totuple(atommasses)})
+            atommasses.append(rx._misc.atomic_mass[n])  # noqa: SLF001
+    data.update({"atommasses": rx._misc.totuple(atommasses)})  # noqa: SLF001
 
     if vibfreqs is not None:
-        data.update({"vibfreqs": rx._misc.totuple(vibfreqs)})
+        data.update({"vibfreqs": rx._misc.totuple(vibfreqs)})  # noqa: SLF001
 
     return data
 
@@ -949,7 +957,7 @@ class dotdict(dict):  # noqa: N801
 
         for key, val in self.items():
             if isinstance(val, (list, np.ndarray)):
-                super().__setitem__(key, rx._misc.totuple(val))
+                super().__setitem__(key, rx._misc.totuple(val))  # noqa: SLF001
             elif isinstance(val, dict):
                 super().__setitem__(key, dotdict(val))
 
@@ -966,7 +974,9 @@ class dotdict(dict):  # noqa: N801
         NotImplementedError
             If one attempts to change a value.
         """
-        raise NotImplementedError("dotdict objects are immutable")  # noqa: EM101
+        raise NotImplementedError(
+            "dotdict objects are immutable",
+        )
 
     # https://stackoverflow.com/a/1151686/4039050
     # https://stackoverflow.com/a/1151705/4039050
@@ -978,7 +988,7 @@ class dotdict(dict):  # noqa: N801
         return (frozenset(self), frozenset(self.items()))
 
     def __eq__(self, other):  # noqa: ANN101, ANN204, D105
-        return self._key() == other._key()
+        return self._key() == other._key()  # noqa: SLF001
 
 
 # https://stackoverflow.com/a/61144084/4039050

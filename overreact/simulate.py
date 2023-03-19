@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to the time simulation of reaction models.
 
@@ -56,7 +56,7 @@ else:
 
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
-def get_y(
+def get_y(  # noqa: PLR0913
     dydt,
     y0,
     t_span=None,
@@ -147,10 +147,10 @@ def get_y(
                     1.0 / np.min(y0[np.nonzero(y0)]),  # second-order halflife
                 ],
             ) / np.min(dydt.k)
-            logger.info(f"largest halflife guess = {halflife_estimate} s")
+            logger.info(f"largest halflife guess = {halflife_estimate} s")  # noqa: G004
 
         t_span = [0.0, min(n_halflives * halflife_estimate, max_time)]
-        logger.info(f"simulation time span   = {t_span} s")
+        logger.info(f"simulation time span   = {t_span} s")  # noqa: G004
 
     jac = None
     if hasattr(dydt, "jac"):
@@ -182,9 +182,9 @@ def get_y(
 
     # Too large a max step breaks LSODA. A too small one breaks it too.
     max_step = np.min([1.0, (t_span[1] - t_span[0]) / 100.0])
-    logger.warning(f"max step = {max_step} s")
+    logger.warning(f"max step = {max_step} s")  # noqa: G004
 
-    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
+    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")  # noqa: G004
     res = solve_ivp(
         dydt,
         t_span,
@@ -271,7 +271,7 @@ def get_dydt(scheme, k, ef=EF):
                  [ 1., -1.]], dtype=float64)
 
     """
-    scheme = rx.core._check_scheme(scheme)
+    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
     A = jnp.asarray(scheme.A)  # noqa: N806
     M = jnp.where(A > 0, 0, -A).T  # noqa: N806
     k_adj = _adjust_k(scheme, k, ef=ef)
@@ -288,7 +288,7 @@ def get_dydt(scheme, k, ef=EF):
         # such that _jac(t, y)[i, j] == d f_i / d y_j,
         # with shape of (n_compounds, n_compounds).
         def _jac(t, y):
-            logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")
+            logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")  # noqa: G004
             return jacfwd(lambda _y: _dydt(t, _y))(y)
 
         _dydt.jac = _jac
@@ -346,7 +346,7 @@ def _adjust_k(scheme, k, ef=EF):
     array([1.02320357e+12, ..., 1.02320357e+12])
 
     """
-    scheme = rx.core._check_scheme(scheme)
+    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
     is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
     k = np.asarray(k, dtype=float).copy()
 
@@ -360,11 +360,13 @@ def _adjust_k(scheme, k, ef=EF):
             adjustment = ef * (k_fastest_react / k_slowest_equil)
 
             k[is_half_equilibrium] *= adjustment
-            logger.warning(f"equilibria adjustment = {adjustment}")
+            logger.warning(f"equilibria adjustment = {adjustment}")  # noqa: G004
 
             k_slowest_equil = k[is_half_equilibrium].min()
             k_fastest_react = k[~is_half_equilibrium].max()
-            logger.warning(f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}")
+            logger.warning(
+                f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}",
+            )
         else:
             # only equilibria
 
@@ -533,7 +535,9 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     for i, (reaction, is_half_equilibrium) in enumerate(
         zip(scheme.reactions, scheme.is_half_equilibrium),
     ):
-        for reactants, products, _ in rx.core._parse_reactions(reaction):
+        for reactants, products, _ in rx.core._parse_reactions(
+            reaction,
+        ):
             new_reactants = tuple(
                 (coeff, compound)
                 for (coeff, compound) in reactants
@@ -585,7 +589,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
 
 
 # TODO(schneiderfelipe): this is probably not ready yet
-def get_bias(
+def get_bias(  # noqa: PLR0913
     scheme,
     compounds,
     data,

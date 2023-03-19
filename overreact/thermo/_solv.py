@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to the calculation of thermodynamic properties in solvation."""
 
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 #    cited in b. above.
 #
 # See doi:10.1021/cr60304a002.
-def calc_cav_entropy(
+def calc_cav_entropy(  # noqa: PLR0913
     atomnos,
     atomcoords,
     environment="water",
@@ -92,7 +92,7 @@ def calc_cav_entropy(
     def func(temperature, solvent):
         # TODO(schneiderfelipe): allow passing a "solvent" object everywhere so
         # that we don't repeat ourselves?
-        _, _, ratio = coords._garza(
+        _, _, ratio = coords._garza(  # noqa: SLF001
             vdw_volume,
             solvent,
             full_output=True,
@@ -100,7 +100,11 @@ def calc_cav_entropy(
             pressure=pressure,
         )
 
-        solvent = rx._misc._get_chemical(environment, temperature, pressure)
+        solvent = rx._misc._get_chemical(
+            environment,
+            temperature,
+            pressure,
+        )
 
         permittivity = solvent.permittivity
         y = 3.0 * ((permittivity - 1.0) / (permittivity + 2.0)) / (4.0 * np.pi)
@@ -128,7 +132,7 @@ def calc_cav_entropy(
         order=order,
         args=(environment,),
     )
-    logger.info(f"cavity entropy = {cavity_entropy} J/mol·K")
+    logger.info(f"cavity entropy = {cavity_entropy} J/mol·K")  # noqa: G004
     return cavity_entropy
 
 
@@ -168,7 +172,7 @@ def calc_cav_entropy(
 #
 # The remarks above are valid for "izato". "garza" incorporates most of the
 # above in the usage of the mass density of the solvent.
-def molar_free_volume(
+def molar_free_volume(  # noqa: PLR0913
     atomnos,
     atomcoords,
     environment="water",
@@ -268,7 +272,7 @@ def molar_free_volume(
     elif method == "garza":
         # TODO(schneiderfelipe): test for the following solvents: water,
         # pentane, hexane, heptane and octane.
-        cav_volume, N_cav, _ = coords._garza(  # noqa: N806
+        cav_volume, N_cav, _ = coords._garza(  # noqa: N806, SLF001
             coords.get_molecular_volume(atomnos, atomcoords),
             environment,
             full_output=True,
@@ -277,6 +281,6 @@ def molar_free_volume(
         )
         molar_free_volume = N_cav * cav_volume * constants.angstrom**3 * constants.N_A
     else:
-        raise ValueError(f"unrecognized method: '{method}'")  # noqa: EM102
-    logger.debug(f"molar free volume = {molar_free_volume} Å³")
+        raise ValueError(f"unrecognized method: '{method}'")  # noqa: EM102, TRY003
+    logger.debug(f"molar free volume = {molar_free_volume} Å³")  # noqa: G004
     return molar_free_volume

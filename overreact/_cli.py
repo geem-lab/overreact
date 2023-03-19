@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Command-line interface."""
 
@@ -132,7 +132,7 @@ class Report:
     ────────────────────────────────────────────────────────────────────────────────
     """  # noqa: E501
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,  # noqa: ANN101
         model,
         concentrations=None,
@@ -199,7 +199,7 @@ class Report:
         ------
         renderable
         """
-        scheme = rx.core._check_scheme(self.model.scheme)
+        scheme = rx.core._check_scheme(self.model.scheme)  # noqa: SLF001
 
         raw_table = Table(
             title="(read) reactions",
@@ -255,7 +255,7 @@ class Report:
             if not self.model.compounds[name]:
                 undefined_compounds.append(name)
         if undefined_compounds:
-            raise ValueError(
+            raise ValueError(  # noqa: TRY003
                 f"undefined compounds: {', '.join(undefined_compounds)}",  # noqa: EM102
             )  # noqa: RUF100
 
@@ -314,7 +314,7 @@ class Report:
         ------
         renderable
         """
-        scheme = rx.core._check_scheme(self.model.scheme)
+        scheme = rx.core._check_scheme(self.model.scheme)  # noqa: SLF001
 
         molecular_masses = np.array(
             [np.sum(data.atommasses) for name, data in self.model.compounds.items()],
@@ -493,7 +493,7 @@ class Report:
         yield circ_table
         yield dagger_table
 
-    def _yield_kinetics(self):  # noqa: ANN101, C901
+    def _yield_kinetics(self):  # noqa: ANN101, C901, PLR0912, PLR0915
         """Produce a renderables describing the kinetics of the system.
 
         This is meant to be used from within `__rich_console__`.
@@ -652,8 +652,8 @@ class Report:
 
             t_span = y.t_max - y.t_min
             active = ~np.isclose(
-                y(y.t_min + 0.01 * t_span * np.random.rand()),
-                y(y.t_max - 0.01 * t_span * np.random.rand()),
+                y(y.t_min + 0.01 * t_span * np.random.rand()),  # noqa: NPY002
+                y(y.t_max - 0.01 * t_span * np.random.rand()),  # noqa: NPY002
                 rtol=0.01,
             )
             if self.plot == "all" or not np.any(active):
@@ -692,7 +692,9 @@ class Report:
                         t.update(np.linspace(res.x, t_max, num=num // 2))
                         active[i] = True
 
-            t.update(np.geomspace(np.min([_t for _t in t if _t > 0.0]), t_max, num=num))
+            t.update(
+                np.geomspace(np.min([_t for _t in t if _t > 0.0]), t_max, num=num),
+            )
             t = np.array(sorted(t))
             if self.plot not in {"none", None}:
                 if self.plot not in {"all", "active"}:
@@ -742,7 +744,7 @@ def _prepare_simulation(scheme, k, concentrations):
         try:
             quantity = float(quantity)
         except (IndexError, ValueError):
-            raise ValueError(  # noqa: B904
+            raise ValueError(  # noqa: B904, TRY003, TRY200
                 "badly formatted concentrations: "  # noqa: EM102
                 f"'{' '.join(concentrations)}'",  # noqa: RUF100
             )
@@ -957,7 +959,7 @@ Parsing and calculating (this may take a while)…
     report = Report(
         model,
         concentrations=args.concentrations,
-        savepath=f"{os.path.splitext(args.path)[0]}.csv",
+        savepath=f"{os.path.splitext(args.path)[0]}.csv",  # noqa: PTH122
         plot=args.plot,
         qrrho_descriptor=args.qrrho_descriptor,
         temperature=args.temperature,

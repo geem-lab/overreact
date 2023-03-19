@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to the calculation of thermodynamic properties in gas phase."""
 
@@ -38,7 +38,7 @@ def calc_trans_energy(temperature=298.15):
     temperature = np.asarray(temperature)
 
     translational_energy = 1.5 * constants.R * temperature
-    logger.info(f"translational energy = {translational_energy} J/mol")
+    logger.info(f"translational energy = {translational_energy} J/mol")  # noqa: G004
     return translational_energy
 
 
@@ -109,7 +109,7 @@ def calc_elec_energy(energy=0.0, degeneracy=1, temperature=298.15):
     q_elec = np.sum(q_elec_terms)
 
     electronic_energy = min_energy + np.sum(energy * q_elec_terms) / q_elec
-    logger.info(f"electronic energy = {electronic_energy} J/mol")
+    logger.info(f"electronic energy = {electronic_energy} J/mol")  # noqa: G004
     return electronic_energy
 
 
@@ -189,13 +189,13 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     electronic_entropy = constants.R * np.log(q_elec) + np.sum(
         energy * q_elec_terms,
     ) / (temperature * q_elec)
-    logger.info(f"electronic entropy = {electronic_entropy} J/mol·K")
+    logger.info(f"electronic entropy = {electronic_entropy} J/mol·K")  # noqa: G004
     return electronic_entropy
 
 
 def calc_rot_energy(
     moments=None,
-    independent=False,
+    independent=False,  # noqa: FBT002
     weights=1.0,
     temperature=298.15,
 ):  # noqa: RUF100
@@ -258,7 +258,7 @@ def calc_rot_energy(
 
     if not independent and np.any(rotational_temperatures >= 0.2 * temperature):
         logger.warning(
-            f"rotational temperatures probably too high for {temperature} K: "
+            f"rotational temperatures probably too high for {temperature} K: "  # noqa: G004
             f"{rotational_temperatures[rotational_temperatures >= 0.2 * temperature]}",
         )
 
@@ -272,11 +272,11 @@ def calc_rot_energy(
 
     rotational_energy = constants.R * temperature * gamma / 2.0
     if not independent:
-        logger.info(f"rotational energy = {rotational_energy} J/mol")
+        logger.info(f"rotational energy = {rotational_energy} J/mol")  # noqa: G004
     return rotational_energy
 
 
-def calc_rot_entropy(
+def calc_rot_entropy(  # noqa: PLR0913
     atommasses=None,
     atomnos=None,
     atomcoords=None,
@@ -397,7 +397,7 @@ def calc_rot_entropy(
 
     if not independent and np.any(rotational_temperatures >= 0.2 * temperature):
         logger.warning(
-            f"rotational temperatures probably too high for {temperature} K: "
+            f"rotational temperatures probably too high for {temperature} K: "  # noqa: G004
             f"{rotational_temperatures[rotational_temperatures >= 0.2 * temperature]}",
         )
 
@@ -410,21 +410,21 @@ def calc_rot_entropy(
         # but is almost zero for most other molecules
         - np.sum(weights * rotational_temperatures**2) / (90.0 * temperature**2)
     )
-    if not independent and n > 2:
+    if not independent and n > 2:  # noqa: PLR2004
         gamma += np.log(np.pi)
 
     rotational_entropy = constants.R * gamma / 2.0
     if environment in {"gas", None} or method == "standard":
         pass
     elif environment == "solid":
-        raise ValueError(
+        raise ValueError(  # noqa: TRY003
             f"environment not yet implemented: {environment}",  # noqa: EM102
         )  # noqa: RUF100
     else:
         assert atomnos is not None, "atomnos must be given"
         assert atomcoords is not None, "atomcoords must be given"
         vdw_volume = coords.get_molecular_volume(atomnos, atomcoords)
-        cav_volume, N_cav, _ = coords._garza(  # noqa: N806
+        cav_volume, N_cav, _ = coords._garza(  # noqa: N806, SLF001
             vdw_volume,
             environment,
             full_output=True,
@@ -442,7 +442,7 @@ def calc_rot_entropy(
             - _sackur_tetrode(atommasses, prefactor * r_cav**3, temperature)
         )
     if not independent:
-        logger.info(f"rotational entropy = {rotational_entropy} J/mol·K")
+        logger.info(f"rotational entropy = {rotational_entropy} J/mol·K")  # noqa: G004
     return rotational_entropy
 
 
@@ -524,7 +524,7 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):  # noqa: FBT
             weights=1.0 - weights,
             temperature=temperature,
         )
-    logger.info(f"vibrational energy = {vibrational_energy} J/mol")
+    logger.info(f"vibrational energy = {vibrational_energy} J/mol")  # noqa: G004
     return vibrational_energy
 
 
@@ -609,7 +609,7 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):  # noqa: FB
             weights=1.0 - weights,
             temperature=temperature,
         )
-    logger.info(f"vibrational entropy = {vibrational_entropy} J/mol·K")
+    logger.info(f"vibrational entropy = {vibrational_entropy} J/mol·K")  # noqa: G004
     return vibrational_entropy
 
 
@@ -641,7 +641,7 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
         2.0 * np.pi * total_mass * constants.k * temperature,
     )
     q_trans = volume / (constants.N_A * debroglie_wavelength**3)
-    assert q_trans > 1.0, (
+    assert q_trans > 1.0, (  # noqa: PLR2004
         f"de Broglie wavelength {debroglie_wavelength} is too large for the gas to "
         "satisfy Maxwell-Boltzmann statistics (classical regime)"
     )
@@ -693,7 +693,7 @@ def _rotational_temperature(moments=None):
     )
 
     rotational_temperatures = constants.hbar**2 / (2.0 * constants.k * moments)
-    logger.debug(f"rotational temperatures = {rotational_temperatures} K")
+    logger.debug(f"rotational temperatures = {rotational_temperatures} K")  # noqa: G004
     return rotational_temperatures
 
 
@@ -741,7 +741,9 @@ def _vibrational_temperature(vibfreqs=None):
     nu = _check_vibfreqs(vibfreqs) * constants.c / constants.centi
 
     vibrational_temperatures = constants.h * nu / constants.k
-    logger.debug(f"vibrational temperatures = {vibrational_temperatures} K")
+    logger.debug(
+        f"vibrational temperatures = {vibrational_temperatures} K",
+    )
     return vibrational_temperatures
 
 
@@ -794,7 +796,7 @@ def _check_vibfreqs(vibfreqs=None, cutoff=-50.0):
 
     if len(vibfreqs[vibfreqs < 0]) > 0:
         logger.warning(
-            f"imaginary frequencies found: using the absolute value of all above {-cutoff}i cm-1, ignoring the rest",  # noqa: E501
+            f"imaginary frequencies found: using the absolute value of all above {-cutoff}i cm-1, ignoring the rest",  # noqa: E501, G004
         )
 
     return np.abs(vibfreqs[vibfreqs > cutoff])
@@ -917,5 +919,5 @@ def molar_volume(temperature=298.15, pressure=constants.atm):
     temperature = np.asarray(temperature)
 
     molar_volume = constants.R * temperature / np.asarray(pressure)
-    logger.debug(f"molar volume = {molar_volume} Å³")
+    logger.debug(f"molar volume = {molar_volume} Å³")  # noqa: G004
     return molar_volume
