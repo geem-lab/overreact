@@ -687,7 +687,9 @@ def _rotational_temperature(moments=None):
         # assuming atomic system
         return np.array([])
     moments = np.atleast_1d(moments)
-    moments[np.abs(moments) < 1e-63] = 0  # set almost zeros to exact zeros
+    moments[
+        np.abs(moments) < 1e-63
+    ] = 0  # set almost zeros to exact zeros  # noqa: PLR2004
     moments = (
         moments[np.nonzero(moments)] * constants.atomic_mass * constants.angstrom**2
     )

@@ -137,7 +137,9 @@ def test_private_functions_work():
 
     assert rx.core._unparse_side([(1, "A")]) == "A"  # noqa: SLF001
     assert rx.core._unparse_side([(500, "A")]) == "500 A"  # noqa: SLF001
-    assert rx.core._unparse_side([(1, "A"), (2, "B"), (500, "D")]) == "A + 2 B + 500 D"
+    assert (
+        rx.core._unparse_side([(1, "A"), (2, "B"), (500, "D")]) == "A + 2 B + 500 D"
+    )  # noqa: SLF001
 
     assert (
         rx.core._unparse_side(  # noqa: SLF001

@@ -1144,7 +1144,9 @@ def test_equilibrium_constant_works():
     assert rx.thermo.equilibrium_constant(1718.5) == pytest.approx(0.5, 1e-4)
     assert rx.thermo.equilibrium_constant(68497.0) == pytest.approx(0.0)
 
-    assert rx.thermo.equilibrium_constant(0.0, temperature=14.01) == 1.0
+    assert (
+        rx.thermo.equilibrium_constant(0.0, temperature=14.01) == 1.0
+    )  # noqa: PLR2004
     assert rx.thermo.equilibrium_constant(1000.0, temperature=14.01) == pytest.approx(
         1.87e-4,
         1e-3,
