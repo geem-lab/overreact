@@ -197,7 +197,7 @@ def calc_rot_energy(
     moments=None,
     independent=False,
     weights=1.0,
-    temperature=298.15,  # noqa: FBT002
+    temperature=298.15,
 ):  # noqa: RUF100
     r"""Calculate the rotational energy of an ideal gas.
 

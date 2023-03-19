@@ -589,7 +589,7 @@ def broaden_spectrum(
                 xp,
                 scale=scale,
                 *args,
-                **kwargs,  # noqa: RUF004, B026
+                **kwargs,
             )  # noqa: RUF100
             for xp, yp in zip(x0, y0)
         ],
