@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for rates module."""
 
@@ -309,7 +309,7 @@ def test_second_order_conversion_rate_example():
     ) == pytest.approx(1.2e10, 4e-3)
 
 
-def test_second_order_conversion_rates_match_literature():
+def test_second_order_conversion_rates_match_literature():  # noqa: PLR0915
     """Ensure calculated second order factors are correct.
 
     References are given in the comments.

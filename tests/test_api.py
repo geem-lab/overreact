@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for the application programming interface (API)."""
 
@@ -99,7 +99,9 @@ def test_compare_calc_star_with_get_star():
     for bias in np.array([-1, 0, 1]) * constants.kcal:
         for environment in ["gas", "solvent"]:
             for qrrho in [True, False, (False, True)]:
-                qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(qrrho)
+                qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(
+                    qrrho,
+                )
                 for temperature in [200, 298.15, 400]:
                     for pressure in [
                         constants.bar / 2,
@@ -164,7 +166,7 @@ def test_compare_calc_star_with_get_star():
                                 bias == 0
                                 and environment == "gas"
                                 and qrrho == (False, True)
-                                and temperature == 298.15
+                                and temperature == 298.15  # noqa: PLR2004
                                 and pressure == constants.atm
                                 # TODO(schneiderfelipe): do a test for H+(w)
                                 and compound != "H+(w)"

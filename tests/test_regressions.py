@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Regressions against experimental/reference values.
 
@@ -293,7 +293,7 @@ def test_rate_constants_for_hickel1992():
 
         assert linregress.rvalue**2 == pytest.approx(1.0, tols[2])
         assert linregress.pvalue == pytest.approx(0.0, abs=tols[3])
-        assert linregress.pvalue < 0.01
+        assert linregress.pvalue < 0.01  # noqa: PLR2004
         assert linregress.stderr == pytest.approx(0.0, abs=tols[4])
 
 
@@ -407,7 +407,7 @@ def test_rate_constants_for_tanaka1996():
 
         assert linregress.rvalue**2 == pytest.approx(1.0, tols[2])
         assert linregress.pvalue == pytest.approx(0.0, abs=tols[3])
-        assert linregress.pvalue < 0.01
+        assert linregress.pvalue < 0.01  # noqa: PLR2004
         assert linregress.stderr == pytest.approx(0.0, abs=tols[4])
 
 
@@ -453,7 +453,7 @@ def test_delta_energies_for_hickel1992():
 
     # extra symmetry is required for this reaction since the transition state
     # is nonsymmetric
-    assert model.compounds["NH3·OH#(w)"].symmetry == 3
+    assert model.compounds["NH3·OH#(w)"].symmetry == 3  # noqa: PLR2004
 
     delta_freeenergies_ref = [7.9, 7.9, 8.1, 8.3, 8.5, 8.7, 8.8]
     assert delta_freeenergies / constants.kcal == pytest.approx(
@@ -538,7 +538,7 @@ def test_logfiles_for_hickel1992():
 
     data = datasets.logfiles["hickel1992"][f"NH3@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 3
+    assert rx.coords.symmetry_number(point_group) == 3  # noqa: PLR2004
 
     assert data.vibfreqs == pytest.approx(
         [1022, 1691, 1691, 3506, 3577, 3577],
@@ -561,7 +561,7 @@ def test_logfiles_for_hickel1992():
 
     data = datasets.logfiles["hickel1992"][f"NH2·@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 2
+    assert rx.coords.symmetry_number(point_group) == 2  # noqa: PLR2004
 
     assert data.vibfreqs == pytest.approx(
         [1497.3, 3220.0, 3301.1],
@@ -574,7 +574,7 @@ def test_logfiles_for_hickel1992():
 
     data = datasets.logfiles["hickel1992"][f"H2O@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 2
+    assert rx.coords.symmetry_number(point_group) == 2  # noqa: PLR2004
 
     assert data.vibfreqs == pytest.approx(
         [1594.6, 3656.7, 3755.8],
@@ -608,7 +608,7 @@ def test_logfiles_for_tanaka1996():
     # CH4
     data = datasets.logfiles["tanaka1996"][f"methane@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 12
+    assert rx.coords.symmetry_number(point_group) == 12  # noqa: PLR2004
 
     assert data.vibfreqs == pytest.approx(
         [1306, 1306, 1306, 1534, 1534, 2917, 3019, 3019, 3019],
@@ -622,7 +622,7 @@ def test_logfiles_for_tanaka1996():
     # CH3·
     data = datasets.logfiles["tanaka1996"][f"CH3·@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 6
+    assert rx.coords.symmetry_number(point_group) == 6  # noqa: PLR2004
 
     assert data.vibfreqs == pytest.approx(
         [580, 1383, 1383, 3002, 3184, 3184],
@@ -652,7 +652,7 @@ def test_logfiles_for_tanaka1996():
     # CH3-H-Cl
     data = datasets.logfiles["tanaka1996"][f"H3CHCl‡@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 3
+    assert rx.coords.symmetry_number(point_group) == 3  # noqa: PLR2004
 
     # NOTE(schneiderfelipe): vibrations are from an UMP2/6-311G(3d,2p)
     # calculation, see the reference in doi:10.1007/BF00058703

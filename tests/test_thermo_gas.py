@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for gas phase using the `thermo` module."""
 
@@ -59,7 +59,7 @@ def test_sanity_for_absolute_thermochemistry():
         * constants.atomic_mass
         * constants.bohr**2
     )
-    assert rx.thermo._gas._rotational_temperature(
+    assert rx.thermo._gas._rotational_temperature(  # noqa: SLF001
         moments / (constants.atomic_mass * constants.angstrom**2),
     ) == pytest.approx([3.67381, 0.98044, 0.98043], 2e-5)
     assert (
@@ -89,18 +89,20 @@ def test_sanity_for_absolute_thermochemistry():
         ],
     )
     vibfreqs = vibtemps * constants.k * constants.centi / (constants.h * constants.c)
-    assert rx.thermo._gas._vibrational_temperature(vibfreqs) == pytest.approx(vibtemps)
-    zpe = rx.thermo._gas.calc_vib_energy(vibfreqs, temperature=0.0)
+    assert rx.thermo._gas._vibrational_temperature(vibfreqs) == pytest.approx(
+        vibtemps,
+    )
+    zpe = rx.thermo._gas.calc_vib_energy(vibfreqs, temperature=0.0)  # noqa: SLF001
     assert zpe == pytest.approx(204885.0, 7e-5)
     assert zpe / constants.kcal == pytest.approx(48.96870, 7e-5)
     assert zpe / (constants.hartree * constants.N_A) == pytest.approx(0.078037, 8e-5)
 
-    elec_internal_energy = rx.thermo._gas.calc_elec_energy(0.0, 1.0)
-    trans_internal_energy = rx.thermo._gas.calc_trans_energy()
-    rot_internal_energy = rx.thermo._gas.calc_rot_energy(
+    elec_internal_energy = rx.thermo._gas.calc_elec_energy(0.0, 1.0)  # noqa: SLF001
+    trans_internal_energy = rx.thermo._gas.calc_trans_energy()  # noqa: SLF001
+    rot_internal_energy = rx.thermo._gas.calc_rot_energy(  # noqa: SLF001
         moments / (constants.atomic_mass * constants.angstrom**2),
     )
-    vib_internal_energy = rx.thermo._gas.calc_vib_energy(vibfreqs)
+    vib_internal_energy = rx.thermo._gas.calc_vib_energy(vibfreqs)  # noqa: SLF001
     internal_energy = rx.thermo.calc_internal_energy(
         0.0,
         1.0,
@@ -129,12 +131,12 @@ def test_sanity_for_absolute_thermochemistry():
         1.00783,
         1.00783,
     ]
-    elec_entropy = rx.thermo._gas.calc_elec_entropy(0.0, 1.0)
+    elec_entropy = rx.thermo._gas.calc_elec_entropy(0.0, 1.0)  # noqa: SLF001
     trans_entropy = rx.thermo.calc_trans_entropy(atommasses)
-    rot_entropy = rx.thermo._gas.calc_rot_entropy(
+    rot_entropy = rx.thermo._gas.calc_rot_entropy(  # noqa: SLF001
         moments=moments / (constants.atomic_mass * constants.angstrom**2),
     )
-    vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs)
+    vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs)  # noqa: SLF001
     entropy = rx.thermo.calc_entropy(
         atommasses,
         energy=0.0,
@@ -152,7 +154,7 @@ def test_sanity_for_absolute_thermochemistry():
     assert entropy / constants.calorie == pytest.approx(57.118, 3e-5)
 
 
-def test_enthalpy_ideal_gases():
+def test_enthalpy_ideal_gases():  # noqa: PLR0915
     """Calculate enthalpy of some ideal gases.
 
     We only check whether enthalpy matches the correct relationship with internal energy
@@ -1135,7 +1137,7 @@ def test_get_delta_works():
 
 def test_equilibrium_constant_works():
     """Ensure equilibrium_constant gives correct numbers."""
-    assert rx.thermo.equilibrium_constant(0.0) == 1.0
+    assert rx.thermo.equilibrium_constant(0.0) == 1.0  # noqa: PLR2004
     assert rx.thermo.equilibrium_constant(1000.0) == pytest.approx(0.668, 1e-4)
     assert rx.thermo.equilibrium_constant(1718.5) == pytest.approx(0.5, 1e-4)
     assert rx.thermo.equilibrium_constant(68497.0) == pytest.approx(0.0)
@@ -1235,21 +1237,39 @@ def test_change_reference_state_works_for_symmetry():
 # frequencies using the QRRHO model.
 def test_head_gordon_damping():
     """Ensure the Head-Gordon damping for the treatment of QRRHO is done correctly."""
-    assert rx.thermo._gas._head_gordon_damping(-70.0) == pytest.approx([])
-    assert rx.thermo._gas._head_gordon_damping(-40.0) == pytest.approx(
-        rx.thermo._gas._head_gordon_damping(40.0),
+    assert rx.thermo._gas._head_gordon_damping(-70.0) == pytest.approx(
+        [],
     )
-    assert rx.thermo._gas._head_gordon_damping(-10.0) == pytest.approx(
-        rx.thermo._gas._head_gordon_damping(10.0),
+    assert rx.thermo._gas._head_gordon_damping(-40.0) == pytest.approx(  # noqa: SLF001
+        rx.thermo._gas._head_gordon_damping(40.0),  # noqa: SLF001
     )
-    assert rx.thermo._gas._head_gordon_damping(1.0) == pytest.approx(8.67669882e-9)
-    assert rx.thermo._gas._head_gordon_damping(10.0) == pytest.approx(8.67594611e-5)
-    assert rx.thermo._gas._head_gordon_damping(100.0) == pytest.approx(0.5, 8e-2)
-    assert rx.thermo._gas._head_gordon_damping(200.0) == pytest.approx(1.0, 7e-2)
-    assert rx.thermo._gas._head_gordon_damping(300.0) == pytest.approx(1.0, 2e-2)
-    assert rx.thermo._gas._head_gordon_damping(1000.0) == pytest.approx(1.0, 2e-4)
+    assert rx.thermo._gas._head_gordon_damping(-10.0) == pytest.approx(  # noqa: SLF001
+        rx.thermo._gas._head_gordon_damping(10.0),  # noqa: SLF001
+    )
+    assert rx.thermo._gas._head_gordon_damping(1.0) == pytest.approx(
+        8.67669882e-9,
+    )
+    assert rx.thermo._gas._head_gordon_damping(10.0) == pytest.approx(
+        8.67594611e-5,
+    )
+    assert rx.thermo._gas._head_gordon_damping(100.0) == pytest.approx(
+        0.5,
+        8e-2,
+    )
+    assert rx.thermo._gas._head_gordon_damping(200.0) == pytest.approx(
+        1.0,
+        7e-2,
+    )
+    assert rx.thermo._gas._head_gordon_damping(300.0) == pytest.approx(
+        1.0,
+        2e-2,
+    )
+    assert rx.thermo._gas._head_gordon_damping(1000.0) == pytest.approx(
+        1.0,
+        2e-4,
+    )
 
-    assert rx.thermo._gas._head_gordon_damping(
+    assert rx.thermo._gas._head_gordon_damping(  # noqa: SLF001
         [-70.0, -10.0, 10.0, 100.0, 200.0, 300.0, 1000.0],
     ) == pytest.approx([8.67594611e-5, 8.67594611e-5, 0.5, 1.0, 1.0, 1.0], 8e-2)
 

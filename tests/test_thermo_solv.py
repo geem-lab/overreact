@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for solvation using the `thermo` module."""
 
@@ -159,7 +159,7 @@ def test_entropy_liquid_phase():
     )
 
 
-def test_translational_entropy_liquid_phase():
+def test_translational_entropy_liquid_phase():  # noqa: PLR0915
     """Validate calculated volumes from Table S3 of doi:10.1039/C9CP03226F.
 
     The original data seems to have errors, some severe. I *assumed* this is
@@ -177,10 +177,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(30.93, 8e-2)
     assert vdw_volume == pytest.approx(19.16, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -214,10 +214,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(55.28, 7e-2)
     assert vdw_volume == pytest.approx(36.64, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -254,9 +254,9 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert vdw_volume == pytest.approx(53.66, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -293,9 +293,9 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(100.25, 7e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -332,10 +332,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(100.50, 7e-2)
     assert vdw_volume == pytest.approx(69.95, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -372,10 +372,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(123.34, 7e-2)
     assert vdw_volume == pytest.approx(87.13, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -412,10 +412,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(122.05, 6e-2)
     assert vdw_volume == pytest.approx(86.83, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -452,10 +452,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.2550
+    assert err < 0.2550  # noqa: PLR2004
     assert cav_volume == pytest.approx(122.17, 7e-2)
     assert vdw_volume == pytest.approx(86.83, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -492,10 +492,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(59.41, 5e-2)
     assert vdw_volume == pytest.approx(39.04, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -532,10 +532,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(82.32, 5e-2)
     assert vdw_volume == pytest.approx(55.00, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -572,10 +572,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(68.88, 5e-2)
     assert vdw_volume == pytest.approx(45.26, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -612,10 +612,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(77.29, 5e-2)
     assert vdw_volume == pytest.approx(51.53, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -652,10 +652,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(94.20, 6e-2)
     assert vdw_volume == pytest.approx(65.29, 7e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -688,10 +688,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(104.64, 5e-2)
     assert vdw_volume == pytest.approx(71.19, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -724,10 +724,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(108.71, 7e-2)
     assert vdw_volume == pytest.approx(76.59, 6e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -764,10 +764,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(118.78, 5e-2)
     assert vdw_volume == pytest.approx(83.36, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -804,10 +804,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(128.54, 5e-2)
     assert vdw_volume == pytest.approx(84.22, 2e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -844,10 +844,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(134.53, 8e-2)
     assert vdw_volume == pytest.approx(95.84, 9e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -886,7 +886,7 @@ def test_translational_entropy_liquid_phase():
     )
     assert cav_volume == pytest.approx(156.61, 8e-2)
     assert vdw_volume == pytest.approx(112.34, 9e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -923,10 +923,10 @@ def test_translational_entropy_liquid_phase():
         full_output=True,
         method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(138.74, 7e-2)
     assert vdw_volume == pytest.approx(100.50, 7e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
         data.atomnos,
         data.atomcoords,
         method="izato",
@@ -964,121 +964,121 @@ def test_sackur_tetrode_given_free_volumes():
     each entry accordingly.
     """
     # H2O
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         18.01,
         0.0993e-30 * constants.N_A,
     ) == pytest.approx(37.36, 1e-4)
 
     # CH3OH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         32.04,
         0.116e-30 * constants.N_A,
     ) == pytest.approx(45.85, 1e-3)
 
     # C2H5OH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         46.05,
         0.125e-30 * constants.N_A,
     ) == pytest.approx(51.01, 1e-3)
 
     # 1-C3H7OH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         60.06,
         0.144e-30 * constants.N_A,
     ) == pytest.approx(55.70, 1e-2)
 
     # 2-C3H7OH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         60.06,
         0.148e-30 * constants.N_A,
     ) == pytest.approx(46.81, 1.9e-1)
 
     # 1-C4H9OH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         74.07,
         0.161e-30 * constants.N_A,
     ) == pytest.approx(59.90, 5e-2)
 
     # 2-C4H9OH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         74.07,
         0.151e-30 * constants.N_A,
     ) == pytest.approx(51.64, 1.4e-1)
 
     # i-C4H9OH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         74.07,
         0.152e-30 * constants.N_A,
     ) == pytest.approx(58.71, 1e-2)
 
     # HCOOH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         46.01,
         0.133e-30 * constants.N_A,
     ) == pytest.approx(51.45, 1e-3)
 
     # CH3COOH
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         60.02,
         0.164e-30 * constants.N_A,
     ) == pytest.approx(56.52, 1e-3)
 
     # CH3CN
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         41.03,
         0.153e-30 * constants.N_A,
     ) == pytest.approx(51.25, 1e-3)
 
     # CH3NO2
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         61.02,
         0.156e-30 * constants.N_A,
     ) == pytest.approx(56.34, 1e-4)
 
     # Acetone
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         58.04,
         0.143e-30 * constants.N_A,
     ) == pytest.approx(55.01, 1e-3)
 
     # DMSO
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         78.01,
         0.183e-30 * constants.N_A,
     ) == pytest.approx(60.73, 1e-4)
 
     # THF
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         72.06,
         0.145e-30 * constants.N_A,
     ) == pytest.approx(57.82, 1e-3)
 
     # Benzene
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         78.05,
         0.164e-30 * constants.N_A,
     ) == pytest.approx(74.42, 2e-1)
 
     # CCl4
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         151.88,
         0.292e-30 * constants.N_A,
     ) == pytest.approx(61.39, 1.9e-1)
 
     # C5H12
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         72.09,
         0.164e-30 * constants.N_A,
     ) == pytest.approx(58.84, 1e-3)
 
     # C6H14
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         87.12,
         0.180e-30 * constants.N_A,
     ) == pytest.approx(61.98, 1e-3)
 
     # cyc-C6H12
-    assert rx.thermo._gas._sackur_tetrode(
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
         84.09,
         0.147e-30 * constants.N_A,
     ) == pytest.approx(59.83, 1e-3)

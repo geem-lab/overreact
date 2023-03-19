@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for core module."""
 
@@ -7,7 +7,7 @@ import numpy as np
 import overreact as rx
 
 
-def test_parse_works():
+def test_parse_works():  # noqa: PLR0915
     """Test parsing of reactions."""
     scheme = rx.parse_reactions("A -> B  // a direct reaction")
     assert scheme[0] == ("A", "B")
@@ -121,50 +121,60 @@ def test_parse_works():
 
 def test_private_functions_work():
     """Ensure private functions work as expected."""
-    assert list(rx.core._parse_side("A")) == [(1, "A")]
-    assert list(rx.core._parse_side("A")) == list(rx.core._parse_side("1 A"))
-    assert list(rx.core._parse_side("A")) == list(rx.core._parse_side("1A"))
-    assert list(rx.core._parse_side("500 A")) == [(500, "A")]
-    assert list(rx.core._parse_side("A + 2 B + 500 D")) == [
+    assert list(rx.core._parse_side("A")) == [(1, "A")]  # noqa: SLF001
+    assert list(rx.core._parse_side("A")) == list(
+        rx.core._parse_side("1 A"),
+    )
+    assert list(rx.core._parse_side("A")) == list(
+        rx.core._parse_side("1A"),
+    )
+    assert list(rx.core._parse_side("500 A")) == [(500, "A")]  # noqa: SLF001
+    assert list(rx.core._parse_side("A + 2 B + 500 D")) == [  # noqa: SLF001
         (1, "A"),
         (2, "B"),
         (500, "D"),
     ]
 
-    assert rx.core._unparse_side([(1, "A")]) == "A"
-    assert rx.core._unparse_side([(500, "A")]) == "500 A"
+    assert rx.core._unparse_side([(1, "A")]) == "A"  # noqa: SLF001
+    assert rx.core._unparse_side([(500, "A")]) == "500 A"  # noqa: SLF001
     assert rx.core._unparse_side([(1, "A"), (2, "B"), (500, "D")]) == "A + 2 B + 500 D"
 
     assert (
-        rx.core._unparse_side(
-            rx.core._parse_side(" 2  *A*1*   +    40B1     +      chlorophyll"),
+        rx.core._unparse_side(  # noqa: SLF001
+            rx.core._parse_side(
+                " 2  *A*1*   +    40B1     +      chlorophyll",
+            ),
         )
         == "2 *A*1* + 40 B1 + chlorophyll"
     )
 
-    assert list(rx.core._parse_reactions("A -> B")) == [
+    assert list(rx.core._parse_reactions("A -> B")) == [  # noqa: SLF001
         (((1, "A"),), ((1, "B"),), False),
     ]
-    assert list(rx.core._parse_reactions("A <=> B")) == [
+    assert list(rx.core._parse_reactions("A <=> B")) == [  # noqa: SLF001
         (((1, "A"),), ((1, "B"),), True),
         (((1, "B"),), ((1, "A"),), True),
     ]
-    assert list(rx.core._parse_reactions("2 A -> B\nA -> 20B")) == [
+    assert list(rx.core._parse_reactions("2 A -> B\nA -> 20B")) == [  # noqa: SLF001
         (((2, "A"),), ((1, "B"),), False),
         (((1, "A"),), ((20, "B"),), False),
     ]
-    assert list(rx.core._parse_reactions("E + S <=> ES -> ES‡ -> E + P")) == [
+    assert list(
+        rx.core._parse_reactions("E + S <=> ES -> ES‡ -> E + P"),
+    ) == [
         (((1, "E"), (1, "S")), ((1, "ES"),), True),
         (((1, "ES"),), ((1, "E"), (1, "S")), True),
         (((1, "ES"),), ((1, "ES‡"),), False),
         (((1, "ES‡"),), ((1, "E"), (1, "P")), False),
     ]
 
-    assert list(rx.core._unparse_reactions([(((1, "A"),), ((1, "B"),), True)])) == [
+    assert list(
+        rx.core._unparse_reactions([(((1, "A"),), ((1, "B"),), True)]),
+    ) == [
         "A -> B",
     ]
     assert list(
-        rx.core._unparse_reactions(
+        rx.core._unparse_reactions(  # noqa: SLF001
             [
                 (((2, "A"),), ((3, "B"),), True),
                 (((1, "A"),), ((2, "C"),), True),
@@ -173,7 +183,7 @@ def test_private_functions_work():
         ),
     ) == ["2 A -> 3 B", "A -> 2 C", "50 A -> D"]
     assert list(
-        rx.core._unparse_reactions(
+        rx.core._unparse_reactions(  # noqa: SLF001
             [
                 (((1, "E"), (1, "S")), ((1, "ES"),), True),
                 (((1, "ES"),), ((1, "E"), (1, "S")), True),
@@ -184,8 +194,10 @@ def test_private_functions_work():
     ) == ["E + S -> ES", "ES -> E + S", "ES -> ES‡", "ES‡ -> E + P"]
 
     assert list(
-        rx.core._unparse_reactions(
-            rx.core._parse_reactions("1 A -> 2 B <- C <=> 40 D <- E\nA -> 2 B <=> C"),
+        rx.core._unparse_reactions(  # noqa: SLF001
+            rx.core._parse_reactions(
+                "1 A -> 2 B <- C <=> 40 D <- E\nA -> 2 B <=> C",
+            ),
         ),
     ) == [
         "A -> 2 B",

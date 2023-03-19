@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for module io."""
 
@@ -22,7 +22,7 @@ def test_parse_model_raises_filenotfounderror():
         rx.io.parse_model("unreachable.jk")
 
 
-def test_sanity_for_absolute_thermochemistry():
+def test_sanity_for_absolute_thermochemistry():  # noqa: PLR0915
     """Ensure we have decent quality for (absolute) thermochemical analysis.
 
     This partially ensures we do similar analysis as Gaussian, see
@@ -66,7 +66,7 @@ def test_sanity_for_absolute_thermochemistry():
         7e-2,
     )
     assert data.vibfreqs == pytest.approx(vibfreqs, 1.8)  # just for sanity
-    zpe = rx.thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)
+    zpe = rx.thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)  # noqa: SLF001
     assert zpe == pytest.approx(204885.0, 6e-2)
     assert zpe / constants.kcal == pytest.approx(48.96870, 6e-2)
     assert zpe / (constants.hartree * constants.N_A) == pytest.approx(0.078037, 6e-2)
@@ -169,7 +169,7 @@ def test_sanity_for_absolute_thermochemistry():
         6e-2,
     )
     assert data.vibfreqs == pytest.approx(vibfreqs, 3e-1)
-    zpe = rx.thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)
+    zpe = rx.thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)  # noqa: SLF001
     assert zpe == pytest.approx(204885.0, 6e-2)
     assert zpe / constants.kcal == pytest.approx(48.96870, 6e-2)
     assert zpe / (constants.hartree * constants.N_A) == pytest.approx(0.078037, 6e-2)
@@ -260,7 +260,7 @@ def test_sanity_for_absolute_thermochemistry():
     )  # ORCA logfile
 
 
-def test_compare_rrho_with_orca_logfile():
+def test_compare_rrho_with_orca_logfile():  # noqa: PLR0915
     """Ensure we have decent quality for RRHO thermochemical analysis.
 
     Values from ORCA logfiles are tested.
@@ -274,21 +274,24 @@ def test_compare_rrho_with_orca_logfile():
     symmetry_number = coords.symmetry_number(
         coords.find_point_group(data.atommasses, data.atomcoords),
     )
-    assert symmetry_number == 12  # ORCA fails to find D6h symmetry!
+    assert symmetry_number == 12  # ORCA fails to find D6h symmetry!  # noqa: PLR2004
     internal_energy = rx.thermo.calc_internal_energy(
         energy=data.energy,
         degeneracy=data.mult,
         moments=moments,
         vibfreqs=data.vibfreqs,
     )
-    zpe = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs, temperature=0.0)
-    elec_energy = rx.thermo._gas.calc_elec_energy(
+    zpe = rx.thermo._gas.calc_vib_energy(
+        vibfreqs=data.vibfreqs,
+        temperature=0.0,
+    )
+    elec_energy = rx.thermo._gas.calc_elec_energy(  # noqa: SLF001
         energy=data.energy,
         degeneracy=data.mult,
     )
-    vib_energy = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs)
-    rot_energy = rx.thermo._gas.calc_rot_energy(moments=moments)
-    trans_energy = rx.thermo._gas.calc_trans_energy()
+    vib_energy = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs)  # noqa: SLF001
+    rot_energy = rx.thermo._gas.calc_rot_energy(moments=moments)  # noqa: SLF001
+    trans_energy = rx.thermo._gas.calc_trans_energy()  # noqa: SLF001
     enthalpy = rx.thermo.calc_enthalpy(
         energy=data.energy,
         degeneracy=data.mult,
@@ -303,12 +306,14 @@ def test_compare_rrho_with_orca_logfile():
         symmetry_number=symmetry_number,
         vibfreqs=data.vibfreqs,
     )
-    elec_entropy = rx.thermo._gas.calc_elec_entropy(
+    elec_entropy = rx.thermo._gas.calc_elec_entropy(  # noqa: SLF001
         energy=data.energy,
         degeneracy=data.mult,
     )
-    vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs=data.vibfreqs)
-    rot_entropy = rx.thermo._gas.calc_rot_entropy(
+    vib_entropy = rx.thermo._gas.calc_vib_entropy(
+        vibfreqs=data.vibfreqs,
+    )
+    rot_entropy = rx.thermo._gas.calc_rot_entropy(  # noqa: SLF001
         moments=moments,
         symmetry_number=symmetry_number,
     )
@@ -439,7 +444,7 @@ def test_compare_rrho_with_orca_logfile():
     )  # ORCA logfile
 
 
-def test_compare_qrrho_with_orca_logfile():
+def test_compare_qrrho_with_orca_logfile():  # noqa: PLR0915
     """Ensure we have decent quality for QRRHO thermochemical analysis.
 
     Values from ORCA logfiles are tested.
@@ -453,7 +458,7 @@ def test_compare_qrrho_with_orca_logfile():
     symmetry_number = coords.symmetry_number(
         coords.find_point_group(data.atommasses, data.atomcoords),
     )
-    assert symmetry_number == 3
+    assert symmetry_number == 3  # noqa: PLR2004
     internal_energy = rx.thermo.calc_internal_energy(
         energy=data.energy,
         degeneracy=data.mult,
@@ -461,18 +466,21 @@ def test_compare_qrrho_with_orca_logfile():
         vibfreqs=data.vibfreqs,
         qrrho=False,
     )
-    zpe = rx.thermo._gas.calc_vib_energy(
+    zpe = rx.thermo._gas.calc_vib_energy(  # noqa: SLF001
         vibfreqs=data.vibfreqs,
         qrrho=False,
         temperature=0.0,
     )
-    elec_energy = rx.thermo._gas.calc_elec_energy(
+    elec_energy = rx.thermo._gas.calc_elec_energy(  # noqa: SLF001
         energy=data.energy,
         degeneracy=data.mult,
     )
-    vib_energy = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs, qrrho=False)
-    rot_energy = rx.thermo._gas.calc_rot_energy(moments=moments)
-    trans_energy = rx.thermo._gas.calc_trans_energy()
+    vib_energy = rx.thermo._gas.calc_vib_energy(
+        vibfreqs=data.vibfreqs,
+        qrrho=False,
+    )
+    rot_energy = rx.thermo._gas.calc_rot_energy(moments=moments)  # noqa: SLF001
+    trans_energy = rx.thermo._gas.calc_trans_energy()  # noqa: SLF001
     enthalpy = rx.thermo.calc_enthalpy(
         energy=data.energy,
         degeneracy=data.mult,
@@ -488,12 +496,14 @@ def test_compare_qrrho_with_orca_logfile():
         symmetry_number=symmetry_number,
         vibfreqs=data.vibfreqs,
     )
-    elec_entropy = rx.thermo._gas.calc_elec_entropy(
+    elec_entropy = rx.thermo._gas.calc_elec_entropy(  # noqa: SLF001
         energy=data.energy,
         degeneracy=data.mult,
     )
-    vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs=data.vibfreqs)
-    rot_entropy = rx.thermo._gas.calc_rot_entropy(
+    vib_entropy = rx.thermo._gas.calc_vib_entropy(
+        vibfreqs=data.vibfreqs,
+    )
+    rot_entropy = rx.thermo._gas.calc_rot_entropy(  # noqa: SLF001
         moments=moments,
         symmetry_number=symmetry_number,
     )
@@ -641,7 +651,7 @@ def test_read_logfile():
     assert set(data) == fields
     assert data.logfile == "data/tanaka1996/UMP2/6-311G(2df,2pd)/Cl·.out"
     assert data.energy == pytest.approx(-1206891740.7180765, 3e-5)
-    assert data.mult == 2
+    assert data.mult == 2  # noqa: PLR2004
     assert data.atomnos == pytest.approx(np.array([17]))
     assert data.atommasses == pytest.approx(np.array([35.453]))
     assert data.atomcoords == pytest.approx(np.array([[0.0, 0.0, 0.0]]))
@@ -650,7 +660,7 @@ def test_read_logfile():
     data = rx.io.read_logfile("data/symmetries/chlorobromofluoromethane.out")
     assert set(data) == fields
     assert data.logfile == "data/symmetries/chlorobromofluoromethane.out"
-    assert data.energy == -8327995636.7634325
+    assert data.energy == -8327995636.7634325  # noqa: PLR2004
     assert data.mult == 1
     assert data.atomnos == pytest.approx(np.array([6, 35, 17, 9, 1]))
     assert data.atommasses == pytest.approx(
@@ -667,7 +677,7 @@ def test_read_logfile():
             ],
         ),
     )
-    assert len(data.vibfreqs) == 9
+    assert len(data.vibfreqs) == 9  # noqa: PLR2004
     assert data.vibfreqs == pytest.approx(
         np.array(
             [
@@ -700,7 +710,7 @@ def test_read_logfile_from_orca_xtb():
     data = rx.io.read_logfile("data/symmetries/Xe.out")
     assert set(data) == fields
     assert data.logfile == "data/symmetries/Xe.out"
-    assert data.energy == -10194122.6419248
+    assert data.energy == -10194122.6419248  # noqa: PLR2004
     assert data.mult == 1
     assert data.atomnos == pytest.approx(np.array([54]))
     assert data.atommasses == pytest.approx(np.array([131.293]))
@@ -761,7 +771,7 @@ def test_read_logfile_from_orca_xtb():
         ),
         abs=1e-2,
     )
-    assert len(data.vibfreqs) == 42
+    assert len(data.vibfreqs) == 42  # noqa: PLR2004
     assert data.vibfreqs == pytest.approx(
         np.array(
             [
