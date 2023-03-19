@@ -437,7 +437,7 @@ def calc_entropy(  # noqa: PLR0913
             pressure=pressure,
         )
         logger.debug(
-            f"concentration correction = {concentration_correction} J/mol·K",  # noqa: G004
+            f"concentration correction = {concentration_correction} J/mol·K",  # noqa: E501, G004
         )
         entropy = entropy + concentration_correction
         if method == "standard":

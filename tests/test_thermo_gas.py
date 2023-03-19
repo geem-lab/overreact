@@ -89,7 +89,7 @@ def test_sanity_for_absolute_thermochemistry():
         ],
     )
     vibfreqs = vibtemps * constants.k * constants.centi / (constants.h * constants.c)
-    assert rx.thermo._gas._vibrational_temperature(
+    assert rx.thermo._gas._vibrational_temperature(  # noqa: SLF001
         vibfreqs,
     ) == pytest.approx(
         vibtemps,

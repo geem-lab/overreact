@@ -365,7 +365,7 @@ def _adjust_k(scheme, k, ef=EF):
             k_slowest_equil = k[is_half_equilibrium].min()
             k_fastest_react = k[~is_half_equilibrium].max()
             logger.warning(
-                f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}",  # noqa: G004
+                f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}",  # noqa: E501, G004
             )
         else:
             # only equilibria

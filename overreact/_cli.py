@@ -694,7 +694,7 @@ class Report:
 
             t.update(
                 np.geomspace(
-                    np.min([_t for _t in t if _t > 0.0]),
+                    np.min([_t for _t in t if _t > 0.0]),  # noqa: PLR2004
                     t_max,
                     num=num,
                 ),

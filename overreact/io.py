@@ -550,7 +550,7 @@ def parse_compounds(text, path=("",), select=None):  # noqa: C901, PLR0912
                     try:
                         # TODO: move on to use pathlib.
                         logger.info(
-                            f"trying to read {os.path.join(p, value)}",  # noqa: PTH118, G004
+                            f"trying to read {os.path.join(p, value)}",  # noqa: E501, G004, PTH118
                         )
                         compounds[name].update(
                             read_logfile(os.path.join(p, value)),  # noqa: PTH118
