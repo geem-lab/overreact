@@ -29,5 +29,5 @@ def test_broaden_spectrum_works():
             0.70860709,
             0.28544362,
             0.0863263,
-        ]
+        ],
     )
