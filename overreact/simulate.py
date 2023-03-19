@@ -557,8 +557,8 @@ def get_fixed_scheme(scheme, k, fixed_y0):
             new_reactions.append((new_reactants, new_products, is_half_equilibrium))
 
     new_reactions = tuple(
-        r for r in rx.core._unparse_reactions(new_reactions)
-    )  # noqa: SLF001
+        r for r in rx.core._unparse_reactions(new_reactions)  # noqa: SLF001
+    )  # noqa: RUF100, SLF001
     new_is_half_equilibrium = scheme.is_half_equilibrium
 
     new_A = []  # noqa: N806

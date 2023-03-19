@@ -689,9 +689,9 @@ def _find_point_group_symmetric_dihedral(  # noqa: PLR0913
     if mirror_axes:
         if mirror_axes[0][0] == "h":
             return f"D{proper_axes[0][0]}h"
-        elif (
+        elif (  # noqa: RET505
             len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]
-        ):  # noqa: RET505
+        ):  # noqa: RET505, RUF100
             # all vertical mirror planes are dihedral for Dnd point groups
             return f"D{proper_axes[0][0]}d"
     return f"D{proper_axes[0][0]}"
@@ -734,9 +734,9 @@ def _find_point_group_symmetric_nondihedral(  # noqa: PLR0913
     if mirror_axes:
         if mirror_axes[0][0] == "h":
             return f"C{proper_axes[0][0]}h"
-        elif (
+        elif (  # noqa: RET505
             len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]
-        ):  # noqa: RET505
+        ):  # noqa: RET505, RUF100
             return f"C{proper_axes[0][0]}v"
 
     improper_axes = _get_improper_axes(
