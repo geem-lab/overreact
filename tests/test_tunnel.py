@@ -20,7 +20,8 @@ def test_wigner_tunneling_corrections_are_correct():
     assert rx.tunnel.wigner(158) == pytest.approx(1.0242225691391296)
 
     assert rx.tunnel.wigner(1218, temperature=[200, 298.15, 300, 400]) == pytest.approx(
-        [4.2, 2.4, 2.4, 1.8], 1.7e-2,
+        [4.2, 2.4, 2.4, 1.8],
+        1.7e-2,
     )
 
 

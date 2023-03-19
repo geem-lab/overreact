@@ -23,7 +23,8 @@ def test_reference_raw_constants():
     assert constants.c / constants.centi == pytest.approx(2.99792458e10)
     assert constants.k == pytest.approx(1.3806488e-23)
     assert rx.thermo.molar_volume(
-        temperature=273.15, pressure=constants.bar,
+        temperature=273.15,
+        pressure=constants.bar,
     ) == pytest.approx(0.022710953)
 
 

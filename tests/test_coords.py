@@ -25,11 +25,19 @@ def test_can_understand_K_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert coords._has_inversion_center(atomcoords, groups)
@@ -57,11 +65,19 @@ def test_can_understand_C1_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -87,11 +103,19 @@ def test_can_understand_Cs_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == ""
@@ -116,11 +140,19 @@ def test_can_understand_Cs_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == ""
@@ -145,11 +177,19 @@ def test_can_understand_Cs_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == ""
@@ -177,11 +217,19 @@ def test_can_understand_Ci_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert coords._has_inversion_center(atomcoords, groups)
@@ -209,11 +257,19 @@ def test_can_understand_Ci_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert coords._has_inversion_center(atomcoords, groups)
@@ -238,11 +294,19 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -264,11 +328,19 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
     proper_axes = coords._get_proper_axes(atomcoords, groups, axes, rotor_class)
     assert len(proper_axes) == 0
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -295,13 +367,21 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802
     assert len(proper_axes) == 1
     assert proper_axes[0][0] == 2
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
@@ -325,13 +405,21 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
@@ -358,11 +446,19 @@ def test_can_understand_C2_symmetry():  # noqa: N802
     assert len(proper_axes) == 1
     assert proper_axes[0][0] == 2
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -388,11 +484,19 @@ def test_can_understand_C2_symmetry():  # noqa: N802
         [-6.265379700455943e-5, 0.0388451244158036, -0.9992452413615102],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -420,11 +524,19 @@ def test_can_understand_C3_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -466,11 +578,19 @@ def test_can_understand_C3_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -496,13 +616,21 @@ def test_can_understand_C2h_symmetry():  # noqa: N802
     assert len(proper_axes) == 1
     assert proper_axes[0][0] == 2
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
@@ -531,13 +659,21 @@ def test_can_understand_C2h_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, -1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
@@ -570,13 +706,21 @@ def test_can_understand_C3h_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 3
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
@@ -605,11 +749,19 @@ def test_can_understand_C2v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -638,11 +790,19 @@ def test_can_understand_C2v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -675,11 +835,19 @@ def test_can_understand_C2v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -714,11 +882,19 @@ def test_can_understand_C2v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -750,11 +926,19 @@ def test_can_understand_C2v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -791,11 +975,19 @@ def test_can_understand_C2v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -829,11 +1021,19 @@ def test_can_understand_C2v_symmetry():  # noqa: N802
         [0.001877205661635017, 0.011104681211935762, 0.9999365790659351],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -865,11 +1065,19 @@ def test_can_understand_C3v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
@@ -915,11 +1123,19 @@ def test_can_understand_C3v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
@@ -954,11 +1170,19 @@ def test_can_understand_C3v_symmetry():  # noqa: N802
     assert len(proper_axes) == 1
     assert proper_axes[0][0] == 3
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
@@ -1001,11 +1225,19 @@ def test_can_understand_C3v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
@@ -1045,11 +1277,19 @@ def test_can_understand_C4v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 4
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "v"
@@ -1082,11 +1322,19 @@ def test_can_understand_C5v_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 5
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 5
     assert mirror_axes[0][0] == "v"
@@ -1142,11 +1390,19 @@ def test_can_understand_D2_symmetry():  # noqa: N802
     assert proper_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
     assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -1188,11 +1444,19 @@ def test_can_understand_D3_symmetry():  # noqa: N802
         [-0.8695351060281812, 0.49387058756810087, 0.0007362877823667492],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -1233,11 +1497,19 @@ def test_can_understand_D3_symmetry():  # noqa: N802
         [-0.8668052702358067, -0.49864677853044065, 0.00011727166713889237],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -1292,11 +1564,19 @@ def test_can_understand_D5_symmetry():  # noqa: N802
         [0.0, 0.8090168500740541, -0.5877854509055626],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 0
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -1325,7 +1605,11 @@ def test_can_understand_D2h_symmetry():  # noqa: N802
     assert proper_axes[2][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 3
     assert improper_axes[0][0] == 2
@@ -1335,7 +1619,11 @@ def test_can_understand_D2h_symmetry():  # noqa: N802
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "h"
@@ -1365,7 +1653,11 @@ def test_can_understand_D2h_symmetry():  # noqa: N802
     assert proper_axes[2][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 3
     assert improper_axes[0][0] == 2
@@ -1375,7 +1667,11 @@ def test_can_understand_D2h_symmetry():  # noqa: N802
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "h"
@@ -1410,7 +1706,11 @@ def test_can_understand_D2h_symmetry():  # noqa: N802
     assert proper_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
     assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 3
     assert improper_axes[0][0] == 2
@@ -1420,7 +1720,11 @@ def test_can_understand_D2h_symmetry():  # noqa: N802
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "h"
@@ -1455,7 +1759,11 @@ def test_can_understand_D2h_symmetry():  # noqa: N802
     assert proper_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
     assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 3
     assert improper_axes[0][0] == 2
@@ -1465,7 +1773,11 @@ def test_can_understand_D2h_symmetry():  # noqa: N802
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "h"
@@ -1519,13 +1831,21 @@ def test_can_understand_D3h_symmetry():  # noqa: N802
         [-5.13760417702473e-5, 0.988178974905995, -0.15330463435343078],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 3
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "h"
@@ -1573,13 +1893,21 @@ def test_can_understand_D3h_symmetry():  # noqa: N802
         [-0.9281566611554543, -0.37218975302286383, 9.876181775103538e-6],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 3
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "h"
@@ -1619,13 +1947,21 @@ def test_can_understand_D3h_symmetry():  # noqa: N802
     assert proper_axes[3][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 3
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "h"
@@ -1660,7 +1996,11 @@ def test_can_understand_D4h_symmetry():  # noqa: N802
     assert proper_axes[4][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 5
     assert improper_axes[0][0] == 4
@@ -1674,7 +2014,11 @@ def test_can_understand_D4h_symmetry():  # noqa: N802
     assert improper_axes[3][1] == proper_axes[3][1]
     assert improper_axes[4][1] == proper_axes[4][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 5
     assert mirror_axes[0][0] == "h"
@@ -1721,7 +2065,11 @@ def test_can_understand_D4h_symmetry():  # noqa: N802
         [-0.000153000029355287, -0.9999999882933196, -2.0860089700576687e-6],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 5
     assert improper_axes[0][0] == 4
@@ -1735,7 +2083,11 @@ def test_can_understand_D4h_symmetry():  # noqa: N802
     assert improper_axes[3][1] == proper_axes[3][1]
     assert improper_axes[4][1] == proper_axes[4][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 5
     assert mirror_axes[0][0] == "h"
@@ -1794,13 +2146,21 @@ def test_can_understand_D5h_symmetry():  # noqa: N802
     assert proper_axes[5][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 5
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 6
     assert mirror_axes[0][0] == "h"
@@ -1849,13 +2209,21 @@ def test_can_understand_D5h_symmetry():  # noqa: N802
         [-0.00026868634145792505, 0.5877676345338332, 0.8090297495161426],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 5
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 6
     assert mirror_axes[0][0] == "h"
@@ -1924,7 +2292,11 @@ def test_can_understand_D6h_symmetry():  # noqa: N802
         [-0.19146486729407206, -0.9814994674434222, 5.848736671162612e-7],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 7
     assert improper_axes[0][0] == 6
@@ -1942,7 +2314,11 @@ def test_can_understand_D6h_symmetry():  # noqa: N802
     assert improper_axes[5][1] == proper_axes[5][1]
     assert improper_axes[6][1] == proper_axes[6][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 7
     assert mirror_axes[0][0] == "h"
@@ -2022,13 +2398,21 @@ def test_can_understand_D7h_symmetry():  # noqa: N802
         [-0.08224227562969463, 0.9966123646156138, 5.286325905118405e-5],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 7
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 8
     assert mirror_axes[0][0] == "h"
@@ -2126,7 +2510,11 @@ def test_can_understand_D8h_symmetry():  # noqa: N802
         [-0.5992048424224103, 0.8005957511766552, 3.927016327532347e-6],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 9
     assert improper_axes[0][0] == 8
@@ -2148,7 +2536,11 @@ def test_can_understand_D8h_symmetry():  # noqa: N802
     assert improper_axes[7][1] == proper_axes[7][1]
     assert improper_axes[8][1] == proper_axes[8][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 9
     assert mirror_axes[0][0] == "h"
@@ -2217,13 +2609,21 @@ def test_can_understand_D2d_symmetry():  # noqa: N802
         [-0.00012735231509610425, 0.365345598359124, -0.9308719447598587],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -2256,13 +2656,21 @@ def test_can_understand_D2d_symmetry():  # noqa: N802
     assert proper_axes[2][0] == 2
     assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[2][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
@@ -2318,7 +2726,11 @@ def test_can_understand_D3d_symmetry():  # noqa: N802
         [-0.00015396128883686421, 0.1666592192271586, -0.9860145439812312],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 4
     assert improper_axes[0][0] == 6
@@ -2330,7 +2742,11 @@ def test_can_understand_D3d_symmetry():  # noqa: N802
     assert improper_axes[2][1] == proper_axes[2][1]
     assert improper_axes[3][1] == proper_axes[3][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
@@ -2378,7 +2794,11 @@ def test_can_understand_D3d_symmetry():  # noqa: N802
         [0.3145021354292675, 0.9492567628633137, -7.048895828035251e-5],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 4
     assert improper_axes[0][0] == 6
@@ -2390,7 +2810,11 @@ def test_can_understand_D3d_symmetry():  # noqa: N802
     assert improper_axes[2][1] == proper_axes[2][1]
     assert improper_axes[3][1] == proper_axes[3][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
@@ -2442,13 +2866,21 @@ def test_can_understand_D4d_symmetry():  # noqa: N802
         [-0.49116983754349636, -0.8710638121055401, 0.00016102068144324463],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 8
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "v"
@@ -2519,7 +2951,11 @@ def test_can_understand_D5d_symmetry():  # noqa: N802
         [-4.784454416974403e-6, -0.30902881328774495, -0.951052676004372],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 6
     assert improper_axes[0][0] == 10
@@ -2535,7 +2971,11 @@ def test_can_understand_D5d_symmetry():  # noqa: N802
     assert improper_axes[4][1] == proper_axes[4][1]
     assert improper_axes[5][1] == proper_axes[5][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 5
     assert mirror_axes[0][0] == "v"
@@ -2591,13 +3031,21 @@ def test_can_understand_S4_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -2621,13 +3069,21 @@ def test_can_understand_S4_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -2660,13 +3116,21 @@ def test_can_understand_S4_symmetry():  # noqa: N802
     assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 0
     assert not coords._has_inversion_center(atomcoords, groups)
@@ -2715,7 +3179,11 @@ def test_can_understand_Td_symmetry():  # noqa: N802
     assert proper_axes[5][1] == pytest.approx([0.0, -1.0, 0.0])
     assert proper_axes[6][1] == pytest.approx([-1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 3
     assert improper_axes[0][0] == 4
@@ -2725,7 +3193,11 @@ def test_can_understand_Td_symmetry():  # noqa: N802
     assert improper_axes[1][1] == proper_axes[5][1]
     assert improper_axes[2][1] == proper_axes[6][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 6
     assert mirror_axes[0][0] == "v"
@@ -2793,7 +3265,11 @@ def test_can_understand_Td_symmetry():  # noqa: N802
     assert proper_axes[5][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[6][1] == pytest.approx([0.0, -1.0, 0.0])
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 3
     assert improper_axes[0][0] == 4
@@ -2803,7 +3279,11 @@ def test_can_understand_Td_symmetry():  # noqa: N802
     assert improper_axes[1][1] == proper_axes[5][1]
     assert improper_axes[2][1] == proper_axes[6][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 6
     assert mirror_axes[0][0] == "v"
@@ -2913,7 +3393,11 @@ def test_can_understand_Oh_symmetry():  # noqa: N802
         [-0.5856129657464667, -0.26164449901693576, 0.7672024572978141],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 13
     assert improper_axes[0][0] == 6
@@ -2943,7 +3427,11 @@ def test_can_understand_Oh_symmetry():  # noqa: N802
     assert improper_axes[11][1] == proper_axes[11][1]
     assert improper_axes[12][1] == proper_axes[12][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 9
     assert mirror_axes[0][0] == "h"
@@ -3052,7 +3540,11 @@ def test_can_understand_Oh_symmetry():  # noqa: N802
         [-0.9770164502779867, 0.21020438400853103, 0.03539735625433769],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 13
     assert improper_axes[0][0] == 6
@@ -3082,7 +3574,11 @@ def test_can_understand_Oh_symmetry():  # noqa: N802
     assert improper_axes[11][1] == proper_axes[11][1]
     assert improper_axes[12][1] == proper_axes[12][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 9
     assert mirror_axes[0][0] == "h"
@@ -3146,13 +3642,21 @@ def test_can_understand_Ih_symmetry():  # noqa: N802
         [0.32276287512969803, -0.8506628423519896, 0.41496608907192073],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 1
     assert improper_axes[0][0] == 10
     assert improper_axes[0][1] == proper_axes[0][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 15
     assert mirror_axes[0][0] == ""
@@ -3259,7 +3763,11 @@ def test_can_understand_Ih_symmetry():  # noqa: N802
     assert proper_axes[24][0] == 2
     assert proper_axes[25][0] == 2
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 26
     assert improper_axes[0][0] == 10
@@ -3315,7 +3823,11 @@ def test_can_understand_Ih_symmetry():  # noqa: N802
     assert improper_axes[24][1] == proper_axes[24][1]
     assert improper_axes[25][1] == proper_axes[25][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 15
     assert mirror_axes[0][0] == ""
@@ -3454,7 +3966,11 @@ def test_can_understand_Ih_symmetry():  # noqa: N802
         [-0.8700854547086772, 0.38413725024405565, 0.30885251250286183],
     )
     improper_axes = coords._get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(improper_axes) == 26
     assert improper_axes[0][0] == 10
@@ -3510,7 +4026,11 @@ def test_can_understand_Ih_symmetry():  # noqa: N802
     assert improper_axes[24][1] == proper_axes[24][1]
     assert improper_axes[25][1] == proper_axes[25][1]
     mirror_axes = coords._get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
     )
     assert len(mirror_axes) == 15
     assert mirror_axes[0][0] == ""
@@ -3649,13 +4169,19 @@ def test_can_rotate_to_principal_axes():
     data = datasets.logfiles["symmetries"]["water"]
 
     old_moments, old_axes, old_atomcoords = coords.inertia(
-        data.atommasses, data.atomcoords, align=False,
+        data.atommasses,
+        data.atomcoords,
+        align=False,
     )
     moments, axes, atomcoords = coords.inertia(
-        data.atommasses, data.atomcoords, align=True,
+        data.atommasses,
+        data.atomcoords,
+        align=True,
     )
     new_moments, new_axes, new_atomcoords = coords.inertia(
-        data.atommasses, atomcoords, align=False,
+        data.atommasses,
+        atomcoords,
+        align=False,
     )
 
     assert old_moments == pytest.approx(moments)

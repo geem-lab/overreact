@@ -63,10 +63,12 @@ def test_eyring_calculates_reaction_barrier():
 
     # many temperatures at once
     assert rx.rates.eyring(
-        barrier1, temperature=[14.01, 298.15, 1074.0],
+        barrier1,
+        temperature=[14.01, 298.15, 1074.0],
     ) == pytest.approx([0.0, 1.38, 6.8808e9], 4e-3)
     assert rx.rates.eyring(
-        barrier2, temperature=[14.01, 298.15, 1074.0],
+        barrier2,
+        temperature=[14.01, 298.15, 1074.0],
     ) == pytest.approx([0.0, 0.0928, 3.2513e9], 3e-3)
 
     # many activation barriers at once
@@ -74,7 +76,8 @@ def test_eyring_calculates_reaction_barrier():
 
     # many pairs of activation barriers and temperatures
     assert rx.rates.eyring(
-        [barrier1, barrier2], temperature=[298.15, 1074.0],
+        [barrier1, barrier2],
+        temperature=[298.15, 1074.0],
     ) == pytest.approx([1.38, 3.2513e9], 4e-3)
 
 
@@ -95,7 +98,8 @@ def test_smoluchowski_calculates_diffusion_limited_reaction_rates():
         ],
         temperature=[298.15, 300.00, 310.00, 320.00, 330.00, 340.00, 350.00],
     ) / constants.liter == pytest.approx(
-        [3.6e9, 3.8e9, 4.9e9, 6.0e9, 7.3e9, 8.8e9, 1.0e10], 4e-2,
+        [3.6e9, 3.8e9, 4.9e9, 6.0e9, 7.3e9, 8.8e9, 1.0e10],
+        4e-2,
     )
 
     assert rx.rates.smoluchowski(
@@ -104,7 +108,8 @@ def test_smoluchowski_calculates_diffusion_limited_reaction_rates():
         viscosity="water",
         temperature=[298.15, 300.00, 310.00, 320.00, 330.00, 340.00, 350.00],
     ) / constants.liter == pytest.approx(
-        [3.6e9, 3.8e9, 4.9e9, 6.0e9, 7.3e9, 8.8e9, 1.0e10], 4e-2,
+        [3.6e9, 3.8e9, 4.9e9, 6.0e9, 7.3e9, 8.8e9, 1.0e10],
+        4e-2,
     )
 
 
@@ -119,7 +124,8 @@ def test_liquid_viscosities_are_correct():
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([2.24e-1])
     assert rx.rates.liquid_viscosity("pentane", temperature) == pytest.approx(
-        viscosity, 4e-3,
+        viscosity,
+        4e-3,
     )
 
     # - hexane (doi:10.1063/1.555943):
@@ -127,14 +133,16 @@ def test_liquid_viscosities_are_correct():
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.295])
     assert rx.rates.liquid_viscosity("hexane", temperature) == pytest.approx(
-        viscosity, 5e-3,
+        viscosity,
+        5e-3,
     )
 
     # - acetone (doi:10.1021/je00017a031):
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.302])
     assert rx.rates.liquid_viscosity("acetone", temperature) == pytest.approx(
-        viscosity, 2e-2,
+        viscosity,
+        2e-2,
     )
 
     # - heptane (doi:10.1063/1.555943):
@@ -142,7 +150,8 @@ def test_liquid_viscosities_are_correct():
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.389])
     assert rx.rates.liquid_viscosity("heptane", temperature) == pytest.approx(
-        viscosity, 9e-5,
+        viscosity,
+        9e-5,
     )
 
     # - octane (doi:10.1063/1.555943):
@@ -150,14 +159,16 @@ def test_liquid_viscosities_are_correct():
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.509])
     assert rx.rates.liquid_viscosity("octane", temperature) == pytest.approx(
-        viscosity, 2e-3,
+        viscosity,
+        2e-3,
     )
 
     # - benzene (isbn:978-1138561632):
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([0.604])
     assert rx.rates.liquid_viscosity("benzene", temperature) == pytest.approx(
-        viscosity, 7e-3,
+        viscosity,
+        7e-3,
     )
 
     # - water (isbn:978-1138561632):
@@ -166,7 +177,8 @@ def test_liquid_viscosities_are_correct():
         [1.3059, 1.0016, 8.90e-1, 0.79722, 0.54652, 0.40355, 0.31417],
     )
     assert rx.rates.liquid_viscosity("water", temperature) == pytest.approx(
-        viscosity, 3e-2,
+        viscosity,
+        3e-2,
     )
 
     # - water (doi:10.1002/9781118131473):
@@ -192,28 +204,32 @@ def test_liquid_viscosities_are_correct():
         ],
     )
     assert rx.rates.liquid_viscosity("water", temperature) == pytest.approx(
-        viscosity, 6e-2,
+        viscosity,
+        6e-2,
     )
 
     # - water (doi:10.1002/qua.25686):
     temperature = np.array([298.15, 300, 310, 320, 330, 340, 350])
     viscosity = 1e-4 * np.array([8.90, 8.54, 6.94, 5.77, 4.90, 4.22, 3.69])
     assert rx.rates.liquid_viscosity("water", temperature) == pytest.approx(
-        viscosity, 3e-2,
+        viscosity,
+        3e-2,
     )
 
     # - ethanol (isbn:978-1138561632):
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([1.074])
     assert rx.rates.liquid_viscosity("ethanol", temperature) == pytest.approx(
-        viscosity, 4e-3,
+        viscosity,
+        4e-3,
     )
 
     # - 2-propanol (doi:10.1021/je00058a025):
     temperature = 273.15 + np.array([25])
     viscosity = 1e-3 * np.array([2.052])
     assert rx.rates.liquid_viscosity("2-propanol", temperature) == pytest.approx(
-        viscosity, 1e-3,
+        viscosity,
+        1e-3,
     )
 
 
@@ -242,23 +258,37 @@ def test_conversion_of_rate_constants_work():
 def test_conversion_rates_know_about_reaction_order():
     """Ensure calculated factors satisfy the reaction order requirements."""
     assert rx.rates.convert_rate_constant(
-        1.0, "cm3 particle-1 s-1", "atm-1 s-1",
+        1.0,
+        "cm3 particle-1 s-1",
+        "atm-1 s-1",
     ) == pytest.approx(1.0)
     assert (
         rx.rates.convert_rate_constant(
-            1.0, "cm3 particle-1 s-1", "atm-1 s-1", molecularity=3,
+            1.0,
+            "cm3 particle-1 s-1",
+            "atm-1 s-1",
+            molecularity=3,
         )
         == rx.rates.convert_rate_constant(
-            1.0, "cm3 particle-1 s-1", "atm-1 s-1", molecularity=2,
+            1.0,
+            "cm3 particle-1 s-1",
+            "atm-1 s-1",
+            molecularity=2,
         )
         ** 2
     )
     assert (
         rx.rates.convert_rate_constant(
-            1.0, "cm3 particle-1 s-1", "atm-1 s-1", molecularity=4,
+            1.0,
+            "cm3 particle-1 s-1",
+            "atm-1 s-1",
+            molecularity=4,
         )
         == rx.rates.convert_rate_constant(
-            1.0, "cm3 particle-1 s-1", "atm-1 s-1", molecularity=2,
+            1.0,
+            "cm3 particle-1 s-1",
+            "atm-1 s-1",
+            molecularity=2,
         )
         ** 3
     )

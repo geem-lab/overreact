@@ -15,7 +15,10 @@ def test_logfile_retrieval():
     """Ensure logfiles are properly lazily evaluated."""
     data1 = rx.io.read_logfile(
         os.path.join(
-            datasets.data_path, "tanaka1996", "UMP2/6-311G(2df,2pd)", "Cl·.out",
+            datasets.data_path,
+            "tanaka1996",
+            "UMP2/6-311G(2df,2pd)",
+            "Cl·.out",
         ),
     )
     data2 = datasets.logfiles["tanaka1996"]["Cl·@UMP2/6-311G(2df,2pd)"]

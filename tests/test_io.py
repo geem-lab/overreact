@@ -56,12 +56,14 @@ def test_sanity_for_absolute_thermochemistry():
     # ethane eclipsed
     data = rx.io.read_logfile("data/ethane/B97-3c/eclipsed.out")
     assert data.atommasses == pytest.approx(
-        [12.0, 12.0, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783], 1e-3,
+        [12.0, 12.0, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783],
+        1e-3,
     )
     assert np.sum(data.atommasses) == pytest.approx(30.04695, 8e-4)
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments * constants.angstrom**2 / constants.bohr**2 == pytest.approx(
-        [23.57594, 88.34097, 88.34208], 7e-2,
+        [23.57594, 88.34097, 88.34208],
+        7e-2,
     )
     assert data.vibfreqs == pytest.approx(vibfreqs, 1.8)  # just for sanity
     zpe = rx.thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)
@@ -78,7 +80,8 @@ def test_sanity_for_absolute_thermochemistry():
         - data.energy
     )
     assert thermal_correction / (constants.hartree * constants.N_A) == pytest.approx(
-        0.081258, 6e-2,
+        0.081258,
+        6e-2,
     )
     enthalpy_correction = (
         rx.thermo.calc_enthalpy(
@@ -90,7 +93,8 @@ def test_sanity_for_absolute_thermochemistry():
         - data.energy
     )
     assert enthalpy_correction / (constants.hartree * constants.N_A) == pytest.approx(
-        0.082202, 6e-2,
+        0.082202,
+        6e-2,
     )
     assert enthalpy_correction - thermal_correction == pytest.approx(
         constants.R * temperature,
@@ -105,16 +109,20 @@ def test_sanity_for_absolute_thermochemistry():
     )
     freeenergy_correction = enthalpy_correction - temperature * entropy
     assert freeenergy_correction / (constants.hartree * constants.N_A) == pytest.approx(
-        0.055064, 8e-2,
+        0.055064,
+        8e-2,
     )
     assert freeenergy_correction / (constants.hartree * constants.N_A) == pytest.approx(
-        0.05082405, 1e-4,
+        0.05082405,
+        1e-4,
     )  # ORCA logfile
     assert freeenergy_correction / constants.kcal == pytest.approx(
-        31.89, 3e-5,
+        31.89,
+        3e-5,
     )  # ORCA logfile
     assert (data.energy + zpe) / (constants.hartree * constants.N_A) == pytest.approx(
-        -79.140431, 8e-3,
+        -79.140431,
+        8e-3,
     )
     assert (data.energy + thermal_correction) / (
         constants.hartree * constants.N_A
@@ -125,15 +133,18 @@ def test_sanity_for_absolute_thermochemistry():
     assert (data.energy + enthalpy_correction) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        -79.70621533, 7e-8,
+        -79.70621533,
+        7e-8,
     )  # ORCA logfile
     assert -temperature * entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        -0.02685478, 4e-6,
+        -0.02685478,
+        4e-6,
     )  # ORCA logfile
     assert -temperature * entropy / constants.kcal == pytest.approx(
-        -16.85, 1e-4,
+        -16.85,
+        1e-4,
     )  # ORCA logfile
     assert (data.energy + freeenergy_correction) / (
         constants.hartree * constants.N_A
@@ -141,18 +152,21 @@ def test_sanity_for_absolute_thermochemistry():
     assert (data.energy + freeenergy_correction) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        -79.73307012, 7e-8,
+        -79.73307012,
+        7e-8,
     )  # ORCA logfile
 
     # ethane staggered
     data = rx.io.read_logfile("data/ethane/B97-3c/staggered.out")
     assert data.atommasses == pytest.approx(
-        [12.0, 12.0, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783], 1e-3,
+        [12.0, 12.0, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783, 1.00783],
+        1e-3,
     )
     assert np.sum(data.atommasses) == pytest.approx(30.04695, 8e-4)
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments * constants.angstrom**2 / constants.bohr**2 == pytest.approx(
-        [23.57594, 88.34097, 88.34208], 6e-2,
+        [23.57594, 88.34097, 88.34208],
+        6e-2,
     )
     assert data.vibfreqs == pytest.approx(vibfreqs, 3e-1)
     zpe = rx.thermo._gas.calc_vib_energy(data.vibfreqs, temperature=0.0)
@@ -169,7 +183,8 @@ def test_sanity_for_absolute_thermochemistry():
         - data.energy
     )
     assert thermal_correction / (constants.hartree * constants.N_A) == pytest.approx(
-        0.081258, 5e-2,
+        0.081258,
+        5e-2,
     )
     enthalpy_correction = (
         rx.thermo.calc_enthalpy(
@@ -181,7 +196,8 @@ def test_sanity_for_absolute_thermochemistry():
         - data.energy
     )
     assert enthalpy_correction / (constants.hartree * constants.N_A) == pytest.approx(
-        0.082202, 5e-2,
+        0.082202,
+        5e-2,
     )
     assert enthalpy_correction - thermal_correction == pytest.approx(
         constants.R * temperature,
@@ -196,16 +212,20 @@ def test_sanity_for_absolute_thermochemistry():
     )
     freeenergy_correction = enthalpy_correction - temperature * entropy
     assert freeenergy_correction / (constants.hartree * constants.N_A) == pytest.approx(
-        0.055064, 8e-2,
+        0.055064,
+        8e-2,
     )
     assert freeenergy_correction / (constants.hartree * constants.N_A) == pytest.approx(
-        0.05092087, 3e-4,
+        0.05092087,
+        3e-4,
     )  # ORCA logfile
     assert freeenergy_correction / constants.kcal == pytest.approx(
-        31.95, 2e-4,
+        31.95,
+        2e-4,
     )  # ORCA logfile
     assert (data.energy + zpe) / (constants.hartree * constants.N_A) == pytest.approx(
-        -79.140431, 8e-3,
+        -79.140431,
+        8e-3,
     )
     assert (data.energy + thermal_correction) / (
         constants.hartree * constants.N_A
@@ -216,15 +236,18 @@ def test_sanity_for_absolute_thermochemistry():
     assert (data.energy + enthalpy_correction) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        -79.70971287, 2e-7,
+        -79.70971287,
+        2e-7,
     )  # ORCA logfile
     assert -temperature * entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        -0.02753672, 8e-5,
+        -0.02753672,
+        8e-5,
     )  # ORCA logfile
     assert -temperature * entropy / constants.kcal == pytest.approx(
-        -17.28, 9e-4,
+        -17.28,
+        9e-4,
     )  # ORCA logfile
     assert (data.energy + freeenergy_correction) / (
         constants.hartree * constants.N_A
@@ -232,7 +255,8 @@ def test_sanity_for_absolute_thermochemistry():
     assert (data.energy + freeenergy_correction) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        -79.73724959, 2e-7,
+        -79.73724959,
+        2e-7,
     )  # ORCA logfile
 
 
@@ -259,7 +283,8 @@ def test_compare_rrho_with_orca_logfile():
     )
     zpe = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs, temperature=0.0)
     elec_energy = rx.thermo._gas.calc_elec_energy(
-        energy=data.energy, degeneracy=data.mult,
+        energy=data.energy,
+        degeneracy=data.mult,
     )
     vib_energy = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs)
     rot_energy = rx.thermo._gas.calc_rot_energy(moments=moments)
@@ -279,11 +304,13 @@ def test_compare_rrho_with_orca_logfile():
         vibfreqs=data.vibfreqs,
     )
     elec_entropy = rx.thermo._gas.calc_elec_entropy(
-        energy=data.energy, degeneracy=data.mult,
+        energy=data.energy,
+        degeneracy=data.mult,
     )
     vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs=data.vibfreqs)
     rot_entropy = rx.thermo._gas.calc_rot_entropy(
-        moments=moments, symmetry_number=symmetry_number,
+        moments=moments,
+        symmetry_number=symmetry_number,
     )
     trans_entropy = rx.thermo.calc_trans_entropy(atommasses=data.atommasses)
     freeenergy = enthalpy - temperature * entropy
@@ -291,38 +318,47 @@ def test_compare_rrho_with_orca_logfile():
         -232.02314787,
     )  # ORCA logfile
     assert (vib_energy - zpe) / (constants.hartree * constants.N_A) == pytest.approx(
-        0.00168358, 7e-4,
+        0.00168358,
+        7e-4,
     )  # ORCA logfile
     assert (vib_energy - zpe) / constants.kcal == pytest.approx(
-        1.06, 4e-3,
+        1.06,
+        4e-3,
     )  # ORCA logfile
     assert rot_energy / (constants.hartree * constants.N_A) == pytest.approx(
-        0.00141627, 3e-4,
+        0.00141627,
+        3e-4,
     )  # ORCA logfile
     assert rot_energy / constants.kcal == pytest.approx(0.89, 2e-3)  # ORCA logfile
     assert trans_energy / (constants.hartree * constants.N_A) == pytest.approx(
-        0.00141627, 6e-6,
+        0.00141627,
+        6e-6,
     )  # ORCA logfile
     assert trans_energy / constants.kcal == pytest.approx(0.89, 2e-3)  # ORCA logfile
     assert (internal_energy - data.energy - zpe) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.00451613, 2e-4,
+        0.00451613,
+        2e-4,
     )  # ORCA logfile
     assert (internal_energy - data.energy - zpe) / constants.kcal == pytest.approx(
-        2.83, 2e-3,
+        2.83,
+        2e-3,
     )  # ORCA logfile
     assert zpe / (constants.hartree * constants.N_A) == pytest.approx(
-        0.09744605, 2e-4,
+        0.09744605,
+        2e-4,
     )  # ORCA logfile
     assert zpe / constants.kcal == pytest.approx(61.15, 2e-4)  # ORCA logfile
     assert (internal_energy - data.energy) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.10196218, 2e-4,
+        0.10196218,
+        2e-4,
     )  # ORCA logfile
     assert (internal_energy - data.energy) / constants.kcal == pytest.approx(
-        63.98, 2e-4,
+        63.98,
+        2e-4,
     )  # ORCA logfile
     assert internal_energy / (constants.hartree * constants.N_A) == pytest.approx(
         -231.92118569,
@@ -330,10 +366,12 @@ def test_compare_rrho_with_orca_logfile():
     assert (enthalpy - internal_energy) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.00094421, 3e-5,
+        0.00094421,
+        3e-5,
     )  # ORCA logfile
     assert (enthalpy - internal_energy) / constants.kcal == pytest.approx(
-        0.59, 5e-3,
+        0.59,
+        5e-3,
     )  # ORCA logfile
     assert temperature * elec_entropy / (
         constants.hartree * constants.N_A
@@ -346,26 +384,32 @@ def test_compare_rrho_with_orca_logfile():
     assert temperature * vib_entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.00226991, 2e-3,
+        0.00226991,
+        2e-3,
     )  # ORCA logfile
     assert temperature * vib_entropy / constants.kcal == pytest.approx(
-        1.42, 4e-3,
+        1.42,
+        4e-3,
     )  # ORCA logfile
     assert temperature * rot_entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.00987646, 4e-6,
+        0.00987646,
+        4e-6,
     )  # ORCA logfile
     assert temperature * rot_entropy / constants.kcal == pytest.approx(
-        6.20, 4e-4,
+        6.20,
+        4e-4,
     )  # ORCA logfile
     assert temperature * trans_entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.01852142, 4e-6,
+        0.01852142,
+        4e-6,
     )  # ORCA logfile
     assert temperature * trans_entropy / constants.kcal == pytest.approx(
-        11.62, 3e-4,
+        11.62,
+        3e-4,
     )  # ORCA logfile
     assert enthalpy / (constants.hartree * constants.N_A) == pytest.approx(
         -231.92024148,
@@ -373,10 +417,12 @@ def test_compare_rrho_with_orca_logfile():
     assert -temperature * entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        -0.03066779, 1e-4,
+        -0.03066779,
+        1e-4,
     )  # ORCA logfile
     assert -temperature * entropy / constants.kcal == pytest.approx(
-        -19.25, 4e-4,
+        -19.25,
+        4e-4,
     )  # ORCA logfile
     assert freeenergy / (constants.hartree * constants.N_A) == pytest.approx(
         -231.95090927,
@@ -384,10 +430,12 @@ def test_compare_rrho_with_orca_logfile():
     assert (freeenergy - data.energy) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.07223860, 3e-4,
+        0.07223860,
+        3e-4,
     )  # ORCA logfile
     assert (freeenergy - data.energy) / constants.kcal == pytest.approx(
-        45.33, 3e-4,
+        45.33,
+        3e-4,
     )  # ORCA logfile
 
 
@@ -414,10 +462,13 @@ def test_compare_qrrho_with_orca_logfile():
         qrrho=False,
     )
     zpe = rx.thermo._gas.calc_vib_energy(
-        vibfreqs=data.vibfreqs, qrrho=False, temperature=0.0,
+        vibfreqs=data.vibfreqs,
+        qrrho=False,
+        temperature=0.0,
     )
     elec_energy = rx.thermo._gas.calc_elec_energy(
-        energy=data.energy, degeneracy=data.mult,
+        energy=data.energy,
+        degeneracy=data.mult,
     )
     vib_energy = rx.thermo._gas.calc_vib_energy(vibfreqs=data.vibfreqs, qrrho=False)
     rot_energy = rx.thermo._gas.calc_rot_energy(moments=moments)
@@ -438,11 +489,13 @@ def test_compare_qrrho_with_orca_logfile():
         vibfreqs=data.vibfreqs,
     )
     elec_entropy = rx.thermo._gas.calc_elec_entropy(
-        energy=data.energy, degeneracy=data.mult,
+        energy=data.energy,
+        degeneracy=data.mult,
     )
     vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs=data.vibfreqs)
     rot_entropy = rx.thermo._gas.calc_rot_entropy(
-        moments=moments, symmetry_number=symmetry_number,
+        moments=moments,
+        symmetry_number=symmetry_number,
     )
     trans_entropy = rx.thermo.calc_trans_entropy(atommasses=data.atommasses)
     freeenergy = enthalpy - temperature * entropy
@@ -450,26 +503,32 @@ def test_compare_qrrho_with_orca_logfile():
         -1035.902509903170,
     )  # ORCA logfile
     assert (vib_energy - zpe) / (constants.hartree * constants.N_A) == pytest.approx(
-        0.01332826, 6e-5,
+        0.01332826,
+        6e-5,
     )  # ORCA logfile
     assert (vib_energy - zpe) / constants.kcal == pytest.approx(
-        8.36, 4e-4,
+        8.36,
+        4e-4,
     )  # ORCA logfile
     assert rot_energy / (constants.hartree * constants.N_A) == pytest.approx(
-        0.00141627, 2e-5,
+        0.00141627,
+        2e-5,
     )  # ORCA logfile
     assert rot_energy / constants.kcal == pytest.approx(0.89, 2e-3)  # ORCA logfile
     assert trans_energy / (constants.hartree * constants.N_A) == pytest.approx(
-        0.00141627, 6e-6,
+        0.00141627,
+        6e-6,
     )  # ORCA logfile
     assert trans_energy / constants.kcal == pytest.approx(0.89, 2e-3)  # ORCA logfile
     assert (internal_energy - data.energy - zpe) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.01616080, 5e-5,
+        0.01616080,
+        5e-5,
     )  # ORCA logfile
     assert (internal_energy - data.energy - zpe) / constants.kcal == pytest.approx(
-        10.14, 6e-5,
+        10.14,
+        6e-5,
     )  # ORCA logfile
     assert zpe / (constants.hartree * constants.N_A) == pytest.approx(
         0.26902318,
@@ -478,10 +537,12 @@ def test_compare_qrrho_with_orca_logfile():
     assert (internal_energy - data.energy) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.28518398, 3e-6,
+        0.28518398,
+        3e-6,
     )  # ORCA logfile
     assert (internal_energy - data.energy) / constants.kcal == pytest.approx(
-        178.96, 3e-5,
+        178.96,
+        3e-5,
     )  # ORCA logfile
     assert internal_energy / (constants.hartree * constants.N_A) == pytest.approx(
         -1035.61732592,
@@ -489,10 +550,12 @@ def test_compare_qrrho_with_orca_logfile():
     assert (enthalpy - internal_energy) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.00094421, 3e-5,
+        0.00094421,
+        3e-5,
     )  # ORCA logfile
     assert (enthalpy - internal_energy) / constants.kcal == pytest.approx(
-        0.59, 5e-3,
+        0.59,
+        5e-3,
     )  # ORCA logfile
     assert temperature * elec_entropy / (
         constants.hartree * constants.N_A
@@ -505,26 +568,32 @@ def test_compare_qrrho_with_orca_logfile():
     assert temperature * vib_entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.02326220, 2e-3,
+        0.02326220,
+        2e-3,
     )  # ORCA logfile
     assert temperature * vib_entropy / constants.kcal == pytest.approx(
-        14.60, 2e-3,
+        14.60,
+        2e-3,
     )  # ORCA logfile
     assert temperature * rot_entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.01498023, 4e-6,
+        0.01498023,
+        4e-6,
     )  # ORCA logfile
     assert temperature * rot_entropy / constants.kcal == pytest.approx(
-        9.40, 3e-5,
+        9.40,
+        3e-5,
     )  # ORCA logfile
     assert temperature * trans_entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.02023694, 4e-6,
+        0.02023694,
+        4e-6,
     )  # ORCA logfile
     assert temperature * trans_entropy / constants.kcal == pytest.approx(
-        12.70, 9e-5,
+        12.70,
+        9e-5,
     )  # ORCA logfile
     assert enthalpy / (constants.hartree * constants.N_A) == pytest.approx(
         -1035.61638171,
@@ -532,10 +601,12 @@ def test_compare_qrrho_with_orca_logfile():
     assert -temperature * entropy / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        -0.058479359999999994, 6e-4,
+        -0.058479359999999994,
+        6e-4,
     )  # ORCA logfile
     assert -temperature * entropy / constants.kcal == pytest.approx(
-        -36.70, 7e-4,
+        -36.70,
+        7e-4,
     )  # ORCA logfile
     assert freeenergy / (constants.hartree * constants.N_A) == pytest.approx(
         -1035.6748610799998,
@@ -543,10 +614,12 @@ def test_compare_qrrho_with_orca_logfile():
     assert (freeenergy - data.energy) / (
         constants.hartree * constants.N_A
     ) == pytest.approx(
-        0.22764882, 2e-4,
+        0.22764882,
+        2e-4,
     )  # ORCA logfile
     assert (freeenergy - data.energy) / constants.kcal == pytest.approx(
-        142.85, 2e-4,
+        142.85,
+        2e-4,
     )  # ORCA logfile
 
 

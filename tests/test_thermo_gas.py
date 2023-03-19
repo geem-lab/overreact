@@ -203,10 +203,14 @@ def test_enthalpy_ideal_gases():
     )
     vibfreq = 6125 * constants.k * constants.centi / (constants.h * constants.c)
     internal_energy = rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     )
     enthalpy = rx.thermo.calc_enthalpy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     )
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
@@ -236,10 +240,14 @@ def test_enthalpy_ideal_gases():
     )
     vibfreq = 4227 * constants.k * constants.centi / (constants.h * constants.c)
     internal_energy = rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     )
     enthalpy = rx.thermo.calc_enthalpy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     )
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
@@ -254,10 +262,14 @@ def test_enthalpy_ideal_gases():
         / (constants.h * constants.c)
     )
     internal_energy = rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     )
     enthalpy = rx.thermo.calc_enthalpy(
-        moments=[0, i, i], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     )
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
@@ -275,10 +287,14 @@ def test_enthalpy_ideal_gases():
         / (constants.h * constants.c)
     )
     internal_energy = rx.thermo.calc_internal_energy(
-        moments=[ia, ia, ib], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[ia, ia, ib],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     )
     enthalpy = rx.thermo.calc_enthalpy(
-        moments=[ia, ia, ib], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[ia, ia, ib],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     )
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
@@ -287,10 +303,14 @@ def test_enthalpy_ideal_gases():
     moments = coords.inertia(data.atommasses, data.atomcoords)[0]
     vibfreqs = np.asarray(data.vibfreqs)
     internal_energy = rx.thermo.calc_internal_energy(
-        moments=moments, vibfreqs=vibfreqs, temperature=temperature,
+        moments=moments,
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     )
     enthalpy = rx.thermo.calc_enthalpy(
-        moments=moments, vibfreqs=vibfreqs, temperature=temperature,
+        moments=moments,
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     )
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
@@ -320,22 +340,26 @@ def test_entropy_ideal_monoatomic_gases():
 
     # Ne
     assert rx.thermo.calc_entropy(
-        20.180, temperature=temperature,
+        20.180,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(34.95, 1e-3)
 
     # Ar
     assert rx.thermo.calc_entropy(
-        39.948, temperature=temperature,
+        39.948,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(36.98, 1e-4)
 
     # Kr
     assert rx.thermo.calc_entropy(
-        83.798, temperature=temperature,
+        83.798,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(39.19, 1e-4)
 
     # Xe
     assert rx.thermo.calc_entropy(
-        131.29, temperature=temperature,
+        131.29,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(40.53, 1e-4)
 
     # C
@@ -351,7 +375,9 @@ def test_entropy_ideal_monoatomic_gases():
 
     # Na
     assert rx.thermo.calc_entropy(
-        22.990, degeneracy=2, temperature=temperature,
+        22.990,
+        degeneracy=2,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(36.72, 1e-3)
 
     # Al
@@ -367,12 +393,15 @@ def test_entropy_ideal_monoatomic_gases():
 
     # Ag
     assert rx.thermo.calc_entropy(
-        107.87, degeneracy=2, temperature=temperature,
+        107.87,
+        degeneracy=2,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(41.32, 1e-4)
 
     # Hg
     assert rx.thermo.calc_entropy(
-        200.59, temperature=temperature,
+        200.59,
+        temperature=temperature,
     ) / constants.calorie == pytest.approx(41.8, 1e-3)
 
 
@@ -398,7 +427,8 @@ def test_internal_energy_ideal_monoatomic_gases():
 
     # Ne, Ar, Kr, Xe
     assert rx.thermo.calc_internal_energy(temperature=temperature) == pytest.approx(
-        3718.44, 1e-5,
+        3718.44,
+        1e-5,
     )
 
     # C
@@ -413,7 +443,8 @@ def test_internal_energy_ideal_monoatomic_gases():
 
     # Na
     assert rx.thermo.calc_internal_energy(
-        degeneracy=2, temperature=temperature,
+        degeneracy=2,
+        temperature=temperature,
     ) == pytest.approx(3718.44, 1e-5)
 
     # Al
@@ -428,12 +459,14 @@ def test_internal_energy_ideal_monoatomic_gases():
 
     # Ag
     assert rx.thermo.calc_internal_energy(
-        degeneracy=2, temperature=temperature,
+        degeneracy=2,
+        temperature=temperature,
     ) == pytest.approx(3718.44, 1e-5)
 
     # Hg
     assert rx.thermo.calc_internal_energy(temperature=temperature) == pytest.approx(
-        3718.44, 1e-5,
+        3718.44,
+        1e-5,
     )
 
 
@@ -552,7 +585,8 @@ def test_entropy_ideal_diatomic_gases():
         vibfreqs=vibfreq,
         temperature=temperature,
     ) / constants.calorie == pytest.approx(
-        46.2 + constants.R * np.log(2) / constants.calorie, 1e-2,
+        46.2 + constants.R * np.log(2) / constants.calorie,
+        1e-2,
     )
 
 
@@ -571,7 +605,9 @@ def test_internal_energy_ideal_diatomic_gases():
     )
     vibfreq = 6125 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) == pytest.approx(31419.52, 4e-7)
 
     # O2
@@ -593,7 +629,9 @@ def test_internal_energy_ideal_diatomic_gases():
     )
     vibfreq = 3374 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) == pytest.approx(20216.25, 3e-6)
 
     # Cl2
@@ -602,7 +640,9 @@ def test_internal_energy_ideal_diatomic_gases():
     )
     vibfreq = 808 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) == pytest.approx(10034.30, 4e-4)
 
     # HCl
@@ -611,7 +651,9 @@ def test_internal_energy_ideal_diatomic_gases():
     )
     vibfreq = 4227 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) == pytest.approx(23728.27, 2e-6)
 
     # HBr
@@ -620,7 +662,9 @@ def test_internal_energy_ideal_diatomic_gases():
     )
     vibfreq = 3787 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) == pytest.approx(21907.52, 2e-6)
 
     # HI
@@ -629,7 +673,9 @@ def test_internal_energy_ideal_diatomic_gases():
     )
     vibfreq = 3266 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) == pytest.approx(19750.22, 3e-6)
 
     # CO
@@ -638,7 +684,9 @@ def test_internal_energy_ideal_diatomic_gases():
     )
     vibfreq = 3103 * constants.k * constants.centi / (constants.h * constants.c)
     assert rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreq, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreq,
+        temperature=temperature,
     ) == pytest.approx(19090.38, 4e-6)
 
 
@@ -844,7 +892,9 @@ def test_internal_energy_ideal_polyatomic_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_internal_energy(
-        moments=[0, i, i], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) == pytest.approx(36655.77, 2e-4)
 
     # NH3
@@ -861,7 +911,9 @@ def test_internal_energy_ideal_polyatomic_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_internal_energy(
-        moments=[ia, ia, ib], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[ia, ia, ib],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) == pytest.approx(93077.53, 2e-5)
 
     # NO2
@@ -904,7 +956,9 @@ def test_internal_energy_ideal_polyatomic_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_internal_energy(
-        moments=[ia, ib, ic], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[ia, ib, ic],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) == pytest.approx(23284.32, 4e-4)
 
     # CH4
@@ -918,7 +972,9 @@ def test_internal_energy_ideal_polyatomic_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_internal_energy(
-        moments=[i, i, i], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[i, i, i],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) == pytest.approx(120179.00, 2e-5)
 
     # CH3Cl
@@ -935,7 +991,9 @@ def test_internal_energy_ideal_polyatomic_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_internal_energy(
-        moments=[ia, ib, ib], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[ia, ib, ib],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) == pytest.approx(104496.66, 4e-5)
 
     # CCl4
@@ -949,7 +1007,9 @@ def test_internal_energy_ideal_polyatomic_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_internal_energy(
-        moments=[i, i, i], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[i, i, i],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) == pytest.approx(39684.88, 7e-3)
 
     # C6H6
@@ -957,7 +1017,9 @@ def test_internal_energy_ideal_polyatomic_gases():
     moments = coords.inertia(data.atommasses, data.atomcoords)[0]
     vibfreqs = np.asarray(data.vibfreqs)
     assert rx.thermo.calc_internal_energy(
-        moments=moments, vibfreqs=vibfreqs, temperature=temperature,
+        moments=moments,
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) == pytest.approx(267700.49, 2e-4)
 
 
@@ -981,7 +1043,9 @@ def test_heat_capacity_ideal_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_heat_capacity(
-        moments=[0, i, i], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) / constants.R == pytest.approx(3.49, 1e-3)
 
     # N2O
@@ -995,9 +1059,12 @@ def test_heat_capacity_ideal_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_heat_capacity(
-        moments=[0, i, i], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[0, i, i],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) / constants.R == pytest.approx(
-        3.65, 1e-3,
+        3.65,
+        1e-3,
     )  # book is wrong, this is correct
 
     # NH3
@@ -1014,7 +1081,9 @@ def test_heat_capacity_ideal_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_heat_capacity(
-        moments=[ia, ia, ib], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[ia, ia, ib],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) / constants.R == pytest.approx(3.28, 1e-3)
 
     # CH4
@@ -1028,7 +1097,9 @@ def test_heat_capacity_ideal_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_heat_capacity(
-        moments=[i, i, i], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[i, i, i],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) / constants.R == pytest.approx(3.30, 1e-2)
 
     # H2O
@@ -1048,7 +1119,9 @@ def test_heat_capacity_ideal_gases():
         / (constants.h * constants.c)
     )
     assert rx.thermo.calc_heat_capacity(
-        moments=[ia, ib, ic], vibfreqs=vibfreqs, temperature=temperature,
+        moments=[ia, ib, ic],
+        vibfreqs=vibfreqs,
+        temperature=temperature,
     ) / constants.R == pytest.approx(3.03, 1e-3)
 
 
@@ -1069,10 +1142,12 @@ def test_equilibrium_constant_works():
 
     assert rx.thermo.equilibrium_constant(0.0, temperature=14.01) == 1.0
     assert rx.thermo.equilibrium_constant(1000.0, temperature=14.01) == pytest.approx(
-        1.87e-4, 1e-3,
+        1.87e-4,
+        1e-3,
     )
     assert rx.thermo.equilibrium_constant(80.8, temperature=14.01) == pytest.approx(
-        0.5, 1e-3,
+        0.5,
+        1e-3,
     )
     assert rx.thermo.equilibrium_constant(68497.0, temperature=14.01) == pytest.approx(
         0.0,
@@ -1089,7 +1164,8 @@ def test_equilibrium_constant_works():
     cbs_qb3 = np.array([27.0, 11.6, -16.5, -32.9, 38.6])
     delta_freeenergy = constants.kilo * (g3b3 + cbs_qb3) / 2
     assert rx.thermo.equilibrium_constant(
-        delta_freeenergy, temperature=298.0,
+        delta_freeenergy,
+        temperature=298.0,
     ) == pytest.approx([2.65e-5, 4.30e-3, 1.39e3, 1.04e5, 1.14e-7], 1.55e-2)
 
 
@@ -1102,10 +1178,12 @@ def test_molar_volume_is_precise():
     CODATA.
     """
     assert rx.thermo.molar_volume(273.15, constants.bar) == pytest.approx(
-        0.02271098038, 1e-5,
+        0.02271098038,
+        1e-5,
     )
     assert rx.thermo.molar_volume(pressure=constants.bar) == pytest.approx(
-        0.02478959842, 1e-5,
+        0.02478959842,
+        1e-5,
     )
     assert rx.thermo.molar_volume(273.15) == pytest.approx(0.022414, 1e-5)
     assert rx.thermo.molar_volume() == pytest.approx(0.024465, 1e-4)
@@ -1114,13 +1192,16 @@ def test_molar_volume_is_precise():
 def test_molar_volume_works_with_sequences():
     """Ensure molar volumes can be calculated for many temperatures at once."""
     assert rx.thermo.molar_volume([273.15, 298.15], constants.bar) == pytest.approx(
-        [0.02271098038, 0.02478959842], 1e-5,
+        [0.02271098038, 0.02478959842],
+        1e-5,
     )
     assert rx.thermo.molar_volume(
-        [273.15, 298.15], [constants.atm, constants.bar],
+        [273.15, 298.15],
+        [constants.atm, constants.bar],
     ) == pytest.approx([0.022414, 0.02478959842], 1e-5)
     assert rx.thermo.molar_volume(
-        273.15, [constants.atm, constants.bar],
+        273.15,
+        [constants.atm, constants.bar],
     ) == pytest.approx([0.022414, 0.02271098038], 1e-5)
 
 
@@ -1142,7 +1223,9 @@ def test_change_reference_state_works_for_symmetry():
     # calculating many symmetry corrections at once
     temperatures = np.array([0, 200, 298.15, 300, 400])
     assert temperatures * rx.change_reference_state(
-        6, 12, temperature=temperatures,
+        6,
+        12,
+        temperature=temperatures,
     ) / constants.kcal == pytest.approx([0.0, -0.3, -0.4, -0.4, -0.6], 9e-2)
 
 
