@@ -202,7 +202,9 @@ class Report:
         scheme = rx.core._check_scheme(self.model.scheme)
 
         raw_table = Table(
-            title="(read) reactions", box=self.box_style, show_header=False,
+            title="(read) reactions",
+            box=self.box_style,
+            show_header=False,
         )
         raw_table.add_column(justify="left")
         for r in rx.core.unparse_reactions(scheme).split("\n"):
@@ -210,7 +212,9 @@ class Report:
         yield Panel(raw_table, expand=False)
 
         transition_states = rx.core.get_transition_states(
-            scheme.A, scheme.B, scheme.is_half_equilibrium,
+            scheme.A,
+            scheme.B,
+            scheme.is_half_equilibrium,
         )
 
         parsed_table = Table(
@@ -287,7 +291,8 @@ class Report:
                 vibfreqs_text.highlight_regex(r"-\d+\.\d", "bright_yellow")
 
             point_group = coords.find_point_group(
-                atommasses=data.atommasses, atomcoords=data.atomcoords,
+                atommasses=data.atommasses,
+                atomcoords=data.atomcoords,
             )
             compounds_table.add_row(
                 f"{i:d}",
@@ -318,13 +323,19 @@ class Report:
             [data.energy for name, data in self.model.compounds.items()],
         )
         internal_energies = rx.get_internal_energies(
-            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature,
+            self.model.compounds,
+            qrrho=self.qrrho,
+            temperature=self.temperature,
         )
         enthalpies = rx.get_enthalpies(
-            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature,
+            self.model.compounds,
+            qrrho=self.qrrho,
+            temperature=self.temperature,
         )
         entropies = rx.get_entropies(
-            self.model.compounds, qrrho=self.qrrho, temperature=self.temperature,
+            self.model.compounds,
+            qrrho=self.qrrho,
+            temperature=self.temperature,
         )
         freeenergies = enthalpies - self.temperature * entropies
         assert np.allclose(
@@ -366,7 +377,9 @@ class Report:
         delta_enthalpies = rx.get_delta(scheme.A, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_entropies = rx.get_delta(scheme.A, entropies) + rx.get_reaction_entropies(
-            scheme.A, temperature=self.temperature, pressure=self.pressure,
+            scheme.A,
+            temperature=self.temperature,
+            pressure=self.pressure,
         )
         delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
         assert np.allclose(
@@ -374,7 +387,9 @@ class Report:
             rx.get_delta(scheme.A, freeenergies)
             - self.temperature
             * rx.get_reaction_entropies(
-                scheme.A, temperature=self.temperature, pressure=self.pressure,
+                scheme.A,
+                temperature=self.temperature,
+                pressure=self.pressure,
             ),
         ), "reaction free energies do not match reaction enthalpies and reaction entropies"  # noqa: E501
 
@@ -384,9 +399,12 @@ class Report:
         delta_activation_enthalpies = rx.get_delta(scheme.B, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_activation_entropies = rx.get_delta(
-            scheme.B, entropies,
+            scheme.B,
+            entropies,
         ) + rx.get_reaction_entropies(
-            scheme.B, temperature=self.temperature, pressure=self.pressure,
+            scheme.B,
+            temperature=self.temperature,
+            pressure=self.pressure,
         )
         delta_activation_freeenergies = (
             delta_activation_enthalpies - self.temperature * delta_activation_entropies
@@ -396,7 +414,9 @@ class Report:
             rx.get_delta(scheme.B, freeenergies)
             - self.temperature
             * rx.get_reaction_entropies(
-                scheme.B, temperature=self.temperature, pressure=self.pressure,
+                scheme.B,
+                temperature=self.temperature,
+                pressure=self.pressure,
             ),
         ), "activation free energies do not match activation enthalpies and activation entropies"  # noqa: E501
 
@@ -592,7 +612,9 @@ class Report:
 
         if self.concentrations is not None and self.concentrations:
             scheme, k, y0 = _prepare_simulation(
-                self.model.scheme, k["M⁻ⁿ⁺¹·s⁻¹"], self.concentrations,
+                self.model.scheme,
+                k["M⁻ⁿ⁺¹·s⁻¹"],
+                self.concentrations,
             )
 
             # TODO(schneiderfelipe): encapsulate everything in a function that depends
@@ -649,7 +671,9 @@ class Report:
 
             t_max, i = y.t_max, 0
             while i < n_max and np.allclose(
-                y(t_max)[active] / factor, reference, atol=alpha,
+                y(t_max)[active] / factor,
+                reference,
+                atol=alpha,
             ):
                 t_max = step * t_max
                 i += 1
@@ -770,7 +794,9 @@ def main(arguments=None):
         nargs="*",
     )
     parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {rx.__version__}",
+        "--version",
+        action="version",
+        version=f"%(prog)s {rx.__version__}",
     )
     parser.add_argument(
         "-v",
@@ -921,7 +947,8 @@ Parsing and calculating (this may take a while)…
     )
 
     logging.basicConfig(
-        level=levels[min(len(levels) - 1, args.verbose)], stream=sys.stdout,
+        level=levels[min(len(levels) - 1, args.verbose)],
+        stream=sys.stdout,
     )
     for handler in logging.root.handlers:
         handler.setFormatter(rx.io.InterfaceFormatter("%(message)s"))

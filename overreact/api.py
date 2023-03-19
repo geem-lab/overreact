@@ -77,7 +77,8 @@ def get_internal_energies(
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
-            compounds[name].atommasses, compounds[name].atomcoords,
+            compounds[name].atommasses,
+            compounds[name].atomcoords,
         )
 
         internal_energy = rx.thermo.calc_internal_energy(
@@ -142,7 +143,8 @@ def get_enthalpies(
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
-            compounds[name].atommasses, compounds[name].atomcoords,
+            compounds[name].atommasses,
+            compounds[name].atomcoords,
         )
 
         enthalpy = rx.thermo.calc_enthalpy(
@@ -227,13 +229,15 @@ def get_entropies(
             point_group = compounds[name].point_group
         else:
             point_group = coords.find_point_group(
-                compounds[name].atommasses, compounds[name].atomcoords,
+                compounds[name].atommasses,
+                compounds[name].atomcoords,
             )
         symmetry_number = coords.symmetry_number(point_group)
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
-            compounds[name].atommasses, compounds[name].atomcoords,
+            compounds[name].atommasses,
+            compounds[name].atomcoords,
         )
 
         if environment is None:
@@ -391,7 +395,9 @@ def get_freeenergies(
     """  # noqa: E501
     qrrho_enthalpy, qrrho_entropy = _check_qrrho(qrrho)
     enthalpies = get_enthalpies(
-        compounds, qrrho=qrrho_enthalpy, temperature=temperature,
+        compounds,
+        qrrho=qrrho_enthalpy,
+        temperature=temperature,
     )
     entropies = get_entropies(
         compounds,
@@ -553,9 +559,12 @@ def get_k(
 
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_freeenergies = rx.get_delta(
-            scheme.B, freeenergies,
+            scheme.B,
+            freeenergies,
         ) - temperature * rx.get_reaction_entropies(
-            scheme.B, temperature=temperature, pressure=pressure,
+            scheme.B,
+            temperature=temperature,
+            pressure=pressure,
         )
 
     if molecularity is None:
@@ -714,7 +723,8 @@ def get_kappa(
         energies = get_enthalpies(compounds, qrrho=qrrho, temperature=0.0)
         delta_forward = rx.get_delta(scheme.B, energies)  # B - A
         delta_backward = delta_forward - rx.get_delta(
-            scheme.A, energies,
+            scheme.A,
+            energies,
         )  # B - C == B - A - (C - A)
 
     kappas = []

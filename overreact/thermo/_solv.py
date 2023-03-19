@@ -121,7 +121,12 @@ def calc_cav_entropy(
         return -constants.R * temperature * gamma
 
     cavity_entropy = derivative(
-        func, x0=temperature, dx=dx, n=1, order=order, args=(environment,),
+        func,
+        x0=temperature,
+        dx=dx,
+        n=1,
+        order=order,
+        args=(environment,),
     )
     logger.info(f"cavity entropy = {cavity_entropy} J/mol·K")
     return cavity_entropy
@@ -253,7 +258,10 @@ def molar_free_volume(
     """  # noqa: E501
     if method == "izato":
         vdw_volume, cav_volume, _ = coords.get_molecular_volume(
-            atomnos, atomcoords, method="izato", full_output=True,
+            atomnos,
+            atomcoords,
+            method="izato",
+            full_output=True,
         )
         r_M, r_cav = np.cbrt(vdw_volume), np.cbrt(cav_volume)  # noqa: N806
         molar_free_volume = (r_cav - r_M) ** 3 * constants.angstrom**3 * constants.N_A

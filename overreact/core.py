@@ -249,7 +249,9 @@ def unparse_reactions(scheme: Scheme) -> str:
     """
     scheme = _check_scheme(scheme)
     transition_states = get_transition_states(
-        scheme.A, scheme.B, scheme.is_half_equilibrium,
+        scheme.A,
+        scheme.B,
+        scheme.is_half_equilibrium,
     )
     lines = []
     i = 0
@@ -257,7 +259,8 @@ def unparse_reactions(scheme: Scheme) -> str:
         if transition_states[i] is not None:
             lines.append(
                 scheme.reactions[i].replace(
-                    "->", f"-> {scheme.compounds[transition_states[i]]} ->",
+                    "->",
+                    f"-> {scheme.compounds[transition_states[i]]} ->",
                 ),
             )
         elif scheme.is_half_equilibrium[i]:
@@ -592,7 +595,8 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
     """
     compounds: dict[str, int] = {}
     reactions: dict[
-        tuple[str, str, bool, str], tuple[tuple[tuple[int, str], ...], bool],
+        tuple[str, str, bool, str],
+        tuple[tuple[tuple[int, str], ...], bool],
     ] = {}
     A = []  # coefficients between reactants and products  # noqa: N806
     B = []  # coefficients between reactants and transition states  # noqa: N806
@@ -661,7 +665,10 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
         if is_transition_state(reactants[-1][-1]):
             for before_reactants in before_transitions.get(reactants, []):
                 _add_reaction(
-                    before_reactants, products, is_half_equilibrium, reactants,
+                    before_reactants,
+                    products,
+                    is_half_equilibrium,
+                    reactants,
                 )
 
             if reactants in after_transitions:
@@ -749,7 +756,9 @@ def _parse_reactions(text):
 
         pieces = re.split(r"\s*(->|<=>|<-)\s*", line)
         for reactants, arrow, products in zip(
-            pieces[:-2:2], pieces[1:-1:2], pieces[2::2],
+            pieces[:-2:2],
+            pieces[1:-1:2],
+            pieces[2::2],
         ):
             if arrow == "<-":
                 reactants, products, arrow = products, reactants, "->"
@@ -823,7 +832,8 @@ def _parse_side(side):
     """
     for token in re.split(r"\s+\+\s+", side):
         token = re.match(
-            r"\s*(?P<coefficient>\d+)?\s*(?P<compound>[^\s]+)\s*", token,
+            r"\s*(?P<coefficient>\d+)?\s*(?P<compound>[^\s]+)\s*",
+            token,
         ).groupdict(1)
         yield int(token["coefficient"]), token["compound"]
 

@@ -361,7 +361,8 @@ def symmetry_number(point_group):
         symmetry_number = 60
     else:
         pieces = re.match(
-            r"(?P<letter>[^\s]+)(?P<number>\d+)(?P<type>[^\s]+)?", point_group,
+            r"(?P<letter>[^\s]+)(?P<number>\d+)(?P<type>[^\s]+)?",
+            point_group,
         ).groupdict()
 
         if pieces["letter"] == "c":
@@ -428,12 +429,20 @@ def find_point_group(atommasses, atomcoords, proper_axes=None, rtol=0.0, atol=1.
 
         if rotor_class[1] == "linear":
             point_group = _find_point_group_linear(
-                atomcoords, groups, rtol=rtol, atol=atol,
+                atomcoords,
+                groups,
+                rtol=rtol,
+                atol=atol,
             )
         else:
             if proper_axes is None:
                 proper_axes = _get_proper_axes(
-                    atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol,
+                    atomcoords,
+                    groups,
+                    axes,
+                    rotor_class,
+                    rtol=rtol,
+                    atol=atol,
                 )
 
             if rotor_class[0] == "asymmetric" or not proper_axes:
@@ -505,7 +514,12 @@ def _find_point_group_spheric(
 
     if proper_axes is None:
         proper_axes = _get_proper_axes(
-            atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol,
+            atomcoords,
+            groups,
+            axes,
+            rotor_class,
+            rtol=rtol,
+            atol=atol,
         )
 
     for n, _ in proper_axes:
@@ -542,7 +556,12 @@ def _find_point_group_asymmetric(
     """
     if proper_axes is None:
         proper_axes = _get_proper_axes(
-            atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol,
+            atomcoords,
+            groups,
+            axes,
+            rotor_class,
+            rtol=rtol,
+            atol=atol,
         )
 
     if proper_axes:
@@ -559,7 +578,13 @@ def _find_point_group_asymmetric(
         "regular planar",
         "irregular planar",
     } or _get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
+        rtol=rtol,
+        atol=atol,
     ):
         return "Cs"
     elif _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
@@ -584,7 +609,12 @@ def _find_point_group_symmetric(
     """
     if proper_axes is None:
         proper_axes = _get_proper_axes(
-            atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol,
+            atomcoords,
+            groups,
+            axes,
+            rotor_class,
+            rtol=rtol,
+            atol=atol,
         )
     n_principal = proper_axes[0][0]
 
@@ -605,7 +635,13 @@ def _find_point_group_symmetric(
         if n < 2:
             break
     return _find_point_group_symmetric_nondihedral(
-        atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
+        rtol=rtol,
+        atol=atol,
     )
 
     # the employed workflow is loosely inspired by some articles:
@@ -629,10 +665,21 @@ def _find_point_group_symmetric_dihedral(
     """
     if proper_axes is None:
         proper_axes = _get_proper_axes(
-            atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol,
+            atomcoords,
+            groups,
+            axes,
+            rotor_class,
+            rtol=rtol,
+            atol=atol,
         )
     mirror_axes = _get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
+        rtol=rtol,
+        atol=atol,
     )
 
     if mirror_axes:
@@ -661,10 +708,21 @@ def _find_point_group_symmetric_nondihedral(
     """
     if proper_axes is None:
         proper_axes = _get_proper_axes(
-            atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol,
+            atomcoords,
+            groups,
+            axes,
+            rotor_class,
+            rtol=rtol,
+            atol=atol,
         )
     mirror_axes = _get_mirror_planes(
-        atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
+        rtol=rtol,
+        atol=atol,
     )
 
     if mirror_axes:
@@ -674,7 +732,13 @@ def _find_point_group_symmetric_nondihedral(
             return f"C{proper_axes[0][0]}v"
 
     improper_axes = _get_improper_axes(
-        atomcoords, groups, axes, rotor_class, proper_axes, rtol=rtol, atol=atol,
+        atomcoords,
+        groups,
+        axes,
+        rotor_class,
+        proper_axes,
+        rtol=rtol,
+        atol=atol,
     )
     if improper_axes:
         return f"S{improper_axes[0][0]}"
@@ -727,7 +791,13 @@ def _update_proper_axes(
 
 
 def _get_proper_axes(  # noqa: C901
-    atomcoords, groups, axes, rotor_class, rtol=0.0, atol=1.0e-2, slack=0.735,
+    atomcoords,
+    groups,
+    axes,
+    rotor_class,
+    rtol=0.0,
+    atol=1.0e-2,
+    slack=0.735,
 ):
     """Get proper symmetry axes and their orders.
 
@@ -1013,7 +1083,12 @@ def _get_improper_axes(
 
     if proper_axes is None:
         proper_axes = _get_proper_axes(
-            atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol,
+            atomcoords,
+            groups,
+            axes,
+            rotor_class,
+            rtol=rtol,
+            atol=atol,
         )
 
     found_axes = []
@@ -1061,7 +1136,10 @@ def _update_mirror_axes(
 
     if all(
         _is_symmetric(
-            atomcoords[group], _operation("sigma", axis=ax), rtol=rtol, atol=atol,
+            atomcoords[group],
+            _operation("sigma", axis=ax),
+            rtol=rtol,
+            atol=atol,
         )
         for group in groups[::-1]
     ):
@@ -1155,7 +1233,12 @@ def _get_mirror_planes(  # noqa: C901
 
     if proper_axes is None:
         proper_axes = _get_proper_axes(
-            atomcoords, groups, axes, rotor_class, rtol=rtol, atol=atol,
+            atomcoords,
+            groups,
+            axes,
+            rotor_class,
+            rtol=rtol,
+            atol=atol,
         )
 
     def _kf(x):
@@ -1495,18 +1578,30 @@ def _classify_rotor(moments, rtol=0.0, atol=1.0e-2, slack=0.870):
 
     # basic tests for tops
     is_oblate = np.isclose(
-        moments[0], moments[1], rtol=inner_slack * rtol, atol=inner_slack * atol,
+        moments[0],
+        moments[1],
+        rtol=inner_slack * rtol,
+        atol=inner_slack * atol,
     )
     is_spheric = np.isclose(
-        moments[0], moments[2], rtol=inner_slack * rtol, atol=inner_slack * atol,
+        moments[0],
+        moments[2],
+        rtol=inner_slack * rtol,
+        atol=inner_slack * atol,
     )
     is_prolate = np.isclose(
-        moments[1], moments[2], rtol=inner_slack * rtol, atol=inner_slack * atol,
+        moments[1],
+        moments[2],
+        rtol=inner_slack * rtol,
+        atol=inner_slack * atol,
     )
 
     # basic tests for shapes
     fits_line = np.isclose(
-        moments[0], 0.0, rtol=inner_slack * rtol, atol=inner_slack * atol,
+        moments[0],
+        0.0,
+        rtol=inner_slack * rtol,
+        atol=inner_slack * atol,
     )
     fits_plane = np.isclose(moments[0] + moments[1], moments[2], rtol=rtol, atol=atol)
 
@@ -1897,7 +1992,11 @@ def eckart_transform(atommasses, atomcoords):
 # NOTE(schneiderfelipe): thresh was found to be reasonable
 # when greater than or equal to 0.106.
 def _equivalent_atoms(  # noqa: C901
-    atommasses, atomcoords, method="cluster", thresh=0.106, plot=False,  # noqa: FBT002
+    atommasses,
+    atomcoords,
+    method="cluster",
+    thresh=0.106,
+    plot=False,  # noqa: FBT002
 ):
     """Generate groups of symmetry equivalent atoms.
 
@@ -2002,7 +2101,8 @@ def _equivalent_atoms(  # noqa: C901
             mass_condition = atommasses == mass
             for cluster in np.unique(clusters[mass_condition]):
                 groups = _update_groups_with_condition(
-                    mass_condition & (clusters == cluster), groups,
+                    mass_condition & (clusters == cluster),
+                    groups,
                 )
     elif method == "atommass":
         for mass in np.unique(atommasses):

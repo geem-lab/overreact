@@ -353,7 +353,8 @@ def _unparse_source(model):
             source += f" {compound}:\n"
             for key in model.compounds[compound]:
                 inline_json = json.dumps(
-                    model.compounds[compound][key], ensure_ascii=False,
+                    model.compounds[compound][key],
+                    ensure_ascii=False,
                 )
                 source += f"  {key}={inline_json}\n"
         source += "$end\n"

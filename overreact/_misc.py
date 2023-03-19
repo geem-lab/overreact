@@ -585,7 +585,11 @@ def broaden_spectrum(
         [
             yp
             * distribution.pdf(
-                x, xp, scale=scale, *args, **kwargs,  # noqa: RUF004, B026
+                x,
+                xp,
+                scale=scale,
+                *args,
+                **kwargs,  # noqa: RUF004, B026
             )  # noqa: RUF100
             for xp, yp in zip(x0, y0)
         ],

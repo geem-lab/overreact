@@ -365,7 +365,11 @@ def eyring(
 
     return (
         rx.thermo.equilibrium_constant(
-            delta_freeenergy, delta_moles, temperature, pressure, volume,
+            delta_freeenergy,
+            delta_moles,
+            temperature,
+            pressure,
+            volume,
         )
         * constants.k
         * temperature

@@ -56,7 +56,8 @@ def _check_nu(vibfreq: float) -> float:
 
 
 def wigner(
-    vibfreq: float, temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
+    vibfreq: float,
+    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
 ) -> float:  # noqa: RUF100
     """Calculate the Wigner correction to quantum tunneling.
 
@@ -204,7 +205,9 @@ def eckart(
 
 @np.vectorize
 def _eckart(
-    u: float, alpha1: float, alpha2: Optional[float] = None,  # noqa: UP007
+    u: float,
+    alpha1: float,
+    alpha2: Optional[float] = None,  # noqa: UP007
 ) -> float:  # noqa: RUF100
     """Implement of the (unsymmetrical) Eckart tunneling approximation.
 

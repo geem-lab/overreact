@@ -559,7 +559,9 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_B = []  # noqa: N806
     new_compounds = []
     for compound, row_A, row_B in zip(  # noqa: N806
-        scheme.compounds, scheme.A, scheme.B,
+        scheme.compounds,
+        scheme.A,
+        scheme.B,
     ):  # noqa: RUF100
         if compound not in fixed_y0:
             new_compounds.append(compound)
@@ -673,7 +675,12 @@ def get_bias(
         # TODO(schneiderfelipe): support schemes with fixed concentrations
         dydt = rx.get_dydt(scheme, k)
         y, _ = rx.get_y(
-            dydt, y0=y0, method=method, rtol=rtol, atol=atol, max_time=max_time,
+            dydt,
+            y0=y0,
+            method=method,
+            rtol=rtol,
+            atol=atol,
+            max_time=max_time,
         )
 
         yhat = y(data["t"])

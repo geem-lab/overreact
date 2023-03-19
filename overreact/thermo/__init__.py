@@ -133,7 +133,9 @@ def calc_trans_entropy(
         )
 
     translational_entropy = rx.thermo._gas._sackur_tetrode(
-        atommasses, volume, temperature=temperature,
+        atommasses,
+        volume,
+        temperature=temperature,
     )
     logger.info(f"translational entropy = {translational_entropy} J/mol·K")
     return translational_entropy
@@ -403,7 +405,9 @@ def calc_entropy(
             pressure=pressure,
         )
         + calc_elec_entropy(
-            energy=energy, degeneracy=degeneracy, temperature=temperature,
+            energy=energy,
+            degeneracy=degeneracy,
+            temperature=temperature,
         )
         + calc_rot_entropy(
             atommasses=atommasses,
@@ -427,7 +431,8 @@ def calc_entropy(
         )  # noqa: RUF100
     else:
         concentration_correction = -change_reference_state(
-            temperature=temperature, pressure=pressure,
+            temperature=temperature,
+            pressure=pressure,
         )
         logger.debug(f"concentration correction = {concentration_correction} J/mol·K")
         entropy = entropy + concentration_correction
