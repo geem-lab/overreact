@@ -73,14 +73,14 @@ flynt = "^0.77"
 ipython = "^8"
 jupyter = "^1.0.0"
 matplotlib = "^3"
-mypy = "^0.991"
-pdoc = "^12"
+mypy = ">=0.991,<1.2"
+pdoc = ">=12,<14"
 perflint = "^0.7.1"
 pytest = "^7.2.0"
 pytest-cov = "^4"
-ruff = { version = "^0.0.210", allow-prereleases = true }
+ruff = { version = ">=0.0.210,<0.0.257", allow-prereleases = true }
 seaborn = "^0.12"
-types-setuptools = "^65"
+types-setuptools = ">=65,<68"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
