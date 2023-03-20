@@ -3085,14 +3085,14 @@ test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
 
 [[package]]
 name = "types-setuptools"
-version = "67.6.0.3"
+version = "67.6.0.5"
 description = "Typing stubs for setuptools"
 category = "dev"
 optional = false
 python-versions = "*"
 files = [
-    {file = "types-setuptools-67.6.0.3.tar.gz", hash = "sha256:5171c3f06d45a8343901872c11eb01bcdbda2da667d0c346264ab0492f0a37a1"},
-    {file = "types_setuptools-67.6.0.3-py3-none-any.whl", hash = "sha256:1cc0bb0bf356492a0dfa00e9fa73b40039c69703eb5f7b73a57ccc506d850a14"},
+    {file = "types-setuptools-67.6.0.5.tar.gz", hash = "sha256:3a708e66c7bdc620e4d0439f344c750c57a4340c895a4c3ed2d0fc4ae8eb9962"},
+    {file = "types_setuptools-67.6.0.5-py3-none-any.whl", hash = "sha256:dae5a4a659dbb6dba57773440f6e2dbdd8ef282dc136a174a8a59bd33d949945"},
 ]
 
 [[package]]
