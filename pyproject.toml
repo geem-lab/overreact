@@ -69,7 +69,7 @@ solvents = ["thermo"]
 [tool.poetry.group.dev.dependencies]
 black = { version = "^23.1a1", allow-prereleases = true }
 debugpy = "^1"
-flynt = "^0.77"
+flynt = ">=0.77,<0.79"
 ipython = "^8"
 jupyter = "^1.0.0"
 matplotlib = "^3"
@@ -78,7 +78,7 @@ pdoc = ">=12,<14"
 perflint = "^0.7.1"
 pytest = "^7.2.0"
 pytest-cov = "^4"
-ruff = { version = ">=0.0.210,<0.0.257", allow-prereleases = true }
+ruff = { version = ">=0.0.210,<0.0.260", allow-prereleases = true }
 seaborn = "^0.12"
 types-setuptools = ">=65,<68"
 
