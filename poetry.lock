@@ -759,19 +759,19 @@ coverage-documentation = ["coverage (>=4.0.3)", "pint", "wsgiref (>=0.1.2)"]
 
 [[package]]
 name = "flynt"
-version = "0.77"
+version = "0.78"
 description = "CLI tool to convert a python project's %-formatted strings to f-strings."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "flynt-0.77-py3-none-any.whl", hash = "sha256:2863ac8ec19d6ec8d29e760546e6ced644baf6dff3c7cdc77e03abbd29b80f14"},
-    {file = "flynt-0.77.tar.gz", hash = "sha256:2bd1b37043ad88a3f3c3c34a76fc0b64d24e5f03d36ea6b48cb69cc642bff17e"},
+    {file = "flynt-0.78-py3-none-any.whl", hash = "sha256:3a4cf278518f7dec3af52c94b5e7c395f623186503a684b2ba28705522871e74"},
+    {file = "flynt-0.78.tar.gz", hash = "sha256:15082167a538ea56b6ce4ca6874c22c739710759832dda78d8f43b6079b7e646"},
 ]
 
 [package.dependencies]
 astor = "*"
-tomli = ">=1.1.0"
+tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 
 [package.extras]
 dev = ["build", "pre-commit", "pytest", "pytest-cov", "twine"]
@@ -3300,4 +3300,4 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "964b67dc7ccfa8cdc6db7594a62ec48e1ff17abee4d42bbdc3ce5c7c8d116737"
+content-hash = "c2f8ca91558ed9bdbe13536e7c977d2a8f05938ee12c0a880c89072e10cea5d8"
