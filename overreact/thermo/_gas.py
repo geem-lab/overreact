@@ -244,7 +244,7 @@ def calc_rot_energy(
     >>> calc_rot_energy()
     0.0
 
-    """  # noqa: E501
+    """
     temperature = np.asarray(temperature)
 
     if np.isclose(temperature, 0.0):
@@ -383,7 +383,7 @@ def calc_rot_entropy(  # noqa: PLR0913
     ...                  atommasses=data.atommasses, atomnos=data.atomnos,
     ...                  atomcoords=data.atomcoords)
     47.1
-    """  # noqa: E501
+    """
     temperature = np.asarray(temperature)
 
     if np.isclose(temperature, 0.0):
@@ -830,7 +830,7 @@ def _vibrational_moment(vibfreqs=None, B_av=602.2140762081121):  # noqa: N803
     array([0.52913])
     >>> _vibrational_moment([5.0, 10.0])
     array([10.41,  5.250])
-    """  # noqa: E501
+    """
     # TODO(schneiderfelipe): should we receive vibrational temperatures and
     # avoid calling it twice when calling calc_vib_entropy?
 
@@ -882,7 +882,7 @@ def _head_gordon_damping(vibfreqs, omega=103.61231288246945, alpha=4):
     array([6.e-06, 6.e-06, 4.e-04, 5.e-01])
     >>> _head_gordon_damping([-55.0, -5.0, 5.0, 15.0, 100.0])
     array([6.e-06, 6.e-06, 4.e-04, 5.e-01])
-    """  # noqa: E501
+    """
     vibfreqs = _check_vibfreqs(vibfreqs)
     return 1.0 / (1.0 + (omega / vibfreqs) ** alpha)
 

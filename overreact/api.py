@@ -69,7 +69,7 @@ def get_internal_energies(
     >>> (internal_energies - internal_energies.min()) / constants.kcal
     array([0. , 2.20053981])
 
-    """  # noqa: E501
+    """
     compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
     internal_energies = []
     for name in compounds:
@@ -135,7 +135,7 @@ def get_enthalpies(
     >>> zero_enthalpies = get_enthalpies(model.compounds, temperature=0)
     >>> (enthalpies - zero_enthalpies) / constants.kcal
     array([2.78, 2.50])
-    """  # noqa: E501
+    """
     compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
     enthalpies = []
     for name in compounds:
@@ -219,7 +219,7 @@ def get_entropies(  # noqa: PLR0913
     >>> sol_entropies = get_entropies(model.compounds, environment="solvent")
     >>> (sol_entropies - entropies) / constants.calorie
     array([-6.35360874, -6.35360874])
-    """  # noqa: E501
+    """
     compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
     entropies = []
     for name in compounds:
@@ -305,7 +305,7 @@ def _check_qrrho(
     (True, False)
     >>> _check_qrrho((False, True))
     (False, True)
-    """  # noqa: E501
+    """
     if qrrho is True:
         return True, True
     elif qrrho is False:  # noqa: RET505
@@ -394,7 +394,7 @@ def get_freeenergies(  # noqa: PLR0913
     array([-1., -1.])
     >>> get_freeenergies(model.compounds, bias=[1.0, -1.0]) - freeenergies
     array([ 1., -1.])
-    """  # noqa: E501
+    """
     qrrho_enthalpy, qrrho_entropy = _check_qrrho(qrrho)
     enthalpies = get_enthalpies(
         compounds,
@@ -715,7 +715,7 @@ def get_kappa(
 
     >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
     array([8.e+10])
-    """  # noqa: E501
+    """
     scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
     compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
 

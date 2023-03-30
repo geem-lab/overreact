@@ -130,7 +130,7 @@ class Report:
     For half-equilibria, only ratios make sense: in simulations, equilibria will be
     adjusted to be faster than all other reactions.
     ────────────────────────────────────────────────────────────────────────────────
-    """  # noqa: E501
+    """
 
     def __init__(  # noqa: PLR0913
         self,  # noqa: ANN101

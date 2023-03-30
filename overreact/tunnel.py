@@ -168,7 +168,7 @@ def eckart(
     >>> eckart(190.5927, -154.0231580734253)
     1.03525
 
-    """  # noqa: E501
+    """
     temperature = np.asarray(temperature)
 
     nu = _check_nu(vibfreq)

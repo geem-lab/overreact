@@ -758,7 +758,7 @@ def _read_orca_hess(path):
 
 
 # heavily inspired by pieces of cclib
-def _read_orca_logfile(path, minimal=True):  # noqa: FBT002, PLR0915
+def _read_orca_logfile(path, minimal=True):  # noqa: C901, FBT002, PLR0915
     """Read an ORCA logfile.
 
     This function is a temporary reader, to be used until cclib supports all

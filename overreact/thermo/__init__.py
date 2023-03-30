@@ -104,7 +104,7 @@ def calc_trans_entropy(  # noqa: PLR0913
     >>> calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="benzene",
     ...                    method="garza")
     121.7
-    """  # noqa: E501
+    """
     # TODO(schneiderfelipe): This is probably an ugly hack for zero temperature and
     # certainly wrong (https://physics.stackexchange.com/a/400431/77366).
     # See https://physics.stackexchange.com/a/468649/77366 and
@@ -743,7 +743,7 @@ def equilibrium_constant(
 
     You can easily check that the above values match the values given
     [here](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
-    """  # noqa: E501
+    """
     temperature = np.asarray(temperature)
 
     equilibrium_constant = np.exp(

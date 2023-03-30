@@ -259,7 +259,7 @@ def molar_free_volume(  # noqa: PLR0913
     >>> molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
     ...     / (constants.angstrom ** 3 * constants.N_A)
     593.
-    """  # noqa: E501
+    """
     if method == "izato":
         vdw_volume, cav_volume, _ = coords.get_molecular_volume(
             atomnos,

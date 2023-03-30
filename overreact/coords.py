@@ -318,7 +318,7 @@ def symmetry_number(point_group):
     3
     >>> symmetry_number("T")
     12
-    """  # noqa: E501
+    """
     point_group = point_group.strip().lower()
 
     if point_group in {"c1", "ci", "cs", "c∞v", "k", "r3"}:
