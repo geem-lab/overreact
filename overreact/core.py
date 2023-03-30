@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to parsing and modeling of chemical reaction networks."""
 
@@ -249,7 +249,9 @@ def unparse_reactions(scheme: Scheme) -> str:
     """
     scheme = _check_scheme(scheme)
     transition_states = get_transition_states(
-        scheme.A, scheme.B, scheme.is_half_equilibrium
+        scheme.A,
+        scheme.B,
+        scheme.is_half_equilibrium,
     )
     lines = []
     i = 0
@@ -257,8 +259,9 @@ def unparse_reactions(scheme: Scheme) -> str:
         if transition_states[i] is not None:
             lines.append(
                 scheme.reactions[i].replace(
-                    "->", f"-> {scheme.compounds[transition_states[i]]} ->"
-                )
+                    "->",
+                    f"-> {scheme.compounds[transition_states[i]]} ->",
+                ),
             )
         elif scheme.is_half_equilibrium[i]:
             lines.append(scheme.reactions[i].replace("->", "<=>"))
@@ -341,7 +344,7 @@ def _get_environment(name):
 
     if environment in _abbr_environment:
         environment = _abbr_environment[environment]
-    return environment  # noqa: RET504
+    return environment
 
 
 def is_transition_state(name):
@@ -393,10 +396,7 @@ def is_transition_state(name):
     >>> is_transition_state("TS~(w)")
     False
     """
-    for marker in {"‡", "#"}:
-        if marker in name:
-            return True
-    return False
+    return any(marker in name for marker in {"‡", "#"})
 
 
 def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
@@ -595,7 +595,8 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
     """
     compounds: dict[str, int] = {}
     reactions: dict[
-        tuple[str, str, bool, str], tuple[tuple[tuple[int, str], ...], bool]
+        tuple[str, str, bool, str],
+        tuple[tuple[tuple[int, str], ...], bool],
     ] = {}
     A = []  # coefficients between reactants and products  # noqa: N806
     B = []  # coefficients between reactants and transition states  # noqa: N806
@@ -661,10 +662,13 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
         # it's assumed that if a transition shows up,
         #   1. it's the only compound in its side of the reaction, and
         #   2. its coefficient equals one
-        if is_transition_state(reactants[-1][-1]):  # noqa: RET507
+        if is_transition_state(reactants[-1][-1]):
             for before_reactants in before_transitions.get(reactants, []):
                 _add_reaction(
-                    before_reactants, products, is_half_equilibrium, reactants
+                    before_reactants,
+                    products,
+                    is_half_equilibrium,
+                    reactants,
                 )
 
             if reactants in after_transitions:
@@ -672,7 +676,7 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
             else:
                 after_transitions[reactants] = [products]
             continue
-        elif is_transition_state(products[-1][-1]):
+        elif is_transition_state(products[-1][-1]):  # noqa: RET507
             for after_products in after_transitions.get(products, []):
                 _add_reaction(reactants, after_products, is_half_equilibrium, products)
 
@@ -687,16 +691,18 @@ def parse_reactions(text: Union[str, Sequence[str]]) -> Scheme:  # noqa: C901
     return Scheme(
         compounds=tuple(compounds),
         reactions=tuple(_unparse_reactions(reactions)),
-        is_half_equilibrium=rx._misc.totuple([reaction[2] for reaction in reactions]),
-        A=rx._misc.totuple(
-            np.block(
-                [[vector, np.zeros(len(compounds) - len(vector))] for vector in A]
-            ).T
+        is_half_equilibrium=rx._misc.totuple(  # noqa: SLF001
+            [reaction[2] for reaction in reactions],
         ),
-        B=rx._misc.totuple(
+        A=rx._misc.totuple(  # noqa: SLF001
             np.block(
-                [[vector, np.zeros(len(compounds) - len(vector))] for vector in B]
-            ).T
+                [[vector, np.zeros(len(compounds) - len(vector))] for vector in A],
+            ).T,
+        ),
+        B=rx._misc.totuple(  # noqa: SLF001
+            np.block(
+                [[vector, np.zeros(len(compounds) - len(vector))] for vector in B],
+            ).T,
         ),
     )
 
@@ -746,18 +752,20 @@ def _parse_reactions(text):
     except AttributeError:
         lines = text
     for line in lines:
-        line = line.split("//")[0].strip()
+        line = line.split("//")[0].strip()  # noqa: PLW2901
         if not line:
             continue
 
         pieces = re.split(r"\s*(->|<=>|<-)\s*", line)
         for reactants, arrow, products in zip(
-            pieces[:-2:2], pieces[1:-1:2], pieces[2::2]
+            pieces[:-2:2],
+            pieces[1:-1:2],
+            pieces[2::2],
         ):
             if arrow == "<-":
-                reactants, products, arrow = products, reactants, "->"
-            reactants = tuple(_parse_side(reactants))
-            products = tuple(_parse_side(products))
+                reactants, products, arrow = products, reactants, "->"  # noqa: PLW2901
+            reactants = tuple(_parse_side(reactants))  # noqa: PLW2901
+            products = tuple(_parse_side(products))  # noqa: PLW2901
 
             if arrow == "<=>":
                 yield reactants, products, True
@@ -825,8 +833,9 @@ def _parse_side(side):
 
     """
     for token in re.split(r"\s+\+\s+", side):
-        token = re.match(
-            r"\s*(?P<coefficient>\d+)?\s*(?P<compound>[^\s]+)\s*", token
+        token = re.match(  # noqa: PLW2901
+            r"\s*(?P<coefficient>\d+)?\s*(?P<compound>[^\s]+)\s*",
+            token,
         ).groupdict(1)
         yield int(token["coefficient"]), token["compound"]
 

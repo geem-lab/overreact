@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to the time simulation of reaction models.
 
@@ -50,13 +50,13 @@ if _found_jax:
 else:
     logger.warning(
         "Install JAX to have just-in-time compilation: "
-        'pip install jax (or pip install "overreact[fast]")'
+        'pip install jax (or pip install "overreact[fast]")',
     )
     jnp = np
 
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
-def get_y(
+def get_y(  # noqa: PLR0913
     dydt,
     y0,
     t_span=None,
@@ -145,12 +145,12 @@ def get_y(
                     np.max(y0) / 2.0,  # zeroth-order halflife
                     np.log(2.0),  # first-order halflife
                     1.0 / np.min(y0[np.nonzero(y0)]),  # second-order halflife
-                ]
+                ],
             ) / np.min(dydt.k)
-            logger.info(f"largest halflife guess = {halflife_estimate} s")
+            logger.info(f"largest halflife guess = {halflife_estimate} s")  # noqa: G004
 
         t_span = [0.0, min(n_halflives * halflife_estimate, max_time)]
-        logger.info(f"simulation time span   = {t_span} s")
+        logger.info(f"simulation time span   = {t_span} s")  # noqa: G004
 
     jac = None
     if hasattr(dydt, "jac"):
@@ -176,15 +176,15 @@ def get_y(
             np.finfo(np.float32).eps,
             np.finfo(np.float64).eps,  # Too small?
             np.nextafter(np.float16(0), np.float16(1)),
-        ]
+        ],
     )
-    logger.warning(f"first step = {first_step} s")
+    logger.warning(f"first step = {first_step} s")  # noqa: G004
 
     # Too large a max step breaks LSODA. A too small one breaks it too.
     max_step = np.min([1.0, (t_span[1] - t_span[0]) / 100.0])
-    logger.warning(f"max step = {max_step} s")
+    logger.warning(f"max step = {max_step} s")  # noqa: G004
 
-    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
+    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")  # noqa: G004
     res = solve_ivp(
         dydt,
         t_span,
@@ -271,7 +271,7 @@ def get_dydt(scheme, k, ef=EF):
                  [ 1., -1.]], dtype=float64)
 
     """
-    scheme = rx.core._check_scheme(scheme)
+    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
     A = jnp.asarray(scheme.A)  # noqa: N806
     M = jnp.where(A > 0, 0, -A).T  # noqa: N806
     k_adj = _adjust_k(scheme, k, ef=ef)
@@ -288,7 +288,7 @@ def get_dydt(scheme, k, ef=EF):
         # such that _jac(t, y)[i, j] == d f_i / d y_j,
         # with shape of (n_compounds, n_compounds).
         def _jac(t, y):
-            logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")
+            logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")  # noqa: G004
             return jacfwd(lambda _y: _dydt(t, _y))(y)
 
         _dydt.jac = _jac
@@ -346,7 +346,7 @@ def _adjust_k(scheme, k, ef=EF):
     array([1.02320357e+12, ..., 1.02320357e+12])
 
     """
-    scheme = rx.core._check_scheme(scheme)
+    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
     is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
     k = np.asarray(k, dtype=float).copy()
 
@@ -360,11 +360,13 @@ def _adjust_k(scheme, k, ef=EF):
             adjustment = ef * (k_fastest_react / k_slowest_equil)
 
             k[is_half_equilibrium] *= adjustment
-            logger.warning(f"equilibria adjustment = {adjustment}")
+            logger.warning(f"equilibria adjustment = {adjustment}")  # noqa: G004
 
             k_slowest_equil = k[is_half_equilibrium].min()
             k_fastest_react = k[~is_half_equilibrium].max()
-            logger.warning(f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}")
+            logger.warning(
+                f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}",  # noqa: E501, G004
+            )
         else:
             # only equilibria
 
@@ -531,9 +533,11 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_k = np.asarray(k, dtype=float).copy()
     new_reactions = []
     for i, (reaction, is_half_equilibrium) in enumerate(
-        zip(scheme.reactions, scheme.is_half_equilibrium)
+        zip(scheme.reactions, scheme.is_half_equilibrium),
     ):
-        for reactants, products, _ in rx.core._parse_reactions(reaction):
+        for reactants, products, _ in rx.core._parse_reactions(  # noqa: SLF001
+            reaction,
+        ):
             new_reactants = tuple(
                 (coeff, compound)
                 for (coeff, compound) in reactants
@@ -552,14 +556,18 @@ def get_fixed_scheme(scheme, k, fixed_y0):
 
             new_reactions.append((new_reactants, new_products, is_half_equilibrium))
 
-    new_reactions = tuple(r for r in rx.core._unparse_reactions(new_reactions))
+    new_reactions = tuple(
+        r for r in rx.core._unparse_reactions(new_reactions)  # noqa: SLF001
+    )  # noqa: RUF100, SLF001
     new_is_half_equilibrium = scheme.is_half_equilibrium
 
     new_A = []  # noqa: N806
     new_B = []  # noqa: N806
     new_compounds = []
     for compound, row_A, row_B in zip(  # noqa: N806
-        scheme.compounds, scheme.A, scheme.B
+        scheme.compounds,
+        scheme.A,
+        scheme.B,
     ):  # noqa: RUF100
         if compound not in fixed_y0:
             new_compounds.append(compound)
@@ -583,7 +591,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
 
 
 # TODO(schneiderfelipe): this is probably not ready yet
-def get_bias(
+def get_bias(  # noqa: PLR0913
     scheme,
     compounds,
     data,
@@ -673,7 +681,12 @@ def get_bias(
         # TODO(schneiderfelipe): support schemes with fixed concentrations
         dydt = rx.get_dydt(scheme, k)
         y, _ = rx.get_y(
-            dydt, y0=y0, method=method, rtol=rtol, atol=atol, max_time=max_time
+            dydt,
+            y0=y0,
+            method=method,
+            rtol=rtol,
+            atol=atol,
+            max_time=max_time,
         )
 
         yhat = y(data["t"])
@@ -682,7 +695,7 @@ def get_bias(
                 (yhat[i] - data[name]) ** 2
                 for (i, name) in enumerate(compounds)
                 if name in data
-            ]
+            ],
         )
 
     res = minimize_scalar(f)

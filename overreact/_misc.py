@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Miscellaneous functions that do not currently fit in other modules.
 
@@ -518,7 +518,7 @@ def _get_chemical(
     return Chemical(identifier, temperature, pressure, *args, **kwargs)
 
 
-def broaden_spectrum(
+def broaden_spectrum(  # noqa: PLR0913
     x,
     x0,
     y0,
@@ -585,7 +585,11 @@ def broaden_spectrum(
         [
             yp
             * distribution.pdf(
-                x, xp, scale=scale, *args, **kwargs  # noqa: RUF004, B026
+                x,
+                xp,
+                scale=scale,
+                *args,  # noqa: B026
+                **kwargs,
             )  # noqa: RUF100
             for xp, yp in zip(x0, y0)
         ],
@@ -594,7 +598,7 @@ def broaden_spectrum(
 
     if fit_points:
         s_max = np.max(s)
-        if s_max == 0.0:
+        if s_max == 0.0:  # noqa: PLR2004
             s_max = 1.0
         return s * np.max(y0) / s_max
     return s
@@ -622,7 +626,7 @@ def totuple(a):
     if isinstance(a, (int, float, str, rx.Scheme)):
         return a
 
-    try:
+    try:  # noqa: SIM105
         a = a.tolist()
     except AttributeError:
         pass
@@ -700,20 +704,17 @@ def halton(num, dim=None, jump=1, cranley_patterson=True):  # noqa: FBT002
     >>> np.mean(x**2)  # estimate of the integral of x**2 between 0 and 1
     0.33
     """
-    if dim is None:
-        actual_dim = 1
-    else:
-        actual_dim = dim
+    actual_dim = 1 if dim is None else dim
 
     res = np.array(
         [
             [_vdc(i, b) for i in range(jump, jump + num)]
             for b in _first_primes(actual_dim)
-        ]
+        ],
     )
 
     if cranley_patterson:
-        res = (res + np.random.rand(actual_dim, 1)) % 1.0
+        res = (res + np.random.rand(actual_dim, 1)) % 1.0  # noqa: NPY002
     if dim is None:
         return res.reshape((num,))
     return res.T
@@ -734,10 +735,7 @@ def _first_primes(size):
 
     def _is_prime(num):
         """Check if num is prime."""
-        for i in range(2, int(np.sqrt(num)) + 1):
-            if (num % i) == 0:
-                return False
-        return True
+        return all(num % i != 0 for i in range(2, int(np.sqrt(num)) + 1))
 
     primes = [2]
     p = 3

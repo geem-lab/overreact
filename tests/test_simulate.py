@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for simulate module."""
 
@@ -43,11 +43,12 @@ def test_get_y_propagates_reaction_automatically():
     # with jitted dydt, we need to use np.ndarray
     y, r = simulate.get_y(simulate.get_dydt(scheme, np.array([1.0, 1.0])), y0=y0)
 
-    assert y.t_min == 0.0
-    assert y.t_max >= 300.0
+    assert y.t_min == 0.0  # noqa: PLR2004
+    assert y.t_max >= 300.0  # noqa: PLR2004
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx(
-        [1.668212890625, 0.6728515625, 0.341787109375], 2e-4
+        [1.668212890625, 0.6728515625, 0.341787109375],
+        2e-4,
     )
     assert r(y.t_min) == pytest.approx([-31.99, -127.96, 31.99])
     assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=2e-3)
@@ -67,14 +68,17 @@ def test_get_y_propagates_reaction_with_fixed_time():
 
     # with jitted dydt, we need to use np.ndarray
     y, r = simulate.get_y(
-        simulate.get_dydt(scheme, np.array([1.0, 1.0])), y0=y0, t_span=t_span
+        simulate.get_dydt(scheme, np.array([1.0, 1.0])),
+        y0=y0,
+        t_span=t_span,
     )
 
     assert y.t_min == t_span[0]
     assert y.t_max == t_span[-1]
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx(
-        [1.668212890625, 0.6728515625, 0.341787109375], 1e-4
+        [1.668212890625, 0.6728515625, 0.341787109375],
+        1e-4,
     )
     assert r(y.t_min) == pytest.approx([-31.99, -127.96, 31.99])
     assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=2e-3)
@@ -89,8 +93,8 @@ def test_get_y_conservation_in_equilibria():
     y, r = simulate.get_y(simulate.get_dydt(scheme, np.array([1, 1])), y0=y0)
     t = np.linspace(y.t_min, y.t_max, num=100)
 
-    assert y.t_min == 0.0
-    assert y.t_max >= 3.0
+    assert y.t_min == 0.0  # noqa: PLR2004
+    assert y.t_max >= 3.0  # noqa: PLR2004
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx([0.5, 0.5], 2.5e-3)
     assert r(y.t_min) == pytest.approx([-1, 1])

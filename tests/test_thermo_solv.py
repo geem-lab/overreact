@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for solvation using the `thermo` module."""
 
@@ -40,7 +40,8 @@ def test_entropy_liquid_phase():
         method="garza",
     )
     assert (solv_entropy - gas_entropy) / constants.calorie == pytest.approx(
-        -28.4, abs=constants.kilo / 298.15
+        -28.4,
+        abs=constants.kilo / 298.15,
     )
 
     # CH3OH
@@ -68,7 +69,8 @@ def test_entropy_liquid_phase():
         method="garza",
     )
     assert (solv_entropy - gas_entropy) / constants.calorie == pytest.approx(
-        -26.9, abs=constants.kilo / 298.15
+        -26.9,
+        abs=constants.kilo / 298.15,
     )
     solv_entropy = rx.thermo.calc_entropy(
         data.atommasses,
@@ -81,7 +83,8 @@ def test_entropy_liquid_phase():
         method="garza",
     )
     assert (solv_entropy - gas_entropy) / constants.calorie == pytest.approx(
-        -20.8, abs=constants.kilo / 298.15
+        -20.8,
+        abs=constants.kilo / 298.15,
     )
 
     # C2H5OH
@@ -109,7 +112,8 @@ def test_entropy_liquid_phase():
         method="garza",
     )
     assert (solv_entropy - gas_entropy) / constants.calorie == pytest.approx(
-        -29.4, abs=constants.kilo / 298.15
+        -29.4,
+        abs=constants.kilo / 298.15,
     )
     solv_entropy = rx.thermo.calc_entropy(
         data.atommasses,
@@ -122,7 +126,8 @@ def test_entropy_liquid_phase():
         method="garza",
     )
     assert (solv_entropy - gas_entropy) / constants.calorie == pytest.approx(
-        -31.6, abs=constants.kilo / 298.15
+        -31.6,
+        abs=constants.kilo / 298.15,
     )
     solv_entropy = rx.thermo.calc_entropy(
         data.atommasses,
@@ -135,7 +140,8 @@ def test_entropy_liquid_phase():
         method="garza",
     )
     assert (solv_entropy - gas_entropy) / constants.calorie == pytest.approx(
-        -23.4, abs=constants.kilo / 298.15
+        -23.4,
+        abs=constants.kilo / 298.15,
     )
     solv_entropy = rx.thermo.calc_entropy(
         data.atommasses,
@@ -148,11 +154,12 @@ def test_entropy_liquid_phase():
         method="garza",
     )
     assert (solv_entropy - gas_entropy) / constants.calorie == pytest.approx(
-        -18.6, abs=constants.kilo / 298.15
+        -18.6,
+        abs=constants.kilo / 298.15,
     )
 
 
-def test_translational_entropy_liquid_phase():
+def test_translational_entropy_liquid_phase():  # noqa: PLR0915
     """Validate calculated volumes from Table S3 of doi:10.1039/C9CP03226F.
 
     The original data seems to have errors, some severe. I *assumed* this is
@@ -165,17 +172,24 @@ def test_translational_entropy_liquid_phase():
     # H2O
     data = datasets.logfiles["symmetries"]["water"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(30.93, 8e-2)
     assert vdw_volume == pytest.approx(19.16, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
 
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(144.80408548676766, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -195,19 +209,27 @@ def test_translational_entropy_liquid_phase():
     # CH3OH
     data = datasets.logfiles["symmetries"]["methanol"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(55.28, 7e-2)
     assert vdw_volume == pytest.approx(36.64, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.116, 5e-2
+        0.116,
+        5e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(151.98582061379608, 1e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -227,18 +249,26 @@ def test_translational_entropy_liquid_phase():
     # C2H5OH
     data = datasets.logfiles["symmetries"]["ethanol"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert vdw_volume == pytest.approx(53.66, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.125, 6e-2
+        0.125,
+        6e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(156.51420201431782, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -258,18 +288,26 @@ def test_translational_entropy_liquid_phase():
     # 1-C3H7OH
     data = datasets.logfiles["symmetries"]["1-propanol"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(100.25, 7e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.144, 3e-2
+        0.144,
+        3e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(159.8292158120477, 1e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -289,19 +327,27 @@ def test_translational_entropy_liquid_phase():
     # 2-C3H7OH
     data = datasets.logfiles["symmetries"]["2-propanol"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(100.50, 7e-2)
     assert vdw_volume == pytest.approx(69.95, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.148, 8e-2
+        0.148,
+        8e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(159.8292158120477, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -321,19 +367,27 @@ def test_translational_entropy_liquid_phase():
     # 1-C4H9OH
     data = datasets.logfiles["symmetries"]["1-butanol"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(123.34, 7e-2)
     assert vdw_volume == pytest.approx(87.13, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.161, 3e-2
+        0.161,
+        3e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(162.4455600896596, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -353,19 +407,27 @@ def test_translational_entropy_liquid_phase():
     # 2-C4H9OH
     data = datasets.logfiles["symmetries"]["2-butanol"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(122.05, 6e-2)
     assert vdw_volume == pytest.approx(86.83, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.151, 6e-2
+        0.151,
+        6e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(162.4455600896596, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -385,19 +447,27 @@ def test_translational_entropy_liquid_phase():
     # i-C4H9OH
     data = datasets.logfiles["symmetries"]["2-methyl-2-propanol"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.2550
+    assert err < 0.2550  # noqa: PLR2004
     assert cav_volume == pytest.approx(122.17, 7e-2)
     assert vdw_volume == pytest.approx(86.83, 8e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.152, 3e-2
+        0.152,
+        3e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(162.4455600896596, 1e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -417,19 +487,27 @@ def test_translational_entropy_liquid_phase():
     # HCOOH
     data = datasets.logfiles["symmetries"]["formic-acid"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(59.41, 5e-2)
     assert vdw_volume == pytest.approx(39.04, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.133, 7e-2
+        0.133,
+        7e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(156.50228474338718, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -449,19 +527,27 @@ def test_translational_entropy_liquid_phase():
     # CH3COOH
     data = datasets.logfiles["symmetries"]["acetic-acid"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(82.32, 5e-2)
     assert vdw_volume == pytest.approx(55.00, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.164, 1.2e-1
+        0.164,
+        1.2e-1,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(159.820081168819, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -481,19 +567,27 @@ def test_translational_entropy_liquid_phase():
     # CH3CN
     data = datasets.logfiles["symmetries"]["acetonitrile"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(68.88, 5e-2)
     assert vdw_volume == pytest.approx(45.26, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.153, 5e-2
+        0.153,
+        5e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(155.0765105631046, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -513,19 +607,27 @@ def test_translational_entropy_liquid_phase():
     # CH3NO2
     data = datasets.logfiles["symmetries"]["nitromethane"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(77.29, 5e-2)
     assert vdw_volume == pytest.approx(51.53, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.156, 4e-2
+        0.156,
+        4e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(160.02360092304738, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -545,16 +647,23 @@ def test_translational_entropy_liquid_phase():
     # Acetone
     data = datasets.logfiles["symmetries"]["acetone"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(94.20, 6e-2)
     assert vdw_volume == pytest.approx(65.29, 7e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(159.4036577560442, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -574,16 +683,23 @@ def test_translational_entropy_liquid_phase():
     # DMSO
     data = datasets.logfiles["symmetries"]["dimethyl-sulfoxide"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(104.64, 5e-2)
     assert vdw_volume == pytest.approx(71.19, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(163.10201307782876, 1e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -603,19 +719,27 @@ def test_translational_entropy_liquid_phase():
     # THF
     data = datasets.logfiles["symmetries"]["tetrahydrofuran"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(108.71, 7e-2)
     assert vdw_volume == pytest.approx(76.59, 6e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.145, 9e-2
+        0.145,
+        9e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(162.10165626567044, 1e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -635,19 +759,27 @@ def test_translational_entropy_liquid_phase():
     # Benzene
     data = datasets.logfiles["symmetries"]["benzene"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(118.78, 5e-2)
     assert vdw_volume == pytest.approx(83.36, 4e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.164, 3e-2
+        0.164,
+        3e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(163.09961840530607, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -667,19 +799,27 @@ def test_translational_entropy_liquid_phase():
     # CCl4
     data = datasets.logfiles["symmetries"]["tetrachloromethane"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(128.54, 5e-2)
     assert vdw_volume == pytest.approx(84.22, 2e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.292, 6e-2
+        0.292,
+        6e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(171.5508534254953, 5e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -699,19 +839,27 @@ def test_translational_entropy_liquid_phase():
     # C5H12
     data = datasets.logfiles["symmetries"]["n-pentane"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(134.53, 8e-2)
     assert vdw_volume == pytest.approx(95.84, 9e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.164, 3e-2
+        0.164,
+        3e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(162.10926422571157, 1e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -731,18 +879,26 @@ def test_translational_entropy_liquid_phase():
     # C6H14
     data = datasets.logfiles["symmetries"]["n-hexane"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
     assert cav_volume == pytest.approx(156.61, 8e-2)
     assert vdw_volume == pytest.approx(112.34, 9e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.180, 4e-2
+        0.180,
+        4e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(164.3249077891098, 1e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -762,19 +918,27 @@ def test_translational_entropy_liquid_phase():
     # cyc-C6H12
     data = datasets.logfiles["symmetries"]["cyclohexane-chair"]
     vdw_volume, cav_volume, err = coords.get_molecular_volume(
-        data.atomnos, data.atomcoords, full_output=True, method="izato"
+        data.atomnos,
+        data.atomcoords,
+        full_output=True,
+        method="izato",
     )
-    assert err < 0.263
+    assert err < 0.263  # noqa: PLR2004
     assert cav_volume == pytest.approx(138.74, 7e-2)
     assert vdw_volume == pytest.approx(100.50, 7e-2)
-    free_volume = rx.thermo._solv.molar_free_volume(
-        data.atomnos, data.atomcoords, method="izato"
+    free_volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        data.atomnos,
+        data.atomcoords,
+        method="izato",
     )
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
-        0.147, 8e-2
+        0.147,
+        8e-2,
     )
     assert rx.thermo.calc_trans_entropy(
-        data.atommasses, data.atomnos, data.atomcoords
+        data.atommasses,
+        data.atomnos,
+        data.atomcoords,
     ) == pytest.approx(164.02968518741582, 1e-2)
     assert rx.thermo.calc_trans_entropy(
         data.atommasses,
@@ -800,103 +964,123 @@ def test_sackur_tetrode_given_free_volumes():
     each entry accordingly.
     """
     # H2O
-    assert rx.thermo._gas._sackur_tetrode(
-        18.01, 0.0993e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        18.01,
+        0.0993e-30 * constants.N_A,
     ) == pytest.approx(37.36, 1e-4)
 
     # CH3OH
-    assert rx.thermo._gas._sackur_tetrode(
-        32.04, 0.116e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        32.04,
+        0.116e-30 * constants.N_A,
     ) == pytest.approx(45.85, 1e-3)
 
     # C2H5OH
-    assert rx.thermo._gas._sackur_tetrode(
-        46.05, 0.125e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        46.05,
+        0.125e-30 * constants.N_A,
     ) == pytest.approx(51.01, 1e-3)
 
     # 1-C3H7OH
-    assert rx.thermo._gas._sackur_tetrode(
-        60.06, 0.144e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        60.06,
+        0.144e-30 * constants.N_A,
     ) == pytest.approx(55.70, 1e-2)
 
     # 2-C3H7OH
-    assert rx.thermo._gas._sackur_tetrode(
-        60.06, 0.148e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        60.06,
+        0.148e-30 * constants.N_A,
     ) == pytest.approx(46.81, 1.9e-1)
 
     # 1-C4H9OH
-    assert rx.thermo._gas._sackur_tetrode(
-        74.07, 0.161e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        74.07,
+        0.161e-30 * constants.N_A,
     ) == pytest.approx(59.90, 5e-2)
 
     # 2-C4H9OH
-    assert rx.thermo._gas._sackur_tetrode(
-        74.07, 0.151e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        74.07,
+        0.151e-30 * constants.N_A,
     ) == pytest.approx(51.64, 1.4e-1)
 
     # i-C4H9OH
-    assert rx.thermo._gas._sackur_tetrode(
-        74.07, 0.152e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        74.07,
+        0.152e-30 * constants.N_A,
     ) == pytest.approx(58.71, 1e-2)
 
     # HCOOH
-    assert rx.thermo._gas._sackur_tetrode(
-        46.01, 0.133e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        46.01,
+        0.133e-30 * constants.N_A,
     ) == pytest.approx(51.45, 1e-3)
 
     # CH3COOH
-    assert rx.thermo._gas._sackur_tetrode(
-        60.02, 0.164e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        60.02,
+        0.164e-30 * constants.N_A,
     ) == pytest.approx(56.52, 1e-3)
 
     # CH3CN
-    assert rx.thermo._gas._sackur_tetrode(
-        41.03, 0.153e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        41.03,
+        0.153e-30 * constants.N_A,
     ) == pytest.approx(51.25, 1e-3)
 
     # CH3NO2
-    assert rx.thermo._gas._sackur_tetrode(
-        61.02, 0.156e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        61.02,
+        0.156e-30 * constants.N_A,
     ) == pytest.approx(56.34, 1e-4)
 
     # Acetone
-    assert rx.thermo._gas._sackur_tetrode(
-        58.04, 0.143e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        58.04,
+        0.143e-30 * constants.N_A,
     ) == pytest.approx(55.01, 1e-3)
 
     # DMSO
-    assert rx.thermo._gas._sackur_tetrode(
-        78.01, 0.183e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        78.01,
+        0.183e-30 * constants.N_A,
     ) == pytest.approx(60.73, 1e-4)
 
     # THF
-    assert rx.thermo._gas._sackur_tetrode(
-        72.06, 0.145e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        72.06,
+        0.145e-30 * constants.N_A,
     ) == pytest.approx(57.82, 1e-3)
 
     # Benzene
-    assert rx.thermo._gas._sackur_tetrode(
-        78.05, 0.164e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        78.05,
+        0.164e-30 * constants.N_A,
     ) == pytest.approx(74.42, 2e-1)
 
     # CCl4
-    assert rx.thermo._gas._sackur_tetrode(
-        151.88, 0.292e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        151.88,
+        0.292e-30 * constants.N_A,
     ) == pytest.approx(61.39, 1.9e-1)
 
     # C5H12
-    assert rx.thermo._gas._sackur_tetrode(
-        72.09, 0.164e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        72.09,
+        0.164e-30 * constants.N_A,
     ) == pytest.approx(58.84, 1e-3)
 
     # C6H14
-    assert rx.thermo._gas._sackur_tetrode(
-        87.12, 0.180e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        87.12,
+        0.180e-30 * constants.N_A,
     ) == pytest.approx(61.98, 1e-3)
 
     # cyc-C6H12
-    assert rx.thermo._gas._sackur_tetrode(
-        84.09, 0.147e-30 * constants.N_A
+    assert rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+        84.09,
+        0.147e-30 * constants.N_A,
     ) == pytest.approx(59.83, 1e-3)
 
 
@@ -907,7 +1091,8 @@ def test_change_reference_state_works_for_gas_to_liquid_standard_states():
         constants.kcal
     ) == pytest.approx(1.10, 5e-2)
     assert 298.15 * rx.change_reference_state() / constants.kcal == pytest.approx(
-        1.85, 5e-2
+        1.85,
+        5e-2,
     )
     assert 300.0 * rx.change_reference_state(temperature=300.0) / (
         constants.kcal

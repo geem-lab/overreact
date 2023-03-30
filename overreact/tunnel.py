@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: EXE001
 
 """Module dedicated to quantum tunneling approximations."""
 
@@ -49,14 +49,15 @@ def _check_nu(vibfreq: float) -> float:
     True
     """
     if np.isclose(vibfreq, 0.0).any():
-        raise ValueError(
-            f"vibfreq should not be zero for tunneling: {vibfreq}"  # noqa: EM102
+        raise ValueError(  # noqa: TRY003
+            f"vibfreq should not be zero for tunneling: {vibfreq}",  # noqa: EM102
         )  # noqa: RUF100
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
 def wigner(
-    vibfreq: float, temperature: Union[float, np.ndarray] = 298.15  # noqa: UP007
+    vibfreq: float,
+    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
 ) -> float:  # noqa: RUF100
     """Calculate the Wigner correction to quantum tunneling.
 
@@ -98,7 +99,7 @@ def wigner(
     u = constants.h * nu / (constants.k * temperature)
 
     kappa = 1.0 + (u**2) / 24.0
-    logger.info(f"Wigner tunneling coefficient: {kappa}")
+    logger.info(f"Wigner tunneling coefficient: {kappa}")  # noqa: G004
     return kappa
 
 
@@ -167,7 +168,7 @@ def eckart(
     >>> eckart(190.5927, -154.0231580734253)
     1.03525
 
-    """  # noqa: E501
+    """
     temperature = np.asarray(temperature)
 
     nu = _check_nu(vibfreq)
@@ -176,12 +177,12 @@ def eckart(
     if delta_backward is None:
         delta_backward = delta_forward
 
-    logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
-    logger.debug(f"backward potential barrier: {delta_backward} J/mol")
+    logger.debug(f"forward  potential barrier: {delta_forward} J/mol")  # noqa: G004
+    logger.debug(f"backward potential barrier: {delta_backward} J/mol")  # noqa: G004
 
     if delta_forward <= 0 or delta_backward <= 0:
         logger.warning(
-            "forward or backward barrier is non-positive, falling back to Wigner correction"  # noqa: E501
+            "forward or backward barrier is non-positive, falling back to Wigner correction",  # noqa: E501
         )
         return wigner(vibfreq, temperature)
 
@@ -198,13 +199,15 @@ def eckart(
     alpha2 = two_pi * delta_backward / (constants.h * nu)
 
     kappa = _eckart(u, alpha1, alpha2)
-    logger.info(f"Eckart tunneling coefficient: {kappa}")
+    logger.info(f"Eckart tunneling coefficient: {kappa}")  # noqa: G004
     return kappa
 
 
 @np.vectorize
 def _eckart(
-    u: float, alpha1: float, alpha2: Optional[float] = None  # noqa: UP007
+    u: float,
+    alpha1: float,
+    alpha2: Optional[float] = None,  # noqa: UP007
 ) -> float:  # noqa: RUF100
     """Implement of the (unsymmetrical) Eckart tunneling approximation.
 
@@ -262,7 +265,7 @@ def _eckart(
     v2 = alpha2 * u / (two_pi)
 
     d = 4.0 * alpha1 * alpha2 - np.pi**2
-    if d > 0:
+    if d > 0:  # noqa: SIM108
         D = np.cosh(np.sqrt(d))  # noqa: N806
     else:
         D = np.cos(np.sqrt(np.abs(d)))  # noqa: N806

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for the application programming interface (API)."""
 
@@ -13,9 +13,11 @@ from overreact import coords
 def test_get_enthalpies():  # noqa: D103
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     assert rx.get_delta(
-        model.scheme.B, rx.get_enthalpies(model.compounds, qrrho=False)
+        model.scheme.B,
+        rx.get_enthalpies(model.compounds, qrrho=False),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
-        -132.23510843 - (-56.51424787 + -75.72409969), 2e-2
+        -132.23510843 - (-56.51424787 + -75.72409969),
+        2e-2,
     )
 
 
@@ -27,7 +29,8 @@ def test_get_entropies():
     """
     model = rx.parse_model("data/ethane/B97-3c/model.k")
     assert 298.15 * rx.get_delta(
-        model.scheme.B, rx.get_entropies(model.compounds, environment="gas")
+        model.scheme.B,
+        rx.get_entropies(model.compounds, environment="gas"),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.02685478 - 0.00942732 + 0.00773558 - (0.02753672 - 0.00941496 + 0.00772322),
         4e-4,
@@ -35,7 +38,8 @@ def test_get_entropies():
 
     model = rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.k")
     assert 298.15 * rx.get_delta(
-        model.scheme.B, rx.get_entropies(model.compounds, environment="gas")
+        model.scheme.B,
+        rx.get_entropies(model.compounds, environment="gas"),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.03025523 - 0.01030794 + 0.00927065 - (0.02110620 + 0.00065446 + 0.01740262),
         3e-5,
@@ -44,7 +48,8 @@ def test_get_entropies():
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
     assert 298.15 * rx.get_delta(
-        model.scheme.B, rx.get_entropies(model.compounds, environment="gas")
+        model.scheme.B,
+        rx.get_entropies(model.compounds, environment="gas"),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.03070499
         - ((0.02288418 - 0.00647387 + 0.00543658) + 0.02022750)
@@ -94,7 +99,9 @@ def test_compare_calc_star_with_get_star():
     for bias in np.array([-1, 0, 1]) * constants.kcal:
         for environment in ["gas", "solvent"]:
             for qrrho in [True, False, (False, True)]:
-                qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(qrrho)
+                qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(  # noqa: SLF001
+                    qrrho,
+                )
                 for temperature in [200, 298.15, 400]:
                     for pressure in [
                         constants.bar / 2,
@@ -111,12 +118,14 @@ def test_compare_calc_star_with_get_star():
                         )
                         for i, (compound, data) in enumerate(model.compounds.items()):
                             moments, _, _ = coords.inertia(
-                                data.atommasses, data.atomcoords
+                                data.atommasses,
+                                data.atomcoords,
                             )
                             symmetry_number = coords.symmetry_number(
                                 coords.find_point_group(
-                                    data.atommasses, data.atomcoords
-                                )
+                                    data.atommasses,
+                                    data.atomcoords,
+                                ),
                             )
 
                             enthalpy_calc = rx.thermo.calc_enthalpy(
@@ -157,7 +166,7 @@ def test_compare_calc_star_with_get_star():
                                 bias == 0
                                 and environment == "gas"
                                 and qrrho == (False, True)
-                                and temperature == 298.15
+                                and temperature == 298.15  # noqa: PLR2004
                                 and pressure == constants.atm
                                 # TODO(schneiderfelipe): do a test for H+(w)
                                 and compound != "H+(w)"
@@ -165,5 +174,6 @@ def test_compare_calc_star_with_get_star():
                                 assert freeenergies_get[i] / (
                                     constants.hartree * constants.N_A
                                 ) == pytest.approx(
-                                    freeenergies_ref[i], 7e-7
+                                    freeenergies_ref[i],
+                                    7e-7,
                                 )  # ORCA logfile

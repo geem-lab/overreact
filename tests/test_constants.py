@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3  # noqa: INP001, EXE001
 
 """Tests for constants module."""
 
@@ -17,13 +17,14 @@ def test_reference_raw_constants():
     assert constants.bohr / constants.angstrom == pytest.approx(0.52917721092)
     assert constants.atomic_mass == pytest.approx(1.660538921e-27)
     assert constants.h == pytest.approx(6.62606957e-34)
-    assert constants.N_A == pytest.approx(6.02214129e23)
+    assert pytest.approx(6.02214129e23) == constants.N_A
     assert constants.kcal == pytest.approx(4184.0)
     assert constants.hartree == pytest.approx(4.35974434e-18)
     assert constants.c / constants.centi == pytest.approx(2.99792458e10)
     assert constants.k == pytest.approx(1.3806488e-23)
     assert rx.thermo.molar_volume(
-        temperature=273.15, pressure=constants.bar
+        temperature=273.15,
+        pressure=constants.bar,
     ) == pytest.approx(0.022710953)
 
 
