@@ -176,9 +176,9 @@ def get_y(  # noqa: PLR0913
             np.finfo(np.float32).eps,
             np.finfo(np.float64).eps,  # Too small?
             np.nextafter(np.float16(0), np.float16(1)),
-        ]
+        ],
     )
-    logger.warning(f"first step = {first_step} s")
+    logger.warning(f"first step = {first_step} s")  # noqa: G004
 
     # Too large a max step breaks LSODA. A too small one breaks it too.
     max_step = np.min([1.0, (t_span[1] - t_span[0]) / 100.0])
