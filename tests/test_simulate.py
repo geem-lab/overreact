@@ -107,7 +107,7 @@ def test_get_y_conservation_in_equilibria():
 
 
 def test_bassim():
-    """Test a faulty system as suggested by @bmounssefjr"""
+    """Test a faulty system as suggested by @bmounssefjr."""
     scheme = rx.parse_reactions(
         """
 A + B <=> I
