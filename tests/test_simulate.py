@@ -104,3 +104,23 @@ def test_get_y_conservation_in_equilibria():
     assert y.t_max == t[-1]
     assert np.allclose(y(t)[0] + y(t)[1], np.sum(y0))
     assert np.allclose(r(t)[0] + r(t)[1], 0.0)
+
+
+def test_bassim():
+    scheme = rx.parse_reactions(
+        """
+A + B <=> I
+I -> TS‡ -> P
+"""
+    )
+    y0 = [0.35, 0.018, 0.0, 0.0, 0.0]
+
+    # with jitted dydt, we need to use np.ndarray
+    k = np.array([84.1779089, 1.0, 1.24260741e10])
+    dydt = simulate.get_dydt(scheme, k)
+
+    assert np.allclose(dydt.k, [8.62558243e12, 1.02468481e11, 1.24260741e10])
+
+    y, r = simulate.get_y(dydt, y0=y0)
+
+    assert np.allclose(y(y.t_max), [0.35 - 0.018, 0.0, 0.0, 0.0, 0.018])
