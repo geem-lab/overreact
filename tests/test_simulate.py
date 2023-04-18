@@ -107,11 +107,12 @@ def test_get_y_conservation_in_equilibria():
 
 
 def test_bassim():
+    """Test a faulty system as suggested by @bmounssefjr"""
     scheme = rx.parse_reactions(
         """
 A + B <=> I
 I -> TS‡ -> P
-"""
+""",
     )
     y0 = [0.35, 0.018, 0.0, 0.0, 0.0]
 
