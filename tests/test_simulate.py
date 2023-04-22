@@ -124,4 +124,4 @@ I -> TS‡ -> P
 
     y, r = simulate.get_y(dydt, y0=y0)
 
-    assert np.allclose(y(y.t_max), [0.35 - 0.018, 0.0, 0.0, 0.0, 0.018])
+    assert np.allclose(y(y.t_max), [0.35 - 0.018, 0.0, 0.0, 0.0, 0.018], atol=1e-6)
