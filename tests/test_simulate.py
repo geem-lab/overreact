@@ -110,8 +110,27 @@ def test_get_y_conservation_in_equilibria():
     assert np.allclose(r(t)[0] + r(t)[1], 0.0)
 
 
-@pytest.mark.parametrize("cat0, sub0", [(0.35, 0.018)])
-def test_simple_michaelis_menten(cat0, sub0):
+@pytest.mark.parametrize(
+    "cat0, sub0, keq, kcat",
+    [
+        (0.035, 0.018, 84.1779089e-1, 1.24260741e10),
+        (0.035, 0.018, 84.1779089e0, 1.24260741e09),
+        (0.035, 0.018, 84.1779089e0, 1.24260741e10),
+        (0.035, 0.018, 84.1779089e0, 1.24260741e11),
+        (0.035, 0.018, 84.1779089e1, 1.24260741e10),
+        (0.35, 0.018, 84.1779089e-1, 1.24260741e10),
+        (0.35, 0.018, 84.1779089e0, 1.24260741e09),
+        (0.35, 0.018, 84.1779089e0, 1.24260741e10),
+        (0.35, 0.018, 84.1779089e0, 1.24260741e11),
+        (0.35, 0.018, 84.1779089e1, 1.24260741e10),
+        (0.35, 0.18, 84.1779089e-1, 1.24260741e10),
+        (0.35, 0.18, 84.1779089e0, 1.24260741e09),
+        (0.35, 0.18, 84.1779089e0, 1.24260741e10),
+        (0.35, 0.18, 84.1779089e0, 1.24260741e11),
+        (0.35, 0.18, 84.1779089e1, 1.24260741e10),
+    ],
+)
+def test_simple_michaelis_menten(cat0, sub0, keq, kcat):
     """
     Test a simple Michaelis-Menten model.
 
@@ -126,7 +145,7 @@ CS -> TS‡ -> C + P  // Catalyst is released
     y0 = [cat0, sub0, 0.0, 0.0, 0.0]
 
     # with jitted dydt, we need to use np.ndarray
-    k = np.array([84.1779089, 1.0, 1.24260741e10])
+    k = np.array([keq, 1.0, kcat])
     dydt = simulate.get_dydt(scheme, k)
 
     # equilibrium constant is kept
