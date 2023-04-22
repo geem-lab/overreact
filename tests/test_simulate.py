@@ -110,12 +110,12 @@ def test_get_y_conservation_in_equilibria():
     assert np.allclose(r(t)[0] + r(t)[1], 0.0)
 
 
-def test_bassim():
+def test_consuming_michaelis_menten():
     """Test a faulty system as suggested by @bmounssefjr."""
     scheme = rx.parse_reactions(
         """
-A + B <=> I
-I -> TS‡ -> P
+C + S <=> CS    // Pre-equilibrium
+CS -> TS‡ -> P  // Catalyst is consumed instead of released
 """,
     )
     y0 = [0.35, 0.018, 0.0, 0.0, 0.0]
