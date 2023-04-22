@@ -20,7 +20,8 @@ def test_get_dydt_calculates_reaction_rate():
     )
 
     # with jitted dydt, we need to use np.ndarray
-    dydt = simulate.get_dydt(scheme, np.array([2.0]))
+    k = np.array([2.0])
+    dydt = simulate.get_dydt(scheme, k)
 
     # if JAX is used, dydt won't accept lists, only np.ndarray
     assert dydt(0.0, np.array([1.0, 0.0])) == pytest.approx([-2.0, 2.0])
@@ -41,7 +42,8 @@ def test_get_y_propagates_reaction_automatically():
     y0 = [2.00, 2.00, 0.01]
 
     # with jitted dydt, we need to use np.ndarray
-    y, r = simulate.get_y(simulate.get_dydt(scheme, np.array([1.0, 1.0])), y0=y0)
+    k = np.array([1.0, 1.0])
+    y, r = simulate.get_y(simulate.get_dydt(scheme, k), y0=y0)
 
     assert y.t_min == 0.0  # noqa: PLR2004
     assert y.t_max >= 300.0  # noqa: PLR2004
@@ -67,8 +69,9 @@ def test_get_y_propagates_reaction_with_fixed_time():
     t_span = [0.0, 200.0]
 
     # with jitted dydt, we need to use np.ndarray
+    k = np.array([1.0, 1.0])
     y, r = simulate.get_y(
-        simulate.get_dydt(scheme, np.array([1.0, 1.0])),
+        simulate.get_dydt(scheme, k),
         y0=y0,
         t_span=t_span,
     )
@@ -90,7 +93,8 @@ def test_get_y_conservation_in_equilibria():
     y0 = [1, 0]
 
     # with jitted dydt, we need to use np.ndarray
-    y, r = simulate.get_y(simulate.get_dydt(scheme, np.array([1, 1])), y0=y0)
+    k = np.array([1, 1])
+    y, r = simulate.get_y(simulate.get_dydt(scheme, k), y0=y0)
     t = np.linspace(y.t_min, y.t_max, num=100)
 
     assert y.t_min == 0.0  # noqa: PLR2004
@@ -120,7 +124,11 @@ I -> TS‡ -> P
     k = np.array([84.1779089, 1.0, 1.24260741e10])
     dydt = simulate.get_dydt(scheme, k)
 
-    assert np.allclose(dydt.k, [8.62558243e12, 1.02468481e11, 1.24260741e10])
+    # equilibrium constant is kept
+    assert np.allclose(dydt.k[0] / dydt.k[1], k[0] / k[1])
+
+    # actual reaction does not change
+    assert np.allclose(dydt.k[2], k[2])
 
     y, r = simulate.get_y(dydt, y0=y0)
 
