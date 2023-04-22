@@ -110,12 +110,16 @@ def test_get_y_conservation_in_equilibria():
     assert np.allclose(r(t)[0] + r(t)[1], 0.0)
 
 
-def test_consuming_michaelis_menten():
-    """Test a faulty system as suggested by @bmounssefjr."""
+def test_simple_michaelis_menten():
+    """
+    Test a simple Michaelis-Menten model.
+
+    See <https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics#Model>.
+    """
     scheme = rx.parse_reactions(
         """
-C + S <=> CS    // Pre-equilibrium
-CS -> TS‡ -> P  // Catalyst is consumed instead of released
+C + S <=> CS        // Pre-equilibrium
+CS -> TS‡ -> C + P  // Catalyst is released
 """,
     )
     y0 = [0.35, 0.018, 0.0, 0.0, 0.0]
@@ -132,4 +136,33 @@ CS -> TS‡ -> P  // Catalyst is consumed instead of released
 
     y, r = simulate.get_y(dydt, y0=y0)
 
-    assert np.allclose(y(y.t_max), [0.35 - 0.018, 0.0, 0.0, 0.0, 0.018], atol=1e-6)
+    # catalyst is completely regenerated in the end
+    # the substrate is completely consumed in the end
+    assert np.allclose(y(y.t_max), [y0[0], 0.0, 0.0, 0.0, y0[1]], atol=1e-6)
+
+
+def test_consuming_michaelis_menten():
+    """Test a faulty system as suggested by @bmounssefjr."""
+    scheme = rx.parse_reactions(
+        """
+C + S <=> CS    // Pre-equilibrium
+CS -> TS‡ -> P  // Catalyst is consumed instead of being released
+""",
+    )
+    y0 = [0.35, 0.018, 0.0, 0.0, 0.0]
+
+    # with jitted dydt, we need to use np.ndarray
+    k = np.array([84.1779089, 1.0, 1.24260741e10])
+    dydt = simulate.get_dydt(scheme, k)
+
+    # equilibrium constant is kept
+    assert np.allclose(dydt.k[0] / dydt.k[1], k[0] / k[1])
+
+    # actual reaction does not change
+    assert np.allclose(dydt.k[2], k[2])
+
+    y, r = simulate.get_y(dydt, y0=y0)
+
+    # catalyst is completely consumed in the end
+    # the substrate is completely consumed in the end
+    assert np.allclose(y(y.t_max), [y0[0] - y0[1], 0.0, 0.0, 0.0, y0[1]], atol=1e-6)
