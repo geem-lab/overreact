@@ -110,7 +110,8 @@ def test_get_y_conservation_in_equilibria():
     assert np.allclose(r(t)[0] + r(t)[1], 0.0)
 
 
-def test_simple_michaelis_menten():
+@pytest.mark.parametrize("cat0, sub0", [(0.35, 0.018)])
+def test_simple_michaelis_menten(cat0, sub0):
     """
     Test a simple Michaelis-Menten model.
 
@@ -122,7 +123,7 @@ C + S <=> CS        // Pre-equilibrium
 CS -> TS‡ -> C + P  // Catalyst is released
 """,
     )
-    y0 = [0.35, 0.018, 0.0, 0.0, 0.0]
+    y0 = [cat0, sub0, 0.0, 0.0, 0.0]
 
     # with jitted dydt, we need to use np.ndarray
     k = np.array([84.1779089, 1.0, 1.24260741e10])
@@ -138,7 +139,7 @@ CS -> TS‡ -> C + P  // Catalyst is released
 
     # catalyst is completely regenerated in the end
     # the substrate is completely consumed in the end
-    assert np.allclose(y(y.t_max), [y0[0], 0.0, 0.0, 0.0, y0[1]], atol=1e-6)
+    assert np.allclose(y(y.t_max), [cat0, 0.0, 0.0, 0.0, sub0], atol=1e-6)
 
 
 def test_consuming_michaelis_menten():
