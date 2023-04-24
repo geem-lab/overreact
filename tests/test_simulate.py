@@ -81,10 +81,10 @@ def test_get_y_propagates_reaction_with_fixed_time():
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx(
         [1.668212890625, 0.6728515625, 0.341787109375],
-        4e-4,
+        1e-3,
     )
     assert r(y.t_min) == pytest.approx([-31.99, -127.96, 31.99])
-    assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=3e-3)
+    assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=7e-3)
 
 
 def test_get_y_conservation_in_equilibria():

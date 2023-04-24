@@ -92,6 +92,10 @@ def get_y(  # noqa: PLR0913
     max_step : float, optional
         Maximum step to be performed by the integrator.
         Defaults to half the total time span.
+    first_step : float, optional
+        First step size.
+        Defaults to half the maximum step or `np.finfo(np.float32).eps`,
+        whichever is smallest.
     rtol, atol : array-like, optional
         See `scipy.integrate.solve_ivp` for details.
     max_time : float, optional
@@ -161,28 +165,13 @@ def get_y(  # noqa: PLR0913
         max_step = (t_span[1] - t_span[0]) / 2.0
     logger.warning(f"max step = {max_step} s")  # noqa: G004
 
-    # This should be small enough.
-    # It seems to be required by LSODA, but has no visible effect on Radau.
-    # I don't care about BDF.
-    #
-    # Estimates are based on
-    # - the estimated time it takes for hydrogen atoms bind to a graphene sheet,
-    # - the diffusion constant of n-pentane,
-    # - the reaction rate of H2CO3 dehydration by carbonic anhydrase,
-    # - the hundredth part of the timespan,
-    # - some numberical limits,
-    first_step = np.min(
-        [
-            1e-14,  # Too small?
-            1 / 27e9,  # Too small?
-            1 / 1.5e10,
-            (t_span[1] - t_span[0]) / 100.0,
-            np.finfo(np.float16).eps,
-            np.finfo(np.float32).eps,
-            np.finfo(np.float64).eps,  # Too small?
-            np.nextafter(np.float16(0), np.float16(1)),
-        ],
-    )
+    if first_step is None:
+        first_step = np.min(
+            [
+                max_step / 2.0,
+                np.finfo(np.float32).eps,
+            ],
+        )
     logger.warning(f"first step = {first_step} s")  # noqa: G004
 
     jac = None
@@ -196,8 +185,8 @@ def get_y(  # noqa: PLR0913
         y0,
         method=method,
         dense_output=True,
-        first_step=first_step,
         max_step=max_step,
+        first_step=first_step,
         rtol=rtol,
         atol=atol,
         jac=jac,
