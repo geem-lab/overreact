@@ -873,7 +873,7 @@ def main(arguments=None):
         "--method",
         help="integrator used in solving the ODE system of the microkinetic "
         "simulation",
-        choices=["RK23", "RK45", "LSODA", "BDF", "Radau"],
+        choices=["RK23", "DOP853", "RK45", "LSODA", "BDF", "Radau"],
         default="RK23",
     )
     parser.add_argument(
