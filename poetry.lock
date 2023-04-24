@@ -386,17 +386,17 @@ pycparser = "*"
 
 [[package]]
 name = "chemicals"
-version = "1.1.2"
+version = "1.1.3"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "chemicals-1.1.2-py3-none-any.whl", hash = "sha256:2b19fa07375b34b97fd681455afac2662d61d6637a4d93afd9563c479f1b5dc7"},
+    {file = "chemicals-1.1.3-py3-none-any.whl", hash = "sha256:a7e01e8a6885d59746237442cce8d80b3c70bbf3637a05c6f3ea316e414f9a97"},
 ]
 
 [package.dependencies]
-fluids = ">=1.0.21"
+fluids = ">=1.0.23"
 numpy = "*"
 pandas = "*"
 scipy = "*"
@@ -719,13 +719,13 @@ devel = ["colorama", "json-spec", "jsonschema", "pylint", "pytest", "pytest-benc
 
 [[package]]
 name = "fluids"
-version = "1.0.22"
+version = "1.0.23"
 description = "Fluid dynamics component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "fluids-1.0.22-py3-none-any.whl", hash = "sha256:3fd993843518589c2c8452666b893b5fb2412b662fb8d9c88e00c3aee89eb30a"},
+    {file = "fluids-1.0.23-py3-none-any.whl", hash = "sha256:fb76af1b1db10c581a932d70a51fbfc8284d526e3a59f66e3a097ad8f88970bd"},
 ]
 
 [package.dependencies]
@@ -3031,18 +3031,18 @@ test = ["pre-commit", "pytest (>=7.0)", "pytest-timeout"]
 
 [[package]]
 name = "thermo"
-version = "0.2.23"
+version = "0.2.24"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "thermo-0.2.23-py3-none-any.whl", hash = "sha256:1a6c481a6b171f86e36add812d4ceb35f122b169945b1e563336f623a729fdc6"},
+    {file = "thermo-0.2.24-py3-none-any.whl", hash = "sha256:83973bf7a6981d656fbe89c296f1f406c7ae2b9384fdee014730713fc53894f5"},
 ]
 
 [package.dependencies]
-chemicals = ">=1.1.2"
-fluids = ">=1.0.22"
+chemicals = ">=1.1.3"
+fluids = ">=1.0.23"
 pandas = "*"
 scipy = "*"
 
