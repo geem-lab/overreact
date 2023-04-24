@@ -60,7 +60,8 @@ def get_y(  # noqa: PLR0913
     dydt,
     y0,
     t_span=None,
-    method="LSODA",
+    method="RK23",
+    first_step=None,
     rtol=1e-3,
     atol=1e-6,
     max_time=1 * 60 * 60,
@@ -600,7 +601,7 @@ def get_bias(  # noqa: PLR0913
     qrrho=True,  # noqa: FBT002
     temperature=298.15,
     pressure=constants.atm,
-    method="LSODA",
+    method="RK23",
     rtol=1e-3,
     atol=1e-6,
 ):

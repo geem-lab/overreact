@@ -780,7 +780,7 @@ def get_drc(  # noqa: PLR0913
     compounds,
     y0,
     t_span=None,
-    method="LSODA",
+    method="RK23",
     qrrho=True,  # noqa: FBT002
     scale="l mol-1 s-1",
     temperature=298.15,
