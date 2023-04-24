@@ -87,8 +87,8 @@ def get_y(  # noqa: PLR0913
         any zeroth-, first- or second-order reactions).
     method : str, optional
         Integration method to use. See `scipy.integrate.solve_ivp` for details.
-        Kinetics problems are very often stiff and, as such, "RK45" is
-        normally unsuited. "Radau", "BDF" or "LSODA" are good choices.
+        Kinetics problems are very often stiff and, as such, "RK23" and "RK45" may be
+        unsuited. "LSODA", "BDF", and "Radau" are worth a try if things go bad.
     max_step : float, optional
         Maximum step to be performed by the integrator.
         Defaults to half the total time span.
