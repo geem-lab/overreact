@@ -61,6 +61,7 @@ def get_y(  # noqa: PLR0913
     y0,
     t_span=None,
     method="RK23",
+    max_step=None,
     first_step=None,
     rtol=1e-3,
     atol=1e-6,
@@ -88,7 +89,10 @@ def get_y(  # noqa: PLR0913
         Integration method to use. See `scipy.integrate.solve_ivp` for details.
         Kinetics problems are very often stiff and, as such, "RK45" is
         normally unsuited. "Radau", "BDF" or "LSODA" are good choices.
-    rtol, atol : array-like
+    max_step : float, optional
+        Maximum step to be performed by the integrator.
+        Defaults to half the total time span.
+    rtol, atol : array-like, optional
         See `scipy.integrate.solve_ivp` for details.
     max_time : float, optional
         If `t_span` is not given, an interval will be estimated, but it can't
@@ -153,9 +157,9 @@ def get_y(  # noqa: PLR0913
         t_span = [0.0, min(n_halflives * halflife_estimate, max_time)]
         logger.info(f"simulation time span   = {t_span} s")  # noqa: G004
 
-    jac = None
-    if hasattr(dydt, "jac"):
-        jac = dydt.jac
+    if max_step is None:
+        max_step = (t_span[1] - t_span[0]) / 2.0
+    logger.warning(f"max step = {max_step} s")  # noqa: G004
 
     # This should be small enough.
     # It seems to be required by LSODA, but has no visible effect on Radau.
@@ -181,9 +185,9 @@ def get_y(  # noqa: PLR0913
     )
     logger.warning(f"first step = {first_step} s")  # noqa: G004
 
-    # Too large a max step breaks LSODA. A too small one breaks it too.
-    max_step = np.min([1.0, (t_span[1] - t_span[0]) / 100.0])
-    logger.warning(f"max step = {max_step} s")  # noqa: G004
+    jac = None
+    if hasattr(dydt, "jac"):
+        jac = dydt.jac
 
     logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")  # noqa: G004
     res = solve_ivp(
