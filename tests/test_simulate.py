@@ -111,7 +111,7 @@ def test_get_y_conservation_in_equilibria():
 
 
 @pytest.mark.parametrize(
-    "cat0, sub0, keq, kcat",
+    ("cat0", "sub0", "keq", "kcat"),
     [
         (cat0, sub0, keq, kcat)
         for cat0 in [0.3, 0.4]
@@ -152,7 +152,7 @@ CS -> TS‡ -> C + P  // Catalyst is released
 
 
 @pytest.mark.parametrize(
-    "cat0, sub0, keq, kcat",
+    ("cat0", "sub0", "keq", "kcat"),
     [
         (cat0, sub0, keq, kcat)
         for cat0 in [0.3, 0.4]
