@@ -122,19 +122,19 @@ def get_y(  # noqa: PLR0913
     The `y` object stores information about the simulation time, which can be
     used to produce a suitable vector of timepoints for, e.g., plotting:
 
-    >>> y.t_min, y.t_max  # doctest: +SKIP
+    >>> y.t_min, y.t_max
     (0.0, 3.0)
     >>> t = np.linspace(y.t_min, y.t_max)
-    >>> t  # doctest: +SKIP
+    >>> t
     array([0. , 0.06122449, ..., 2.93877551, 3. ])
 
     Both `y` and `r` can be used to check concentrations and rates in any
     point in time. In particular, both are vectorized:
 
-    >>> y(t)  # doctest: +SKIP
+    >>> y(t)
     array([[1. , 0.94237559, ..., 0.5012394, 0.5 ],
            [0. , 0.05762441, ..., 0.4987606, 0.5 ]])
-    >>> r(t)  # doctest: +SKIP
+    >>> r(t)
     array([[-1.00000000e+00, ..., -1.39544265e-10],
            [ 1.00000000e+00, ...,  1.39544265e-10]])
     """
@@ -237,7 +237,7 @@ def get_dydt(scheme, k, ef=EF):
 
     >>> scheme = rx.parse_reactions("A <=> B")
     >>> dydt = get_dydt(scheme, np.array([1, 1]))
-    >>> dydt(0.0, np.array([1., 1.]))  # doctest: +SKIP
+    >>> dydt(0.0, np.array([1., 1.]))
     array([0., 0.])
 
     If available, JAX is used for JIT compilation. This will make `dydt`
@@ -247,13 +247,13 @@ def get_dydt(scheme, k, ef=EF):
     The actually used reaction rate constants can be inspected with the `k`
     attribute of `dydt`:
 
-    >>> dydt.k  # doctest: +SKIP
+    >>> dydt.k
     array([1., 1.])
 
     If JAX is available, the Jacobian function will be available as
     `dydt.jac`:
 
-    >>> dydt.jac(0.0, np.array([1., 1.]))  # doctest: +SKIP
+    >>> dydt.jac(0.0, np.array([1., 1.]))
     DeviceArray([[-1.,  1.],
                  [ 1., -1.]], dtype=float64)
 
@@ -311,17 +311,17 @@ def _adjust_k(scheme, k, ef=EF):
     >>> import overreact as rx
 
     >>> scheme = rx.parse_reactions("A <=> B")
-    >>> _adjust_k(scheme, [1, 1])  # doctest: +SKIP
+    >>> _adjust_k(scheme, [1, 1])
     array([1., 1.])
 
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> _adjust_k(model.scheme,
-    ...           rx.get_k(model.scheme, model.compounds))  # doctest: +SKIP
+    ...           rx.get_k(model.scheme, model.compounds))
     array([8.16880917e+10])
 
     >>> model = rx.parse_model("data/acetate/Orca4/model.k")
     >>> _adjust_k(model.scheme,
-    ...           rx.get_k(model.scheme, model.compounds))  # doctest: +SKIP
+    ...           rx.get_k(model.scheme, model.compounds))
     array([1.00000000e+00, 5.74491548e+04, 1.61152010e+07,
            1.00000000e+00, 1.55695112e+56, 1.00000000e+00])
 
@@ -329,7 +329,7 @@ def _adjust_k(scheme, k, ef=EF):
     ...     "data/perez-soto2020/RI/BLYP-D4/def2-TZVP/model.k"
     ... )
     >>> _adjust_k(model.scheme,
-    ...           rx.get_k(model.scheme, model.compounds))  # doctest: +SKIP
+    ...           rx.get_k(model.scheme, model.compounds))
     array([1.02320357e+12, ..., 1.02320357e+12])
 
     """
@@ -649,7 +649,7 @@ def get_bias(  # noqa: PLR0913
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal  # doctest: +SKIP
+    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal
     -1.36
     """  # noqa: E501
     max_time = np.max(data["t"])
