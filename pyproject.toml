@@ -16,22 +16,33 @@ documentation = "https://geem-lab.github.io/overreact-guide/"
 repository = "https://github.com/geem-lab/overreact"
 
 keywords = [
+  "catalysis",
   "chemical-kinetics",
+  "chemical-reactions",
+  "chemistry",
+  "compchem",
   "computational-chemistry",
+  "density-functional-theory",
+  "gaussian",
+  "hartree-fock",
   "microkinetics",
+  "orca",
+  "quantum-tunneling",
   "reactions",
+  "temperature",
   "thermochemistry",
+  "thermodynamics",
+  "vibrational-entropies",
 ]
 
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
   "Intended Audience :: Developers",
   "Intended Audience :: Education",
   "Intended Audience :: Science/Research",
   "Operating System :: OS Independent",
   "Topic :: Education",
-  "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: Chemistry",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -59,7 +70,6 @@ jax = { version = "^0.4", optional = true }
 jaxlib = { version = "^0.4", optional = true }
 rich = { version = "^13", optional = true }
 thermo = { version = "^0.2", optional = true }
-# I NEED MATPLOTLIB
 
 [tool.poetry.extras]
 cli = ["rich"]
