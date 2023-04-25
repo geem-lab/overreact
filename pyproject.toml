@@ -107,3 +107,8 @@ show_missing = true
 skip_covered = true
 fail_under = 90
 sort = "Miss"
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules --doctest-glob=\"*.rst\""
+doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS NUMBER"
+norecursedirs = ["_build", "examples"]
