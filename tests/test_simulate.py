@@ -111,16 +111,17 @@ def test_get_y_conservation_in_equilibria():
 
 
 @pytest.mark.parametrize(
-    ("cat0", "sub0", "keq", "kcat"),
+    ("cat0", "sub0", "keq", "kcat", "method"),
     [
-        (cat0, sub0, keq, kcat)
+        (cat0, sub0, keq, kcat, method)
         for cat0 in [0.3, 0.4]
         for sub0 in [0.01, 0.02]
         for keq in [10.0, 100.0]
         for kcat in [1e10, 1e11]
+        for method in ("RK23", "LSODA")
     ],
 )
-def test_simple_michaelis_menten(cat0, sub0, keq, kcat):
+def test_simple_michaelis_menten(cat0, sub0, keq, kcat, method):
     """
     Test a simple Michaelis-Menten model.
 
@@ -144,7 +145,7 @@ CS -> TS‡ -> C + P  // Catalyst is released
     # actual reaction does not change
     assert np.allclose(dydt.k[2], k[2])
 
-    y, r = simulate.get_y(dydt, y0=y0)
+    y, r = simulate.get_y(dydt, y0=y0, method=method)
 
     # catalyst is completely regenerated in the end
     # the substrate is completely consumed in the end
@@ -152,16 +153,17 @@ CS -> TS‡ -> C + P  // Catalyst is released
 
 
 @pytest.mark.parametrize(
-    ("cat0", "sub0", "keq", "kcat"),
+    ("cat0", "sub0", "keq", "kcat", "method"),
     [
-        (cat0, sub0, keq, kcat)
+        (cat0, sub0, keq, kcat, method)
         for cat0 in [0.3, 0.4]
         for sub0 in [0.01, 0.02]
         for keq in [10.0, 100.0]
         for kcat in [1e10, 1e11]
+        for method in ("RK23", "LSODA")
     ],
 )
-def test_consuming_michaelis_menten(cat0, sub0, keq, kcat):
+def test_consuming_michaelis_menten(cat0, sub0, keq, kcat, method):
     """Test a faulty system as suggested by @bmounssefjr."""
     scheme = rx.parse_reactions(
         """
@@ -181,7 +183,7 @@ CS -> TS‡ -> P  // Catalyst is consumed instead of being released
     # actual reaction does not change
     assert np.allclose(dydt.k[2], k[2])
 
-    y, r = simulate.get_y(dydt, y0=y0)
+    y, r = simulate.get_y(dydt, y0=y0, method=method)
 
     # catalyst is completely consumed in the end
     # the substrate is completely consumed in the end
