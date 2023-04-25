@@ -16,11 +16,23 @@ documentation = "https://geem-lab.github.io/overreact-guide/"
 repository = "https://github.com/geem-lab/overreact"
 
 keywords = [
+  "catalysis",
   "chemical-kinetics",
+  "chemical-reactions",
+  "chemistry",
+  "compchem",
   "computational-chemistry",
+  "density-functional-theory",
+  "gaussian",
+  "hartree-fock",
   "microkinetics",
+  "orca",
+  "quantum-tunneling",
   "reactions",
+  "temperature",
   "thermochemistry",
+  "thermodynamics",
+  "vibrational-entropies",
 ]
 
 classifiers = [
