@@ -169,7 +169,7 @@ def get_y(  # noqa: PLR0913
 
     jac = None
     if hasattr(dydt, "jac"):
-        jac = dydt.jac
+        jac = dydt.jac  # noqa: F841
 
     logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")  # noqa: G004
     res = solve_ivp(
@@ -182,7 +182,7 @@ def get_y(  # noqa: PLR0913
         first_step=first_step,
         rtol=rtol,
         atol=atol,
-        jac=jac,
+        # jac=jac,  # noqa: ERA001
     )
     logger.warning(res)
     y = res.sol
