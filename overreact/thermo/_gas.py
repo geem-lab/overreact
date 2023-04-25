@@ -667,7 +667,7 @@ def _rotational_temperature(moments=None):
     --------
     >>> i = 2.96199592e-1
     >>> _rotational_temperature()
-    array([], dtype=float64)
+    array([], ...)
     >>> _rotational_temperature(i)
     array([81.88521438])
     >>> _rotational_temperature([i])
@@ -719,7 +719,7 @@ def _vibrational_temperature(vibfreqs=None):
     >>> vibfreq = 3374 * constants.k * constants.centi \
     ...     / (constants.h * constants.c)  # nitrogen molecule
     >>> _vibrational_temperature()
-    array([], dtype=float64)
+    array([], ...)
     >>> _vibrational_temperature(vibfreq)
     array([3374.])
     >>> _vibrational_temperature([vibfreq])
@@ -780,7 +780,7 @@ def _check_vibfreqs(vibfreqs=None, cutoff=-50.0):
     Examples
     --------
     >>> _check_vibfreqs()
-    array([], dtype=float64)
+    array([], ...)
     >>> _check_vibfreqs(100.0)
     array([100.])
     >>> _check_vibfreqs([5.0, 10.0])
