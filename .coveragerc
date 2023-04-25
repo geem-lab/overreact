@@ -1,7 +1,0 @@
-[run]
-include = overreact/*
-[report]
-sort = Miss
-fail_under = 90
-show_missing = True
-skip_covered = True
