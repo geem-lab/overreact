@@ -41,8 +41,8 @@
 <a href="https://doi.org/10.1002/jcc.26861" >
 <img src="https://img.shields.io/badge/DOI-10.1002%2Fjcc.26861-blue" alt="DOI" />
 </a>
-<a href="https://doi.org/10.5281/zenodo.7504800">
-<img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7504800.svg" alt="DOI" />
+<a href="https://doi.org/10.5281/zenodo.7865357">
+<img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7865357.svg" alt="DOI" />
 </a>
 </p>
 <p>
@@ -170,8 +170,8 @@ Here's the reference in [BibTeX](http://www.bibtex.org/) format:
   year          = {2023},
   month         = {Jan},
   publisher     = {Zenodo},
-  doi           = {10.5281/zenodo.7504800},
-  url           = {https://doi.org/10.5281/zenodo.7504800},
+  doi           = {10.5281/zenodo.7865357},
+  url           = {https://doi.org/10.5281/zenodo.7865357},
   version       = {v1.2.0},
   howpublished  = {\url{https://github.com/geem-lab/overreact}},
 }

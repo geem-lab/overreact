@@ -61,7 +61,7 @@ __url_pypi__ = "https://pypi.org/project/overreact/"
 __url_guide__ = "https://geem-lab.github.io/overreact-guide/"
 
 __doi__ = "10.1002/jcc.26861"
-__zenodo_doi__ = "10.5281/zenodo.7504800"
+__zenodo_doi__ = "10.5281/zenodo.7865357"
 __citations__ = (  # TODO: read from CITATION.bib
     r"""
     @article{overreact_paper2022,
