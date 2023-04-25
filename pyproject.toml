@@ -98,3 +98,12 @@ ignore = [
 
 [tool.ruff.pydocstyle]
 convention = "numpy"
+
+[tool.coverage.run]
+include = ["overreact/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 90
+sort = "Miss"
