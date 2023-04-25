@@ -60,7 +60,9 @@ def get_y(  # noqa: PLR0913
     dydt,
     y0,
     t_span=None,
-    method="LSODA",
+    method="RK23",
+    max_step=np.inf,
+    first_step=np.finfo(np.float64).eps,  # noqa: B008
     rtol=1e-3,
     atol=1e-6,
     max_time=1 * 60 * 60,
@@ -85,9 +87,16 @@ def get_y(  # noqa: PLR0913
         any zeroth-, first- or second-order reactions).
     method : str, optional
         Integration method to use. See `scipy.integrate.solve_ivp` for details.
-        Kinetics problems are very often stiff and, as such, "RK45" is
-        normally unsuited. "Radau", "BDF" or "LSODA" are good choices.
-    rtol, atol : array-like
+        Kinetics problems are very often stiff and, as such, "RK23" and "RK45" may be
+        unsuited. "LSODA", "BDF", and "Radau" are worth a try if things go bad.
+    max_step : float, optional
+        Maximum step to be performed by the integrator.
+        Defaults to half the total time span.
+    first_step : float, optional
+        First step size.
+        Defaults to half the maximum step, or `np.finfo(np.float64).eps`,
+        whichever is smallest.
+    rtol, atol : array-like, optional
         See `scipy.integrate.solve_ivp` for details.
     max_time : float, optional
         If `t_span` is not given, an interval will be estimated, but it can't
@@ -113,21 +122,21 @@ def get_y(  # noqa: PLR0913
     The `y` object stores information about the simulation time, which can be
     used to produce a suitable vector of timepoints for, e.g., plotting:
 
-    >>> y.t_min, y.t_max  # doctest: +SKIP
+    >>> y.t_min, y.t_max
     (0.0, 3.0)
     >>> t = np.linspace(y.t_min, y.t_max)
-    >>> t  # doctest: +SKIP
+    >>> t
     array([0. , 0.06122449, ..., 2.93877551, 3. ])
 
     Both `y` and `r` can be used to check concentrations and rates in any
     point in time. In particular, both are vectorized:
 
-    >>> y(t)  # doctest: +SKIP
-    array([[1. , 0.94237559, ..., 0.5012394, 0.5 ],
-           [0. , 0.05762441, ..., 0.4987606, 0.5 ]])
-    >>> r(t)  # doctest: +SKIP
-    array([[-1.00000000e+00, ..., -1.39544265e-10],
-           [ 1.00000000e+00, ...,  1.39544265e-10]])
+    >>> y(t)
+    array([[1. , ...],
+           [0. , ...]])
+    >>> r(t)
+    array([[-1. , ...],
+           [ 1. , ...]])
     """
     # TODO(schneiderfelipe): raise a meaningful error when y0 has the wrong shape.
     y0 = np.asarray(y0)
@@ -152,37 +161,15 @@ def get_y(  # noqa: PLR0913
         t_span = [0.0, min(n_halflives * halflife_estimate, max_time)]
         logger.info(f"simulation time span   = {t_span} s")  # noqa: G004
 
-    jac = None
-    if hasattr(dydt, "jac"):
-        jac = dydt.jac
+    max_step = np.min([max_step, (t_span[1] - t_span[0]) / 2.0])
+    logger.warning(f"max step = {max_step} s")  # noqa: G004
 
-    # This should be small enough.
-    # It seems to be required by LSODA, but has no visible effect on Radau.
-    # I don't care about BDF.
-    #
-    # Estimates are based on
-    # - the estimated time it takes for hydrogen atoms bind to a graphene sheet,
-    # - the diffusion constant of n-pentane,
-    # - the reaction rate of H2CO3 dehydration by carbonic anhydrase,
-    # - the hundredth part of the timespan,
-    # - some numberical limits,
-    first_step = np.min(
-        [
-            1e-14,  # Too small?
-            1 / 27e9,  # Too small?
-            1 / 1.5e10,
-            (t_span[1] - t_span[0]) / 100.0,
-            np.finfo(np.float16).eps,
-            np.finfo(np.float32).eps,
-            np.finfo(np.float64).eps,  # Too small?
-            np.nextafter(np.float16(0), np.float16(1)),
-        ],
-    )
+    first_step = np.min([first_step, max_step / 2.0])
     logger.warning(f"first step = {first_step} s")  # noqa: G004
 
-    # Too large a max step breaks LSODA. A too small one breaks it too.
-    max_step = np.min([1.0, (t_span[1] - t_span[0]) / 100.0])
-    logger.warning(f"max step = {max_step} s")  # noqa: G004
+    jac = None
+    if hasattr(dydt, "jac"):
+        jac = dydt.jac  # noqa: F841
 
     logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")  # noqa: G004
     res = solve_ivp(
@@ -191,11 +178,11 @@ def get_y(  # noqa: PLR0913
         y0,
         method=method,
         dense_output=True,
-        first_step=first_step,
         max_step=max_step,
+        first_step=first_step,
         rtol=rtol,
         atol=atol,
-        jac=jac,
+        # jac=jac,  # noqa: ERA001
     )
     logger.warning(res)
     y = res.sol
@@ -250,8 +237,8 @@ def get_dydt(scheme, k, ef=EF):
 
     >>> scheme = rx.parse_reactions("A <=> B")
     >>> dydt = get_dydt(scheme, np.array([1, 1]))
-    >>> dydt(0.0, np.array([1., 1.]))  # doctest: +SKIP
-    array([0., 0.])
+    >>> dydt(0.0, np.array([1., 1.]))
+    Array([0., 0.], ...)
 
     If available, JAX is used for JIT compilation. This will make `dydt`
     complain if given lists instead of numpy arrays. So stick to the safer,
@@ -260,15 +247,15 @@ def get_dydt(scheme, k, ef=EF):
     The actually used reaction rate constants can be inspected with the `k`
     attribute of `dydt`:
 
-    >>> dydt.k  # doctest: +SKIP
-    array([1., 1.])
+    >>> dydt.k
+    Array([1., 1.], ...)
 
     If JAX is available, the Jacobian function will be available as
     `dydt.jac`:
 
-    >>> dydt.jac(0.0, np.array([1., 1.]))  # doctest: +SKIP
-    DeviceArray([[-1.,  1.],
-                 [ 1., -1.]], dtype=float64)
+    >>> dydt.jac(0.0, np.array([1., 1.]))
+    Array([[-1.,  1.],
+           [ 1., -1.]], ...)
 
     """
     scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
@@ -324,31 +311,31 @@ def _adjust_k(scheme, k, ef=EF):
     >>> import overreact as rx
 
     >>> scheme = rx.parse_reactions("A <=> B")
-    >>> _adjust_k(scheme, [1, 1])  # doctest: +SKIP
-    array([1., 1.])
+    >>> _adjust_k(scheme, [1, 1])
+    Array([1., 1.], ...)
 
     >>> model = rx.parse_model("data/ethane/B97-3c/model.k")
     >>> _adjust_k(model.scheme,
-    ...           rx.get_k(model.scheme, model.compounds))  # doctest: +SKIP
-    array([8.16880917e+10])
+    ...           rx.get_k(model.scheme, model.compounds))
+    Array([8.16880917e+10], ...)
 
     >>> model = rx.parse_model("data/acetate/Orca4/model.k")
     >>> _adjust_k(model.scheme,
-    ...           rx.get_k(model.scheme, model.compounds))  # doctest: +SKIP
-    array([1.00000000e+00, 5.74491548e+04, 1.61152010e+07,
-           1.00000000e+00, 1.55695112e+56, 1.00000000e+00])
+    ...           rx.get_k(model.scheme, model.compounds))
+    Array([1.00000000e+00, 5.74491548e+04, 1.61152010e+07,
+           1.00000000e+00, 1.55695112e+56, 1.00000000e+00], ...)
 
     >>> model = rx.parse_model(
     ...     "data/perez-soto2020/RI/BLYP-D4/def2-TZVP/model.k"
     ... )
     >>> _adjust_k(model.scheme,
-    ...           rx.get_k(model.scheme, model.compounds))  # doctest: +SKIP
-    array([1.02320357e+12, ..., 1.02320357e+12])
+    ...           rx.get_k(model.scheme, model.compounds))
+    Array([...], ...)
 
     """
     scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
     is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
-    k = np.asarray(k, dtype=float).copy()
+    k = np.asarray(k, dtype=np.float64).copy()
 
     if np.any(is_half_equilibrium):
         # at least one equilibrium
@@ -530,7 +517,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     True
 
     """
-    new_k = np.asarray(k, dtype=float).copy()
+    new_k = np.asarray(k, dtype=np.float64).copy()
     new_reactions = []
     for i, (reaction, is_half_equilibrium) in enumerate(
         zip(scheme.reactions, scheme.is_half_equilibrium),
@@ -600,7 +587,7 @@ def get_bias(  # noqa: PLR0913
     qrrho=True,  # noqa: FBT002
     temperature=298.15,
     pressure=constants.atm,
-    method="LSODA",
+    method="RK23",
     rtol=1e-3,
     atol=1e-6,
 ):
@@ -662,8 +649,8 @@ def get_bias(  # noqa: PLR0913
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal  # doctest: +SKIP
-    -1.36
+    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal
+    -1.4
     """  # noqa: E501
     max_time = np.max(data["t"])
 

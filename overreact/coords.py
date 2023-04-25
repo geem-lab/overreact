@@ -1486,9 +1486,10 @@ def _operation(name, order=2, axis=None):
 
     if name == "i":
         return -np.eye(3)
-    elif name == "e":  # noqa: RET505
+    if name == "e":
         return np.eye(3)
-    elif name in {"c", "σ", "sigma", "s"}:  # noqa: RUF001
+
+    if name in {"c", "σ", "sigma", "s"}:  # noqa: RUF001
         # normalize axis
         axis = np.asarray(axis)
         axis = axis / np.linalg.norm(axis)
@@ -1497,12 +1498,14 @@ def _operation(name, order=2, axis=None):
             rotation = Rotation.from_rotvec(2.0 * np.pi * axis / order).as_matrix()
         if name in {"σ", "sigma", "s"}:  # noqa: RUF001
             reflection = np.eye(3) - 2.0 * np.outer(axis, axis)
+
         if name == "c":
             return rotation
-        elif name in {"σ", "sigma"}:  # noqa: RUF001
+        if name in {"σ", "sigma"}:  # noqa: RUF001
             return reflection
-        elif name == "s":
+        if name == "s":
             return rotation @ reflection
+
     raise ValueError(f"unknown operation: '{name}'")  # noqa: EM102, TRY003
 
 
