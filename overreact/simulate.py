@@ -61,7 +61,7 @@ def get_y(  # noqa: PLR0913
     y0,
     t_span=None,
     method="RK23",
-    max_step=None,
+    max_step=np.inf,
     first_step=None,
     rtol=1e-3,
     atol=1e-6,
@@ -91,7 +91,7 @@ def get_y(  # noqa: PLR0913
         unsuited. "LSODA", "BDF", and "Radau" are worth a try if things go bad.
     max_step : float, optional
         Maximum step to be performed by the integrator.
-        Defaults to half the total time span.
+        Defaults to the total time span.
     first_step : float, optional
         First step size.
         Defaults to half the maximum step or `np.finfo(np.float32).eps`,
@@ -161,8 +161,7 @@ def get_y(  # noqa: PLR0913
         t_span = [0.0, min(n_halflives * halflife_estimate, max_time)]
         logger.info(f"simulation time span   = {t_span} s")  # noqa: G004
 
-    if max_step is None:
-        max_step = (t_span[1] - t_span[0]) / 2.0
+    max_step = np.min([max_step, t_span[1] - t_span[0]])
     logger.warning(f"max step = {max_step} s")  # noqa: G004
 
     if first_step is None:
