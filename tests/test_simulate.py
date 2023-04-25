@@ -133,7 +133,7 @@ C + S <=> CS        // Pre-equilibrium
 CS -> TS‡ -> C + P  // Catalyst is released
 """,
     )
-    y0 = [cat0, sub0, 0.0, 0.0, 0.0]
+    y0 = np.array([cat0, sub0, 0.0, 0.0, 0.0])
 
     # with jitted dydt, we need to use np.ndarray
     k = np.array([keq, 1.0, kcat])
@@ -171,7 +171,7 @@ C + S <=> CS    // Pre-equilibrium
 CS -> TS‡ -> P  // Catalyst is consumed instead of being released
 """,
     )
-    y0 = [cat0, sub0, 0.0, 0.0, 0.0]
+    y0 = np.array([cat0, sub0, 0.0, 0.0, 0.0])
 
     # with jitted dydt, we need to use np.ndarray
     k = np.array([keq, 1.0, kcat])
