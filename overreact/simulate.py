@@ -62,7 +62,7 @@ def get_y(  # noqa: PLR0913
     t_span=None,
     method="RK23",
     max_step=np.inf,
-    first_step=np.finfo(np.float64).eps,
+    first_step=np.finfo(np.float64).eps,  # noqa: B008
     rtol=1e-3,
     atol=1e-6,
     max_time=1 * 60 * 60,
