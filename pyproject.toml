@@ -43,7 +43,6 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Operating System :: OS Independent",
   "Topic :: Education",
-  "Topic :: Scientific/Engineering :: Atmospheric Science",
   "Topic :: Scientific/Engineering :: Chemistry",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
