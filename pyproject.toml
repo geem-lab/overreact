@@ -70,7 +70,6 @@ jax = { version = "^0.4", optional = true }
 jaxlib = { version = "^0.4", optional = true }
 rich = { version = "^13", optional = true }
 thermo = { version = "^0.2", optional = true }
-# I NEED MATPLOTLIB
 
 [tool.poetry.extras]
 cli = ["rich"]
