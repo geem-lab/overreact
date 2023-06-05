@@ -3031,13 +3031,14 @@ test = ["pre-commit", "pytest (>=7.0)", "pytest-timeout"]
 
 [[package]]
 name = "thermo"
-version = "0.2.24"
+version = "0.2.25"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 category = "main"
 optional = true
 python-versions = "*"
 files = [
-    {file = "thermo-0.2.24-py3-none-any.whl", hash = "sha256:83973bf7a6981d656fbe89c296f1f406c7ae2b9384fdee014730713fc53894f5"},
+    {file = "thermo-0.2.25-py3-none-any.whl", hash = "sha256:145a28047192034627dd08ad8f57c243ae52c551925b4b03f45583ab14e01f14"},
+    {file = "thermo-0.2.25.tar.gz", hash = "sha256:f622456c3584b25d245931fdb646494150880fd655130d3f2d2431c84880e4e3"},
 ]
 
 [package.dependencies]
