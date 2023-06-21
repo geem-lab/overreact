@@ -2012,13 +2012,13 @@ files = [
 
 [[package]]
 name = "pdoc"
-version = "13.1.1"
+version = "14.0.0"
 description = "API Documentation for Python Projects"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "pdoc-13.1.1-py3-none-any.whl", hash = "sha256:9025c6cd2448b18662e88eacf84c6eb050dcbdc8ee5259aee5e40a1c2b417840"},
-    {file = "pdoc-13.1.1.tar.gz", hash = "sha256:2b8e341b1882ed8217e95c1f3f1f11d34f9ef93a5796287590162e2035296815"},
+    {file = "pdoc-14.0.0-py3-none-any.whl", hash = "sha256:4514041ff5da33f1adbc700002a661600fc13a9adadef317bc6ae8be9e61154b"},
+    {file = "pdoc-14.0.0.tar.gz", hash = "sha256:ad6c16c949e5dd8b30effc5398aedb5779ffe8ab94be91ce2cddc320e8127900"},
 ]
 
 [package.dependencies]
@@ -3234,4 +3234,4 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "46e0b438f2d89368e02f4ff27ee85859c15fec6234f64e30dbddbcdab2ab59d9"
+content-hash = "7cea003bedec941e8fd6183d4d775278b99986e1b8176d9e9be35371034e26da"
