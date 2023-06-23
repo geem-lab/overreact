@@ -985,23 +985,26 @@ tpu = ["jaxlib (==0.4.12)", "libtpu-nightly (==0.1.dev20230608)"]
 
 [[package]]
 name = "jaxlib"
-version = "0.4.12"
+version = "0.4.13"
 description = "XLA library for JAX"
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "jaxlib-0.4.12-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:238cd7d6fbf82f9224f5e5ab27c7ca774108b790bd5d33782657c1f211fe9797"},
-    {file = "jaxlib-0.4.12-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:3a983f0c1e300154a6e4bdfe1b8ef41e204f0e847f04ee2a3f4397f4749b792a"},
-    {file = "jaxlib-0.4.12-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:f1e7f968c3fb337fc57ad4aa7ddcf63826950ade822c745230cb15b55d9b08b7"},
-    {file = "jaxlib-0.4.12-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:1b6ecc95f7bafe2b2222b5ecefdf47f0f1ba323c2eb3036f312ec7c84f9fe7d2"},
-    {file = "jaxlib-0.4.12-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:165dc6d377033458273144077973fa0c789b60efa2a4a83c69d5737b0a86b0bd"},
-    {file = "jaxlib-0.4.12-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:6ddfa506d2f9b02a6339ad1ad01bc92cb42300f0383614058a10e25a35f15878"},
-    {file = "jaxlib-0.4.12-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:6d32fec5a334deab66bb22d4db4310559e82870cb1810449e26cea223314373b"},
-    {file = "jaxlib-0.4.12-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:e3bafd366a138a409c545c0969fbae5c7bd6d8286a0151448c26ce169dba7784"},
-    {file = "jaxlib-0.4.12-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:13245bcbd652e61f8a86c5fabaaf27d949efd163aa3baac9542015cb7315bf6d"},
-    {file = "jaxlib-0.4.12-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:abf561b9ef22e43efa5ad35a81761e7d84f5f00058f46514440662de4b948d44"},
-    {file = "jaxlib-0.4.12-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:880b66e99741dfe2c79274d5700cf433f183c6e0779870030bcf1a36eb1c49e1"},
-    {file = "jaxlib-0.4.12-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:b163cf61363da0fbd4baa36b75d9f922119db70b681f339b6322f40e0c86683c"},
+    {file = "jaxlib-0.4.13-cp310-cp310-macosx_10_14_x86_64.whl", hash = "sha256:532ebc4fb11386282ad63b83941d4557f4038c1144acf026f1f8565f64c7e9c0"},
+    {file = "jaxlib-0.4.13-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:a259bb35429bfbd3b76e43019dfc8f7d6ea94bb217400b78f7d0824ce07a58ac"},
+    {file = "jaxlib-0.4.13-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:ea1bc9811ef7d73a15e3213115e88fe7f5d14b59d95027bea9fccc98e5a14af8"},
+    {file = "jaxlib-0.4.13-cp310-cp310-win_amd64.whl", hash = "sha256:fde66a93e9be89d99e5792f677ed8e319667d6b2396865b1c52c1312844c47f9"},
+    {file = "jaxlib-0.4.13-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:49690fcdd26560515fd15399fc3a44777e0bfc5db5c48fe76ff7bc7228e8b2fb"},
+    {file = "jaxlib-0.4.13-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f4e9e34e5d8a6556f62fead14aee0b1614c2c6296f0078d8e6139d6aff109649"},
+    {file = "jaxlib-0.4.13-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:8000c0d15c107328e8f7b7b3ac91dd822f5c287a80231882b620503ed141fa89"},
+    {file = "jaxlib-0.4.13-cp311-cp311-win_amd64.whl", hash = "sha256:19ae4c316b17a49342432c69f7f89f190b975333f3f9e9e175f686a651bc7347"},
+    {file = "jaxlib-0.4.13-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:522635d5e159401a386c79f1236c218c1f68fbb4ca6648115c3ad3c2c3f518ab"},
+    {file = "jaxlib-0.4.13-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:411334d903df07dc1ace8d52fc53c17f6bc1d55aff7f6e0e5cf61ec149f758a0"},
+    {file = "jaxlib-0.4.13-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:839173b2e9593f5e9a6d3c42852cd15070fe80a939246efbb5cf40eec815de89"},
+    {file = "jaxlib-0.4.13-cp39-cp39-macosx_10_14_x86_64.whl", hash = "sha256:c230ef85712e608d0f048869766a5a63afeb2e72309943db0df9f959ab17307f"},
+    {file = "jaxlib-0.4.13-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:d19c05c15f962e098d49b45e2758aacf19330d192ec5395f9ef136f62db90edc"},
+    {file = "jaxlib-0.4.13-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:b5c0a9737efd95fe18fd7715ce30dfce476546705ea8934aad6731777a9631a5"},
+    {file = "jaxlib-0.4.13-cp39-cp39-win_amd64.whl", hash = "sha256:bebb4cf001f180dc431f9604daf930c2d9cc778e4dda26f401ac939b7bac912e"},
 ]
 
 [package.dependencies]
