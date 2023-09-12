@@ -275,12 +275,13 @@ css = ["tinycss2 (>=1.1.0,<1.2)"]
 
 [[package]]
 name = "cclib"
-version = "1.7.2"
+version = "1.8"
 description = "cclib: parsers and algorithms for computational chemistry"
 optional = false
 python-versions = "*"
 files = [
-    {file = "cclib-1.7.2.tar.gz", hash = "sha256:bb16b422382f47ead65f92b6cd2d812409436c8306e0c5b049056337a11dfc3a"},
+    {file = "cclib-1.8-py3-none-any.whl", hash = "sha256:28662da1bbbe80cf550cef73cfab4ec0f752cc2f9077ee1753efb3083ca1ba5a"},
+    {file = "cclib-1.8.tar.gz", hash = "sha256:12b7a7ed8191f02fa12320dbdc830546ee1615e8b4737e3d766f34622abbd521"},
 ]
 
 [package.dependencies]
