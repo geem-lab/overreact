@@ -88,7 +88,7 @@ pdoc = ">=12,<15"
 perflint = "^0.7.1"
 pytest = "^7.2.0"
 pytest-cov = "^4"
-ruff = { version = ">=0.0.210,<0.0.290", allow-prereleases = true }
+ruff = { version = ">=0.0.210,<0.0.291", allow-prereleases = true }
 seaborn = "^0.12"
 types-setuptools = ">=65,<69"
 
