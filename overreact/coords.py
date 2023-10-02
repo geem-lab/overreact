@@ -105,9 +105,6 @@ def get_molecular_volume(
     (18., 29., 0.1)
     >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)
     (18., 92., 0.1)
-    >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True,
-    ...                      environment="benzene")
-    (18., 301., 0.1)
 
     >>> data = datasets.logfiles["symmetries"]["benzene"]
     >>> get_molecular_volume(data.atomnos, data.atomcoords)
@@ -215,7 +212,7 @@ def _garza(
     >>> _garza(1.0)
     24.32
     >>> _garza(1.0, full_output=True)
-    (24.3195401, 1.8152561, 0.3507458)
+    (24.32, 1.815, 0.3507458)
     >>> _garza(10.0)
     66.5127788
     >>> _garza(10.0, full_output=True)

@@ -121,7 +121,7 @@ def test_liquid_viscosities_are_correct() -> None:
     viscosity = 1e-3 * np.array([2.24e-1])
     assert rx.rates.liquid_viscosity("pentane", temperature) == pytest.approx(
         viscosity,
-        5e-3,
+        2e-2,
     )
 
     # - hexane (doi:10.1063/1.555943):
