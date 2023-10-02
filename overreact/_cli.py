@@ -1,5 +1,3 @@
-#!/usr/bin/env python3  # noqa: EXE001
-
 """Command-line interface."""
 
 
@@ -132,8 +130,8 @@ class Report:
     ────────────────────────────────────────────────────────────────────────────────
     """
 
-    def __init__(  # noqa: PLR0913
-        self,  # noqa: ANN101
+    def __init__(
+        self,
         model,
         concentrations=None,
         savepath=None,
@@ -173,7 +171,7 @@ class Report:
         self.atol = atol
         self.box_style = box_style
 
-    def __rich_console__(self, console, options):  # noqa: ANN101, ANN204
+    def __rich_console__(self, console, options):
         """
         Implement Rich Console protocol.
 
@@ -190,7 +188,7 @@ class Report:
         yield from self._yield_kinetics()
         yield Markdown("---")
 
-    def _yield_scheme(self):  # noqa: ANN101
+    def _yield_scheme(self):
         """Produce a renderables describing the reaction scheme.
 
         This is meant to be used from within `__rich_console__`.
@@ -199,7 +197,7 @@ class Report:
         ------
         renderable
         """
-        scheme = rx.core._check_scheme(self.model.scheme)  # noqa: SLF001
+        scheme = rx.core._check_scheme(self.model.scheme)
 
         raw_table = Table(
             title="(read) reactions",
@@ -236,7 +234,7 @@ class Report:
             parsed_table.add_row(*row)
         yield parsed_table
 
-    def _yield_compounds(self):  # noqa: ANN101
+    def _yield_compounds(self):
         """Produce a renderables describing the compounds.
 
         This is meant to be used from within `__rich_console__`.
@@ -250,14 +248,12 @@ class Report:
         ValueError
             If at least one compound has undefined data.
         """
-        undefined_compounds = []
-        for name in self.model.compounds:
-            if not self.model.compounds[name]:
-                undefined_compounds.append(name)
+        undefined_compounds = [
+            name for name in self.model.compounds if not self.model.compounds[name]
+        ]
         if undefined_compounds:
-            raise ValueError(  # noqa: TRY003
-                f"undefined compounds: {', '.join(undefined_compounds)}",  # noqa: EM102
-            )  # noqa: RUF100
+            msg = f"undefined compounds: {', '.join(undefined_compounds)}"
+            raise ValueError(msg)
 
         logfiles_table = Table(
             Column("no", justify="right"),
@@ -305,7 +301,7 @@ class Report:
         yield logfiles_table
         yield compounds_table
 
-    def _yield_thermochemistry(self):  # noqa: ANN101
+    def _yield_thermochemistry(self):
         """Produce a renderables describing the thermochemistry of the reaction scheme.
 
         This is meant to be used from within `__rich_console__`.
@@ -314,7 +310,7 @@ class Report:
         ------
         renderable
         """
-        scheme = rx.core._check_scheme(self.model.scheme)  # noqa: SLF001
+        scheme = rx.core._check_scheme(self.model.scheme)
 
         molecular_masses = np.array(
             [np.sum(data.atommasses) for name, data in self.model.compounds.items()],
@@ -391,7 +387,7 @@ class Report:
                 temperature=self.temperature,
                 pressure=self.pressure,
             ),
-        ), "reaction free energies do not match reaction enthalpies and reaction entropies"  # noqa: E501
+        ), "reaction free energies do not match reaction enthalpies and reaction entropies"
 
         delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
         delta_activation_energies = rx.get_delta(scheme.B, energies)
@@ -418,7 +414,7 @@ class Report:
                 temperature=self.temperature,
                 pressure=self.pressure,
             ),
-        ), "activation free energies do not match activation enthalpies and activation entropies"  # noqa: E501
+        ), "activation free energies do not match activation enthalpies and activation entropies"
 
         circ_table = Table(
             Column("no", justify="right"),
@@ -493,7 +489,7 @@ class Report:
         yield circ_table
         yield dagger_table
 
-    def _yield_kinetics(self):  # noqa: ANN101, C901, PLR0912, PLR0915
+    def _yield_kinetics(self):
         """Produce a renderables describing the kinetics of the system.
 
         This is meant to be used from within `__rich_console__`.
@@ -607,7 +603,7 @@ class Report:
             f"{self.bias} J/mol.",
         )
         yield Markdown(
-            "For **half-equilibria**, only ratios make sense: in simulations, **equilibria will be adjusted to be faster than all other reactions**.",  # noqa: E501
+            "For **half-equilibria**, only ratios make sense: in simulations, **equilibria will be adjusted to be faster than all other reactions**.",
         )
 
         if self.concentrations is not None and self.concentrations:
@@ -652,8 +648,8 @@ class Report:
 
             t_span = y.t_max - y.t_min
             active = ~np.isclose(
-                y(y.t_min + 0.01 * t_span * np.random.rand()),  # noqa: NPY002
-                y(y.t_max - 0.01 * t_span * np.random.rand()),  # noqa: NPY002
+                y(y.t_min + 0.01 * t_span * np.random.rand()),
+                y(y.t_max - 0.01 * t_span * np.random.rand()),
                 rtol=0.01,
             )
             if self.plot == "all" or not np.any(active):
@@ -683,7 +679,7 @@ class Report:
             for i, name in enumerate(scheme.compounds):
                 if not rx.is_transition_state(name):
                     res = minimize_scalar(
-                        lambda t: -r(t)[i],  # noqa: B023
+                        lambda t: -r(t)[i],
                         bounds=(y.t_min, (t_max + y.t_max) / 2),
                         method="bounded",
                     )
@@ -694,7 +690,7 @@ class Report:
 
             t.update(
                 np.geomspace(
-                    np.min([_t for _t in t if _t > 0.0]),  # noqa: PLR2004
+                    np.min([_t for _t in t if _t > 0.0]),
                     t_max,
                     num=num,
                 ),
@@ -747,11 +743,9 @@ def _prepare_simulation(scheme, k, concentrations):
 
         try:
             quantity = float(quantity)
-        except (IndexError, ValueError):
-            raise ValueError(  # noqa: B904, TRY003, TRY200
-                "badly formatted concentrations: "  # noqa: EM102
-                f"'{' '.join(concentrations)}'",  # noqa: RUF100
-            )
+        except (IndexError, ValueError) as err:
+            msg = f"badly formatted concentrations: '{' '.join(concentrations)}'"
+            raise ValueError(msg) from err
 
         d[name] = quantity
 
@@ -787,16 +781,11 @@ def main(arguments=None):
     )
     parser.add_argument(
         "path",
-        help="path to a source (`.k`) or compiled (`.jk`) model input file (if a source "  # noqa: E501
-        "input file is given, but there is a compiled file available, the compiled "
-        "file will be used; use --compile|-c to force recompilation of the "
-        "source input file instead)",
+        help="path to a source (`.k`) or compiled (`.jk`) model input file (if a source input file is given, but there is a compiled file available, the compiled file will be used; use --compile|-c to force recompilation of the source input file instead)",
     )
     parser.add_argument(
         "concentrations",
-        help="(optional) initial compound concentrations (in moles per liter) "
-        "in the form 'name:quantity' (if present, a microkinetic simulation "
-        "will be performed; more than one entry can be given)",
+        help="(optional) initial compound concentrations (in moles per liter) in the form 'name:quantity' (if present, a microkinetic simulation will be performed; more than one entry can be given)",
         nargs="*",
     )
     parser.add_argument(
@@ -807,8 +796,7 @@ def main(arguments=None):
     parser.add_argument(
         "-v",
         "--verbose",
-        help="increase output verbosity (can be given many times, each time "
-        "the amount of logged data is increased)",
+        help="increase output verbosity (can be given many times, each time the amount of logged data is increased)",
         action="count",
         default=0,
     )
@@ -822,33 +810,25 @@ def main(arguments=None):
     )
     parser.add_argument(
         "--plot",
-        help="plot the concentrations as a function of time from the "
-        "performed microkinetics simulation: can be either 'none', 'all', "
-        "'active' species only (i.e., the ones that actually change "
-        "concentration during the simulation) or a single compound name (e.g. "
-        "'NH3(w)')",
+        help="plot the concentrations as a function of time from the performed microkinetics simulation: can be either 'none', 'all', 'active' species only (i.e., the ones that actually change concentration during the simulation) or a single compound name (e.g. 'NH3(w)')",
         # TODO(schneiderfelipe): validate inputs to avoid ValueError?
         default="none",
     )
     parser.add_argument(
         "-b",
         "--bias",
-        help="an energy value (in kilocalories per mole) to be added to each "
-        "individual compound in order to mitigate eventual systematic errors",
+        help="an energy value (in kilocalories per mole) to be added to each individual compound in order to mitigate eventual systematic errors",
         default=0.0,
     )
     parser.add_argument(
         "--tunneling",
-        help="specify the tunneling method employed (use --tunneling=none for "
-        "no tunneling correction)",
+        help="specify the tunneling method employed (use --tunneling=none for no tunneling correction)",
         choices=["eckart", "wigner", "none"],
         default="eckart",
     )
     parser.add_argument(
         "--no-qrrho",
-        help="disable the quasi-rigid rotor harmonic oscillator (QRRHO) "
-        "approximations to both enthalpies and entropies (see "
-        "doi:10.1021/jp509921r and doi:10.1002/chem.201200497)",
+        help="disable the quasi-rigid rotor harmonic oscillator (QRRHO) approximations to both enthalpies and entropies (see doi:10.1021/jp509921r and doi:10.1002/chem.201200497)",
         choices=["both", "enthalpy", "entropy", "none"],
         default="both",
         dest="qrrho_descriptor",
@@ -856,23 +836,20 @@ def main(arguments=None):
     parser.add_argument(
         "-T",
         "--temperature",
-        help="set working temperature (in kelvins) to be used in "
-        "thermochemistry and microkinetics",
+        help="set working temperature (in kelvins) to be used in thermochemistry and microkinetics",
         type=float,
         default=298.15,
     )
     parser.add_argument(
         "-p",
         "--pressure",
-        help="set working pressure (in pascals) to be used in "
-        "thermochemistry",  # noqa: RUF100
+        help="set working pressure (in pascals) to be used in thermochemistry",
         type=float,
         default=constants.atm,
     )
     parser.add_argument(
         "--method",
-        help="integrator used in solving the ODE system of the microkinetic "
-        "simulation",
+        help="integrator used in solving the ODE system of the microkinetic simulation",
         choices=["RK23", "DOP853", "RK45", "LSODA", "BDF", "Radau"],
         default="RK23",
     )
@@ -963,7 +940,7 @@ Parsing and calculating (this may take a while)…
     report = Report(
         model,
         concentrations=args.concentrations,
-        savepath=f"{os.path.splitext(args.path)[0]}.csv",  # noqa: PTH122
+        savepath=f"{os.path.splitext(args.path)[0]}.csv",
         plot=args.plot,
         qrrho_descriptor=args.qrrho_descriptor,
         temperature=args.temperature,
@@ -979,6 +956,6 @@ Parsing and calculating (this may take a while)…
 
 
 if __name__ == "__main__":
-    # TODO: catch exceptions here and print a nice error
+    # TODO(schneiderfelipe): catch exceptions here and print a nice error
     # (we can reraise them later if we want).
     main()

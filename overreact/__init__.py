@@ -1,8 +1,7 @@
-#!/usr/bin/env python3  # noqa: EXE001
+""".. include:: ../README.md"""  # noqa: D400
 
-"""
-.. include:: ../README.md
-"""  # noqa: D200, D400
+from __future__ import annotations
+
 __docformat__ = "restructuredtext"
 
 import pkg_resources as _pkg_resources
@@ -52,7 +51,7 @@ __all__ = [
 __version__ = _pkg_resources.get_distribution(__name__).version
 __license__ = "MIT"  # I'm too lazy to get it from setup.py...
 
-__headline__ = "📈 Create and analyze chemical microkinetic models built from computational chemistry data."  # noqa: E501
+__headline__ = "📈 Create and analyze chemical microkinetic models built from computational chemistry data."
 
 __url_repo__ = "https://github.com/geem-lab/overreact"
 __url_issues__ = f"{__url_repo__}/issues"
@@ -62,7 +61,7 @@ __url_guide__ = "https://geem-lab.github.io/overreact-guide/"
 
 __doi__ = "10.1002/jcc.26861"
 __zenodo_doi__ = "10.5281/zenodo.7865357"
-__citations__ = (  # TODO: read from CITATION.bib
+__citations__ = (  # TODO(schneiderfelipe): read from CITATION.bib
     r"""
     @article{overreact_paper2022,
   title         = {Overreact, an in silico lab: Automative quantum chemical microkinetic simulations for complex chemical reactions},
@@ -89,7 +88,7 @@ __citations__ = (  # TODO: read from CITATION.bib
   version       = {vVERSION_PLACEHOLDER},
   howpublished  = {\url{URL_REPO_PLACEHOLDER}},
 }
-""".replace(  # noqa: E501
+""".replace(
         "ZENODO_DOI_PLACEHOLDER",
         __zenodo_doi__,
     )
