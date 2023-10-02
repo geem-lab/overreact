@@ -498,7 +498,7 @@ def _get_chemical(
     >>> water.Van_der_Waals_volume
     0.0
     >>> water.Vm
-    1.806904e-5
+    1.807e-5
     >>> water.permittivity
     78.4
     >>> water.isobaric_expansion
