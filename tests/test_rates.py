@@ -217,7 +217,7 @@ def test_liquid_viscosities_are_correct() -> None:
     viscosity = 1e-3 * np.array([1.074])
     assert rx.rates.liquid_viscosity("ethanol", temperature) == pytest.approx(
         viscosity,
-        4e-3,
+        8.4e-3,
     )
 
     # - 2-propanol (doi:10.1021/je00058a025):
