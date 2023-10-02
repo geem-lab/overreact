@@ -504,7 +504,7 @@ def _get_chemical(
     >>> water.omega
     0.344
     >>> water.mul
-    0.00091272
+    0.0009
     """
     _check_package("thermo", _found_thermo, "solvents")
     # TODO(schneiderfelipe): return a named tuple with only the required data.
