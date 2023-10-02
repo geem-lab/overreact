@@ -1,6 +1,6 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Tests for constants module."""
+
+from __future__ import annotations
 
 import pytest
 
@@ -8,7 +8,7 @@ import overreact as rx
 from overreact import _constants as constants
 
 
-def test_reference_raw_constants():
+def test_reference_raw_constants() -> None:
     """Ensure raw constants are close to values commonly used by the community.
 
     Reference values were taken from the ones used by Gaussian 16
@@ -28,7 +28,7 @@ def test_reference_raw_constants():
     ) == pytest.approx(0.022710953)
 
 
-def test_reference_conversion_factors():
+def test_reference_conversion_factors() -> None:
     """Ensure conversion factors are close to values commonly used by the community.
 
     Reference values were taken from the ones used by Gaussian 16

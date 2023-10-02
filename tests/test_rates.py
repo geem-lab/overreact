@@ -1,6 +1,6 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Tests for rates module."""
+
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -9,51 +9,47 @@ import overreact as rx
 from overreact import _constants as constants
 
 
-def test_sanity_for_chemical_kinetics():
+def test_sanity_for_chemical_kinetics() -> None:
     """Ensure we have decent quality for chemical kinetics analysis.
 
     This partially ensures we do similar analysis as Gaussian, see
     https://gaussian.com/thermo/.
     """
-    freeenergies_H = np.array(  # noqa: N806
+    freeenergies_h = np.array(
         [-98.579127, -454.557870, -553.109488, -98.001318, -455.146251],
     )
-    freeenergies_D = np.array(  # noqa: N806
+    freeenergies_d = np.array(
         [-98.582608, -454.557870, -553.110424, -98.001318, -455.149092],
     )
 
     scheme = rx.parse_reactions("FH + Cl -> FHCl‡ -> F + HCl")
-    delta_freeenergies_H = rx.thermo.get_delta(scheme.B, freeenergies_H)[  # noqa: N806
-        0
-    ]  # noqa: RUF100
-    delta_freeenergies_D = rx.thermo.get_delta(scheme.B, freeenergies_D)[  # noqa: N806
-        0
-    ]  # noqa: RUF100
-    assert delta_freeenergies_H == pytest.approx(0.027509)
-    assert delta_freeenergies_H * (constants.hartree * constants.N_A) / (
+    delta_freeenergies_h = rx.thermo.get_delta(scheme.B, freeenergies_h)[0]
+    delta_freeenergies_d = rx.thermo.get_delta(scheme.B, freeenergies_d)[0]
+    assert delta_freeenergies_h == pytest.approx(0.027509)
+    assert delta_freeenergies_h * (constants.hartree * constants.N_A) / (
         constants.kcal
     ) == pytest.approx(17.26, 2e-4)
-    assert delta_freeenergies_D == pytest.approx(0.030054)
-    assert delta_freeenergies_D * (constants.hartree * constants.N_A) / (
+    assert delta_freeenergies_d == pytest.approx(0.030054)
+    assert delta_freeenergies_d * (constants.hartree * constants.N_A) / (
         constants.kcal
     ) == pytest.approx(18.86, 5e-5)
 
-    k_H = rx.get_k(  # noqa: N806
+    k_h = rx.get_k(
         scheme,
-        delta_freeenergies=delta_freeenergies_H * constants.hartree * constants.N_A,
+        delta_freeenergies=delta_freeenergies_h * constants.hartree * constants.N_A,
     )
-    k_D = rx.get_k(  # noqa: N806
+    k_d = rx.get_k(
         scheme,
-        delta_freeenergies=delta_freeenergies_D * constants.hartree * constants.N_A,
+        delta_freeenergies=delta_freeenergies_d * constants.hartree * constants.N_A,
     )
-    assert k_H == pytest.approx(1.38, 4e-4)
-    assert k_D == pytest.approx(0.0928, 5e-3)
+    assert k_h == pytest.approx(1.38, 4e-4)
+    assert k_d == pytest.approx(0.0928, 5e-3)
 
-    kie = k_H / k_D
+    kie = k_h / k_d
     assert kie == pytest.approx(1.38 / 0.0928, 4e-3)
 
 
-def test_eyring_calculates_reaction_barrier():
+def test_eyring_calculates_reaction_barrier() -> None:
     """Ensure Eyring rates are correct."""
     barrier1 = 17.26 * constants.kcal
     barrier2 = 18.86 * constants.kcal
@@ -81,7 +77,7 @@ def test_eyring_calculates_reaction_barrier():
     ) == pytest.approx([1.38, 3.2513e9], 4e-3)
 
 
-def test_smoluchowski_calculates_diffusion_limited_reaction_rates():
+def test_smoluchowski_calculates_diffusion_limited_reaction_rates() -> None:
     """Ensure Smoluchowski rates are correct."""
     radii = np.array([2.59, 2.71]) * constants.angstrom
     assert rx.rates.smoluchowski(
@@ -113,7 +109,7 @@ def test_smoluchowski_calculates_diffusion_limited_reaction_rates():
     )
 
 
-def test_liquid_viscosities_are_correct():
+def test_liquid_viscosities_are_correct() -> None:
     """Ensure viscosity values agree with the literature.
 
     The following data were collected from many different sources, whose DOIs
@@ -233,7 +229,7 @@ def test_liquid_viscosities_are_correct():
     )
 
 
-def test_conversion_of_rate_constants_work():
+def test_conversion_of_rate_constants_work() -> None:
     """Ensure converting reaction rate constants work."""
     assert rx.rates.convert_rate_constant(
         12345e5,
@@ -255,7 +251,7 @@ def test_conversion_of_rate_constants_work():
     )
 
 
-def test_conversion_rates_know_about_reaction_order():
+def test_conversion_rates_know_about_reaction_order() -> None:
     """Ensure calculated factors satisfy the reaction order requirements."""
     assert rx.rates.convert_rate_constant(
         1.0,
@@ -294,7 +290,7 @@ def test_conversion_rates_know_about_reaction_order():
     )
 
 
-def test_second_order_conversion_rate_example():
+def test_second_order_conversion_rate_example() -> None:
     """Test a simple example from a set of lecture notes.
 
     The example can be found at
@@ -309,7 +305,7 @@ def test_second_order_conversion_rate_example():
     ) == pytest.approx(1.2e10, 4e-3)
 
 
-def test_second_order_conversion_rates_match_literature():  # noqa: PLR0915
+def test_second_order_conversion_rates_match_literature() -> None:
     """Ensure calculated second order factors are correct.
 
     References are given in the comments.
@@ -705,7 +701,7 @@ def test_second_order_conversion_rates_match_literature():  # noqa: PLR0915
         ) == pytest.approx(7.34e21 / temperature, 2e-4)
 
 
-def test_third_order_conversion_rates_match_literature():
+def test_third_order_conversion_rates_match_literature() -> None:
     """Ensure calculated third order factors are correct.
 
     References are given in the comments.

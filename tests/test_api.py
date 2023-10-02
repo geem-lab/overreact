@@ -1,6 +1,6 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Tests for the application programming interface (API)."""
+
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -10,7 +10,8 @@ from overreact import _constants as constants
 from overreact import coords
 
 
-def test_get_enthalpies():  # noqa: D103
+def test_get_enthalpies() -> None:
+    """Ensure we can retrieve enthalpies."""
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     assert rx.get_delta(
         model.scheme.B,
@@ -21,7 +22,7 @@ def test_get_enthalpies():  # noqa: D103
     )
 
 
-def test_get_entropies():
+def test_get_entropies() -> None:
     """Ensure get_entropies match some logfiles.
 
     It is worth mentioning that, currently, ORCA uses QRRHO in entropy
@@ -58,7 +59,8 @@ def test_get_entropies():
     )
 
 
-def test_get_freeenergies():  # noqa: D103
+def test_get_freeenergies() -> None:
+    """Ensure we can retrieve free energies."""
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
 
@@ -74,7 +76,7 @@ def test_get_freeenergies():  # noqa: D103
     )
 
 
-def test_compare_calc_star_with_get_star():
+def test_compare_calc_star_with_get_star() -> None:
     """Ensure the calc_* functions match the get_* functions."""
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
@@ -99,7 +101,7 @@ def test_compare_calc_star_with_get_star():
     for bias in np.array([-1, 0, 1]) * constants.kcal:
         for environment in ["gas", "solvent"]:
             for qrrho in [True, False, (False, True)]:
-                qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(  # noqa: SLF001
+                qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(
                     qrrho,
                 )
                 for temperature in [200, 298.15, 400]:
@@ -166,7 +168,7 @@ def test_compare_calc_star_with_get_star():
                                 bias == 0
                                 and environment == "gas"
                                 and qrrho == (False, True)
-                                and temperature == 298.15  # noqa: PLR2004
+                                and temperature == 298.15
                                 and pressure == constants.atm
                                 # TODO(schneiderfelipe): do a test for H+(w)
                                 and compound != "H+(w)"

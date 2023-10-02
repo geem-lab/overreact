@@ -1,6 +1,6 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Tests for misc module."""
+
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -8,10 +8,10 @@ import pytest
 import overreact as rx
 
 
-def test_broaden_spectrum_works():
+def test_broaden_spectrum_works() -> None:
     """Ensure we can broad a simple spectrum."""
     x = np.linspace(50, 200, num=15)
-    s = rx._misc.broaden_spectrum(x, [150, 100], [2, 1], scale=20.0)  # noqa: SLF001
+    s = rx._misc.broaden_spectrum(x, [150, 100], [2, 1], scale=20.0)
     assert s == pytest.approx(
         [
             0.04316864,

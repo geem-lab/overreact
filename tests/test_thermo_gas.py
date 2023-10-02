@@ -1,6 +1,6 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Tests for gas phase using the `thermo` module."""
+
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -23,7 +23,7 @@ from overreact import coords
 # so on.
 
 
-def test_sanity_for_relative_thermochemistry():
+def test_sanity_for_relative_thermochemistry() -> None:
     """Ensure we have decent quality for (relative) thermochemical analysis.
 
     This partially ensures we do similar analysis as Gaussian, see
@@ -48,7 +48,7 @@ def test_sanity_for_relative_thermochemistry():
     ) == pytest.approx(11.18, 9e-4)
 
 
-def test_sanity_for_absolute_thermochemistry():
+def test_sanity_for_absolute_thermochemistry() -> None:
     """Ensure we have decent quality for (absolute) thermochemical analysis.
 
     This partially ensures we do similar analysis as Gaussian, see
@@ -59,7 +59,7 @@ def test_sanity_for_absolute_thermochemistry():
         * constants.atomic_mass
         * constants.bohr**2
     )
-    assert rx.thermo._gas._rotational_temperature(  # noqa: SLF001
+    assert rx.thermo._gas._rotational_temperature(
         moments / (constants.atomic_mass * constants.angstrom**2),
     ) == pytest.approx([3.67381, 0.98044, 0.98043], 2e-5)
     assert (
@@ -89,22 +89,22 @@ def test_sanity_for_absolute_thermochemistry():
         ],
     )
     vibfreqs = vibtemps * constants.k * constants.centi / (constants.h * constants.c)
-    assert rx.thermo._gas._vibrational_temperature(  # noqa: SLF001
+    assert rx.thermo._gas._vibrational_temperature(
         vibfreqs,
     ) == pytest.approx(
         vibtemps,
     )
-    zpe = rx.thermo._gas.calc_vib_energy(vibfreqs, temperature=0.0)  # noqa: SLF001
+    zpe = rx.thermo._gas.calc_vib_energy(vibfreqs, temperature=0.0)
     assert zpe == pytest.approx(204885.0, 7e-5)
     assert zpe / constants.kcal == pytest.approx(48.96870, 7e-5)
     assert zpe / (constants.hartree * constants.N_A) == pytest.approx(0.078037, 8e-5)
 
-    elec_internal_energy = rx.thermo._gas.calc_elec_energy(0.0, 1.0)  # noqa: SLF001
-    trans_internal_energy = rx.thermo._gas.calc_trans_energy()  # noqa: SLF001
-    rot_internal_energy = rx.thermo._gas.calc_rot_energy(  # noqa: SLF001
+    elec_internal_energy = rx.thermo._gas.calc_elec_energy(0.0, 1.0)
+    trans_internal_energy = rx.thermo._gas.calc_trans_energy()
+    rot_internal_energy = rx.thermo._gas.calc_rot_energy(
         moments / (constants.atomic_mass * constants.angstrom**2),
     )
-    vib_internal_energy = rx.thermo._gas.calc_vib_energy(vibfreqs)  # noqa: SLF001
+    vib_internal_energy = rx.thermo._gas.calc_vib_energy(vibfreqs)
     internal_energy = rx.thermo.calc_internal_energy(
         0.0,
         1.0,
@@ -133,12 +133,12 @@ def test_sanity_for_absolute_thermochemistry():
         1.00783,
         1.00783,
     ]
-    elec_entropy = rx.thermo._gas.calc_elec_entropy(0.0, 1.0)  # noqa: SLF001
+    elec_entropy = rx.thermo._gas.calc_elec_entropy(0.0, 1.0)
     trans_entropy = rx.thermo.calc_trans_entropy(atommasses)
-    rot_entropy = rx.thermo._gas.calc_rot_entropy(  # noqa: SLF001
+    rot_entropy = rx.thermo._gas.calc_rot_entropy(
         moments=moments / (constants.atomic_mass * constants.angstrom**2),
     )
-    vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs)  # noqa: SLF001
+    vib_entropy = rx.thermo._gas.calc_vib_entropy(vibfreqs)
     entropy = rx.thermo.calc_entropy(
         atommasses,
         energy=0.0,
@@ -156,7 +156,7 @@ def test_sanity_for_absolute_thermochemistry():
     assert entropy / constants.calorie == pytest.approx(57.118, 3e-5)
 
 
-def test_enthalpy_ideal_gases():  # noqa: PLR0915
+def test_enthalpy_ideal_gases() -> None:
     """Calculate enthalpy of some ideal gases.
 
     We only check whether enthalpy matches the correct relationship with internal energy
@@ -319,7 +319,7 @@ def test_enthalpy_ideal_gases():  # noqa: PLR0915
     assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
 
-def test_entropy_ideal_monoatomic_gases():
+def test_entropy_ideal_monoatomic_gases() -> None:
     """Reproduce experimental entropies of some ideal monoatomic gases.
 
     Reference experimental data is from Table 5-3 of Statistical
@@ -409,7 +409,7 @@ def test_entropy_ideal_monoatomic_gases():
     ) / constants.calorie == pytest.approx(41.8, 1e-3)
 
 
-def test_internal_energy_ideal_monoatomic_gases():
+def test_internal_energy_ideal_monoatomic_gases() -> None:
     """Calculate internal energies of some ideal monoatomic gases.
 
     Atomic energy states are from the NIST atomic data
@@ -474,7 +474,7 @@ def test_internal_energy_ideal_monoatomic_gases():
     )
 
 
-def test_entropy_ideal_diatomic_gases():
+def test_entropy_ideal_diatomic_gases() -> None:
     """Reproduce experimental entropies of some ideal diatomic gases.
 
     Reference experimental data is from Table 6-3 of Statistical
@@ -594,7 +594,7 @@ def test_entropy_ideal_diatomic_gases():
     )
 
 
-def test_internal_energy_ideal_diatomic_gases():
+def test_internal_energy_ideal_diatomic_gases() -> None:
     """Calculate internal energies of some ideal diatomic gases.
 
     Vibrational and rotational temperatures are from Table 6-1 of Statistical
@@ -694,7 +694,7 @@ def test_internal_energy_ideal_diatomic_gases():
     ) == pytest.approx(19090.38, 4e-6)
 
 
-def test_entropy_ideal_polyatomic_gases():
+def test_entropy_ideal_polyatomic_gases() -> None:
     """Reproduce experimental entropies of some ideal polyatomic gases.
 
     Reference experimental data is from Table 8-3 of Statistical
@@ -874,7 +874,7 @@ def test_entropy_ideal_polyatomic_gases():
     ) / constants.calorie == pytest.approx(64.4, 1e-2)
 
 
-def test_internal_energy_ideal_polyatomic_gases():
+def test_internal_energy_ideal_polyatomic_gases() -> None:
     """Calculate internal energies of some ideal polyatomic gases.
 
     Vibrational and rotational temperatures are from Table 8-1 of Statistical
@@ -1027,7 +1027,7 @@ def test_internal_energy_ideal_polyatomic_gases():
     ) == pytest.approx(267700.49, 2e-4)
 
 
-def test_heat_capacity_ideal_gases():
+def test_heat_capacity_ideal_gases() -> None:
     """Calculate heat capacities of some ideal monoatomic gases.
 
     Reference data is from Table 8-2 of Statistical Thermodynamics, McQuarrie.
@@ -1129,7 +1129,7 @@ def test_heat_capacity_ideal_gases():
     ) / constants.R == pytest.approx(3.03, 1e-3)
 
 
-def test_get_delta_works():
+def test_get_delta_works() -> None:
     """Ensure safe usage of get_delta."""
     assert rx.thermo.get_delta([-1, 2], [-5.0, 5.0]) == pytest.approx(15.0)
     assert rx.thermo.get_delta([[-1, -1], [2, 1]], [-5.0, 5.0]) == pytest.approx(
@@ -1137,16 +1137,14 @@ def test_get_delta_works():
     )
 
 
-def test_equilibrium_constant_works():
+def test_equilibrium_constant_works() -> None:
     """Ensure equilibrium_constant gives correct numbers."""
-    assert rx.thermo.equilibrium_constant(0.0) == 1.0  # noqa: PLR2004
+    assert rx.thermo.equilibrium_constant(0.0) == 1.0
     assert rx.thermo.equilibrium_constant(1000.0) == pytest.approx(0.668, 1e-4)
     assert rx.thermo.equilibrium_constant(1718.5) == pytest.approx(0.5, 1e-4)
     assert rx.thermo.equilibrium_constant(68497.0) == pytest.approx(0.0)
 
-    assert (
-        rx.thermo.equilibrium_constant(0.0, temperature=14.01) == 1.0  # noqa: PLR2004
-    )  # noqa: PLR2004, RUF100
+    assert rx.thermo.equilibrium_constant(0.0, temperature=14.01) == 1.0
     assert rx.thermo.equilibrium_constant(1000.0, temperature=14.01) == pytest.approx(
         1.87e-4,
         1e-3,
@@ -1175,7 +1173,7 @@ def test_equilibrium_constant_works():
     ) == pytest.approx([2.65e-5, 4.30e-3, 1.39e3, 1.04e5, 1.14e-7], 1.55e-2)
 
 
-def test_molar_volume_is_precise():
+def test_molar_volume_is_precise() -> None:
     """Ensure our molar volumes are as precise as possible.
 
     Values below were taken from
@@ -1195,7 +1193,7 @@ def test_molar_volume_is_precise():
     assert rx.thermo.molar_volume() == pytest.approx(0.024465, 1e-4)
 
 
-def test_molar_volume_works_with_sequences():
+def test_molar_volume_works_with_sequences() -> None:
     """Ensure molar volumes can be calculated for many temperatures at once."""
     assert rx.thermo.molar_volume([273.15, 298.15], constants.bar) == pytest.approx(
         [0.02271098038, 0.02478959842],
@@ -1211,7 +1209,7 @@ def test_molar_volume_works_with_sequences():
     ) == pytest.approx([0.022414, 0.02271098038], 1e-5)
 
 
-def test_change_reference_state_works_for_symmetry():
+def test_change_reference_state_works_for_symmetry() -> None:
     """Ensure that change_reference_state works for symmetry contributions."""
     assert -200.0 * rx.change_reference_state(4, 1, temperature=200.0) / (
         constants.kcal
@@ -1239,46 +1237,46 @@ def test_change_reference_state_works_for_symmetry():
 # file.
 # TODO(schneiderfelipe): test and compare solutions to small imaginary
 # frequencies using the QRRHO model.
-def test_head_gordon_damping():
+def test_head_gordon_damping() -> None:
     """Ensure the Head-Gordon damping for the treatment of QRRHO is done correctly."""
-    assert rx.thermo._gas._head_gordon_damping(-70.0) == pytest.approx(  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(-70.0) == pytest.approx(
         [],
     )
-    assert rx.thermo._gas._head_gordon_damping(-40.0) == pytest.approx(  # noqa: SLF001
-        rx.thermo._gas._head_gordon_damping(40.0),  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(-40.0) == pytest.approx(
+        rx.thermo._gas._head_gordon_damping(40.0),
     )
-    assert rx.thermo._gas._head_gordon_damping(-10.0) == pytest.approx(  # noqa: SLF001
-        rx.thermo._gas._head_gordon_damping(10.0),  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(-10.0) == pytest.approx(
+        rx.thermo._gas._head_gordon_damping(10.0),
     )
-    assert rx.thermo._gas._head_gordon_damping(1.0) == pytest.approx(  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(1.0) == pytest.approx(
         8.67669882e-9,
     )
-    assert rx.thermo._gas._head_gordon_damping(10.0) == pytest.approx(  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(10.0) == pytest.approx(
         8.67594611e-5,
     )
-    assert rx.thermo._gas._head_gordon_damping(100.0) == pytest.approx(  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(100.0) == pytest.approx(
         0.5,
         8e-2,
     )
-    assert rx.thermo._gas._head_gordon_damping(200.0) == pytest.approx(  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(200.0) == pytest.approx(
         1.0,
         7e-2,
     )
-    assert rx.thermo._gas._head_gordon_damping(300.0) == pytest.approx(  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(300.0) == pytest.approx(
         1.0,
         2e-2,
     )
-    assert rx.thermo._gas._head_gordon_damping(1000.0) == pytest.approx(  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(1000.0) == pytest.approx(
         1.0,
         2e-4,
     )
 
-    assert rx.thermo._gas._head_gordon_damping(  # noqa: SLF001
+    assert rx.thermo._gas._head_gordon_damping(
         [-70.0, -10.0, 10.0, 100.0, 200.0, 300.0, 1000.0],
     ) == pytest.approx([8.67594611e-5, 8.67594611e-5, 0.5, 1.0, 1.0, 1.0], 8e-2)
 
 
-def test_can_calculate_reaction_entropies():
+def test_can_calculate_reaction_entropies() -> None:
     """Ensure we can calculate reaction translational entropies.
 
     This contribution is due to indistinguishability of some reactants or

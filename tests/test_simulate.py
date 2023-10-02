@@ -1,6 +1,6 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Tests for simulate module."""
+
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -9,7 +9,7 @@ import overreact as rx
 from overreact import simulate
 
 
-def test_get_dydt_calculates_reaction_rate():
+def test_get_dydt_calculates_reaction_rate() -> None:
     """Ensure get_dydt gives correct reaction rates."""
     scheme = rx.Scheme(
         compounds=["A", "B"],
@@ -30,7 +30,7 @@ def test_get_dydt_calculates_reaction_rate():
     assert dydt(0.0, np.array([10.0, 0.0])) == pytest.approx([-20.0, 20.0])
 
 
-def test_get_y_propagates_reaction_automatically():
+def test_get_y_propagates_reaction_automatically() -> None:
     """Ensure get_y properly propagates reactions with automatic time span."""
     scheme = rx.Scheme(
         compounds=["A", "B", "AB4"],
@@ -45,8 +45,8 @@ def test_get_y_propagates_reaction_automatically():
     k = np.array([1.0, 1.0])
     y, r = simulate.get_y(simulate.get_dydt(scheme, k), y0=y0)
 
-    assert y.t_min == 0.0  # noqa: PLR2004
-    assert y.t_max >= 300.0  # noqa: PLR2004
+    assert y.t_min == 0.0
+    assert y.t_max >= 300.0
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx(
         [1.668212890625, 0.6728515625, 0.341787109375],
@@ -56,7 +56,7 @@ def test_get_y_propagates_reaction_automatically():
     assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=3e-3)
 
 
-def test_get_y_propagates_reaction_with_fixed_time():
+def test_get_y_propagates_reaction_with_fixed_time() -> None:
     """Ensure get_y properly propagates reactions when given time span."""
     scheme = rx.Scheme(
         compounds=["A", "B", "AB4"],
@@ -87,7 +87,7 @@ def test_get_y_propagates_reaction_with_fixed_time():
     assert r(y.t_max) == pytest.approx([0.0, 0.0, 0.0], abs=1.3e-2)
 
 
-def test_get_y_conservation_in_equilibria():
+def test_get_y_conservation_in_equilibria() -> None:
     """Ensure get_y properly conserves matter in a toy equilibrium."""
     scheme = rx.parse_reactions("A <=> B")
     y0 = [1, 0]
@@ -97,8 +97,8 @@ def test_get_y_conservation_in_equilibria():
     y, r = simulate.get_y(simulate.get_dydt(scheme, k), y0=y0)
     t = np.linspace(y.t_min, y.t_max, num=100)
 
-    assert y.t_min == 0.0  # noqa: PLR2004
-    assert y.t_max >= 3.0  # noqa: PLR2004
+    assert y.t_min == 0.0
+    assert y.t_max >= 3.0
     assert y(y.t_min) == pytest.approx(y0)
     assert y(y.t_max) == pytest.approx([0.5, 0.5], 3e-3)
     assert r(y.t_min) == pytest.approx([-1, 1])
@@ -121,7 +121,13 @@ def test_get_y_conservation_in_equilibria():
         for method in ("RK23", "LSODA")
     ],
 )
-def test_simple_michaelis_menten(cat0, sub0, keq, kcat, method):
+def test_simple_michaelis_menten(
+    cat0: float,
+    sub0: float,
+    keq: float,
+    kcat: float,
+    method: str,
+) -> None:
     """
     Test a simple Michaelis-Menten model.
 
@@ -163,7 +169,13 @@ CS -> TS‡ -> C + P  // Catalyst is released
         for method in ("RK23", "LSODA")
     ],
 )
-def test_consuming_michaelis_menten(cat0, sub0, keq, kcat, method):
+def test_consuming_michaelis_menten(
+    cat0: float,
+    sub0: float,
+    keq: float,
+    kcat: float,
+    method: str,
+) -> None:
     """Test a faulty system as suggested by @bmounssefjr."""
     scheme = rx.parse_reactions(
         """
