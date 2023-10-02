@@ -1,5 +1,3 @@
-#!/usr/bin/env python3  # noqa: EXE001
-
 """Module dedicated to quantum tunneling approximations."""
 
 
@@ -9,7 +7,6 @@ __all__ = ["eckart", "wigner"]
 
 
 import logging
-from typing import Optional, Union
 
 import numpy as np
 from scipy.integrate import fixed_quad
@@ -49,16 +46,15 @@ def _check_nu(vibfreq: float) -> float:
     True
     """
     if np.isclose(vibfreq, 0.0).any():
-        raise ValueError(  # noqa: TRY003
-            f"vibfreq should not be zero for tunneling: {vibfreq}",  # noqa: EM102
-        )  # noqa: RUF100
+        msg = f"vibfreq should not be zero for tunneling: {vibfreq}"
+        raise ValueError(msg)
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
 def wigner(
     vibfreq: float,
-    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
-) -> float:  # noqa: RUF100
+    temperature: float | np.ndarray = 298.15,
+) -> float:
     """Calculate the Wigner correction to quantum tunneling.
 
     Parameters
@@ -99,16 +95,16 @@ def wigner(
     u = constants.h * nu / (constants.k * temperature)
 
     kappa = 1.0 + (u**2) / 24.0
-    logger.info(f"Wigner tunneling coefficient: {kappa}")  # noqa: G004
+    logger.info(f"Wigner tunneling coefficient: {kappa}")
     return kappa
 
 
 def eckart(
     vibfreq: float,
     delta_forward: float,
-    delta_backward: Optional[float] = None,  # noqa: UP007
-    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
-) -> Union[float, np.ndarray]:  # noqa: UP007
+    delta_backward: float | None = None,
+    temperature: float | np.ndarray = 298.15,
+) -> float | np.ndarray:
     """Calculate the Eckart correction to quantum tunneling.
 
     References are
@@ -177,12 +173,12 @@ def eckart(
     if delta_backward is None:
         delta_backward = delta_forward
 
-    logger.debug(f"forward  potential barrier: {delta_forward} J/mol")  # noqa: G004
-    logger.debug(f"backward potential barrier: {delta_backward} J/mol")  # noqa: G004
+    logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
+    logger.debug(f"backward potential barrier: {delta_backward} J/mol")
 
     if delta_forward <= 0 or delta_backward <= 0:
         logger.warning(
-            "forward or backward barrier is non-positive, falling back to Wigner correction",  # noqa: E501
+            "forward or backward barrier is non-positive, falling back to Wigner correction",
         )
         return wigner(vibfreq, temperature)
 
@@ -199,7 +195,7 @@ def eckart(
     alpha2 = two_pi * delta_backward / (constants.h * nu)
 
     kappa = _eckart(u, alpha1, alpha2)
-    logger.info(f"Eckart tunneling coefficient: {kappa}")  # noqa: G004
+    logger.info(f"Eckart tunneling coefficient: {kappa}")
     return kappa
 
 
@@ -207,8 +203,8 @@ def eckart(
 def _eckart(
     u: float,
     alpha1: float,
-    alpha2: Optional[float] = None,  # noqa: UP007
-) -> float:  # noqa: RUF100
+    alpha2: float | None = None,
+) -> float:
     """Implement of the (unsymmetrical) Eckart tunneling approximation.
 
     This is based on doi:10.1021/j100809a040 and doi:10.6028/jres.086.014.
@@ -265,21 +261,18 @@ def _eckart(
     v2 = alpha2 * u / (two_pi)
 
     d = 4.0 * alpha1 * alpha2 - np.pi**2
-    if d > 0:  # noqa: SIM108
-        D = np.cosh(np.sqrt(d))  # noqa: N806
-    else:
-        D = np.cos(np.sqrt(np.abs(d)))  # noqa: N806
+    D = np.cosh(np.sqrt(d)) if d > 0 else np.cos(np.sqrt(np.abs(d)))
 
     sqrt_alpha1 = np.sqrt(alpha1)
     sqrt_alpha2 = np.sqrt(alpha2)
-    F = (  # noqa: N806
+    F = (
         np.sqrt(2.0)
         * sqrt_alpha1
         * sqrt_alpha2
         / (np.sqrt(np.pi) * (sqrt_alpha1 + sqrt_alpha2))
     )
 
-    def f(eps, with_exp=True):  # noqa: FBT002
+    def f(eps, with_exp=True):
         """Transmission function multiplied or not by the Boltzmann weight."""
         a1 = F * np.sqrt((eps + v1) / u)
         a2 = F * np.sqrt((eps + v2) / u)

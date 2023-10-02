@@ -1,9 +1,9 @@
-#!/usr/bin/env python3  # noqa: EXE001
-
 """Module for storing constant data such as physical fundamental constants.
 
 Most of this data comes from `scipy.constants`.
 """
+
+from __future__ import annotations
 
 import numpy as np
 from scipy.constants import (

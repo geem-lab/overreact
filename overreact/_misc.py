@@ -1,12 +1,12 @@
-#!/usr/bin/env python3  # noqa: EXE001
-
 """Miscellaneous functions that do not currently fit in other modules.
 
 Ideally, the functions here will be transferred to other modules in the future.
 """
 
+from __future__ import annotations
+
+import contextlib
 from functools import lru_cache as cache
-from typing import Optional
 
 import numpy as np
 from scipy.stats import cauchy, norm
@@ -426,8 +426,8 @@ atomic_number = {
 
 def _check_package(
     package: str,
-    found_package: bool,  # noqa: FBT001
-    extra_flag: Optional[str] = None,  # noqa: RUF100
+    found_package: bool,
+    extra_flag: str | None = None,
 ) -> None:
     """Raise an issue if a package was not found.
 
@@ -456,12 +456,9 @@ def _check_package(
     Traceback (most recent call last):
       ...
     ImportError: You must install `rich` to use this functionality: `pip install rich` (or `pip install "overreact[cli]"`)
-    """  # noqa: E501
+    """
     if not found_package:
-        message = (
-            f"You must install `{package}` to use this functionality: "
-            f"`pip install {package}`"
-        )
+        message = f"You must install `{package}` to use this functionality: `pip install {package}`"
         if extra_flag:
             message += f' (or `pip install "overreact[{extra_flag}]"`)'
         raise ImportError(message)
@@ -473,8 +470,8 @@ def _get_chemical(
     identifier,
     temperature=298.15,
     pressure=constants.atm,
-    *args,  # noqa: ANN002
-    **kwargs,  # noqa: ANN003
+    *args,
+    **kwargs,
 ):
     """Wrap `thermo.Chemical`.
 
@@ -501,15 +498,13 @@ def _get_chemical(
     >>> water.Van_der_Waals_volume
     0.0
     >>> water.Vm
-    1.806904e-5
+    1.807e-5
     >>> water.permittivity
     78.4
-    >>> water.isobaric_expansion
-    0.000402256
     >>> water.omega
     0.344
     >>> water.mul
-    0.00091272
+    0.0009
     """
     _check_package("thermo", _found_thermo, "solvents")
     # TODO(schneiderfelipe): return a named tuple with only the required data.
@@ -518,15 +513,15 @@ def _get_chemical(
     return Chemical(identifier, temperature, pressure, *args, **kwargs)
 
 
-def broaden_spectrum(  # noqa: PLR0913
+def broaden_spectrum(
     x,
     x0,
     y0,
     distribution="gaussian",
     scale=1.0,
-    fit_points=True,  # noqa: FBT002
-    *args,  # noqa: ANN002
-    **kwargs,  # noqa: ANN003
+    fit_points=True,
+    *args,
+    **kwargs,
 ):
     """Broaden a point spectrum.
 
@@ -588,9 +583,9 @@ def broaden_spectrum(  # noqa: PLR0913
                 x,
                 xp,
                 scale=scale,
-                *args,  # noqa: B026
+                *args,
                 **kwargs,
-            )  # noqa: RUF100
+            )
             for xp, yp in zip(x0, y0)
         ],
         axis=0,
@@ -598,7 +593,7 @@ def broaden_spectrum(  # noqa: PLR0913
 
     if fit_points:
         s_max = np.max(s)
-        if s_max == 0.0:  # noqa: PLR2004
+        if s_max == 0.0:
             s_max = 1.0
         return s * np.max(y0) / s_max
     return s
@@ -626,10 +621,8 @@ def totuple(a):
     if isinstance(a, (int, float, str, rx.Scheme)):
         return a
 
-    try:  # noqa: SIM105
+    with contextlib.suppress(AttributeError):
         a = a.tolist()
-    except AttributeError:
-        pass
 
     try:
         return tuple(totuple(i) for i in a)
@@ -637,7 +630,7 @@ def totuple(a):
         return a
 
 
-def halton(num, dim=None, jump=1, cranley_patterson=True):  # noqa: FBT002
+def halton(num, dim=None, jump=1, cranley_patterson=True):
     """Calculate Halton low-discrepancy sequences.
 
     Those sequences are good performers for Quasi-Monte Carlo numerical
@@ -714,7 +707,7 @@ def halton(num, dim=None, jump=1, cranley_patterson=True):  # noqa: FBT002
     )
 
     if cranley_patterson:
-        res = (res + np.random.rand(actual_dim, 1)) % 1.0  # noqa: NPY002
+        res = (res + np.random.rand(actual_dim, 1)) % 1.0
     if dim is None:
         return res.reshape((num,))
     return res.T

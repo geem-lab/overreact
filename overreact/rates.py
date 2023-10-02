@@ -1,5 +1,3 @@
-#!/usr/bin/env python3  # noqa: EXE001
-
 """Module dedicated to the calculation of reaction rate constants."""
 
 
@@ -9,7 +7,6 @@ __all__ = ["eyring"]
 
 
 import logging
-from typing import Optional, Union
 
 import numpy as np
 
@@ -20,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 @np.vectorize
-def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):  # noqa: A002
+def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     """Dynamic viscosity of a solvent.
 
     This function requires the `thermo` package for obtaining property values.
@@ -43,11 +40,11 @@ def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):  # noqa: A
     >>> liquid_viscosity("water", temperature=299.26)
     8.90e-4
     """
-    return rx._misc._get_chemical(id, temperature, pressure).mul  # noqa: SLF001
+    return rx._misc._get_chemical(id, temperature, pressure).mul
 
 
 # TODO(schneiderfelipe): log the calculated diffusional reaction rate limit.
-def smoluchowski(  # noqa: PLR0913
+def smoluchowski(
     radii,
     viscosity=None,
     reactive_radius=None,
@@ -141,7 +138,7 @@ def collins_kimball(k_tst, k_diff):
     return k_tst * k_diff / (k_tst + k_diff)
 
 
-def convert_rate_constant(  # noqa: C901, PLR0912, PLR0913
+def convert_rate_constant(
     val,
     new_scale,
     old_scale="l mol-1 s-1",
@@ -253,7 +250,8 @@ def convert_rate_constant(  # noqa: C901, PLR0912, PLR0913
     elif old_scale == "atm-1 s-1":
         factor = rx.thermo.molar_volume(temperature, pressure) * constants.kilo
     else:
-        raise ValueError(f"old unit not recognized: {old_scale}")  # noqa: EM102, TRY003
+        msg = f"old unit not recognized: {old_scale}"
+        raise ValueError(msg)
 
     # now we convert l mol-1 s-1 to what we need
     if new_scale == "cm3 mol-1 s-1":
@@ -271,21 +269,22 @@ def convert_rate_constant(  # noqa: C901, PLR0912, PLR0913
     elif new_scale == "atm-1 s-1":
         factor *= 1.0 / (rx.thermo.molar_volume(temperature, pressure) * constants.kilo)
     else:
-        raise ValueError(f"new unit not recognized: {new_scale}")  # noqa: EM102, TRY003
+        msg = f"new unit not recognized: {new_scale}"
+        raise ValueError(msg)
 
     factor **= molecularity - 1
     logger.info(
-        f"conversion factor ({old_scale} to {new_scale}) = {factor}",  # noqa: G004
+        f"conversion factor ({old_scale} to {new_scale}) = {factor}",
     )
     return val * factor
 
 
 def eyring(
-    delta_freeenergy: Union[float, np.ndarray],  # noqa: UP007
-    molecularity: Optional[int] = None,  # noqa: UP007
-    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
+    delta_freeenergy: float | np.ndarray,
+    molecularity: int | None = None,
+    temperature: float | np.ndarray = 298.15,
     pressure: float = constants.atm,
-    volume: Optional[float] = None,  # noqa: UP007
+    volume: float | None = None,
 ):
     r"""Calculate a reaction rate constant.
 

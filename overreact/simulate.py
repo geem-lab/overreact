@@ -1,5 +1,3 @@
-#!/usr/bin/env python3  # noqa: EXE001
-
 """Module dedicated to the time simulation of reaction models.
 
 Here are functions that calculate reaction rates as well, which is needed for
@@ -7,7 +5,7 @@ the time simulations.
 """
 
 
-# TODO: type this module.
+# TODO(schneiderfelipe): type this module.
 from __future__ import annotations
 
 __all__ = ["get_y", "get_dydt", "get_fixed_scheme"]
@@ -34,7 +32,7 @@ from overreact._misc import _found_jax
 # of eight to equilibria, which seems reasonable. **This choice was made
 # using the standard ODE parameters (rtol=1e-3, atol=1e-6).**
 #
-# TODO: this should probably be exposed to the user and use the actual simulation temperature.  # noqa: E501
+# TODO(schneiderfelipe): this should probably be exposed to the user and use the actual simulation temperature.
 EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 
 
@@ -46,7 +44,7 @@ if _found_jax:
     from jax import jacfwd, jit
     from jax.config import config
 
-    config.update("jax_enable_x64", True)  # noqa: FBT003
+    config.update("jax_enable_x64", True)
 else:
     logger.warning(
         "Install JAX to have just-in-time compilation: "
@@ -56,13 +54,13 @@ else:
 
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
-def get_y(  # noqa: PLR0913
+def get_y(
     dydt,
     y0,
     t_span=None,
     method="RK23",
     max_step=np.inf,
-    first_step=np.finfo(np.float64).eps,  # noqa: B008
+    first_step=np.finfo(np.float64).eps,
     rtol=1e-3,
     atol=1e-6,
     max_time=1 * 60 * 60,
@@ -156,22 +154,22 @@ def get_y(  # noqa: PLR0913
                     1.0 / np.min(y0[np.nonzero(y0)]),  # second-order halflife
                 ],
             ) / np.min(dydt.k)
-            logger.info(f"largest halflife guess = {halflife_estimate} s")  # noqa: G004
+            logger.info(f"largest halflife guess = {halflife_estimate} s")
 
         t_span = [0.0, min(n_halflives * halflife_estimate, max_time)]
-        logger.info(f"simulation time span   = {t_span} s")  # noqa: G004
+        logger.info(f"simulation time span   = {t_span} s")
 
     max_step = np.min([max_step, (t_span[1] - t_span[0]) / 2.0])
-    logger.warning(f"max step = {max_step} s")  # noqa: G004
+    logger.warning(f"max step = {max_step} s")
 
     first_step = np.min([first_step, max_step / 2.0])
-    logger.warning(f"first step = {first_step} s")  # noqa: G004
+    logger.warning(f"first step = {first_step} s")
 
     jac = None
     if hasattr(dydt, "jac"):
         jac = dydt.jac  # noqa: F841
 
-    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")  # noqa: G004
+    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
     res = solve_ivp(
         dydt,
         t_span,
@@ -258,12 +256,12 @@ def get_dydt(scheme, k, ef=EF):
            [ 1., -1.]], ...)
 
     """
-    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
-    A = jnp.asarray(scheme.A)  # noqa: N806
-    M = jnp.where(A > 0, 0, -A).T  # noqa: N806
+    scheme = rx.core._check_scheme(scheme)
+    A = jnp.asarray(scheme.A)
+    M = jnp.where(A > 0, 0, -A).T
     k_adj = _adjust_k(scheme, k, ef=ef)
 
-    def _dydt(t, y):  # noqa: ARG001
+    def _dydt(_t, y):
         r = k_adj * jnp.prod(jnp.power(y, M), axis=1)
         return jnp.dot(A, r)
 
@@ -275,7 +273,7 @@ def get_dydt(scheme, k, ef=EF):
         # such that _jac(t, y)[i, j] == d f_i / d y_j,
         # with shape of (n_compounds, n_compounds).
         def _jac(t, y):
-            logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")  # noqa: G004
+            logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")
             return jacfwd(lambda _y: _dydt(t, _y))(y)
 
         _dydt.jac = _jac
@@ -333,7 +331,7 @@ def _adjust_k(scheme, k, ef=EF):
     Array([...], ...)
 
     """
-    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
+    scheme = rx.core._check_scheme(scheme)
     is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
     k = np.asarray(k, dtype=np.float64).copy()
 
@@ -347,12 +345,12 @@ def _adjust_k(scheme, k, ef=EF):
             adjustment = ef * (k_fastest_react / k_slowest_equil)
 
             k[is_half_equilibrium] *= adjustment
-            logger.warning(f"equilibria adjustment = {adjustment}")  # noqa: G004
+            logger.warning(f"equilibria adjustment = {adjustment}")
 
             k_slowest_equil = k[is_half_equilibrium].min()
             k_fastest_react = k[~is_half_equilibrium].max()
             logger.warning(
-                f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}",  # noqa: E501, G004
+                f"slow eq. / fast r. = {k_slowest_equil / k_fastest_react}",
             )
         else:
             # only equilibria
@@ -522,7 +520,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     for i, (reaction, is_half_equilibrium) in enumerate(
         zip(scheme.reactions, scheme.is_half_equilibrium),
     ):
-        for reactants, products, _ in rx.core._parse_reactions(  # noqa: SLF001
+        for reactants, products, _ in rx.core._parse_reactions(
             reaction,
         ):
             new_reactants = tuple(
@@ -543,27 +541,25 @@ def get_fixed_scheme(scheme, k, fixed_y0):
 
             new_reactions.append((new_reactants, new_products, is_half_equilibrium))
 
-    new_reactions = tuple(
-        r for r in rx.core._unparse_reactions(new_reactions)  # noqa: SLF001
-    )  # noqa: RUF100, SLF001
+    new_reactions = tuple(r for r in rx.core._unparse_reactions(new_reactions))
     new_is_half_equilibrium = scheme.is_half_equilibrium
 
-    new_A = []  # noqa: N806
-    new_B = []  # noqa: N806
+    new_A = []
+    new_B = []
     new_compounds = []
-    for compound, row_A, row_B in zip(  # noqa: N806
+    for compound, row_A, row_B in zip(
         scheme.compounds,
         scheme.A,
         scheme.B,
-    ):  # noqa: RUF100
+    ):
         if compound not in fixed_y0:
             new_compounds.append(compound)
             new_A.append(row_A)
             new_B.append(row_B)
 
     new_compounds = tuple(new_compounds)
-    new_A = tuple(new_A)  # noqa: N806
-    new_B = tuple(new_B)  # noqa: N806
+    new_A = tuple(new_A)
+    new_B = tuple(new_B)
 
     return (
         rx.core.Scheme(
@@ -578,13 +574,13 @@ def get_fixed_scheme(scheme, k, fixed_y0):
 
 
 # TODO(schneiderfelipe): this is probably not ready yet
-def get_bias(  # noqa: PLR0913
+def get_bias(
     scheme,
     compounds,
     data,
     y0,
     tunneling="eckart",
-    qrrho=True,  # noqa: FBT002
+    qrrho=True,
     temperature=298.15,
     pressure=constants.atm,
     method="RK23",
@@ -651,7 +647,7 @@ def get_bias(  # noqa: PLR0913
     ...                  2.632179124780495175e-5]}
     >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal
     -1.4
-    """  # noqa: E501
+    """
     max_time = np.max(data["t"])
 
     def f(bias):

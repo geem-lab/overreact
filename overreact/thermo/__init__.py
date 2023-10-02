@@ -1,5 +1,3 @@
-#!/usr/bin/env python3  # noqa: EXE001
-
 """Module dedicated to the calculation of thermodynamic properties."""
 
 
@@ -9,7 +7,6 @@ __all__ = ["equilibrium_constant", "change_reference_state"]
 
 
 import logging
-from typing import Optional, Union
 
 import numpy as np
 from scipy.misc import derivative
@@ -31,7 +28,7 @@ from overreact.thermo._gas import (
 logger = logging.getLogger(__name__)
 
 
-def calc_trans_entropy(  # noqa: PLR0913
+def calc_trans_entropy(
     atommasses,
     atomnos=None,
     atomcoords=None,
@@ -117,13 +114,12 @@ def calc_trans_entropy(  # noqa: PLR0913
     if environment in {"gas", None} or method == "standard":
         volume = molar_volume(temperature=temperature, pressure=pressure)
     elif environment == "solid":
-        raise ValueError(  # noqa: TRY003
-            f"environment not yet implemented: {environment}",  # noqa: EM102
-        )  # noqa: RUF100
+        msg = f"environment not yet implemented: {environment}"
+        raise ValueError(msg)
     else:
         assert atomnos is not None, "atomnos must be provided"
         assert atomcoords is not None, "atomcoords must be provided"
-        volume = rx.thermo._solv.molar_free_volume(  # noqa: SLF001
+        volume = rx.thermo._solv.molar_free_volume(
             atomnos=atomnos,
             atomcoords=atomcoords,
             environment=environment,
@@ -132,25 +128,25 @@ def calc_trans_entropy(  # noqa: PLR0913
             pressure=pressure,
         )
 
-    translational_entropy = rx.thermo._gas._sackur_tetrode(  # noqa: SLF001
+    translational_entropy = rx.thermo._gas._sackur_tetrode(
         atommasses,
         volume,
         temperature=temperature,
     )
     logger.info(
-        f"translational entropy = {translational_entropy} J/mol·K",  # noqa: G004
+        f"translational entropy = {translational_entropy} J/mol·K",
     )
     return translational_entropy
 
 
 # TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
 # naming for the whole package?
-def calc_internal_energy(  # noqa: PLR0913
+def calc_internal_energy(
     energy=0.0,
     degeneracy=1,
     moments=None,
     vibfreqs=None,
-    qrrho=True,  # noqa: FBT002
+    qrrho=True,
     temperature=298.15,
 ):
     """Calculate internal energy.
@@ -200,25 +196,25 @@ def calc_internal_energy(  # noqa: PLR0913
     ...     degeneracy=degeneracy)  # F
     4039.
 
-    """  # noqa: E501
+    """
     internal_energy = (
         calc_trans_energy(temperature=temperature)
         + calc_elec_energy(energy, degeneracy, temperature=temperature)
         + calc_rot_energy(moments, temperature=temperature)
         + calc_vib_energy(vibfreqs, qrrho=qrrho, temperature=temperature)
     )
-    logger.info(f"internal energy = {internal_energy} J/mol")  # noqa: G004
+    logger.info(f"internal energy = {internal_energy} J/mol")
     return internal_energy
 
 
 # TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
 # naming for the whole package?
-def calc_enthalpy(  # noqa: PLR0913
+def calc_enthalpy(
     energy=0.0,
     degeneracy=1,
     moments=None,
     vibfreqs=None,
-    qrrho=True,  # noqa: FBT002
+    qrrho=True,
     temperature=298.15,
 ):
     """Calculate enthalpy.
@@ -269,7 +265,7 @@ def calc_enthalpy(  # noqa: PLR0913
     ...               degeneracy=degeneracy)  # F
     6518.
 
-    """  # noqa: E501
+    """
     temperature = np.asarray(temperature)
 
     enthalpy = (
@@ -283,13 +279,13 @@ def calc_enthalpy(  # noqa: PLR0913
         )
         + constants.R * temperature
     )
-    logger.info(f"enthalpy = {enthalpy} J/mol")  # noqa: G004
+    logger.info(f"enthalpy = {enthalpy} J/mol")
     return enthalpy
 
 
 # TODO(schneiderfelipe): "energy" has potentially two meanings here. Correct
 # naming for the whole package?
-def calc_entropy(  # noqa: PLR0913
+def calc_entropy(
     atommasses,
     atomnos=None,
     atomcoords=None,
@@ -300,7 +296,7 @@ def calc_entropy(  # noqa: PLR0913
     vibfreqs=None,
     environment="gas",
     method="standard",
-    qrrho=True,  # noqa: FBT002
+    qrrho=True,
     temperature=298.15,
     pressure=constants.atm,
 ):
@@ -395,7 +391,7 @@ def calc_entropy(  # noqa: PLR0913
 
     >>> calc_entropy(1.008, 1, [[0, 0, 0]], environment="water")  # doctest: +SKIP
     10.5
-    """  # noqa: E501
+    """
     entropy = (
         calc_trans_entropy(
             atommasses=atommasses,
@@ -428,16 +424,15 @@ def calc_entropy(  # noqa: PLR0913
     if environment in {"gas", None}:
         pass
     elif environment == "solid":
-        raise ValueError(  # noqa: TRY003
-            f"environment not yet implemented: {environment}",  # noqa: EM102
-        )  # noqa: RUF100
+        msg = f"environment not yet implemented: {environment}"
+        raise ValueError(msg)
     else:
         concentration_correction = -change_reference_state(
             temperature=temperature,
             pressure=pressure,
         )
         logger.debug(
-            f"concentration correction = {concentration_correction} J/mol·K",  # noqa: E501, G004
+            f"concentration correction = {concentration_correction} J/mol·K",
         )
         entropy = entropy + concentration_correction
         if method == "standard":
@@ -447,23 +442,23 @@ def calc_entropy(  # noqa: PLR0913
             assert atomcoords is not None, "atomcoords must be provided"
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
-            entropy = entropy + rx.thermo._solv.calc_cav_entropy(  # noqa: SLF001
+            entropy = entropy + rx.thermo._solv.calc_cav_entropy(
                 atomnos=atomnos,
                 atomcoords=atomcoords,
                 environment=environment,
                 temperature=temperature,
                 pressure=pressure,
             )  # TODO(schneiderfelipe): check extra options for calc_cav_entropy.
-    logger.info(f"entropy = {entropy} J/mol·K")  # noqa: G004
+    logger.info(f"entropy = {entropy} J/mol·K")
     return entropy
 
 
-def calc_heat_capacity(  # noqa: PLR0913
+def calc_heat_capacity(
     energy=0.0,
     degeneracy=1,
     moments=None,
     vibfreqs=None,
-    qrrho=True,  # noqa: FBT002
+    qrrho=True,
     temperature=298.15,
     dx=3e-5,
     order=3,
@@ -519,7 +514,7 @@ def calc_heat_capacity(  # noqa: PLR0913
     ...     degeneracy=degeneracy)  # F
     14.43
 
-    """  # noqa: E501
+    """
 
     def func(temperature):
         return calc_internal_energy(
@@ -532,7 +527,7 @@ def calc_heat_capacity(  # noqa: PLR0913
         )
 
     heat_capacity = derivative(func, x0=temperature, dx=dx, n=1, order=order)
-    logger.info(f"heat capacity = {heat_capacity} J/mol·K")  # noqa: G004
+    logger.info(f"heat capacity = {heat_capacity} J/mol·K")
     return heat_capacity
 
 
@@ -573,7 +568,7 @@ def get_molecularity(transform):
     return np.where(res > 0, res, 1)
 
 
-def get_delta(transform, property):  # noqa: A002
+def get_delta(transform, property):
     """Calculate deltas according to reactions.
 
     Delta properties are differences in a property between the final and
@@ -617,11 +612,11 @@ def get_delta(transform, property):  # noqa: A002
 
 
 def equilibrium_constant(
-    delta_freeenergy: Union[float, np.ndarray],  # noqa: UP007
-    delta_moles: Optional[Union[int, np.ndarray]] = None,  # noqa: UP007
-    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
+    delta_freeenergy: float | np.ndarray,
+    delta_moles: int | np.ndarray | None = None,
+    temperature: float | np.ndarray = 298.15,
     pressure: float = constants.atm,
-    volume: Optional[float] = None,  # noqa: UP007
+    volume: float | None = None,
 ):
     r"""Calculate an equilibrium constant from a reaction [Gibbs free energy](https://en.wikipedia.org/wiki/Gibbs_free_energy).
 
@@ -756,17 +751,17 @@ def equilibrium_constant(
 
         equilibrium_constant *= volume**delta_moles
 
-    logger.info(f"equilibrium constant = {equilibrium_constant}")  # noqa: G004
+    logger.info(f"equilibrium constant = {equilibrium_constant}")
     return equilibrium_constant
 
 
-def change_reference_state(  # noqa: PLR0913
+def change_reference_state(
     new_reference: float = 1.0 / constants.liter,
-    old_reference: Optional[float] = None,  # noqa: UP007
+    old_reference: float | None = None,
     sign: int = 1,
-    temperature: Union[float, np.ndarray] = 298.15,  # noqa: UP007
+    temperature: float | np.ndarray = 298.15,
     pressure: float = constants.atm,
-    volume: Optional[float] = None,  # noqa: UP007
+    volume: float | None = None,
 ):
     r"""Calculate an additive entropy correction to a change in reference states.
 
@@ -846,8 +841,7 @@ def change_reference_state(  # noqa: PLR0913
             volume = molar_volume(temperature=temperature, pressure=pressure)
         old_reference = 1.0 / volume
 
-    res = sign * constants.R * np.log(new_reference / old_reference)
-    return res  # noqa: RET504
+    return sign * constants.R * np.log(new_reference / old_reference)
 
 
 # TODO(schneiderfelipe): we need a concrete example of this for testing.

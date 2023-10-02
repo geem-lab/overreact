@@ -1,6 +1,7 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Tests for module coords."""
+
+
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -10,26 +11,26 @@ from overreact import coords
 
 
 # TODO(schneiderfelipe): add one extra atom
-def test_can_understand_K_symmetry():  # noqa: N802
+def test_can_understand_k_symmetry() -> None:
     """Ensure values match regression logfiles for K symmetry."""
     data = datasets.logfiles["tanaka1996"]["Cl·@UMP2/6-311G(2df,2pd)"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([0.0, 0.0, 0.0])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 1
     assert len(groups[0]) == 1
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("spheric", "atomic")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -37,7 +38,7 @@ def test_can_understand_K_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -45,36 +46,36 @@ def test_can_understand_K_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "K"
     assert coords.symmetry_number(point_group) == 1
 
 
-def test_can_understand_C1_symmetry():  # noqa: N802
+def test_can_understand_c1_symmetry() -> None:
     """Ensure values match regression logfiles for C1 symmetry."""
     data = datasets.logfiles["symmetries"]["chlorobromofluoromethane"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([81.70347257, 264.62028172, 335.60557643])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 5  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 5
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
     assert len(groups[2]) == 1
     assert len(groups[3]) == 1
     assert len(groups[4]) == 1
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -82,7 +83,7 @@ def test_can_understand_C1_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -90,34 +91,34 @@ def test_can_understand_C1_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C1"
     assert coords.symmetry_number(point_group) == 1
 
 
-def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_cs_symmetry() -> None:
     """Ensure values match regression logfiles for Cs symmetry."""
     data = datasets.logfiles["symmetries"]["NHF2"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([9.58233074, 49.04289888, 56.82386749])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[2]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -125,7 +126,7 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -133,9 +134,9 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 1
-    assert mirror_axes[0][0] == ""  # noqa: PLC1901
+    assert mirror_axes[0][0] == ""
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Cs"
     assert coords.symmetry_number(point_group) == 1
@@ -144,22 +145,22 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([17.61945078, 253.37069181, 267.61052366])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 4  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 4
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
     assert len(groups[2]) == 1
-    assert len(groups[3]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[3]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -167,7 +168,7 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -175,8 +176,8 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 1
-    assert mirror_axes[0][0] == ""  # noqa: PLC1901
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert mirror_axes[0][0] == ""
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Cs"
     assert coords.symmetry_number(point_group) == 1
@@ -186,22 +187,22 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
     assert moments == pytest.approx([18.69862033, 334.44171615, 349.75324294])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 4  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 4
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
     assert len(groups[2]) == 1
-    assert len(groups[3]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[3]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -209,7 +210,7 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -217,36 +218,36 @@ def test_can_understand_Cs_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 1
-    assert mirror_axes[0][0] == ""  # noqa: PLC1901
+    assert mirror_axes[0][0] == ""
     assert mirror_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Cs"
     assert coords.symmetry_number(point_group) == 1
 
 
-def test_can_understand_Ci_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_ci_symmetry() -> None:
     """Ensure values match regression logfiles for Ci symmetry."""
     data = datasets.logfiles["symmetries"]["1,2-dichloro-1,2-difluoroethane"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([130.04075032, 358.98131538, 473.66138286])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 4  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    assert len(groups[3]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 4
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    assert len(groups[3]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -254,7 +255,7 @@ def test_can_understand_Ci_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -262,7 +263,7 @@ def test_can_understand_Ci_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Ci"
     assert coords.symmetry_number(point_group) == 1
@@ -272,26 +273,26 @@ def test_can_understand_Ci_symmetry():  # noqa: N802, PLR0915
     assert moments == pytest.approx([213.53202466, 543.08552098, 732.14870909])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 8  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    assert len(groups[3]) == 2  # noqa: PLR2004
-    assert len(groups[4]) == 2  # noqa: PLR2004
-    assert len(groups[5]) == 2  # noqa: PLR2004
-    assert len(groups[6]) == 2  # noqa: PLR2004
-    assert len(groups[7]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 8
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    assert len(groups[3]) == 2
+    assert len(groups[4]) == 2
+    assert len(groups[5]) == 2
+    assert len(groups[6]) == 2
+    assert len(groups[7]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -299,7 +300,7 @@ def test_can_understand_Ci_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -307,33 +308,33 @@ def test_can_understand_Ci_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Ci"
     assert coords.symmetry_number(point_group) == 1
 
 
-def test_can_understand_Cinfv_symmetry():  # noqa: N802
+def test_can_understand_cinfv_symmetry() -> None:
     """Ensure values match regression logfiles for C∞v symmetry."""
     data = datasets.logfiles["tanaka1996"]["HCl@UMP2/6-311G(2df,2pd)"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([0.0, 1.58676025, 1.58676025], 5e-3)
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "linear")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -341,7 +342,7 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -349,7 +350,7 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C∞v"
     assert coords.symmetry_number(point_group) == 1
@@ -358,21 +359,21 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([1.17654558e-8, 8.53818341e1, 8.53818341e1])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
     assert len(groups[2]) == 1
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "linear")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 0
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -380,7 +381,7 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -388,13 +389,13 @@ def test_can_understand_Cinfv_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C∞v"
     assert coords.symmetry_number(point_group) == 1
 
 
-def test_can_understand_Dinfh_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_dinfh_symmetry() -> None:
     """Ensure values match regression logfiles for D∞h symmetry."""
     data = datasets.logfiles["symmetries"]["dihydrogen"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -403,20 +404,20 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802, PLR0915
     assert atomcoords == pytest.approx(
         np.array([[3.83307188e-1, 0.0, 0.0], [-3.83307188e-1, 0.0, 0.0]]),
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 1
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[0]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "linear")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    assert proper_axes[0][0] == 2
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -424,9 +425,9 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
+    assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -435,31 +436,31 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802, PLR0915
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D∞h"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["carbon-dioxide"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([8.94742236e-8, 4.44644189e1, 4.44644190e1])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "linear")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -467,9 +468,9 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
+    assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -479,33 +480,33 @@ def test_can_understand_Dinfh_symmetry():  # noqa: N802, PLR0915
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D∞h"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
 
-def test_can_understand_C2_symmetry():  # noqa: N802
+def test_can_understand_c2_symmetry() -> None:
     """Ensure values match regression logfiles for C2 symmetry."""
     data = datasets.logfiles["symmetries"]["hydrogen-peroxide"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([1.74210646, 19.61466369, 20.420849])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    assert proper_axes[0][0] == 2
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -513,7 +514,7 @@ def test_can_understand_C2_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -521,34 +522,34 @@ def test_can_understand_C2_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["hydrazine"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([3.48031691, 20.67234093, 20.67777505])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx(
         [-6.265379700455943e-5, 0.0388451244158036, -0.9992452413615102],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -556,7 +557,7 @@ def test_can_understand_C2_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -564,36 +565,36 @@ def test_can_understand_C2_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
 
-def test_can_understand_C3_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_c3_symmetry() -> None:
     """Ensure values match regression logfiles for C3 symmetry."""
     data = datasets.logfiles["symmetries"]["H3PO4"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([117.15458225, 119.69622329, 119.71729381])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 4  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 4
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
-    assert len(groups[2]) == 3  # noqa: PLR2004
-    assert len(groups[3]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[2]) == 3
+    assert len(groups[3]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
+    assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -601,7 +602,7 @@ def test_can_understand_C3_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -609,10 +610,10 @@ def test_can_understand_C3_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C3"
-    assert coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 3
 
     data = datasets.logfiles["symmetries"]["triphenylphosphine"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -627,32 +628,32 @@ def test_can_understand_C3_symmetry():  # noqa: N802, PLR0915
             ],
         ),
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 12  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 12
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 3  # noqa: PLR2004
-    assert len(groups[3]) == 3  # noqa: PLR2004
-    assert len(groups[3]) == 3  # noqa: PLR2004
-    assert len(groups[4]) == 3  # noqa: PLR2004
-    assert len(groups[5]) == 3  # noqa: PLR2004
-    assert len(groups[6]) == 3  # noqa: PLR2004
-    assert len(groups[7]) == 3  # noqa: PLR2004
-    assert len(groups[8]) == 3  # noqa: PLR2004
-    assert len(groups[9]) == 3  # noqa: PLR2004
-    assert len(groups[10]) == 3  # noqa: PLR2004
-    assert len(groups[11]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 3
+    assert len(groups[3]) == 3
+    assert len(groups[3]) == 3
+    assert len(groups[4]) == 3
+    assert len(groups[5]) == 3
+    assert len(groups[6]) == 3
+    assert len(groups[7]) == 3
+    assert len(groups[8]) == 3
+    assert len(groups[9]) == 3
+    assert len(groups[10]) == 3
+    assert len(groups[11]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
+    assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -660,7 +661,7 @@ def test_can_understand_C3_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -668,34 +669,34 @@ def test_can_understand_C3_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C3"
-    assert coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 3
 
 
-def test_can_understand_C2h_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_c2h_symmetry() -> None:
     """Ensure values match regression logfiles for C2h symmetry."""
     data = datasets.logfiles["symmetries"]["trans-1,2-dichloroethylene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([9.8190931, 342.02181465, 351.84090775])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    assert proper_axes[0][0] == 2
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -703,9 +704,9 @@ def test_can_understand_C2h_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 2  # noqa: PLR2004
+    assert improper_axes[0][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -714,10 +715,10 @@ def test_can_understand_C2h_symmetry():  # noqa: N802, PLR0915
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2h"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["transplatin"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -726,24 +727,24 @@ def test_can_understand_C2h_symmetry():  # noqa: N802, PLR0915
     assert axes == pytest.approx(
         np.array([[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]),
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 4  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 4
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    assert len(groups[3]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    assert len(groups[3]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, -1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -751,9 +752,9 @@ def test_can_understand_C2h_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 2  # noqa: PLR2004
+    assert improper_axes[0][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -763,39 +764,39 @@ def test_can_understand_C2h_symmetry():  # noqa: N802, PLR0915
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[0][1] == pytest.approx([0.0, 0.0, -1.0])
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     # TODO(schneiderfelipe): people say this should be D2h, but it is
     # impossible if we consider hydrogen atoms: add an option to
     # find_point_group that ignores hydrogen atoms.
     assert point_group == "C2h"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
 
-def test_can_understand_C3h_symmetry():  # noqa: N802
+def test_can_understand_c3h_symmetry() -> None:
     """Ensure values match regression logfiles for C3h symmetry."""
     data = datasets.logfiles["symmetries"]["boric-acid"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([52.01309348, 52.01530317, 104.02839606])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3), abs=1e-6)
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 3  # noqa: PLR2004
-    assert len(groups[2]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 3
+    assert len(groups[2]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
+    assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -803,9 +804,9 @@ def test_can_understand_C3h_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 3  # noqa: PLR2004
+    assert improper_axes[0][0] == 3
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -815,35 +816,35 @@ def test_can_understand_C3h_symmetry():  # noqa: N802
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C3h"
-    assert coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 3
 
 
-def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_c2v_symmetry() -> None:
     """Ensure values match regression logfiles for C2v symmetry."""
     data = datasets.logfiles["symmetries"]["water"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([0.6768072475, 1.1582103375, 1.835017585])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -851,45 +852,45 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert mirror_axes[1][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2v"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["SF4"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([81.52806583, 133.34202281, 167.8488049])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -897,49 +898,49 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert mirror_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2v"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["cyclohexane-boat"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([119.38090371, 123.2008681, 206.20634797])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 5  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 4  # noqa: PLR2004
-    assert len(groups[3]) == 4  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 5
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 4
+    assert len(groups[3]) == 4
     # TODO(schneiderfelipe): I believe the following group should be split into
     # two groups, one of 2 atoms and one of 4 atoms:
-    assert len(groups[4]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[4]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -947,14 +948,14 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx(
@@ -963,35 +964,35 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[1][1] == pytest.approx(
         [-0.999999999999952, 3.098747565480977e-7, 3.719778376187453e-9],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2v"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["cisplatin"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([231.33596051, 300.06695463, 525.9371719])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 5  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 5
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    assert len(groups[3]) == 2  # noqa: PLR2004
-    assert len(groups[4]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    assert len(groups[3]) == 2
+    assert len(groups[4]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -999,48 +1000,48 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert mirror_axes[1][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2v"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["1,2-dichlorobenzene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([266.78313761, 355.80034163, 622.58347924])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 6  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    assert len(groups[3]) == 2  # noqa: PLR2004
-    assert len(groups[4]) == 2  # noqa: PLR2004
-    assert len(groups[5]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 6
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    assert len(groups[3]) == 2
+    assert len(groups[4]) == 2
+    assert len(groups[5]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1048,53 +1049,53 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
     assert mirror_axes[1][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2v"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["1,3-dichlorobenzene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([179.02244122, 596.70030705, 775.72274827])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 5  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 5
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
+    assert len(groups[1]) == 2
     # TODO(schneiderfelipe): I believe the following should be two groups, one
     # of two atoms, one of one atom each
-    assert len(groups[2]) == 3  # noqa: PLR2004
+    assert len(groups[2]) == 3
     # TODO(schneiderfelipe): I believe the following should be two groups, one
     # of two atoms, one of one atom each
-    assert len(groups[3]) == 3  # noqa: PLR2004
+    assert len(groups[3]) == 3
     # TODO(schneiderfelipe): I believe the following should be two groups, one
     # of two atoms, one of one atom each
-    assert len(groups[4]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[4]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1102,50 +1103,50 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert mirror_axes[1][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2v"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["tetracarbonyldicloro-OsII"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([785.21973892, 809.59902436, 817.20306192])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 6  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 6
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    assert len(groups[3]) == 2  # noqa: PLR2004
-    assert len(groups[4]) == 2  # noqa: PLR2004
-    assert len(groups[5]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    assert len(groups[3]) == 2
+    assert len(groups[4]) == 2
+    assert len(groups[5]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx(
         [0.001877205661635017, 0.011104681211935762, 0.9999365790659351],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1153,48 +1154,48 @@ def test_can_understand_C2v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert mirror_axes[1][1] == pytest.approx(
         [-0.009273225981885458, 0.9999054852612625, -0.010150262278787719],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C2v"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
 
-def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_c3v_symmetry() -> None:
     """Ensure values match regression logfiles for C3v symmetry."""
     data = datasets.logfiles["symmetries"]["ammonia"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([1.70511527, 1.70683927, 2.6588982])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
+    assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1202,14 +1203,14 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -1222,10 +1223,10 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[2][1] == pytest.approx(
         [0.08831067425523016, 0.9960929548201968, -0.00022398695457168588],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C3v"
-    assert coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 3
 
     data = datasets.logfiles["symmetries"]["trichloromethane"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -1241,23 +1242,23 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
-    assert len(groups[2]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[2]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
+    assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1265,14 +1266,14 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -1285,31 +1286,31 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[2][1] == pytest.approx(
         [-0.6664703153892539, 0.745531567878424, 1.298894105965732e-6],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C3v"
-    assert coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 3
 
     data = datasets.logfiles["symmetries"]["phosphorous-oxychloride"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([269.55650843, 269.5984722, 366.72364626])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
-    assert len(groups[2]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[2]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    assert proper_axes[0][0] == 3
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1317,14 +1318,14 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -1337,39 +1338,39 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[2][1] == pytest.approx(
         [-0.4301018285979955, -0.902780371800905, 0.00013163464672069048],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C3v"
-    assert coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 3
 
     data = datasets.logfiles["symmetries"]["benzenetricarbonylchromium"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([532.79651409, 683.7802014, 684.19947951])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 5  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 5
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 3  # noqa: PLR2004
-    assert len(groups[2]) == 3  # noqa: PLR2004
+    assert len(groups[1]) == 3
+    assert len(groups[2]) == 3
     # TODO(schneiderfelipe): I believe the following should be split into two
     # groups of three each
-    assert len(groups[3]) == 6  # noqa: PLR2004
+    assert len(groups[3]) == 6
     # TODO(schneiderfelipe): I believe the following should be split into two
     # groups of three each
-    assert len(groups[4]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[4]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
+    assert proper_axes[0][0] == 3
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1377,14 +1378,14 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -1397,36 +1398,36 @@ def test_can_understand_C3v_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[2][1] == pytest.approx(
         [0.00035562884006787933, -0.9888277564519781, 0.14906220714277532],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C3v"
-    assert coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 3
 
 
-def test_can_understand_C4v_symmetry():  # noqa: N802
+def test_can_understand_c4v_symmetry() -> None:
     """Ensure values match regression logfiles for C4v symmetry."""
     data = datasets.logfiles["symmetries"]["OF4Xe"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([198.56886522, 198.66454795, 298.68512748])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
-    assert len(groups[2]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[2]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 4  # noqa: PLR2004
+    assert proper_axes[0][0] == 4
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1434,49 +1435,49 @@ def test_can_understand_C4v_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 4  # noqa: PLR2004
+    assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
     assert mirror_axes[3][0] == "v"
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C4v"
-    assert coords.symmetry_number(point_group) == 4  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 4
 
 
-def test_can_understand_C5v_symmetry():  # noqa: N802
+def test_can_understand_c5v_symmetry() -> None:
     """Ensure values match regression logfiles for C5v symmetry."""
     data = datasets.logfiles["symmetries"]["corannulene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([1010.15093506, 1010.21973269, 1945.45456697])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 4  # noqa: PLR2004
-    assert len(groups[0]) == 5  # noqa: PLR2004
-    assert len(groups[1]) == 5  # noqa: PLR2004
-    assert len(groups[2]) == 10  # noqa: PLR2004
-    assert len(groups[3]) == 10  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 4
+    assert len(groups[0]) == 5
+    assert len(groups[1]) == 5
+    assert len(groups[2]) == 10
+    assert len(groups[3]) == 10
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 5  # noqa: PLR2004
+    assert proper_axes[0][0] == 5
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1484,14 +1485,14 @@ def test_can_understand_C5v_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 5  # noqa: PLR2004
+    assert len(mirror_axes) == 5
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -1512,44 +1513,44 @@ def test_can_understand_C5v_symmetry():  # noqa: N802
     assert mirror_axes[4][1] == pytest.approx(
         [-0.058396984482266025, 0.9982934340845996, 0.000108013679569529],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "C5v"
-    assert coords.symmetry_number(point_group) == 5  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 5
 
 
-def test_can_understand_D2_symmetry():  # noqa: N802
+def test_can_understand_d2_symmetry() -> None:
     """Ensure values match regression logfiles for D2 symmetry."""
     data = datasets.logfiles["symmetries"]["biphenyl"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([180.57613675, 942.28140722, 1083.10838697])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 7  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    assert len(groups[3]) == 4  # noqa: PLR2004
-    assert len(groups[4]) == 4  # noqa: PLR2004
-    assert len(groups[5]) == 4  # noqa: PLR2004
-    assert len(groups[6]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 7
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    assert len(groups[3]) == 4
+    assert len(groups[4]) == 4
+    assert len(groups[5]) == 4
+    assert len(groups[6]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 3  # noqa: PLR2004
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 3
+    assert proper_axes[0][0] == 2
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
     assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1557,7 +1558,7 @@ def test_can_understand_D2_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -1565,40 +1566,40 @@ def test_can_understand_D2_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2"
-    assert coords.symmetry_number(point_group) == 4  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 4
 
 
-def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d3_symmetry() -> None:
     """Ensure values match regression logfiles for D3 symmetry."""
     data = datasets.logfiles["symmetries"]["tris-ethylenediamine-RuII"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([716.90346743, 716.9163632, 1112.40527375])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 7  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 7
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 6  # noqa: PLR2004
-    assert len(groups[2]) == 6  # noqa: PLR2004
-    assert len(groups[3]) == 6  # noqa: PLR2004
-    assert len(groups[4]) == 6  # noqa: PLR2004
-    assert len(groups[5]) == 6  # noqa: PLR2004
-    assert len(groups[6]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 6
+    assert len(groups[2]) == 6
+    assert len(groups[3]) == 6
+    assert len(groups[4]) == 6
+    assert len(groups[5]) == 6
+    assert len(groups[6]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 4  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 4
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
     assert proper_axes[1][1] == pytest.approx(
         [-0.007801928433068849, 0.999969564493194, -1.3114109559063874e-7],
     )
@@ -1608,7 +1609,7 @@ def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[3][1] == pytest.approx(
         [-0.8695351060281812, 0.49387058756810087, 0.0007362877823667492],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1616,7 +1617,7 @@ def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -1624,38 +1625,38 @@ def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D3"
-    assert coords.symmetry_number(point_group) == 6  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 6
 
     data = datasets.logfiles["symmetries"]["tris-ethylenediamine-CoIII"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([661.90920375, 662.85444032, 1018.71597285])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 7  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 7
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 6  # noqa: PLR2004
-    assert len(groups[2]) == 6  # noqa: PLR2004
-    assert len(groups[3]) == 6  # noqa: PLR2004
-    assert len(groups[4]) == 6  # noqa: PLR2004
-    assert len(groups[5]) == 6  # noqa: PLR2004
-    assert len(groups[6]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 6
+    assert len(groups[2]) == 6
+    assert len(groups[3]) == 6
+    assert len(groups[4]) == 6
+    assert len(groups[5]) == 6
+    assert len(groups[6]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 4  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 4
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[1][1] == pytest.approx(
         [-8.396686394741882e-5, 0.9999999964747823, -3.439237791100686e-8],
@@ -1666,7 +1667,7 @@ def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[3][1] == pytest.approx(
         [-0.8668052702358067, -0.49864677853044065, 0.00011727166713889237],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1674,7 +1675,7 @@ def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -1682,13 +1683,13 @@ def test_can_understand_D3_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D3"
-    assert coords.symmetry_number(point_group) == 6  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 6
 
 
-def test_can_understand_D5_symmetry():  # noqa: N802
+def test_can_understand_d5_symmetry() -> None:
     """Ensure values match regression logfiles for D5 symmetry."""
     data = datasets.logfiles["symmetries"]["ferrocene-twisted"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -1704,26 +1705,26 @@ def test_can_understand_D5_symmetry():  # noqa: N802
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 10  # noqa: PLR2004
-    assert len(groups[2]) == 10  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 10
+    assert len(groups[2]) == 10
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 6  # noqa: PLR2004
-    assert proper_axes[0][0] == 5  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 6
+    assert proper_axes[0][0] == 5
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx(
         [0.0, 0.309016595317643, 0.9510566459566391],
@@ -1738,7 +1739,7 @@ def test_can_understand_D5_symmetry():  # noqa: N802
     assert proper_axes[5][1] == pytest.approx(
         [0.0, 0.8090168500740541, -0.5877854509055626],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -1746,7 +1747,7 @@ def test_can_understand_D5_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 0
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -1754,240 +1755,240 @@ def test_can_understand_D5_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D5"
-    assert coords.symmetry_number(point_group) == 10  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 10
 
 
-def test_can_understand_D2h_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d2h_symmetry() -> None:
     """Ensure values match regression logfiles for D2h symmetry."""
     data = datasets.logfiles["symmetries"]["ethylene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([3.56497952, 17.24901988, 20.8139994])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 3  # noqa: PLR2004
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 3
+    assert proper_axes[0][0] == 2
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 3  # noqa: PLR2004
-    assert improper_axes[0][0] == 2  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 3
+    assert improper_axes[0][0] == 2
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "h"
     assert mirror_axes[2][0] == "h"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2h"
-    assert coords.symmetry_number(point_group) == 4  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 4
 
     data = datasets.logfiles["symmetries"]["diborane"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([6.26383693, 26.96388268, 29.40025824])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 3  # noqa: PLR2004
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 3
+    assert proper_axes[0][0] == 2
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 3  # noqa: PLR2004
-    assert improper_axes[0][0] == 2  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 3
+    assert improper_axes[0][0] == 2
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "h"
     assert mirror_axes[2][0] == "h"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2h"
-    assert coords.symmetry_number(point_group) == 4  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 4
 
     data = datasets.logfiles["symmetries"]["1,4-dichlorobenzene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([88.31658644, 769.01913704, 857.3357217])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 4  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 4
     # TODO(schneiderfelipe): I believe this group below should optimally split
     # into 2 groups of 2 and 4 atoms each
-    assert len(groups[2]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[2]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 3  # noqa: PLR2004
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 3
+    assert proper_axes[0][0] == 2
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
     assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 3  # noqa: PLR2004
-    assert improper_axes[0][0] == 2  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 3
+    assert improper_axes[0][0] == 2
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "h"
     assert mirror_axes[2][0] == "h"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert mirror_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
     assert mirror_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2h"
-    assert coords.symmetry_number(point_group) == 4  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 4
 
     data = datasets.logfiles["symmetries"]["Mn2F6"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([182.07906581, 784.89021644, 966.96922024])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "irregular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 3  # noqa: PLR2004
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 3
+    assert proper_axes[0][0] == 2
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
     assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 3  # noqa: PLR2004
-    assert improper_axes[0][0] == 2  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 3
+    assert improper_axes[0][0] == 2
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "h"
     assert mirror_axes[2][0] == "h"
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert mirror_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
     assert mirror_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2h"
-    assert coords.symmetry_number(point_group) == 4  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 4
 
 
-def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d3h_symmetry() -> None:
     """Ensure values match regression logfiles for D3h symmetry."""
     data = datasets.logfiles["ethane"]["eclipsed@B97-3c"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -2003,23 +2004,23 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 4  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 4
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx(
         [7.684797155608644e-5, -0.3613920169943295, 0.932413966083284],
@@ -2030,7 +2031,7 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[3][1] == pytest.approx(
         [-5.13760417702473e-5, 0.988178974905995, -0.15330463435343078],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -2038,16 +2039,16 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 3  # noqa: PLR2004
+    assert improper_axes[0][0] == 3
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 4  # noqa: PLR2004
+    assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2062,32 +2063,32 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[3][1] == pytest.approx(
         [-8.738720232596221e-5, 0.9318966227508982, 0.36272396787219213],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D3h"
-    assert coords.symmetry_number(point_group) == 6  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 6
 
     data = datasets.logfiles["symmetries"]["BF3"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([50.77255975, 50.7862414, 101.55880103])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 4  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 4
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
     assert proper_axes[1][1] == pytest.approx(
         [0.786485610329844, -0.6176086014998113, 9.876227954894027e-6],
     )
@@ -2097,7 +2098,7 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[3][1] == pytest.approx(
         [-0.9281566611554543, -0.37218975302286383, 9.876181775103538e-6],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -2105,16 +2106,16 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 3  # noqa: PLR2004
+    assert improper_axes[0][0] == 3
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 4  # noqa: PLR2004
+    assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2128,35 +2129,35 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[3][1] == pytest.approx(
         [-0.9899127272168826, 0.14167848281949386, 1.4813107352227758e-10],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D3h"
-    assert coords.symmetry_number(point_group) == 6  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 6
 
     data = datasets.logfiles["symmetries"]["PCl5"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([452.37354879, 558.48639882, 558.6442966])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 4  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 4
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -2164,16 +2165,16 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 3  # noqa: PLR2004
+    assert improper_axes[0][0] == 3
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 4  # noqa: PLR2004
+    assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2181,96 +2182,96 @@ def test_can_understand_D3h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D3h"
-    assert coords.symmetry_number(point_group) == 6  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 6
 
 
-def test_can_understand_D4h_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d4h_symmetry() -> None:
     """Ensure values match regression logfiles for D4h symmetry."""
     data = datasets.logfiles["symmetries"]["XeF4"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([153.07544899, 153.15479772, 306.23024671])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 5  # noqa: PLR2004
-    assert proper_axes[0][0] == 4  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 5
+    assert proper_axes[0][0] == 4
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 5  # noqa: PLR2004
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
-    assert improper_axes[3][0] == 2  # noqa: PLR2004
-    assert improper_axes[4][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 5
+    assert improper_axes[0][0] == 4
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
+    assert improper_axes[3][0] == 2
+    assert improper_axes[4][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     assert improper_axes[3][1] == proper_axes[3][1]
     assert improper_axes[4][1] == proper_axes[4][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 5  # noqa: PLR2004
+    assert len(mirror_axes) == 5
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
     assert mirror_axes[3][0] == "v"
     assert mirror_axes[4][0] == "v"
     assert mirror_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D4h"
-    assert coords.symmetry_number(point_group) == 8  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 8
 
     data = datasets.logfiles["symmetries"]["tetracarbonylnickel"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([385.29998789, 385.47071543, 770.77067351])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3), abs=1e-6)
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 4  # noqa: PLR2004
-    assert len(groups[2]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 4
+    assert len(groups[2]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 5  # noqa: PLR2004
-    assert proper_axes[0][0] == 4  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 5
+    assert proper_axes[0][0] == 4
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[1][1] == pytest.approx(
         [0.999999985120203, -0.00017250910677172902, -4.4908920788199634e-7],
@@ -2284,32 +2285,32 @@ def test_can_understand_D4h_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[4][1] == pytest.approx(
         [-0.000153000029355287, -0.9999999882933196, -2.0860089700576687e-6],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 5  # noqa: PLR2004
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
-    assert improper_axes[3][0] == 2  # noqa: PLR2004
-    assert improper_axes[4][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 5
+    assert improper_axes[0][0] == 4
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
+    assert improper_axes[3][0] == 2
+    assert improper_axes[4][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     assert improper_axes[3][1] == proper_axes[3][1]
     assert improper_axes[4][1] == proper_axes[4][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 5  # noqa: PLR2004
+    assert len(mirror_axes) == 5
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2328,13 +2329,13 @@ def test_can_understand_D4h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[4][1] == pytest.approx(
         [0.0003752463460537577, 0.9999999166821465, 0.00016070432460672592],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D4h"
-    assert coords.symmetry_number(point_group) == 8  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 8
 
 
-def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d5h_symmetry() -> None:
     """Ensure values match regression logfiles for D5h symmetry."""
     data = datasets.logfiles["symmetries"]["cyclopentadienyl-"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -2350,27 +2351,27 @@ def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 5  # noqa: PLR2004
-    assert len(groups[1]) == 5  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 5
+    assert len(groups[1]) == 5
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 6  # noqa: PLR2004
-    assert proper_axes[0][0] == 5  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 6
+    assert proper_axes[0][0] == 5
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -2378,16 +2379,16 @@ def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 5  # noqa: PLR2004
+    assert improper_axes[0][0] == 5
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 6  # noqa: PLR2004
+    assert len(mirror_axes) == 6
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2395,35 +2396,35 @@ def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[4][0] == "v"
     assert mirror_axes[5][0] == "v"
     assert mirror_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D5h"
-    assert coords.symmetry_number(point_group) == 10  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 10
 
     data = datasets.logfiles["symmetries"]["ferrocene-eclipsed"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([228.8186135, 480.633784, 480.63796274])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 10  # noqa: PLR2004
-    assert len(groups[2]) == 10  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 10
+    assert len(groups[2]) == 10
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 6  # noqa: PLR2004
-    assert proper_axes[0][0] == 5  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 6
+    assert proper_axes[0][0] == 5
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[2][1] == pytest.approx(
@@ -2438,7 +2439,7 @@ def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[5][1] == pytest.approx(
         [-0.00026868634145792505, 0.5877676345338332, 0.8090297495161426],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -2446,16 +2447,16 @@ def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 5  # noqa: PLR2004
+    assert improper_axes[0][0] == 5
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 6  # noqa: PLR2004
+    assert len(mirror_axes) == 6
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2476,38 +2477,38 @@ def test_can_understand_D5h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[5][1] == pytest.approx(
         [-0.00014127095221938595, 0.30903875859031504, -0.9510494339052388],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D5h"
-    assert coords.symmetry_number(point_group) == 10  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 10
 
 
-def test_can_understand_D6h_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d6h_symmetry() -> None:
     """Ensure values match regression logfiles for D6h symmetry."""
     data = datasets.logfiles["symmetries"]["benzene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([90.78768809, 90.79030869, 181.57799671])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 6  # noqa: PLR2004
-    assert len(groups[1]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 6
+    assert len(groups[1]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 7  # noqa: PLR2004
-    assert proper_axes[0][0] == 6  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
-    assert proper_axes[6][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 7
+    assert proper_axes[0][0] == 6
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
+    assert proper_axes[6][0] == 2
     assert proper_axes[1][1] == pytest.approx(
         [0.9815106205020463, -0.19140768362000038, 2.2201659599405544e-5],
     )
@@ -2526,21 +2527,21 @@ def test_can_understand_D6h_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[6][1] == pytest.approx(
         [-0.19146486729407206, -0.9814994674434222, 5.848736671162612e-7],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 7  # noqa: PLR2004
-    assert improper_axes[0][0] == 6  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
-    assert improper_axes[3][0] == 2  # noqa: PLR2004
-    assert improper_axes[4][0] == 2  # noqa: PLR2004
-    assert improper_axes[5][0] == 2  # noqa: PLR2004
-    assert improper_axes[6][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 7
+    assert improper_axes[0][0] == 6
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
+    assert improper_axes[3][0] == 2
+    assert improper_axes[4][0] == 2
+    assert improper_axes[5][0] == 2
+    assert improper_axes[6][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
@@ -2548,14 +2549,14 @@ def test_can_understand_D6h_symmetry():  # noqa: N802, PLR0915
     assert improper_axes[4][1] == proper_axes[4][1]
     assert improper_axes[5][1] == proper_axes[5][1]
     assert improper_axes[6][1] == proper_axes[6][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 7  # noqa: PLR2004
+    assert len(mirror_axes) == 7
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2581,40 +2582,40 @@ def test_can_understand_D6h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[6][1] == pytest.approx(
         [-0.32494344338723713, 0.9457334477707772, -6.6085126787184e-5],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D6h"
-    assert coords.symmetry_number(point_group) == 12  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 12
 
 
-def test_can_understand_D7h_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d7h_symmetry() -> None:
     """Ensure values match regression logfiles for D7h symmetry."""
     data = datasets.logfiles["symmetries"]["C7H7+"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([137.6924278, 137.70343972, 275.39586735])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 7  # noqa: PLR2004
-    assert len(groups[1]) == 7  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 7
+    assert len(groups[1]) == 7
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 8  # noqa: PLR2004
-    assert proper_axes[0][0] == 7  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
-    assert proper_axes[6][0] == 2  # noqa: PLR2004
-    assert proper_axes[7][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 8
+    assert proper_axes[0][0] == 7
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
+    assert proper_axes[6][0] == 2
+    assert proper_axes[7][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[1][1] == pytest.approx(
         [0.9899264948348552, -0.14158225346562558, -1.8098975614729268e-5],
@@ -2637,7 +2638,7 @@ def test_can_understand_D7h_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[7][1] == pytest.approx(
         [-0.08224227562969463, 0.9966123646156138, 5.286325905118405e-5],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -2645,16 +2646,16 @@ def test_can_understand_D7h_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 7  # noqa: PLR2004
+    assert improper_axes[0][0] == 7
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 8  # noqa: PLR2004
+    assert len(mirror_axes) == 8
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2685,13 +2686,13 @@ def test_can_understand_D7h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[7][1] == pytest.approx(
         [-0.9336164234837634, 0.3582741547160115, 6.216038584942583e-5],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D7h"
-    assert coords.symmetry_number(point_group) == 14  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 14
 
 
-def test_can_understand_D8h_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d8h_symmetry() -> None:
     """Ensure values match regression logfiles for D8h symmetry."""
     data = datasets.logfiles["symmetries"]["C8H8-2"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -2707,28 +2708,28 @@ def test_can_understand_D8h_symmetry():  # noqa: N802, PLR0915
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 8  # noqa: PLR2004
-    assert len(groups[1]) == 8  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 8
+    assert len(groups[1]) == 8
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 9  # noqa: PLR2004
-    assert proper_axes[0][0] == 8  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
-    assert proper_axes[6][0] == 2  # noqa: PLR2004
-    assert proper_axes[7][0] == 2  # noqa: PLR2004
-    assert proper_axes[8][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 9
+    assert proper_axes[0][0] == 8
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
+    assert proper_axes[6][0] == 2
+    assert proper_axes[7][0] == 2
+    assert proper_axes[8][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[1][1] == pytest.approx(
         [0.9898081173368313, -0.1424074815286812, 7.666555040225157e-6],
@@ -2754,23 +2755,23 @@ def test_can_understand_D8h_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[8][1] == pytest.approx(
         [-0.5992048424224103, 0.8005957511766552, 3.927016327532347e-6],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 9  # noqa: PLR2004
-    assert improper_axes[0][0] == 8  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
-    assert improper_axes[3][0] == 2  # noqa: PLR2004
-    assert improper_axes[4][0] == 2  # noqa: PLR2004
-    assert improper_axes[5][0] == 2  # noqa: PLR2004
-    assert improper_axes[6][0] == 2  # noqa: PLR2004
-    assert improper_axes[7][0] == 2  # noqa: PLR2004
-    assert improper_axes[8][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 9
+    assert improper_axes[0][0] == 8
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
+    assert improper_axes[3][0] == 2
+    assert improper_axes[4][0] == 2
+    assert improper_axes[5][0] == 2
+    assert improper_axes[6][0] == 2
+    assert improper_axes[7][0] == 2
+    assert improper_axes[8][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
@@ -2780,14 +2781,14 @@ def test_can_understand_D8h_symmetry():  # noqa: N802, PLR0915
     assert improper_axes[6][1] == proper_axes[6][1]
     assert improper_axes[7][1] == proper_axes[7][1]
     assert improper_axes[8][1] == proper_axes[8][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 9  # noqa: PLR2004
+    assert len(mirror_axes) == 9
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -2822,35 +2823,35 @@ def test_can_understand_D8h_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[8][1] == pytest.approx(
         [-0.8599694047950066, 0.5103455914146812, 1.1837289236101089e-5],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D8h"
-    assert coords.symmetry_number(point_group) == 16  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 16
 
 
-def test_can_understand_D2d_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d2d_symmetry() -> None:
     """Ensure values match regression logfiles for D2d symmetry."""
     data = datasets.logfiles["symmetries"]["allene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([3.59943307, 58.28028795, 58.2804547])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 3  # noqa: PLR2004
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 3
+    assert proper_axes[0][0] == 2
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx(
         [1.0104893446543213e-5, -0.9309114503766126, -0.36524494720064615],
@@ -2858,7 +2859,7 @@ def test_can_understand_D2d_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[2][1] == pytest.approx(
         [-0.00012735231509610425, 0.365345598359124, -0.9308719447598587],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -2866,16 +2867,16 @@ def test_can_understand_D2d_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
+    assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx(
@@ -2884,33 +2885,33 @@ def test_can_understand_D2d_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[1][1] == pytest.approx(
         [-9.719161506363647e-5, 0.9165428631171116, -0.39993645823165147],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2d"
-    assert coords.symmetry_number(point_group) == 4  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 4
 
     data = datasets.logfiles["symmetries"]["cyclooctatetraene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([191.055088155, 191.055088155, 338.69081546])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 8  # noqa: PLR2004
-    assert len(groups[1]) == 8  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 8
+    assert len(groups[1]) == 8
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 3  # noqa: PLR2004
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 3
+    assert proper_axes[0][0] == 2
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
     assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -2918,16 +2919,16 @@ def test_can_understand_D2d_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
+    assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[2][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 2  # noqa: PLR2004
+    assert len(mirror_axes) == 2
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[0][1] == pytest.approx(
@@ -2936,13 +2937,13 @@ def test_can_understand_D2d_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[1][1] == pytest.approx(
         [-0.707106781007808, -0.7071067813652863, 3.143117640046285e-8],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2d"
-    assert coords.symmetry_number(point_group) == 4  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 4
 
 
-def test_can_understand_D3d_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d3d_symmetry() -> None:
     """Ensure values match regression logfiles for D3d symmetry."""
     data = datasets.logfiles["ethane"]["staggered@B97-3c"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -2958,23 +2959,23 @@ def test_can_understand_D3d_symmetry():  # noqa: N802, PLR0915
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 2  # noqa: PLR2004
-    assert len(groups[1]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 2
+    assert len(groups[1]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 4  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 4
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx(
         [5.114492593761218e-8, -0.7705968636328516, -0.6373228959948086],
@@ -2985,30 +2986,30 @@ def test_can_understand_D3d_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[3][1] == pytest.approx(
         [-0.00015396128883686421, 0.1666592192271586, -0.9860145439812312],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 4  # noqa: PLR2004
-    assert improper_axes[0][0] == 6  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
-    assert improper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 4
+    assert improper_axes[0][0] == 6
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
+    assert improper_axes[3][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     assert improper_axes[3][1] == proper_axes[3][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -3021,33 +3022,33 @@ def test_can_understand_D3d_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[2][1] == pytest.approx(
         [-0.00015439235712643497, 0.16665964180691425, -0.9860144724880011],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D3d"
-    assert coords.symmetry_number(point_group) == 6  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 6
 
     data = datasets.logfiles["symmetries"]["cyclohexane-chair"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([119.83069224, 119.84744745, 209.85483434])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
-    assert len(groups[0]) == 6  # noqa: PLR2004
-    assert len(groups[1]) == 6  # noqa: PLR2004
-    assert len(groups[2]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
+    assert len(groups[0]) == 6
+    assert len(groups[1]) == 6
+    assert len(groups[2]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 4  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 4
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[1][1] == pytest.approx(
         [0.9793333381651573, 0.20225284225808615, -2.3596930174470247e-5],
@@ -3058,30 +3059,30 @@ def test_can_understand_D3d_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[3][1] == pytest.approx(
         [0.3145021354292675, 0.9492567628633137, -7.048895828035251e-5],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 4  # noqa: PLR2004
-    assert improper_axes[0][0] == 6  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
-    assert improper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 4
+    assert improper_axes[0][0] == 6
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
+    assert improper_axes[3][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     assert improper_axes[3][1] == proper_axes[3][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 3  # noqa: PLR2004
+    assert len(mirror_axes) == 3
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -3094,35 +3095,35 @@ def test_can_understand_D3d_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[2][1] == pytest.approx(
         [-0.6648303780404605, 0.7469943548888298, -4.689135533812219e-5],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D3d"
-    assert coords.symmetry_number(point_group) == 6  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 6
 
 
-def test_can_understand_D4d_symmetry():  # noqa: N802
+def test_can_understand_d4d_symmetry() -> None:
     """Ensure values match regression logfiles for D4d symmetry."""
     data = datasets.logfiles["symmetries"]["S8"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([810.52396682, 810.88788286, 1489.78398196])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 1
-    assert len(groups[0]) == 8  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[0]) == 8
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 5  # noqa: PLR2004
-    assert proper_axes[0][0] == 4  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 5
+    assert proper_axes[0][0] == 4
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
     assert proper_axes[1][1] == pytest.approx(
         [0.963244226087016, 0.26862717752913695, -2.0068760230898394e-5],
     )
@@ -3135,7 +3136,7 @@ def test_can_understand_D4d_symmetry():  # noqa: N802
     assert proper_axes[4][1] == pytest.approx(
         [-0.49116983754349636, -0.8710638121055401, 0.00016102068144324463],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -3143,16 +3144,16 @@ def test_can_understand_D4d_symmetry():  # noqa: N802
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 8  # noqa: PLR2004
+    assert improper_axes[0][0] == 8
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 4  # noqa: PLR2004
+    assert len(mirror_axes) == 4
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -3169,13 +3170,13 @@ def test_can_understand_D4d_symmetry():  # noqa: N802
     assert mirror_axes[3][1] == pytest.approx(
         [0.12051512195987304, 0.9927114721259069, 0.0001961851471428286],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D4d"
-    assert coords.symmetry_number(point_group) == 8  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 8
 
 
-def test_can_understand_D5d_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_d5d_symmetry() -> None:
     """Ensure values match regression logfiles for D5d symmetry."""
     data = datasets.logfiles["symmetries"]["ferrocene-staggered"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -3191,26 +3192,26 @@ def test_can_understand_D5d_symmetry():  # noqa: N802, PLR0915
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 10  # noqa: PLR2004
-    assert len(groups[2]) == 10  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 10
+    assert len(groups[2]) == 10
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 6  # noqa: PLR2004
-    assert proper_axes[0][0] == 5  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 6
+    assert proper_axes[0][0] == 5
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[1][1] == pytest.approx(
         [3.573651507251015e-5, -0.8090202704430335, 0.5877807420587906],
@@ -3225,34 +3226,34 @@ def test_can_understand_D5d_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[5][1] == pytest.approx(
         [-4.784454416974403e-6, -0.30902881328774495, -0.951052676004372],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 6  # noqa: PLR2004
-    assert improper_axes[0][0] == 10  # noqa: PLR2004
-    assert improper_axes[1][0] == 2  # noqa: PLR2004
-    assert improper_axes[2][0] == 2  # noqa: PLR2004
-    assert improper_axes[3][0] == 2  # noqa: PLR2004
-    assert improper_axes[4][0] == 2  # noqa: PLR2004
-    assert improper_axes[5][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 6
+    assert improper_axes[0][0] == 10
+    assert improper_axes[1][0] == 2
+    assert improper_axes[2][0] == 2
+    assert improper_axes[3][0] == 2
+    assert improper_axes[4][0] == 2
+    assert improper_axes[5][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
     assert improper_axes[3][1] == proper_axes[3][1]
     assert improper_axes[4][1] == proper_axes[4][1]
     assert improper_axes[5][1] == proper_axes[5][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 5  # noqa: PLR2004
+    assert len(mirror_axes) == 5
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -3271,13 +3272,13 @@ def test_can_understand_D5d_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[4][1] == pytest.approx(
         [-3.573651507251015e-5, -0.8090202704430335, -0.5877807420587906],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D5d"
-    assert coords.symmetry_number(point_group) == 10  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 10
 
 
-def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_s4_symmetry() -> None:
     """Ensure values match regression logfiles for S4 symmetry."""
     data = datasets.logfiles["symmetries"]["tetrachloroneopentane"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -3293,24 +3294,24 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 4  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 4
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 4  # noqa: PLR2004
-    assert len(groups[2]) == 4  # noqa: PLR2004
-    assert len(groups[3]) == 8  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 4
+    assert len(groups[2]) == 4
+    assert len(groups[3]) == 8
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -3318,9 +3319,9 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
+    assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -3328,32 +3329,32 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "S4"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["1,3,5,7-tetrachlorocyclooctatetraene"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([1124.75960399, 1124.76010676, 1717.87114398])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
-    assert len(groups[0]) == 4  # noqa: PLR2004
-    assert len(groups[1]) == 4  # noqa: PLR2004
-    assert len(groups[2]) == 8  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
+    assert len(groups[0]) == 4
+    assert len(groups[1]) == 4
+    assert len(groups[2]) == 8
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -3361,9 +3362,9 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
+    assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -3371,41 +3372,41 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "S4"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
     data = datasets.logfiles["symmetries"]["tetraphenylborate-"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([2328.48397615, 2573.6635109, 2573.66376861])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 12  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 12
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 4  # noqa: PLR2004
-    assert len(groups[2]) == 4  # noqa: PLR2004
-    assert len(groups[3]) == 4  # noqa: PLR2004
-    assert len(groups[4]) == 4  # noqa: PLR2004
-    assert len(groups[5]) == 4  # noqa: PLR2004
-    assert len(groups[6]) == 4  # noqa: PLR2004
-    assert len(groups[7]) == 4  # noqa: PLR2004
-    assert len(groups[8]) == 4  # noqa: PLR2004
-    assert len(groups[9]) == 4  # noqa: PLR2004
-    assert len(groups[10]) == 4  # noqa: PLR2004
-    assert len(groups[11]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 4
+    assert len(groups[2]) == 4
+    assert len(groups[3]) == 4
+    assert len(groups[4]) == 4
+    assert len(groups[5]) == 4
+    assert len(groups[6]) == 4
+    assert len(groups[7]) == 4
+    assert len(groups[8]) == 4
+    assert len(groups[9]) == 4
+    assert len(groups[10]) == 4
+    assert len(groups[11]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -3413,9 +3414,9 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
+    assert improper_axes[0][0] == 4
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
@@ -3423,13 +3424,13 @@ def test_can_understand_S4_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(mirror_axes) == 0
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "S4"
-    assert coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 2
 
 
-def test_can_understand_Td_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_td_symmetry() -> None:
     """Ensure values match regression logfiles for Td symmetry."""
     data = datasets.logfiles["tanaka1996"][
         "methane@UMP2/6-311G(2df,2pd)"
@@ -3438,26 +3439,26 @@ def test_can_understand_Td_symmetry():  # noqa: N802, PLR0915
     assert moments == pytest.approx([3.182947905, 3.182947905, 3.182947905], 1e-2)
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 7  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 3  # noqa: PLR2004
-    assert proper_axes[2][0] == 3  # noqa: PLR2004
-    assert proper_axes[3][0] == 3  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
-    assert proper_axes[6][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 7
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 3
+    assert proper_axes[2][0] == 3
+    assert proper_axes[3][0] == 3
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
+    assert proper_axes[6][0] == 2
     assert proper_axes[0][1] == pytest.approx(
         [0.5773502691896257, 0.5773502691896257, 0.5773502691896257],
     )
@@ -3473,28 +3474,28 @@ def test_can_understand_Td_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[4][1] == pytest.approx([0.0, 0.0, -1.0])
     assert proper_axes[5][1] == pytest.approx([0.0, -1.0, 0.0])
     assert proper_axes[6][1] == pytest.approx([-1.0, 0.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 3  # noqa: PLR2004
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
-    assert improper_axes[1][0] == 4  # noqa: PLR2004
-    assert improper_axes[2][0] == 4  # noqa: PLR2004
+    assert len(improper_axes) == 3
+    assert improper_axes[0][0] == 4
+    assert improper_axes[1][0] == 4
+    assert improper_axes[2][0] == 4
     assert improper_axes[0][1] == proper_axes[4][1]
     assert improper_axes[1][1] == proper_axes[5][1]
     assert improper_axes[2][1] == proper_axes[6][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 6  # noqa: PLR2004
+    assert len(mirror_axes) == 6
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -3519,36 +3520,36 @@ def test_can_understand_Td_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[5][1] == pytest.approx(
         [-0.7071067811865476, -0.7071067811865476, 0.0],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Td"
-    assert coords.symmetry_number(point_group) == 12  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 12
 
     data = datasets.logfiles["symmetries"]["tetrahedrane"]  # tetrahedron
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([37.54433184, 37.54433184, 37.54433184])
     assert axes.T @ axes == pytest.approx(np.eye(3))
     assert axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 4  # noqa: PLR2004
-    assert len(groups[1]) == 4  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 4
+    assert len(groups[1]) == 4
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 7  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 3  # noqa: PLR2004
-    assert proper_axes[2][0] == 3  # noqa: PLR2004
-    assert proper_axes[3][0] == 3  # noqa: PLR2004
-    assert proper_axes[4][0] == 2  # noqa: PLR2004
-    assert proper_axes[5][0] == 2  # noqa: PLR2004
-    assert proper_axes[6][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 7
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 3
+    assert proper_axes[2][0] == 3
+    assert proper_axes[3][0] == 3
+    assert proper_axes[4][0] == 2
+    assert proper_axes[5][0] == 2
+    assert proper_axes[6][0] == 2
     assert proper_axes[0][1] == pytest.approx(
         [0.5773502691896257, 0.5773502691896257, 0.5773502691896257],
     )
@@ -3564,28 +3565,28 @@ def test_can_understand_Td_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[4][1] == pytest.approx([1.0, 0.0, 0.0])
     assert proper_axes[5][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[6][1] == pytest.approx([0.0, -1.0, 0.0])
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 3  # noqa: PLR2004
-    assert improper_axes[0][0] == 4  # noqa: PLR2004
-    assert improper_axes[1][0] == 4  # noqa: PLR2004
-    assert improper_axes[2][0] == 4  # noqa: PLR2004
+    assert len(improper_axes) == 3
+    assert improper_axes[0][0] == 4
+    assert improper_axes[1][0] == 4
+    assert improper_axes[2][0] == 4
     assert improper_axes[0][1] == proper_axes[4][1]
     assert improper_axes[1][1] == proper_axes[5][1]
     assert improper_axes[2][1] == proper_axes[6][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 6  # noqa: PLR2004
+    assert len(mirror_axes) == 6
     assert mirror_axes[0][0] == "v"
     assert mirror_axes[1][0] == "v"
     assert mirror_axes[2][0] == "v"
@@ -3610,13 +3611,13 @@ def test_can_understand_Td_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[5][1] == pytest.approx(
         [-0.7071067811865476, -0.7071067811865476, 0.0],
     )
-    assert not coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Td"
-    assert coords.symmetry_number(point_group) == 12  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 12
 
 
-def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_oh_symmetry() -> None:
     """Ensure values match regression logfiles for Oh symmetry."""
     data = datasets.logfiles["symmetries"]["cubane"]  # hexahedron aka cube
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
@@ -3632,32 +3633,32 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
         ),
         abs=1e-6,
     )
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 8  # noqa: PLR2004
-    assert len(groups[1]) == 8  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 8
+    assert len(groups[1]) == 8
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 13  # noqa: PLR2004
-    assert proper_axes[0][0] == 4  # noqa: PLR2004
-    assert proper_axes[1][0] == 4  # noqa: PLR2004
-    assert proper_axes[2][0] == 4  # noqa: PLR2004
-    assert proper_axes[3][0] == 3  # noqa: PLR2004
-    assert proper_axes[4][0] == 3  # noqa: PLR2004
-    assert proper_axes[5][0] == 3  # noqa: PLR2004
-    assert proper_axes[6][0] == 3  # noqa: PLR2004
-    assert proper_axes[7][0] == 2  # noqa: PLR2004
-    assert proper_axes[8][0] == 2  # noqa: PLR2004
-    assert proper_axes[9][0] == 2  # noqa: PLR2004
-    assert proper_axes[10][0] == 2  # noqa: PLR2004
-    assert proper_axes[11][0] == 2  # noqa: PLR2004
-    assert proper_axes[12][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 13
+    assert proper_axes[0][0] == 4
+    assert proper_axes[1][0] == 4
+    assert proper_axes[2][0] == 4
+    assert proper_axes[3][0] == 3
+    assert proper_axes[4][0] == 3
+    assert proper_axes[5][0] == 3
+    assert proper_axes[6][0] == 3
+    assert proper_axes[7][0] == 2
+    assert proper_axes[8][0] == 2
+    assert proper_axes[9][0] == 2
+    assert proper_axes[10][0] == 2
+    assert proper_axes[11][0] == 2
+    assert proper_axes[12][0] == 2
     assert proper_axes[0][1] == pytest.approx(
         [0.968308520495324, -0.11479281066604227, -0.22181347965249296],
     )
@@ -3697,27 +3698,27 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[12][1] == pytest.approx(
         [-0.5856129657464667, -0.26164449901693576, 0.7672024572978141],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 13  # noqa: PLR2004
-    assert improper_axes[0][0] == 6  # noqa: PLR2004
-    assert improper_axes[1][0] == 6  # noqa: PLR2004
-    assert improper_axes[2][0] == 6  # noqa: PLR2004
-    assert improper_axes[3][0] == 6  # noqa: PLR2004
-    assert improper_axes[4][0] == 4  # noqa: PLR2004
-    assert improper_axes[5][0] == 4  # noqa: PLR2004
-    assert improper_axes[6][0] == 4  # noqa: PLR2004
-    assert improper_axes[7][0] == 2  # noqa: PLR2004
-    assert improper_axes[8][0] == 2  # noqa: PLR2004
-    assert improper_axes[9][0] == 2  # noqa: PLR2004
-    assert improper_axes[10][0] == 2  # noqa: PLR2004
-    assert improper_axes[11][0] == 2  # noqa: PLR2004
-    assert improper_axes[12][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 13
+    assert improper_axes[0][0] == 6
+    assert improper_axes[1][0] == 6
+    assert improper_axes[2][0] == 6
+    assert improper_axes[3][0] == 6
+    assert improper_axes[4][0] == 4
+    assert improper_axes[5][0] == 4
+    assert improper_axes[6][0] == 4
+    assert improper_axes[7][0] == 2
+    assert improper_axes[8][0] == 2
+    assert improper_axes[9][0] == 2
+    assert improper_axes[10][0] == 2
+    assert improper_axes[11][0] == 2
+    assert improper_axes[12][0] == 2
     assert improper_axes[0][1] == proper_axes[3][1]
     assert improper_axes[1][1] == proper_axes[4][1]
     assert improper_axes[2][1] == proper_axes[5][1]
@@ -3731,14 +3732,14 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
     assert improper_axes[10][1] == proper_axes[10][1]
     assert improper_axes[11][1] == proper_axes[11][1]
     assert improper_axes[12][1] == proper_axes[12][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 9  # noqa: PLR2004
+    assert len(mirror_axes) == 9
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "h"
     assert mirror_axes[2][0] == "h"
@@ -3775,41 +3776,41 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[8][1] == pytest.approx(
         [-0.8309038705883419, -0.531787711389286, -0.16370885088063244],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Oh"
-    assert coords.symmetry_number(point_group) == 24  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 24
 
     data = datasets.logfiles["symmetries"]["SF6"]  # octahedron
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([195.62987814, 195.64569248, 195.66607271])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 6  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 6
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 13  # noqa: PLR2004
-    assert proper_axes[0][0] == 4  # noqa: PLR2004
-    assert proper_axes[1][0] == 4  # noqa: PLR2004
-    assert proper_axes[2][0] == 4  # noqa: PLR2004
-    assert proper_axes[3][0] == 3  # noqa: PLR2004
-    assert proper_axes[4][0] == 3  # noqa: PLR2004
-    assert proper_axes[5][0] == 3  # noqa: PLR2004
-    assert proper_axes[6][0] == 3  # noqa: PLR2004
-    assert proper_axes[7][0] == 2  # noqa: PLR2004
-    assert proper_axes[8][0] == 2  # noqa: PLR2004
-    assert proper_axes[9][0] == 2  # noqa: PLR2004
-    assert proper_axes[10][0] == 2  # noqa: PLR2004
-    assert proper_axes[11][0] == 2  # noqa: PLR2004
-    assert proper_axes[12][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 13
+    assert proper_axes[0][0] == 4
+    assert proper_axes[1][0] == 4
+    assert proper_axes[2][0] == 4
+    assert proper_axes[3][0] == 3
+    assert proper_axes[4][0] == 3
+    assert proper_axes[5][0] == 3
+    assert proper_axes[6][0] == 3
+    assert proper_axes[7][0] == 2
+    assert proper_axes[8][0] == 2
+    assert proper_axes[9][0] == 2
+    assert proper_axes[10][0] == 2
+    assert proper_axes[11][0] == 2
+    assert proper_axes[12][0] == 2
     assert proper_axes[0][1] == pytest.approx(
         [0.20842728261025004, 0.9069406581468825, 0.36608292839711426],
     )
@@ -3849,27 +3850,27 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[12][1] == pytest.approx(
         [-0.9770164502779867, 0.21020438400853103, 0.03539735625433769],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 13  # noqa: PLR2004
-    assert improper_axes[0][0] == 6  # noqa: PLR2004
-    assert improper_axes[1][0] == 6  # noqa: PLR2004
-    assert improper_axes[2][0] == 6  # noqa: PLR2004
-    assert improper_axes[3][0] == 6  # noqa: PLR2004
-    assert improper_axes[4][0] == 4  # noqa: PLR2004
-    assert improper_axes[5][0] == 4  # noqa: PLR2004
-    assert improper_axes[6][0] == 4  # noqa: PLR2004
-    assert improper_axes[7][0] == 2  # noqa: PLR2004
-    assert improper_axes[8][0] == 2  # noqa: PLR2004
-    assert improper_axes[9][0] == 2  # noqa: PLR2004
-    assert improper_axes[10][0] == 2  # noqa: PLR2004
-    assert improper_axes[11][0] == 2  # noqa: PLR2004
-    assert improper_axes[12][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 13
+    assert improper_axes[0][0] == 6
+    assert improper_axes[1][0] == 6
+    assert improper_axes[2][0] == 6
+    assert improper_axes[3][0] == 6
+    assert improper_axes[4][0] == 4
+    assert improper_axes[5][0] == 4
+    assert improper_axes[6][0] == 4
+    assert improper_axes[7][0] == 2
+    assert improper_axes[8][0] == 2
+    assert improper_axes[9][0] == 2
+    assert improper_axes[10][0] == 2
+    assert improper_axes[11][0] == 2
+    assert improper_axes[12][0] == 2
     assert improper_axes[0][1] == proper_axes[3][1]
     assert improper_axes[1][1] == proper_axes[4][1]
     assert improper_axes[2][1] == proper_axes[5][1]
@@ -3883,14 +3884,14 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
     assert improper_axes[10][1] == proper_axes[10][1]
     assert improper_axes[11][1] == proper_axes[11][1]
     assert improper_axes[12][1] == proper_axes[12][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 9  # noqa: PLR2004
+    assert len(mirror_axes) == 9
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "h"
     assert mirror_axes[2][0] == "h"
@@ -3927,36 +3928,36 @@ def test_can_understand_Oh_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[8][1] == pytest.approx(
         [-0.3636141885662752, 0.5638940339581285, 0.7414905531021403],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Oh"
-    assert coords.symmetry_number(point_group) == 24  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 24
 
 
-def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
+def test_can_understand_ih_symmetry() -> None:
     """Ensure values match regression logfiles for Ih symmetry."""
     data = datasets.logfiles["symmetries"]["B12H12-2"]  # icosahedron
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([323.38198873, 323.39397591, 323.41051849])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 12  # noqa: PLR2004
-    assert len(groups[1]) == 12  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 12
+    assert len(groups[1]) == 12
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 5  # noqa: PLR2004
+    assert proper_axes[0][0] == 5
     assert proper_axes[0][1] == pytest.approx(
         [0.32276287512969803, -0.8506628423519896, 0.41496608907192073],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
@@ -3964,26 +3965,26 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
         proper_axes,
     )
     assert len(improper_axes) == 1
-    assert improper_axes[0][0] == 10  # noqa: PLR2004
+    assert improper_axes[0][0] == 10
     assert improper_axes[0][1] == proper_axes[0][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 15  # noqa: PLR2004
-    assert mirror_axes[0][0] == ""  # noqa: PLC1901
-    assert mirror_axes[1][0] == ""  # noqa: PLC1901
-    assert mirror_axes[2][0] == ""  # noqa: PLC1901
-    assert mirror_axes[3][0] == ""  # noqa: PLC1901
-    assert mirror_axes[4][0] == ""  # noqa: PLC1901
-    assert mirror_axes[5][0] == ""  # noqa: PLC1901
-    assert mirror_axes[6][0] == ""  # noqa: PLC1901
-    assert mirror_axes[7][0] == ""  # noqa: PLC1901
-    assert mirror_axes[8][0] == ""  # noqa: PLC1901
-    assert mirror_axes[9][0] == ""  # noqa: PLC1901
+    assert len(mirror_axes) == 15
+    assert mirror_axes[0][0] == ""
+    assert mirror_axes[1][0] == ""
+    assert mirror_axes[2][0] == ""
+    assert mirror_axes[3][0] == ""
+    assert mirror_axes[4][0] == ""
+    assert mirror_axes[5][0] == ""
+    assert mirror_axes[6][0] == ""
+    assert mirror_axes[7][0] == ""
+    assert mirror_axes[8][0] == ""
+    assert mirror_axes[9][0] == ""
     assert mirror_axes[10][0] == "v"
     assert mirror_axes[11][0] == "v"
     assert mirror_axes[12][0] == "v"
@@ -4034,88 +4035,88 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[14][1] == pytest.approx(
         [-0.945553936415154, -0.30903900618757657, 0.10209136096850731],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Ih"
-    assert coords.symmetry_number(point_group) == 60  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 60
 
     data = datasets.logfiles["symmetries"]["dodecahedrane"]  # dodecahedron
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([913.24407956, 913.29418754, 913.31698587])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
-    assert len(groups[0]) == 20  # noqa: PLR2004
-    assert len(groups[1]) == 20  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
+    assert len(groups[0]) == 20
+    assert len(groups[1]) == 20
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 26  # noqa: PLR2004
-    assert proper_axes[0][0] == 5  # noqa: PLR2004
-    assert proper_axes[1][0] == 3  # noqa: PLR2004
-    assert proper_axes[2][0] == 3  # noqa: PLR2004
-    assert proper_axes[3][0] == 3  # noqa: PLR2004
-    assert proper_axes[4][0] == 3  # noqa: PLR2004
-    assert proper_axes[5][0] == 3  # noqa: PLR2004
-    assert proper_axes[6][0] == 3  # noqa: PLR2004
-    assert proper_axes[7][0] == 3  # noqa: PLR2004
-    assert proper_axes[8][0] == 3  # noqa: PLR2004
-    assert proper_axes[9][0] == 3  # noqa: PLR2004
-    assert proper_axes[10][0] == 3  # noqa: PLR2004
-    assert proper_axes[11][0] == 2  # noqa: PLR2004
-    assert proper_axes[12][0] == 2  # noqa: PLR2004
-    assert proper_axes[13][0] == 2  # noqa: PLR2004
-    assert proper_axes[14][0] == 2  # noqa: PLR2004
-    assert proper_axes[15][0] == 2  # noqa: PLR2004
-    assert proper_axes[16][0] == 2  # noqa: PLR2004
-    assert proper_axes[17][0] == 2  # noqa: PLR2004
-    assert proper_axes[18][0] == 2  # noqa: PLR2004
-    assert proper_axes[19][0] == 2  # noqa: PLR2004
-    assert proper_axes[20][0] == 2  # noqa: PLR2004
-    assert proper_axes[21][0] == 2  # noqa: PLR2004
-    assert proper_axes[22][0] == 2  # noqa: PLR2004
-    assert proper_axes[23][0] == 2  # noqa: PLR2004
-    assert proper_axes[24][0] == 2  # noqa: PLR2004
-    assert proper_axes[25][0] == 2  # noqa: PLR2004
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    assert len(proper_axes) == 26
+    assert proper_axes[0][0] == 5
+    assert proper_axes[1][0] == 3
+    assert proper_axes[2][0] == 3
+    assert proper_axes[3][0] == 3
+    assert proper_axes[4][0] == 3
+    assert proper_axes[5][0] == 3
+    assert proper_axes[6][0] == 3
+    assert proper_axes[7][0] == 3
+    assert proper_axes[8][0] == 3
+    assert proper_axes[9][0] == 3
+    assert proper_axes[10][0] == 3
+    assert proper_axes[11][0] == 2
+    assert proper_axes[12][0] == 2
+    assert proper_axes[13][0] == 2
+    assert proper_axes[14][0] == 2
+    assert proper_axes[15][0] == 2
+    assert proper_axes[16][0] == 2
+    assert proper_axes[17][0] == 2
+    assert proper_axes[18][0] == 2
+    assert proper_axes[19][0] == 2
+    assert proper_axes[20][0] == 2
+    assert proper_axes[21][0] == 2
+    assert proper_axes[22][0] == 2
+    assert proper_axes[23][0] == 2
+    assert proper_axes[24][0] == 2
+    assert proper_axes[25][0] == 2
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 26  # noqa: PLR2004
-    assert improper_axes[0][0] == 10  # noqa: PLR2004
-    assert improper_axes[1][0] == 6  # noqa: PLR2004
-    assert improper_axes[2][0] == 6  # noqa: PLR2004
-    assert improper_axes[3][0] == 6  # noqa: PLR2004
-    assert improper_axes[4][0] == 6  # noqa: PLR2004
-    assert improper_axes[5][0] == 6  # noqa: PLR2004
-    assert improper_axes[6][0] == 6  # noqa: PLR2004
-    assert improper_axes[7][0] == 6  # noqa: PLR2004
-    assert improper_axes[8][0] == 6  # noqa: PLR2004
-    assert improper_axes[9][0] == 6  # noqa: PLR2004
-    assert improper_axes[10][0] == 6  # noqa: PLR2004
-    assert improper_axes[11][0] == 2  # noqa: PLR2004
-    assert improper_axes[12][0] == 2  # noqa: PLR2004
-    assert improper_axes[13][0] == 2  # noqa: PLR2004
-    assert improper_axes[14][0] == 2  # noqa: PLR2004
-    assert improper_axes[15][0] == 2  # noqa: PLR2004
-    assert improper_axes[16][0] == 2  # noqa: PLR2004
-    assert improper_axes[17][0] == 2  # noqa: PLR2004
-    assert improper_axes[18][0] == 2  # noqa: PLR2004
-    assert improper_axes[19][0] == 2  # noqa: PLR2004
-    assert improper_axes[20][0] == 2  # noqa: PLR2004
-    assert improper_axes[21][0] == 2  # noqa: PLR2004
-    assert improper_axes[22][0] == 2  # noqa: PLR2004
-    assert improper_axes[23][0] == 2  # noqa: PLR2004
-    assert improper_axes[24][0] == 2  # noqa: PLR2004
-    assert improper_axes[25][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 26
+    assert improper_axes[0][0] == 10
+    assert improper_axes[1][0] == 6
+    assert improper_axes[2][0] == 6
+    assert improper_axes[3][0] == 6
+    assert improper_axes[4][0] == 6
+    assert improper_axes[5][0] == 6
+    assert improper_axes[6][0] == 6
+    assert improper_axes[7][0] == 6
+    assert improper_axes[8][0] == 6
+    assert improper_axes[9][0] == 6
+    assert improper_axes[10][0] == 6
+    assert improper_axes[11][0] == 2
+    assert improper_axes[12][0] == 2
+    assert improper_axes[13][0] == 2
+    assert improper_axes[14][0] == 2
+    assert improper_axes[15][0] == 2
+    assert improper_axes[16][0] == 2
+    assert improper_axes[17][0] == 2
+    assert improper_axes[18][0] == 2
+    assert improper_axes[19][0] == 2
+    assert improper_axes[20][0] == 2
+    assert improper_axes[21][0] == 2
+    assert improper_axes[22][0] == 2
+    assert improper_axes[23][0] == 2
+    assert improper_axes[24][0] == 2
+    assert improper_axes[25][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
@@ -4142,76 +4143,76 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
     assert improper_axes[23][1] == proper_axes[23][1]
     assert improper_axes[24][1] == proper_axes[24][1]
     assert improper_axes[25][1] == proper_axes[25][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 15  # noqa: PLR2004
-    assert mirror_axes[0][0] == ""  # noqa: PLC1901
-    assert mirror_axes[1][0] == ""  # noqa: PLC1901
-    assert mirror_axes[2][0] == ""  # noqa: PLC1901
-    assert mirror_axes[3][0] == ""  # noqa: PLC1901
-    assert mirror_axes[4][0] == ""  # noqa: PLC1901
-    assert mirror_axes[5][0] == ""  # noqa: PLC1901
-    assert mirror_axes[6][0] == ""  # noqa: PLC1901
-    assert mirror_axes[7][0] == ""  # noqa: PLC1901
-    assert mirror_axes[8][0] == ""  # noqa: PLC1901
-    assert mirror_axes[9][0] == ""  # noqa: PLC1901
+    assert len(mirror_axes) == 15
+    assert mirror_axes[0][0] == ""
+    assert mirror_axes[1][0] == ""
+    assert mirror_axes[2][0] == ""
+    assert mirror_axes[3][0] == ""
+    assert mirror_axes[4][0] == ""
+    assert mirror_axes[5][0] == ""
+    assert mirror_axes[6][0] == ""
+    assert mirror_axes[7][0] == ""
+    assert mirror_axes[8][0] == ""
+    assert mirror_axes[9][0] == ""
     assert mirror_axes[10][0] == "v"
     assert mirror_axes[11][0] == "v"
     assert mirror_axes[12][0] == "v"
     assert mirror_axes[13][0] == "v"
     assert mirror_axes[14][0] == "v"
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Ih"
-    assert coords.symmetry_number(point_group) == 60  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 60
 
     data = datasets.logfiles["symmetries"]["C60"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([6133.59929944, 6133.81659269, 6134.15217423])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 1
-    assert len(groups[0]) == 60  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[0]) == 60
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("spheric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 26  # noqa: PLR2004
-    assert proper_axes[0][0] == 5  # noqa: PLR2004
-    assert proper_axes[1][0] == 3  # noqa: PLR2004
-    assert proper_axes[2][0] == 3  # noqa: PLR2004
-    assert proper_axes[3][0] == 3  # noqa: PLR2004
-    assert proper_axes[4][0] == 3  # noqa: PLR2004
-    assert proper_axes[5][0] == 3  # noqa: PLR2004
-    assert proper_axes[6][0] == 3  # noqa: PLR2004
-    assert proper_axes[7][0] == 3  # noqa: PLR2004
-    assert proper_axes[8][0] == 3  # noqa: PLR2004
-    assert proper_axes[9][0] == 3  # noqa: PLR2004
-    assert proper_axes[10][0] == 3  # noqa: PLR2004
-    assert proper_axes[11][0] == 2  # noqa: PLR2004
-    assert proper_axes[12][0] == 2  # noqa: PLR2004
-    assert proper_axes[13][0] == 2  # noqa: PLR2004
-    assert proper_axes[14][0] == 2  # noqa: PLR2004
-    assert proper_axes[15][0] == 2  # noqa: PLR2004
-    assert proper_axes[16][0] == 2  # noqa: PLR2004
-    assert proper_axes[17][0] == 2  # noqa: PLR2004
-    assert proper_axes[18][0] == 2  # noqa: PLR2004
-    assert proper_axes[19][0] == 2  # noqa: PLR2004
-    assert proper_axes[20][0] == 2  # noqa: PLR2004
-    assert proper_axes[21][0] == 2  # noqa: PLR2004
-    assert proper_axes[22][0] == 2  # noqa: PLR2004
-    assert proper_axes[23][0] == 2  # noqa: PLR2004
-    assert proper_axes[24][0] == 2  # noqa: PLR2004
-    assert proper_axes[25][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 26
+    assert proper_axes[0][0] == 5
+    assert proper_axes[1][0] == 3
+    assert proper_axes[2][0] == 3
+    assert proper_axes[3][0] == 3
+    assert proper_axes[4][0] == 3
+    assert proper_axes[5][0] == 3
+    assert proper_axes[6][0] == 3
+    assert proper_axes[7][0] == 3
+    assert proper_axes[8][0] == 3
+    assert proper_axes[9][0] == 3
+    assert proper_axes[10][0] == 3
+    assert proper_axes[11][0] == 2
+    assert proper_axes[12][0] == 2
+    assert proper_axes[13][0] == 2
+    assert proper_axes[14][0] == 2
+    assert proper_axes[15][0] == 2
+    assert proper_axes[16][0] == 2
+    assert proper_axes[17][0] == 2
+    assert proper_axes[18][0] == 2
+    assert proper_axes[19][0] == 2
+    assert proper_axes[20][0] == 2
+    assert proper_axes[21][0] == 2
+    assert proper_axes[22][0] == 2
+    assert proper_axes[23][0] == 2
+    assert proper_axes[24][0] == 2
+    assert proper_axes[25][0] == 2
     assert proper_axes[0][1] == pytest.approx(
         [-0.43323728588212457, -0.29725084310715066, -0.8508509801331712],
     )
@@ -4290,40 +4291,40 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
     assert proper_axes[25][1] == pytest.approx(
         [-0.8700854547086772, 0.38413725024405565, 0.30885251250286183],
     )
-    improper_axes = coords._get_improper_axes(  # noqa: SLF001
+    improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(improper_axes) == 26  # noqa: PLR2004
-    assert improper_axes[0][0] == 10  # noqa: PLR2004
-    assert improper_axes[1][0] == 6  # noqa: PLR2004
-    assert improper_axes[2][0] == 6  # noqa: PLR2004
-    assert improper_axes[3][0] == 6  # noqa: PLR2004
-    assert improper_axes[4][0] == 6  # noqa: PLR2004
-    assert improper_axes[5][0] == 6  # noqa: PLR2004
-    assert improper_axes[6][0] == 6  # noqa: PLR2004
-    assert improper_axes[7][0] == 6  # noqa: PLR2004
-    assert improper_axes[8][0] == 6  # noqa: PLR2004
-    assert improper_axes[9][0] == 6  # noqa: PLR2004
-    assert improper_axes[10][0] == 6  # noqa: PLR2004
-    assert improper_axes[11][0] == 2  # noqa: PLR2004
-    assert improper_axes[12][0] == 2  # noqa: PLR2004
-    assert improper_axes[13][0] == 2  # noqa: PLR2004
-    assert improper_axes[14][0] == 2  # noqa: PLR2004
-    assert improper_axes[15][0] == 2  # noqa: PLR2004
-    assert improper_axes[16][0] == 2  # noqa: PLR2004
-    assert improper_axes[17][0] == 2  # noqa: PLR2004
-    assert improper_axes[18][0] == 2  # noqa: PLR2004
-    assert improper_axes[19][0] == 2  # noqa: PLR2004
-    assert improper_axes[20][0] == 2  # noqa: PLR2004
-    assert improper_axes[21][0] == 2  # noqa: PLR2004
-    assert improper_axes[22][0] == 2  # noqa: PLR2004
-    assert improper_axes[23][0] == 2  # noqa: PLR2004
-    assert improper_axes[24][0] == 2  # noqa: PLR2004
-    assert improper_axes[25][0] == 2  # noqa: PLR2004
+    assert len(improper_axes) == 26
+    assert improper_axes[0][0] == 10
+    assert improper_axes[1][0] == 6
+    assert improper_axes[2][0] == 6
+    assert improper_axes[3][0] == 6
+    assert improper_axes[4][0] == 6
+    assert improper_axes[5][0] == 6
+    assert improper_axes[6][0] == 6
+    assert improper_axes[7][0] == 6
+    assert improper_axes[8][0] == 6
+    assert improper_axes[9][0] == 6
+    assert improper_axes[10][0] == 6
+    assert improper_axes[11][0] == 2
+    assert improper_axes[12][0] == 2
+    assert improper_axes[13][0] == 2
+    assert improper_axes[14][0] == 2
+    assert improper_axes[15][0] == 2
+    assert improper_axes[16][0] == 2
+    assert improper_axes[17][0] == 2
+    assert improper_axes[18][0] == 2
+    assert improper_axes[19][0] == 2
+    assert improper_axes[20][0] == 2
+    assert improper_axes[21][0] == 2
+    assert improper_axes[22][0] == 2
+    assert improper_axes[23][0] == 2
+    assert improper_axes[24][0] == 2
+    assert improper_axes[25][0] == 2
     assert improper_axes[0][1] == proper_axes[0][1]
     assert improper_axes[1][1] == proper_axes[1][1]
     assert improper_axes[2][1] == proper_axes[2][1]
@@ -4350,24 +4351,24 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
     assert improper_axes[23][1] == proper_axes[23][1]
     assert improper_axes[24][1] == proper_axes[24][1]
     assert improper_axes[25][1] == proper_axes[25][1]
-    mirror_axes = coords._get_mirror_planes(  # noqa: SLF001
+    mirror_axes = coords._get_mirror_planes(
         atomcoords,
         groups,
         axes,
         rotor_class,
         proper_axes,
     )
-    assert len(mirror_axes) == 15  # noqa: PLR2004
-    assert mirror_axes[0][0] == ""  # noqa: PLC1901
-    assert mirror_axes[1][0] == ""  # noqa: PLC1901
-    assert mirror_axes[2][0] == ""  # noqa: PLC1901
-    assert mirror_axes[3][0] == ""  # noqa: PLC1901
-    assert mirror_axes[4][0] == ""  # noqa: PLC1901
-    assert mirror_axes[5][0] == ""  # noqa: PLC1901
-    assert mirror_axes[6][0] == ""  # noqa: PLC1901
-    assert mirror_axes[7][0] == ""  # noqa: PLC1901
-    assert mirror_axes[8][0] == ""  # noqa: PLC1901
-    assert mirror_axes[9][0] == ""  # noqa: PLC1901
+    assert len(mirror_axes) == 15
+    assert mirror_axes[0][0] == ""
+    assert mirror_axes[1][0] == ""
+    assert mirror_axes[2][0] == ""
+    assert mirror_axes[3][0] == ""
+    assert mirror_axes[4][0] == ""
+    assert mirror_axes[5][0] == ""
+    assert mirror_axes[6][0] == ""
+    assert mirror_axes[7][0] == ""
+    assert mirror_axes[8][0] == ""
+    assert mirror_axes[9][0] == ""
     assert mirror_axes[10][0] == "v"
     assert mirror_axes[11][0] == "v"
     assert mirror_axes[12][0] == "v"
@@ -4418,37 +4419,37 @@ def test_can_understand_Ih_symmetry():  # noqa: N802, PLR0915
     assert mirror_axes[14][1] == pytest.approx(
         [-0.565929883314664, 0.8244533722328923, -6.469360643961685e-5],
     )
-    assert coords._has_inversion_center(atomcoords, groups)  # noqa: SLF001
+    assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "Ih"
-    assert coords.symmetry_number(point_group) == 60  # noqa: PLR2004
+    assert coords.symmetry_number(point_group) == 60
 
 
 # TODO(schneiderfelipe): allocate the function below to others and delete it.
-def test_match_regression_logfiles():  # noqa: PLR0915
+def test_match_regression_logfiles() -> None:
     """Ensure calculated values minimally match regression logfiles."""
     # borane
     data = datasets.logfiles["symmetries"]["BH3"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([2.24732283, 2.2473566, 4.4946784])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 2  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 2
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric oblate", "regular planar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
-    assert len(proper_axes) == 4  # noqa: PLR2004
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
-    assert proper_axes[1][0] == 2  # noqa: PLR2004
-    assert proper_axes[2][0] == 2  # noqa: PLR2004
-    assert proper_axes[3][0] == 2  # noqa: PLR2004
+    assert len(proper_axes) == 4
+    assert proper_axes[0][0] == 3
+    assert proper_axes[1][0] == 2
+    assert proper_axes[2][0] == 2
+    assert proper_axes[3][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 0.0, 1.0])
     assert proper_axes[1][1] == pytest.approx(
         [-0.11625570934711942, -0.9932192710921326, 0.00029929151507175205],
@@ -4465,46 +4466,46 @@ def test_match_regression_logfiles():  # noqa: PLR0915
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([3.32736206, 39.32328864, 39.32328864])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
     assert len(groups[1]) == 1
-    assert len(groups[2]) == 3  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[2]) == 3
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("symmetric prolate", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 3  # noqa: PLR2004
+    assert proper_axes[0][0] == 3
 
     # dichloromethane
     data = datasets.logfiles["symmetries"]["dichloromethane"]
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([16.0098287, 161.95533621, 174.59725576])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    groups = coords._equivalent_atoms(data.atommasses, atomcoords)  # noqa: SLF001
-    assert len(groups) == 3  # noqa: PLR2004
+    groups = coords._equivalent_atoms(data.atommasses, atomcoords)
+    assert len(groups) == 3
     assert len(groups[0]) == 1
-    assert len(groups[1]) == 2  # noqa: PLR2004
-    assert len(groups[2]) == 2  # noqa: PLR2004
-    rotor_class = coords._classify_rotor(moments)  # noqa: SLF001
+    assert len(groups[1]) == 2
+    assert len(groups[2]) == 2
+    rotor_class = coords._classify_rotor(moments)
     assert rotor_class == ("asymmetric", "nonplanar")
-    proper_axes = coords._get_proper_axes(  # noqa: SLF001
+    proper_axes = coords._get_proper_axes(
         atomcoords,
         groups,
         axes,
         rotor_class,
     )
     assert len(proper_axes) == 1
-    assert proper_axes[0][0] == 2  # noqa: PLR2004
+    assert proper_axes[0][0] == 2
     assert proper_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
 
 
-def test_can_rotate_to_principal_axes():
+def test_can_rotate_to_principal_axes() -> None:
     """Ensure we are able to rotate molecules to their principal axes."""
     data = datasets.logfiles["symmetries"]["water"]
 

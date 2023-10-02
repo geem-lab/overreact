@@ -99,11 +99,49 @@ requires = ["poetry-core>=1.0.0"]
 [tool.ruff]
 target-version = "py38"
 select = ["ALL"]
+# TODO(schneiderfelipe): make this list shorter
 ignore = [
+  "A002",
+  "A003",
   "ANN001", # MissingTypeFunctionArgument
+  "ANN002",
+  "ANN003",
+  "ANN101",
   "ANN201", # MissingReturnTypePublicFunction
   "ANN202", # MissingReturnTypePrivateFunction
+  "ANN204",
+  "B008",
+  "B023",
+  "B026",
+  "C901",
+  "E501",
+  "FBT001",
+  "FBT002",
+  "FBT003",
+  "FIX002",
+  "G004",
+  "N803",
+  "N806",
+  "NPY002",
+  "PLC0208",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PLR2004",
+  "PLW2901",
+  "PTH112",
+  "PTH113",
+  "PTH118",
+  "PTH120",
+  "PTH122",
+  "PTH123",
+  "RET505",
+  "RET507",
+  "RUF001",
   "S101",   # AssertUsed
+  "SLF001",
+  "T201",
+  "TD003",
 ]
 
 [tool.ruff.pydocstyle]

@@ -1,6 +1,6 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Tests for module datasets."""
+
+from __future__ import annotations
 
 import os
 
@@ -11,10 +11,10 @@ import overreact as rx
 from overreact import _datasets as datasets
 
 
-def test_logfile_retrieval():
+def test_logfile_retrieval() -> None:
     """Ensure logfiles are properly lazily evaluated."""
     data1 = rx.io.read_logfile(
-        os.path.join(  # noqa: PTH118
+        os.path.join(
             datasets.data_path,
             "tanaka1996",
             "UMP2/6-311G(2df,2pd)",
@@ -29,7 +29,7 @@ def test_logfile_retrieval():
             assert np.asarray(data1[key]) == pytest.approx(np.asarray(data2[key]))
 
     data1 = rx.io.read_logfile(
-        os.path.join(  # noqa: PTH118
+        os.path.join(
             datasets.data_path,
             "symmetries",
             "ferrocene-staggered.out",

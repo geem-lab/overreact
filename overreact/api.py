@@ -1,11 +1,9 @@
-#!/usr/bin/env python3  # noqa: EXE001
-
 """
-This module contains the high-level application programming interface.
+Module containing the high-level application programming interface.
 
 If you intend to use **overreact** as a library in a project, you should
 probably start here.
-"""  # noqa: D404
+"""
 
 
 from __future__ import annotations
@@ -22,7 +20,7 @@ __all__ = [
 
 import logging
 import warnings
-from typing import Optional, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.misc import derivative
@@ -30,15 +28,17 @@ from scipy.misc import derivative
 import overreact as rx
 from overreact import _constants as constants
 from overreact import coords, rates, tunnel
-from overreact.core import Scheme  # noqa: TCH001
+
+if TYPE_CHECKING:
+    from overreact.core import Scheme
 
 logger = logging.getLogger(__name__)
 
 
 def get_internal_energies(
     compounds: dict,
-    qrrho: bool = True,  # noqa: FBT001, FBT002
-    temperature: float = 298.15,  # noqa: RUF100
+    qrrho: bool = True,
+    temperature: float = 298.15,
 ):
     """Obtain internal energies for compounds at a given temperature.
 
@@ -70,10 +70,10 @@ def get_internal_energies(
     array([0. , 2.20053981])
 
     """
-    compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
+    compounds = rx.io._check_compounds(compounds)
     internal_energies = []
     for name in compounds:
-        logger.info(f"calculate internal energy: {name}")  # noqa: G004
+        logger.info(f"calculate internal energy: {name}")
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
@@ -95,9 +95,9 @@ def get_internal_energies(
 
 def get_enthalpies(
     compounds: dict,
-    qrrho: bool = True,  # noqa: FBT001, FBT002
-    temperature: float = 298.15,  # noqa: RUF100
-):  # noqa: RUF100
+    qrrho: bool = True,
+    temperature: float = 298.15,
+):
     """Obtain enthalpies for compounds at a given temperature.
 
     Parameters
@@ -136,10 +136,10 @@ def get_enthalpies(
     >>> (enthalpies - zero_enthalpies) / constants.kcal
     array([2.78, 2.50])
     """
-    compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
+    compounds = rx.io._check_compounds(compounds)
     enthalpies = []
     for name in compounds:
-        logger.info(f"calculate enthalpy: {name}")  # noqa: G004
+        logger.info(f"calculate enthalpy: {name}")
 
         # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
@@ -159,11 +159,11 @@ def get_enthalpies(
     return np.array(enthalpies)
 
 
-def get_entropies(  # noqa: PLR0913
+def get_entropies(
     compounds: dict,
-    environment: Optional[str] = None,  # noqa: UP007
+    environment: str | None = None,
     method: str = "standard",
-    qrrho: bool = True,  # noqa: FBT001, FBT002
+    qrrho: bool = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
 ):
@@ -220,10 +220,10 @@ def get_entropies(  # noqa: PLR0913
     >>> (sol_entropies - entropies) / constants.calorie
     array([-6.35360874, -6.35360874])
     """
-    compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
+    compounds = rx.io._check_compounds(compounds)
     entropies = []
     for name in compounds:
-        logger.info(f"calculate entropy: {name}")  # noqa: G004
+        logger.info(f"calculate entropy: {name}")
 
         if "point_group" in compounds[name]:
             point_group = compounds[name].point_group
@@ -241,7 +241,7 @@ def get_entropies(  # noqa: PLR0913
         )
 
         if environment is None:
-            environment = rx.core._get_environment(name)  # noqa: SLF001
+            environment = rx.core._get_environment(name)
         entropy = rx.thermo.calc_entropy(
             atommasses=compounds[name].atommasses,
             atomcoords=compounds[name].atomcoords,
@@ -272,8 +272,8 @@ def get_entropies(  # noqa: PLR0913
 
 
 def _check_qrrho(
-    qrrho: Union[bool, tuple[bool, bool]],  # noqa: UP007
-) -> tuple[bool, bool]:  # noqa: RUF100
+    qrrho: bool | tuple[bool, bool],
+) -> tuple[bool, bool]:
     """Get options for QRRHO for both enthalpy and entropy.
 
     Parameters
@@ -308,22 +308,21 @@ def _check_qrrho(
     """
     if qrrho is True:
         return True, True
-    elif qrrho is False:  # noqa: RET505
+    elif qrrho is False:
         return False, False
     elif isinstance(qrrho, tuple):
         return qrrho
     else:
-        raise ValueError(  # noqa: TRY003
-            f"unrecognized QRRHO specification: {qrrho}",  # noqa: EM102
-        )
+        msg = f"unrecognized QRRHO specification: {qrrho}"
+        raise ValueError(msg)
 
 
-def get_freeenergies(  # noqa: PLR0913
+def get_freeenergies(
     compounds: dict,
     bias: float = 0.0,
-    environment: Optional[str] = None,  # noqa: UP007
+    environment: str | None = None,
     method: str = "standard",
-    qrrho: Union[bool | tuple[bool, bool]] = True,  # noqa: FBT002, UP007
+    qrrho: bool | tuple[bool, bool] = True,
     temperature: float = 298.15,
     pressure: float = constants.atm,
 ):
@@ -413,18 +412,18 @@ def get_freeenergies(  # noqa: PLR0913
     return enthalpies - temperature * entropies + np.asarray(bias)
 
 
-def get_k(  # noqa: PLR0913
+def get_k(
     scheme: Scheme,
-    compounds: Optional[dict] = None,  # noqa: UP007
+    compounds: dict | None = None,
     bias: float = 0.0,
     tunneling: str = "eckart",
-    qrrho: Union[bool | tuple[bool, bool]] = True,  # noqa: FBT002, UP007
+    qrrho: bool | tuple[bool, bool] = True,
     scale: str = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
-    delta_freeenergies: Optional[float] = None,  # noqa: UP007
-    molecularity: Optional[float] = None,  # noqa: UP007
-    volume: Optional[float] = None,  # noqa: UP007
+    delta_freeenergies: float | None = None,
+    molecularity: float | None = None,
+    volume: float | None = None,
 ) -> float:
     r"""Obtain reaction rate constants for a given reaction scheme.
 
@@ -540,11 +539,11 @@ def get_k(  # noqa: PLR0913
     ...       bias=np.array([0.0, 0.0, -1.4, 0.0, 0.0]) * constants.kcal,
     ...       temperature=300.0, scale="cm3 particle-1 s-1")
     array([1.1e-12])
-    """  # noqa: E501
+    """
     qrrho_enthalpy, qrrho_entropy = _check_qrrho(qrrho)
-    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
+    scheme = rx.core._check_scheme(scheme)
     if compounds is not None:
-        compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
+        compounds = rx.io._check_compounds(compounds)
     if delta_freeenergies is None:
         assert compounds is not None, "compounds could not be inferred"
         freeenergies = get_freeenergies(
@@ -586,13 +585,12 @@ def get_k(  # noqa: PLR0913
     while i < len(scheme.is_half_equilibrium):
         if scheme.is_half_equilibrium[i]:
             pair = k[i : i + 2]
-            _K = pair[0] / pair[1]  # noqa: N806
+            _K = pair[0] / pair[1]
 
             denom = pair.min()
-            if denom == 0.0:  # noqa: PLR2004
+            if denom == 0.0:
                 logger.warning(
-                    "found half-equilibrium reaction with zero rate constant: "
-                    "skipping equilibrium normalization",
+                    "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
                 )
                 denom = 1.0
 
@@ -608,7 +606,7 @@ def get_k(  # noqa: PLR0913
         i += 1
 
     logger.info(
-        "(classical) reaction rate constants: "  # noqa: G004
+        "(classical) reaction rate constants: "
         f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
     )
     if tunneling not in {"none", None}:
@@ -625,11 +623,10 @@ def get_k(  # noqa: PLR0913
             # TODO(schneiderfelipe): when get_kappa accept deltas, this will
             # be probably unnecessary.
             logger.warning(
-                "assuming unitary tunneling coefficients due to incomplete "
-                "compound data",
+                "assuming unitary tunneling coefficients due to incomplete compound data",
             )
         logger.info(
-            "(tunneling) reaction rate constants: "  # noqa: G004
+            "(tunneling) reaction rate constants: "
             f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
         )
 
@@ -652,7 +649,7 @@ def get_kappa(
     scheme: Scheme,
     compounds: dict,
     method: str = "eckart",
-    qrrho: bool = True,  # noqa: FBT001, FBT002
+    qrrho: bool = True,
     temperature: float = 298.15,
 ):
     r"""Obtain tunneling transmission coefficients at a given temperature.
@@ -716,8 +713,8 @@ def get_kappa(
     >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
     array([8.e+10])
     """
-    scheme = rx.core._check_scheme(scheme)  # noqa: SLF001
-    compounds = rx.io._check_compounds(compounds)  # noqa: SLF001
+    scheme = rx.core._check_scheme(scheme)
+    compounds = rx.io._check_compounds(compounds)
 
     if method == "eckart":
         # NOTE(schneiderfelipe): We need electronic energies + ZPE here, so we
@@ -751,7 +748,7 @@ def get_kappa(
                         )
                     except RuntimeWarning as e:
                         logger.warning(
-                            f"using Wigner tunneling correction: {e}",  # noqa: G004
+                            f"using Wigner tunneling correction: {e}",
                         )
                         kappa = tunnel.wigner(vibfreq, temperature=temperature)
             elif method == "wigner":
@@ -759,9 +756,8 @@ def get_kappa(
             elif method in {"none", None}:
                 kappa = 1.0
             else:
-                raise ValueError(  # noqa: TRY003
-                    f"unavailable method: '{method}'",  # noqa: EM102
-                )
+                msg = f"unavailable method: '{method}'"
+                raise ValueError(msg)
 
             kappas.append(kappa)
 
@@ -769,19 +765,19 @@ def get_kappa(
     # somewhere else?
     vec_kappas = np.asarray(kappas).flatten()
     logger.info(
-        "(quantum) tunneling coefficients: "  # noqa: G004
+        "(quantum) tunneling coefficients: "
         f"{', '.join([f'{kappa:7.3g}' for kappa in vec_kappas])}",
     )
     return vec_kappas
 
 
-def get_drc(  # noqa: PLR0913
+def get_drc(
     scheme,
     compounds,
     y0,
     t_span=None,
     method="RK23",
-    qrrho=True,  # noqa: FBT002
+    qrrho=True,
     scale="l mol-1 s-1",
     temperature=298.15,
     dx=1.5e3,  # joules

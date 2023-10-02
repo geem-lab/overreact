@@ -1,9 +1,9 @@
-#!/usr/bin/env python3  # noqa: INP001, EXE001
-
 """Regressions against experimental/reference values.
 
 This also tests the high-level application programming interface.
 """
+
+from __future__ import annotations
 
 import numpy as np
 import pytest
@@ -17,7 +17,7 @@ from overreact import _datasets as datasets
 # values to this file.
 
 
-def test_basic_example_for_solvation_equilibria():
+def test_basic_example_for_solvation_equilibria() -> None:
     """Reproduce literature data for AcOH(g) <=> AcOH(aq).
 
     Data is as cited in doi:10.1021/jp810292n and doi:10.1063/1.1416902, and
@@ -25,9 +25,9 @@ def test_basic_example_for_solvation_equilibria():
     """
     model = rx.parse_model("data/acetate/Orca4/model.k")
     temperature = 298.15
-    pK = 4.756  # doi:10.1063/1.1416902  # noqa: N806
+    p_k = 4.756  # doi:10.1063/1.1416902
 
-    acid_energy = -constants.R * temperature * np.log(10**-pK) / constants.kcal
+    acid_energy = -constants.R * temperature * np.log(10**-p_k) / constants.kcal
     solv_energy = (
         -229.04018997
         - -229.075245654407
@@ -76,7 +76,7 @@ def test_basic_example_for_solvation_equilibria():
         # the following tests the reaction free energy from doi:10.1063/1.1416902
         assert delta_freeenergies[0] == pytest.approx(27.147 * constants.kilo, 7e-3)
         assert delta_freeenergies[0] == pytest.approx(
-            -constants.R * temperature * np.log(10**-pK),
+            -constants.R * temperature * np.log(10**-p_k),
             7e-3,
         )
 
@@ -86,10 +86,10 @@ def test_basic_example_for_solvation_equilibria():
             temperature=temperature,
             qrrho=qrrho,
         )
-        assert -np.log10(k[0] / k[1]) == pytest.approx(pK, 7e-3)
+        assert -np.log10(k[0] / k[1]) == pytest.approx(p_k, 7e-3)
 
 
-def test_basic_example_for_solvation_phase_kinetics():
+def test_basic_example_for_solvation_phase_kinetics() -> None:
     """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
 
     This uses raw data from from doi:10.1002/qua.25686 and no calls from
@@ -157,7 +157,7 @@ def test_basic_example_for_solvation_phase_kinetics():
     )
 
 
-def test_basic_example_for_gas_phase_kinetics():
+def test_basic_example_for_gas_phase_kinetics() -> None:
     """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
 
     This uses raw data from from doi:10.1002/qua.25686 and no calls from
@@ -234,7 +234,7 @@ def test_basic_example_for_gas_phase_kinetics():
     )
 
 
-def test_rate_constants_for_hickel1992():
+def test_rate_constants_for_hickel1992() -> None:
     """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
 
     Data is as cited in doi:10.1002/qua.25686 and is experimental except when
@@ -293,11 +293,11 @@ def test_rate_constants_for_hickel1992():
 
         assert linregress.rvalue**2 == pytest.approx(1.0, tols[2])
         assert linregress.pvalue == pytest.approx(0.0, abs=tols[3])
-        assert linregress.pvalue < 0.01  # noqa: PLR2004
+        assert linregress.pvalue < 0.01
         assert linregress.stderr == pytest.approx(0.0, abs=tols[4])
 
 
-def test_rate_constants_for_tanaka1996():
+def test_rate_constants_for_tanaka1996() -> None:
     """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
 
     Data is as cited in doi:10.1007/BF00058703 and doi:10.1002/qua.25686 and
@@ -407,11 +407,11 @@ def test_rate_constants_for_tanaka1996():
 
         assert linregress.rvalue**2 == pytest.approx(1.0, tols[2])
         assert linregress.pvalue == pytest.approx(0.0, abs=tols[3])
-        assert linregress.pvalue < 0.01  # noqa: PLR2004
+        assert linregress.pvalue < 0.01
         assert linregress.stderr == pytest.approx(0.0, abs=tols[4])
 
 
-def test_delta_energies_for_hickel1992():
+def test_delta_energies_for_hickel1992() -> None:
     """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
 
     Data is as cited in doi:10.1002/qua.25686 and is experimental except when
@@ -453,7 +453,7 @@ def test_delta_energies_for_hickel1992():
 
     # extra symmetry is required for this reaction since the transition state
     # is nonsymmetric
-    assert model.compounds["NH3·OH#(w)"].symmetry == 3  # noqa: PLR2004
+    assert model.compounds["NH3·OH#(w)"].symmetry == 3
 
     delta_freeenergies_ref = [7.9, 7.9, 8.1, 8.3, 8.5, 8.7, 8.8]
     assert delta_freeenergies / constants.kcal == pytest.approx(
@@ -462,7 +462,7 @@ def test_delta_energies_for_hickel1992():
     )  # M06-2X/6-311++G(d,p) from doi:10.1002/qua.25686
 
 
-def test_delta_energies_for_tanaka1996():
+def test_delta_energies_for_tanaka1996() -> None:
     """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
 
     Data is as cited in doi:10.1007/BF00058703 and doi:10.1002/qua.25686 and
@@ -524,7 +524,7 @@ def test_delta_energies_for_tanaka1996():
     )  # UMP2/6-311G(3d,2p) from doi:10.1002/qua.25686
 
 
-def test_logfiles_for_hickel1992():
+def test_logfiles_for_hickel1992() -> None:
     """Reproduce literature data for NH3(w) + OH·(w) -> NH2·(w) + H2O(w).
 
     Data is as cited in doi:10.1002/qua.25686 and is experimental except when
@@ -538,7 +538,7 @@ def test_logfiles_for_hickel1992():
 
     data = datasets.logfiles["hickel1992"][f"NH3@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert rx.coords.symmetry_number(point_group) == 3
 
     assert data.vibfreqs == pytest.approx(
         [1022, 1691, 1691, 3506, 3577, 3577],
@@ -561,7 +561,7 @@ def test_logfiles_for_hickel1992():
 
     data = datasets.logfiles["hickel1992"][f"NH2·@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert rx.coords.symmetry_number(point_group) == 2
 
     assert data.vibfreqs == pytest.approx(
         [1497.3, 3220.0, 3301.1],
@@ -574,7 +574,7 @@ def test_logfiles_for_hickel1992():
 
     data = datasets.logfiles["hickel1992"][f"H2O@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 2  # noqa: PLR2004
+    assert rx.coords.symmetry_number(point_group) == 2
 
     assert data.vibfreqs == pytest.approx(
         [1594.6, 3656.7, 3755.8],
@@ -593,7 +593,7 @@ def test_logfiles_for_hickel1992():
     # this transition state.
 
 
-def test_logfiles_for_tanaka1996():
+def test_logfiles_for_tanaka1996() -> None:
     """Reproduce literature data for CH4 + Cl⋅ -> CH3· + HCl.
 
     Data is as cited in doi:10.1007/BF00058703 and doi:10.1002/qua.25686 and
@@ -608,7 +608,7 @@ def test_logfiles_for_tanaka1996():
     # CH4
     data = datasets.logfiles["tanaka1996"][f"methane@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 12  # noqa: PLR2004
+    assert rx.coords.symmetry_number(point_group) == 12
 
     assert data.vibfreqs == pytest.approx(
         [1306, 1306, 1306, 1534, 1534, 2917, 3019, 3019, 3019],
@@ -622,7 +622,7 @@ def test_logfiles_for_tanaka1996():
     # CH3·
     data = datasets.logfiles["tanaka1996"][f"CH3·@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 6  # noqa: PLR2004
+    assert rx.coords.symmetry_number(point_group) == 6
 
     assert data.vibfreqs == pytest.approx(
         [580, 1383, 1383, 3002, 3184, 3184],
@@ -652,7 +652,7 @@ def test_logfiles_for_tanaka1996():
     # CH3-H-Cl
     data = datasets.logfiles["tanaka1996"][f"H3CHCl‡@{theory}/{basisset}"]
     point_group = rx.coords.find_point_group(data.atommasses, data.atomcoords)
-    assert rx.coords.symmetry_number(point_group) == 3  # noqa: PLR2004
+    assert rx.coords.symmetry_number(point_group) == 3
 
     # NOTE(schneiderfelipe): vibrations are from an UMP2/6-311G(3d,2p)
     # calculation, see the reference in doi:10.1007/BF00058703
