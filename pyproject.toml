@@ -90,7 +90,7 @@ pytest = "^7.2.0"
 pytest-cov = "^4"
 ruff = { version = ">=0.0.210,<0.1.7", allow-prereleases = true }
 seaborn = ">=0.12,<0.14"
-types-setuptools = ">=65,<69"
+types-setuptools = ">=65,<70"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
