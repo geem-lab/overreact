@@ -2306,13 +2306,13 @@ dev = ["hypothesis", "mypy", "pdoc-pyo3-sample-library (==1.0.11)", "pygments (>
 
 [[package]]
 name = "perflint"
-version = "0.8.0"
+version = "0.8.1"
 description = "Pylint extension with performance anti-patterns"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "perflint-0.8.0-py3-none-any.whl", hash = "sha256:32d7c97923c2f801d499df1aec793a4feedaea372dc83b216d65d976734d920d"},
-    {file = "perflint-0.8.0.tar.gz", hash = "sha256:317a5658f7dae1861ed08df2c096b0175594f55112a677d59e81a78b5b9003b3"},
+    {file = "perflint-0.8.1-py3-none-any.whl", hash = "sha256:b57f6ee5dc862973258cf7e7507de0cdd220f2dd37bea8fa5423500129a6247d"},
+    {file = "perflint-0.8.1.tar.gz", hash = "sha256:33433401d0554f73d0be3adcfe306ff69cbf708e2b7f20b23f0f8d8cd4e1a85a"},
 ]
 
 [package.dependencies]
