@@ -77,7 +77,7 @@ fast = ["jax", "jaxlib"]
 solvents = ["thermo"]
 
 [tool.poetry.group.dev.dependencies]
-black = { version = "^23.3.0", extras = ["jupyter"] }
+black = { version = ">=23.3,<25.0", extras = ["jupyter"] }
 debugpy = "^1"
 flynt = ">=0.77,<1.1"
 ipython = "^8"
