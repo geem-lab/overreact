@@ -1,6 +1,5 @@
 """Module dedicated to quantum tunneling approximations."""
 
-
 from __future__ import annotations
 
 __all__ = ["eckart", "wigner"]

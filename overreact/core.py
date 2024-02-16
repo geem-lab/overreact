@@ -1,6 +1,5 @@
 """Module dedicated to parsing and modeling of chemical reaction networks."""
 
-
 from __future__ import annotations
 
 __all__ = ["Scheme", "parse_reactions"]

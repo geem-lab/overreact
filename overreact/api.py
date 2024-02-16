@@ -5,7 +5,6 @@ If you intend to use **overreact** as a library in a project, you should
 probably start here.
 """
 
-
 from __future__ import annotations
 
 __all__ = [

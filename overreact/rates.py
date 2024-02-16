@@ -1,6 +1,5 @@
 """Module dedicated to the calculation of reaction rate constants."""
 
-
 from __future__ import annotations
 
 __all__ = ["eyring"]
