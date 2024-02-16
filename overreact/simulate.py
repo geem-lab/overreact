@@ -4,7 +4,6 @@ Here are functions that calculate reaction rates as well, which is needed for
 the time simulations.
 """
 
-
 # TODO(schneiderfelipe): type this module.
 from __future__ import annotations
 

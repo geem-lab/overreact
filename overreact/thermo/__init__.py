@@ -1,6 +1,5 @@
 """Module dedicated to the calculation of thermodynamic properties."""
 
-
 from __future__ import annotations
 
 __all__ = ["equilibrium_constant", "change_reference_state"]

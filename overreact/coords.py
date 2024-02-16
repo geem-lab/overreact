@@ -1,6 +1,5 @@
 """Module dedicated to classifying molecules into point groups."""
 
-
 # TODO(schneiderfelipe): add types to this module
 from __future__ import annotations
 
