@@ -317,13 +317,13 @@ css = ["tinycss2 (>=1.1.0,<1.3)"]
 
 [[package]]
 name = "cclib"
-version = "1.8"
-description = "cclib: parsers and algorithms for computational chemistry"
+version = "1.8.1"
+description = "parsers and algorithms for computational chemistry"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7"
 files = [
-    {file = "cclib-1.8-py3-none-any.whl", hash = "sha256:28662da1bbbe80cf550cef73cfab4ec0f752cc2f9077ee1753efb3083ca1ba5a"},
-    {file = "cclib-1.8.tar.gz", hash = "sha256:12b7a7ed8191f02fa12320dbdc830546ee1615e8b4737e3d766f34622abbd521"},
+    {file = "cclib-1.8.1-py3-none-any.whl", hash = "sha256:ac86cc5f013b7173c5bc62bfae0637ac83ad34de1ed57a1c7c7fb7b3e512c92f"},
+    {file = "cclib-1.8.1.tar.gz", hash = "sha256:d10aa2352479fcdaa86cc32055a8ae7f98ce26523ea928944ab2256f0875d605"},
 ]
 
 [package.dependencies]
@@ -331,6 +331,13 @@ numpy = "*"
 packaging = ">=19.0"
 periodictable = "*"
 scipy = ">=1.2.0"
+
+[package.extras]
+all = ["cclib[bridges]"]
+bridges = ["ase (>=3.21)", "biopython", "openbabel", "pandas", "pyscf", "qc-iodata (>=1.0.0a2)"]
+dev = ["cclib[bridges,docs,test]"]
+docs = ["sphinx", "sphinx-rtd-theme"]
+test = ["coverage", "pytest", "pytest-cov"]
 
 [[package]]
 name = "certifi"
