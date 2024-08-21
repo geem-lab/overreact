@@ -3496,13 +3496,13 @@ files = [
 
 [[package]]
 name = "types-setuptools"
-version = "71.1.0.20240726"
+version = "72.2.0.20240821"
 description = "Typing stubs for setuptools"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "types-setuptools-71.1.0.20240726.tar.gz", hash = "sha256:85ba28e9461bb1be86ebba4db0f1c2408f2b11115b1966334ea9dc464e29303e"},
-    {file = "types_setuptools-71.1.0.20240726-py3-none-any.whl", hash = "sha256:a7775376f36e0ff09bcad236bf265777590a66b11623e48c20bfc30f1444ea36"},
+    {file = "types-setuptools-72.2.0.20240821.tar.gz", hash = "sha256:e349b8015608879939f27ee370672f801287c46f5caa2d188d416336172c4965"},
+    {file = "types_setuptools-72.2.0.20240821-py3-none-any.whl", hash = "sha256:260e89d6d3b42cc35f9f0f382d030713b7b547344a664c05c9175e6ba124fac7"},
 ]
 
 [[package]]
@@ -3659,4 +3659,4 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "413d8b22b08357a0beecb21b0487cf5c7a89294b153a100d91a5f07155b5fb75"
+content-hash = "0cc0af340aaf937d7f287f4275bf2798e00899118d1ec2583396c7d41be45eb1"
