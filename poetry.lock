@@ -515,20 +515,20 @@ files = [
 
 [[package]]
 name = "chemicals"
-version = "1.1.5"
+version = "1.2.0"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 optional = true
 python-versions = "*"
 files = [
-    {file = "chemicals-1.1.5-py3-none-any.whl", hash = "sha256:cd7c5b6b08e4e9601246ff0c9b626b88946e21ff88e154eca521747cbf0c3386"},
-    {file = "chemicals-1.1.5.tar.gz", hash = "sha256:5d353486af360e5f1a6c395bd85e4ae8faff4cf0d85a23e629b8809496c25071"},
+    {file = "chemicals-1.2.0-py3-none-any.whl", hash = "sha256:201e2ca14764a865d84d9da5a50819733a281128260ac4e825cd3d9c4aecbf3c"},
+    {file = "chemicals-1.2.0.tar.gz", hash = "sha256:54d9620da6de92c4540a2379600f7e3360f5a1e28c64912df58afb0d792439a8"},
 ]
 
 [package.dependencies]
-fluids = ">=1.0.23"
+fluids = ">=1.0.26"
 numpy = "*"
 pandas = "*"
-scipy = "*"
+scipy = ">=1.6.0"
 
 [package.extras]
 coverage-documentation = ["coverage (>=4.0.3)", "wsgiref (>=0.1.2)"]
@@ -840,18 +840,18 @@ devel = ["colorama", "json-spec", "jsonschema", "pylint", "pytest", "pytest-benc
 
 [[package]]
 name = "fluids"
-version = "1.0.25"
+version = "1.0.26"
 description = "Fluid dynamics component of Chemical Engineering Design Library (ChEDL)"
 optional = true
 python-versions = "*"
 files = [
-    {file = "fluids-1.0.25-py3-none-any.whl", hash = "sha256:1796696caa05321ccef2351d23c3a93003d526b8c3428d94e97d27a849a9bdf9"},
-    {file = "fluids-1.0.25.tar.gz", hash = "sha256:4ece8748dd4b7d8051d821b535cf684e26aac6059556f34aaece3a87d951caea"},
+    {file = "fluids-1.0.26-py3-none-any.whl", hash = "sha256:4d813ab995138f96d84406354b252648f4cf4570f43c1d4df101809b4c36b96c"},
+    {file = "fluids-1.0.26.tar.gz", hash = "sha256:733729c71cf3b87fbc055fe33547178d4f8b7eb6ff6036bbb1472b8c0d8c1fb3"},
 ]
 
 [package.dependencies]
 numpy = ">=1.5.0"
-scipy = ">=0.9.0"
+scipy = ">=1.6.0"
 
 [package.extras]
 coverage-documentation = ["coverage (>=4.0.3)", "pint", "wsgiref (>=0.1.2)"]
@@ -3401,20 +3401,20 @@ typing = ["mypy (>=1.6,<2.0)", "traitlets (>=5.11.1)"]
 
 [[package]]
 name = "thermo"
-version = "0.2.27"
+version = "0.3.0"
 description = "Chemical properties component of Chemical Engineering Design Library (ChEDL)"
 optional = true
 python-versions = "*"
 files = [
-    {file = "thermo-0.2.27-py3-none-any.whl", hash = "sha256:b2ed89c3ba770f74a94346e87418a745d94d92f165700ced2e8d6e86f08615dd"},
-    {file = "thermo-0.2.27.tar.gz", hash = "sha256:93626e96a3172954bd0eda010a54627eaa283e06d2f51076b3fc3b66db5c0725"},
+    {file = "thermo-0.3.0-py3-none-any.whl", hash = "sha256:97fb23e85aced5132679097a6953273d9d4575605801d67f1cbfcd52a25ac948"},
+    {file = "thermo-0.3.0.tar.gz", hash = "sha256:f09c2c12b8e8651b1a2cf6c238fcf933055895e19c9be5696570a7dd4f6c31cb"},
 ]
 
 [package.dependencies]
-chemicals = ">=1.1.5"
-fluids = ">=1.0.25"
+chemicals = ">=1.2.0"
+fluids = ">=1.0.26"
 pandas = "*"
-scipy = "*"
+scipy = ">=1.6.0"
 
 [package.extras]
 coverage-documentation = ["coverage (>=4.0.3)", "wsgiref (>=0.1.2)"]
@@ -3681,4 +3681,4 @@ solvents = ["thermo"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.11"
-content-hash = "413d8b22b08357a0beecb21b0487cf5c7a89294b153a100d91a5f07155b5fb75"
+content-hash = "3d7389842119451cbaca1db14f610d366e88913b490643b71c05fad29da80599"
