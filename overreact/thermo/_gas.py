@@ -644,7 +644,7 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
     return constants.R * (np.log(q_trans) + 2.5)
 
 
-def _rotational_temperature(moments=None):
+def _rotational_temperature(moments=None, thresh=1e-63):
     """Calculate rotational temperatures.
 
     This function returns rotational temperatures associated with all non-zero
@@ -654,6 +654,8 @@ def _rotational_temperature(moments=None):
     ----------
     moments : array-like
         Primary moments of inertia in ascending order. Units are in amu·Å².
+    thresh : float, optional
+        Threshold to consider small moments of inertia equal to zero.
 
     Returns
     -------
@@ -683,7 +685,7 @@ def _rotational_temperature(moments=None):
         # assuming atomic system
         return np.array([])
     moments = np.atleast_1d(moments)
-    moments[np.abs(moments) < 1e-63] = 0  # set almost zeros to exact zeros
+    moments[np.abs(moments) < thresh] = 0  # set almost zeros to exact zeros
     moments = (
         moments[np.nonzero(moments)] * constants.atomic_mass * constants.angstrom**2
     )
