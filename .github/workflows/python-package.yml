@@ -41,7 +41,7 @@ jobs:
 
       - name: Lint with Ruff
         run: |
-          poetry run ruff . --show-source
+          ruff check --output-format=github .
 
       - name: Lint with Black
         uses: psf/black@stable

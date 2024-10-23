@@ -98,6 +98,8 @@ requires = ["poetry-core>=1.0.0"]
 
 [tool.ruff]
 target-version = "py38"
+
+[tool.ruff.lint]
 select = ["ALL"]
 # TODO(schneiderfelipe): make this list shorter
 ignore = [
@@ -144,7 +146,7 @@ ignore = [
   "TD003",
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
 [tool.coverage.run]
