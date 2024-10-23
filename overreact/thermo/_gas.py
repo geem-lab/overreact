@@ -33,7 +33,6 @@ def calc_trans_energy(temperature=298.15):
     3718.
     >>> calc_trans_energy(373.15)
     4653.
-
     """
     temperature = np.asarray(temperature)
 
@@ -95,7 +94,6 @@ def calc_elec_energy(energy=0.0, degeneracy=1, temperature=298.15):
     ...     energy * 100 * constants.h * constants.c * constants.N_A, degeneracy
     ... )
     321.00
-
     """
     temperature = np.asarray(temperature)
 
@@ -172,7 +170,6 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     >>> calc_elec_entropy(energy * 100 * constants.h * constants.c * constants.N_A,
     ...                   degeneracy)
     13.175
-
     """
     temperature = np.asarray(temperature)
 
@@ -243,7 +240,6 @@ def calc_rot_energy(
 
     >>> calc_rot_energy()
     0.0
-
     """
     temperature = np.asarray(temperature)
 
@@ -492,7 +488,6 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
 
     >>> calc_vib_energy()
     0.0
-
     """
     vibrational_temperature = _vibrational_temperature(vibfreqs)
     if not vibrational_temperature.size:
@@ -573,7 +568,6 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
 
     >>> calc_vib_entropy()
     0.0
-
     """
     if np.isclose(temperature, 0.0):
         logger.warning("assuming vibrational entropy zero at zero temperature")
