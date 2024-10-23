@@ -33,7 +33,6 @@ def calc_trans_energy(temperature=298.15):
     3718.
     >>> calc_trans_energy(373.15)
     4653.
-
     """
     temperature = np.asarray(temperature)
 
@@ -95,7 +94,6 @@ def calc_elec_energy(energy=0.0, degeneracy=1, temperature=298.15):
     ...     energy * 100 * constants.h * constants.c * constants.N_A, degeneracy
     ... )
     321.00
-
     """
     temperature = np.asarray(temperature)
 
@@ -172,7 +170,6 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     >>> calc_elec_entropy(energy * 100 * constants.h * constants.c * constants.N_A,
     ...                   degeneracy)
     13.175
-
     """
     temperature = np.asarray(temperature)
 
@@ -243,7 +240,6 @@ def calc_rot_energy(
 
     >>> calc_rot_energy()
     0.0
-
     """
     temperature = np.asarray(temperature)
 
@@ -492,7 +488,6 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
 
     >>> calc_vib_energy()
     0.0
-
     """
     vibrational_temperature = _vibrational_temperature(vibfreqs)
     if not vibrational_temperature.size:
@@ -573,7 +568,6 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
 
     >>> calc_vib_entropy()
     0.0
-
     """
     if np.isclose(temperature, 0.0):
         logger.warning("assuming vibrational entropy zero at zero temperature")
@@ -644,7 +638,9 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
     return constants.R * (np.log(q_trans) + 2.5)
 
 
-def _rotational_temperature(moments=None):
+# NOTE(schneiderfelipe): thresh was found to be reasonable
+# when greater than or equal to 3e-47.
+def _rotational_temperature(moments=None, thresh=3e-47):
     """Calculate rotational temperatures.
 
     This function returns rotational temperatures associated with all non-zero
@@ -654,6 +650,8 @@ def _rotational_temperature(moments=None):
     ----------
     moments : array-like
         Primary moments of inertia in ascending order. Units are in amu·Å².
+    thresh : float, optional
+        Threshold to consider small moments of inertia equal to zero.
 
     Returns
     -------
@@ -678,12 +676,19 @@ def _rotational_temperature(moments=None):
     array([81.88521438, 81.88521438])
     >>> _rotational_temperature([i, i, i])
     array([81.88521438, 81.88521438, 81.88521438])
+
+    Small values are considered zero with comparison to thresh:
+
+    >>> z = -2.18952885e-47
+    >>> j = 1.15909934e+01
+    >>> _rotational_temperature([z, j, j])
+    array([2.09251841e+00,  2.09251841e+00])
     """
     if moments is None:
         # assuming atomic system
         return np.array([])
     moments = np.atleast_1d(moments)
-    moments[np.abs(moments) < 1e-63] = 0  # set almost zeros to exact zeros
+    moments[np.abs(moments) < thresh] = 0  # set almost zeros to exact zeros
     moments = (
         moments[np.nonzero(moments)] * constants.atomic_mass * constants.angstrom**2
     )

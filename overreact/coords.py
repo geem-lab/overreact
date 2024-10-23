@@ -2011,7 +2011,7 @@ def _equivalent_atoms(
         Atomic coordinates.
     method : str, optional
         Method of partitioning: "atommass" (same atoms same groups), "cluster".
-    thresh : int, optional
+    thresh : float, optional
         Threshold to consider atom clusters.
 
     Returns
