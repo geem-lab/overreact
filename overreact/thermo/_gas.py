@@ -644,7 +644,9 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
     return constants.R * (np.log(q_trans) + 2.5)
 
 
-def _rotational_temperature(moments=None, thresh=1e-63):
+# NOTE(schneiderfelipe): thresh was found to be reasonable
+# when greater than or equal to 3e-47.
+def _rotational_temperature(moments=None, thresh=3e-47):
     """Calculate rotational temperatures.
 
     This function returns rotational temperatures associated with all non-zero
@@ -680,6 +682,13 @@ def _rotational_temperature(moments=None, thresh=1e-63):
     array([81.88521438, 81.88521438])
     >>> _rotational_temperature([i, i, i])
     array([81.88521438, 81.88521438, 81.88521438])
+
+    Small values are considered zero with comparison to thresh:
+
+    >>> z = -2.18952885e-47
+    >>> j = 1.15909934e+01
+    >>> _rotational_temperature([z, j, j])
+    array([2.09251841e+00,  2.09251841e+00])
     """
     if moments is None:
         # assuming atomic system
