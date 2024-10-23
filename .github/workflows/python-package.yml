@@ -40,7 +40,8 @@ jobs:
           poetry install --extras "cli fast solvents"
 
       - name: Lint with Ruff
-      - uses: astral-sh/ruff-action@v1
+      - run: |
+          poetry run ruff check --output-format=github .
 
       - name: Lint with Black
         uses: psf/black@stable
