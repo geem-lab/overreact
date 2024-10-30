@@ -83,14 +83,14 @@ flynt = ">=0.77,<1.1"
 ipython = "^8"
 jupyter = "^1.0.0"
 matplotlib = "^3"
-mypy = ">=0.991,<1.12"
+mypy = ">=0.991,<1.14"
 pdoc = ">=12,<15"
 perflint = ">=0.7.1,<0.9.0"
 pytest = ">=7.2,<9.0"
 pytest-cov = ">=4,<6"
-ruff = { version = ">=0.0.210,<0.4.8", allow-prereleases = true }
+ruff = { version = ">=0.0.210,<0.7.1", allow-prereleases = true }
 seaborn = ">=0.12,<0.14"
-types-setuptools = ">=65,<72"
+types-setuptools = ">=65,<76"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
@@ -98,6 +98,8 @@ requires = ["poetry-core>=1.0.0"]
 
 [tool.ruff]
 target-version = "py38"
+
+[tool.ruff.lint]
 select = ["ALL"]
 # TODO(schneiderfelipe): make this list shorter
 ignore = [
@@ -144,7 +146,7 @@ ignore = [
   "TD003",
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
 [tool.coverage.run]
