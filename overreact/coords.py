@@ -2,6 +2,7 @@
 
 # TODO(schneiderfelipe): add types to this module
 from __future__ import annotations
+from functools import lru_cache
 
 __all__ = ["find_point_group", "symmetry_number"]
 
@@ -1680,7 +1681,7 @@ def gyradius(atommasses, atomcoords, method="iupac"):
         msg = f"unavailable method: '{method}'"
         raise ValueError(msg)
 
-
+@lru_cache()
 def inertia(atommasses, atomcoords, align=True):
     r"""Calculate primary moments and axes from the inertia tensor.
 
