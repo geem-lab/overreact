@@ -2,7 +2,7 @@
 
 # TODO(schneiderfelipe): add types to this module
 from __future__ import annotations
-import functools
+from functools import lru_cache as cache
 
 __all__ = ["find_point_group", "symmetry_number"]
 
@@ -1681,21 +1681,9 @@ def gyradius(atommasses, atomcoords, method="iupac"):
         msg = f"unavailable method: '{method}'"
         raise ValueError(msg)
     
-def ignore_unhashable(func): 
-    uncached = func.__wrapped__
-    attributes = functools.WRAPPER_ASSIGNMENTS + ('cache_info', 'cache_clear')
-    @functools.wraps(func, assigned=attributes) 
-    def wrapper(*args, **kwargs): 
-        try: 
-            return func(*args, **kwargs) 
-        except TypeError as error: 
-            if 'unhashable type' in str(error): 
-                return uncached(*args, **kwargs) 
-            raise 
-    wrapper.__uncached__ = uncached
-    return wrapper
-@ignore_unhashable
-@functools.lru_cache()
+
+@rx._misc.ignore_unhashable
+@cache()
 def inertia(atommasses, atomcoords, align=True):
     r"""Calculate primary moments and axes from the inertia tensor.
 
