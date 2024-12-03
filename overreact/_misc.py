@@ -6,6 +6,7 @@ Ideally, the functions here will be transferred to other modules in the future.
 from __future__ import annotations
 
 import contextlib
+import functools
 from functools import lru_cache as cache
 
 import numpy as np
@@ -14,6 +15,19 @@ from scipy.stats import cauchy, norm
 import overreact as rx
 from overreact import _constants as constants
 
+def ignore_unhashable(func): 
+    uncached = func.__wrapped__
+    attributes = functools.WRAPPER_ASSIGNMENTS + ('cache_info', 'cache_clear')
+    @functools.wraps(func, assigned=attributes) 
+    def wrapper(*args, **kwargs): 
+        try: 
+            return func(*args, **kwargs) 
+        except TypeError as error: 
+            if 'unhashable type' in str(error): 
+                return uncached(*args, **kwargs) 
+            raise 
+    wrapper.__uncached__ = uncached
+    return wrapper
 
 def _find_package(package):
     """Check if a package exists without importing it.
