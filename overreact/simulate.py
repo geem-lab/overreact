@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 if _found_jax:
     import jax.numpy as jnp
     from jax import jacfwd, jit
-    from jax.config import config
+    from jax import config
 
     config.update("jax_enable_x64", True)
 else:
