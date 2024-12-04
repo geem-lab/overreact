@@ -6,8 +6,8 @@ Ideally, the functions here will be transferred to other modules in the future.
 from __future__ import annotations
 
 import contextlib
-import functools
 from functools import lru_cache as cache
+from copy import deepcopy
 
 import numpy as np
 from scipy.stats import cauchy, norm
@@ -15,22 +15,29 @@ from scipy.stats import cauchy, norm
 import overreact as rx
 from overreact import _constants as constants
 
-def ignore_unhashable(func): 
+def copy_unhashable(maxsize=100000, typed=False): 
+    """Creates a copy of the arrays received by lru_cache and make them hashable, therefore maintaining the arrays to be passed and caching prototypes of those arrays.
+    
+    Insipired by:
+    <https://stackoverflow.com/a/54909677/21189559>
+    
+    Parameters
+    ----------
+    maxsize : int
+    typed : bool
+        If true, function arguments of different types will be cached separately.
+        
+    Returns
+    --------
+    function 
     """
-    """
-    uncached = func.__wrapped__
-    attributes = functools.WRAPPER_ASSIGNMENTS + ('cache_info', 'cache_clear')
-    @functools.wraps(func, assigned=attributes) 
-    def wrapper(*args, **kwargs): 
-        try: 
-            return func(*args, **kwargs) 
-        except TypeError as error: 
-            if 'unhashable type' in str(error): 
-                return uncached(*args, **kwargs) 
-            raise 
-    wrapper.__uncached__ = uncached
-    return wrapper
-
+    def decorator(func):
+        cached_func = cache(maxsize=maxsize, typed=typed)(func)
+        def wrapper(*args, **kwargs):
+            return deepcopy(cached_func(*args, **kwargs))
+        return wrapper
+    return decorator 
+    
 def _find_package(package):
     """Check if a package exists without importing it.
 
