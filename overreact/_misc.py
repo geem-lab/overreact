@@ -16,6 +16,8 @@ import overreact as rx
 from overreact import _constants as constants
 
 def ignore_unhashable(func): 
+    """
+    """
     uncached = func.__wrapped__
     attributes = functools.WRAPPER_ASSIGNMENTS + ('cache_info', 'cache_clear')
     @functools.wraps(func, assigned=attributes) 
