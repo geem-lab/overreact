@@ -18,6 +18,7 @@ from scipy.spatial.transform import Rotation
 
 import overreact as rx
 from overreact import _constants as constants
+from overreact import _misc as _misc
 
 logger = logging.getLogger(__name__)
 
