@@ -4,7 +4,6 @@ from __future__ import annotations
 
 __docformat__ = "restructuredtext"
 
-#import pkg_resources as _pkg_resources
 from importlib.metadata import version
 
 from overreact.api import (
