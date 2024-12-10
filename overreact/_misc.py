@@ -15,6 +15,14 @@ from scipy.stats import cauchy, norm
 import overreact as rx
 from overreact import _constants as constants
 
+def make_hashable(obj):
+    if isinstance(obj, np.ndarray):
+        return tuple(obj.ravel())
+    elif isinstance(obj, (list, set)):
+        return tuple(map(make_hashable, obj))
+    else:
+        return obj
+    
 def copy_unhashable(maxsize=128, typed=False): 
     """Creates a copy of the arrays received by lru_cache and make them hashable, therefore maintaining the arrays to be passed and caching prototypes of those arrays.
     
