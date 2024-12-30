@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import contextlib
 from functools import lru_cache as cache
+from copy import deepcopy
 
 import numpy as np
 from scipy.stats import cauchy, norm
@@ -14,7 +15,37 @@ from scipy.stats import cauchy, norm
 import overreact as rx
 from overreact import _constants as constants
 
-
+def make_hashable(obj):
+    if isinstance(obj, np.ndarray):
+        return tuple(obj.ravel())
+    elif isinstance(obj, (list, set)):
+        return tuple(map(make_hashable, obj))
+    else:
+        return obj
+    
+def copy_unhashable(maxsize=128, typed=False): 
+    """Creates a copy of the arrays received by lru_cache and make them hashable, therefore maintaining the arrays to be passed and caching prototypes of those arrays.
+    
+    Insipired by:
+    <https://stackoverflow.com/a/54909677/21189559>
+    
+    Parameters
+    ----------
+    maxsize : int
+    typed : bool
+        If true, function arguments of different types will be cached separately.
+        
+    Returns
+    --------
+    function 
+    """
+    def decorator(func):
+        cached_func = cache(maxsize=maxsize, typed=typed)(func)
+        def wrapper(*args, **kwargs):
+            return deepcopy(cached_func(*args, **kwargs))
+        return wrapper
+    return decorator 
+    
 def _find_package(package):
     """Check if a package exists without importing it.
 
