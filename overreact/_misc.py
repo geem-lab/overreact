@@ -6,7 +6,7 @@ Ideally, the functions here will be transferred to other modules in the future.
 from __future__ import annotations
 
 import contextlib
-from functools import lru_cache as cache
+from functools import lru_cache as cache, wraps
 from copy import deepcopy
 
 import numpy as np
@@ -15,37 +15,48 @@ from scipy.stats import cauchy, norm
 import overreact as rx
 from overreact import _constants as constants
 
-def make_hashable(obj):
+def make_hashable(obj): 
     if isinstance(obj, np.ndarray):
-        return tuple(obj.ravel())
-    elif isinstance(obj, (list, set)):
-        return tuple(map(make_hashable, obj))
+        return (tuple(obj.shape), tuple(obj.ravel()))
     else:
         return obj
     
-def copy_unhashable(maxsize=128, typed=False): 
-    """Creates a copy of the arrays received by lru_cache and make them hashable, therefore maintaining the arrays to be passed and caching prototypes of those arrays.
-    
-    Insipired by:
-    <https://stackoverflow.com/a/54909677/21189559>
-    
-    Parameters
-    ----------
-    maxsize : int
-    typed : bool
-        If true, function arguments of different types will be cached separately.
-        
-    Returns
-    --------
-    function 
-    """
+def copy_unhashable(maxsize=128, typed=False):
     def decorator(func):
-        cached_func = cache(maxsize=maxsize, typed=typed)(func)
+        @cache(maxsize=maxsize, typed=typed)
+        @wraps(func)
+        def cached_func(*hashable_args, **hashable_kwargs):
+            args = []
+            kwargs = {}
+            
+            def convert_back(arg):
+                if isinstance(arg, tuple) and len(arg) == 2:
+                    shape, flat_data = arg
+                    if isinstance(shape, tuple) and isinstance(flat_data, tuple):
+                        return np.array(flat_data).reshape(shape)
+                return arg
+
+            for arg in hashable_args:
+                args.append(convert_back(arg))
+            for k, v in hashable_kwargs.items():
+                kwargs[k] = convert_back(v)
+            args = tuple(args)
+            return func(*args, **kwargs)
+
         def wrapper(*args, **kwargs):
-            return deepcopy(cached_func(*args, **kwargs))
+            wrapper_hashable_args = []
+            wrapper_hashable_kwargs = {}
+            
+            for arg in args:
+                wrapper_hashable_args.append(make_hashable(arg))
+            for k,v in kwargs.items():
+                wrapper_hashable_kwargs[k] = make_hashable(v)
+            wrapper_hashable_args = tuple(wrapper_hashable_args)
+            return deepcopy(cached_func(*wrapper_hashable_args, **wrapper_hashable_kwargs))
+
         return wrapper
-    return decorator 
-    
+    return decorator
+
 def _find_package(package):
     """Check if a package exists without importing it.
 
@@ -770,7 +781,7 @@ def _first_primes(size):
     return primes
 
 
-@cache(maxsize=1000000)
+@cache
 def _vdc(n, b=2):
     """Help haltonspace."""
     res, denom = 0, 1
