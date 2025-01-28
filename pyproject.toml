@@ -71,6 +71,7 @@ jaxlib = { version = "^0.4", optional = true }
 rich = { version = "^13", optional = true }
 thermo = { version = ">=0.2,<0.5", optional = true }
 findiff = "^0.12.1"
+importlib = "^1.0.4"
 
 [tool.poetry.extras]
 cli = ["rich"]
