@@ -8,7 +8,8 @@ __all__ = ["equilibrium_constant", "change_reference_state"]
 import logging
 
 import numpy as np
-from scipy.misc import derivative
+from findiff import Diff as derivative
+#from scipy.misc import derivative
 from scipy.special import factorial
 
 import overreact as rx

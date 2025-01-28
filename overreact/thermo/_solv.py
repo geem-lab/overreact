@@ -5,7 +5,8 @@ from __future__ import annotations
 import logging
 
 import numpy as np
-from scipy.misc import derivative
+from findiff import Diff as derivative
+# from scipy.misc import derivative
 
 import overreact as rx
 from overreact import _constants as constants
