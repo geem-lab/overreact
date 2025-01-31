@@ -1682,7 +1682,7 @@ def gyradius(atommasses, atomcoords, method="iupac"):
         raise ValueError(msg)
     
 
-@rx._misc.copy_unhashable()
+#@rx._misc.copy_unhashable()
 def inertia(atommasses, atomcoords, align=True):
     r"""Calculate primary moments and axes from the inertia tensor.
 
