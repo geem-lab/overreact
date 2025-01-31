@@ -22,11 +22,11 @@ import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
-from findiff import Diff as derivative
 
 import overreact as rx
 from overreact import _constants as constants
 from overreact import coords, rates, tunnel
+from overreact._misc import _derivative as derivative
 
 if TYPE_CHECKING:
     from overreact.core import Scheme
