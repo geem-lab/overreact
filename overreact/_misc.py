@@ -18,6 +18,9 @@ from overreact import _constants as constants
 
 def _central_diff_weights(Np, ndiv=1):
     """
+    Extracted directly from Scipy 'finite_differences' module 
+    (https://github.com/scipy/scipy/blob/d1073acbc804b721cfe356969d8461cdd25a7839/scipy/stats/_finite_differences.py)
+    
     Return weights for an Np-point central derivative.
 
     Assumes equally-spaced function points.
@@ -83,6 +86,9 @@ def _central_diff_weights(Np, ndiv=1):
 
 def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
     """
+    Extracted directly from Scipy 'finite_differences' module 
+    (https://github.com/scipy/scipy/blob/d1073acbc804b721cfe356969d8461cdd25a7839/scipy/stats/_finite_differences.py)
+    
     Find the nth derivative of a function at a point.
 
     Given a function, use a central difference formula with spacing `dx` to
@@ -154,6 +160,10 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
             weights = first_deriv_weight_map.get(9)
         else:
             weights = _central_diff_weights(order, 1)
+    # TODO(mrauen):
+    # I couldn't find a case in overreact where we use the second derivative.
+    # Therefore, I think we can delete this piece of code...
+    # Or maybe just leave it here for the future implementations (who knows)
     elif n == 2:
         if order == 3:
             weights = second_deriv_weight_map.get(3)
@@ -174,28 +184,72 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
         val += weights[k] * func(x0 + (k - ho) * dx, *args)
     return val / prod((dx,) * n, axis=0)
 
-# TODO(mrauen): write and add docstring here
 def make_hashable(obj): 
+    """
+    Given an array, list or set make it immutable by transforming it into a tuple.
+    
+    Parameters
+    ----------
+    obj : array
+    
+    Returns
+    -------
+    tuple
+    
+    Notes
+    -----
+    List comprehension it's key here for list and set, otherwise it will return a tuple with only the first item.
+    """
     if isinstance(obj, np.ndarray):
         return (tuple(obj.shape), tuple(obj.ravel()))
+    elif isinstance(obj, list) or isinstance(obj, set):
+            return tuple(make_hashable(item) for item in obj)
     else:
         return obj
    
-# TODO(mrauen): write and add docstring here 
 def copy_unhashable(maxsize=128, typed=False):
+    """
+    Decorator function that caches resultant tuples while handling the received unhashable types (array, list, dictionaries).
+    
+    Convert unhashable arguments into hashable before passing it to 'lru_cache'. Then, reconstruct the (now) hashable tuple back to return it for the function caller. A copy of the received argument is made in order to prevent errors and side-effects to the original array/list/etc.
+    
+    Parameters
+    ----------
+    maxsize : int
+        Cache size limit. Default from functools.lru_cache()
+    typed : bool
+        If set to True, arguments of different types will be cache separately. Default from functools.lru_cache()
+    func : function
+        The function to be wrapped and cached       
+        
+    Returns
+    -------
+    function
+        A wrapper version of the original function that is cacheable now 
+    """
     def decorator(func):
         @cache(maxsize=maxsize, typed=typed)
         @wraps(func)
         def cached_func(*hashable_args, **hashable_kwargs):
             args = []
             kwargs = {}
-            
+           
             def convert_back(arg):
                 if isinstance(arg, tuple) and len(arg) == 2:
                     shape, flat_data = arg
-                    if isinstance(shape, tuple) and isinstance(flat_data, tuple):
-                        return np.array(flat_data).reshape(shape)
+                    if (
+                        isinstance(shape, tuple)
+                        and all(isinstance(dim, (int, np.integer)) for dim in shape)
+                        and isinstance(flat_data, tuple)
+                    ):
+                        if len(flat_data) == 0 or any(dim <= 0 for dim in shape):
+                            return np.array([])  
+                        try:
+                            return np.array(flat_data).reshape(shape)
+                        except ValueError as e:
+                            raise ValueError(f"Reshape error: {e} - shape: {shape}, data: {flat_data}")
                 return arg
+ 
 
             for arg in hashable_args:
                 args.append(convert_back(arg))
