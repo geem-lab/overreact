@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-__all__ = ["equilibrium_constant", "change_reference_state"]
+__all__ = ["change_reference_state", "equilibrium_constant"]
 
 
 import logging
 
 import numpy as np
-from overreact._misc import _derivative as derivative
 from scipy.special import factorial
 
 import overreact as rx
 from overreact import _constants as constants
+from overreact._misc import _derivative as derivative
 from overreact.thermo._gas import (
     calc_elec_energy,
     calc_elec_entropy,

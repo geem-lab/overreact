@@ -1680,7 +1680,6 @@ def gyradius(atommasses, atomcoords, method="iupac"):
     else:
         msg = f"unavailable method: '{method}'"
         raise ValueError(msg)
-    
 
 @rx._misc.copy_unhashable()
 def inertia(atommasses, atomcoords, align=True):

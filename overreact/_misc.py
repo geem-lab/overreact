@@ -6,15 +6,17 @@ Ideally, the functions here will be transferred to other modules in the future.
 from __future__ import annotations
 
 import contextlib
-from functools import lru_cache as cache, wraps
 from copy import deepcopy
+from functools import lru_cache as cache
+from functools import wraps
 
 import numpy as np
-from numpy import arange, newaxis, hstack, prod, array
+from numpy import arange, array, hstack, newaxis, prod
 from scipy.stats import cauchy, norm
 
 import overreact as rx
 from overreact import _constants as constants
+
 
 def _central_diff_weights(Np, ndiv=1):
     """
@@ -68,7 +70,7 @@ def _central_diff_weights(Np, ndiv=1):
     """
     if Np < ndiv + 1:
         raise ValueError(
-            "Number of points must be at least the derivative order + 1."
+            "Number of points must be at least the derivative order + 1.",
         )
     if Np % 2 == 0:
         raise ValueError("The number of points must be odd.")
@@ -80,8 +82,7 @@ def _central_diff_weights(Np, ndiv=1):
     X = x**0.0
     for k in range(1, Np):
         X = hstack([X, x**k])
-    w = prod(arange(1, ndiv + 1), axis=0) * linalg.inv(X)[ndiv]
-    return w
+    return prod(arange(1, ndiv + 1), axis=0) * linalg.inv(X)[ndiv]
 
 
 def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
@@ -126,28 +127,26 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
         5: array([1, -8, 0, 8, -1]) / 12.0,
         7: array([-1, 9, -45, 0, 45, -9, 1]) / 60.0,
         9: array([3, -32, 168, -672, 0, 672, -168, 32, -3]) / 840.0,
-    } 
-    
+    }
+
     second_deriv_weight_map = {
         3: array([1, -2.0, 1]),
         5: array([-1, 16, -30, 16, -1]) / 12.0,
         7: array([2, -27, 270, -490, 270, -27, 2]) / 180.0,
-        9: array([-9, 128, -1008, 8064, -14350, 8064, -1008, 128, -9]) / 5040.0
+        9: array([-9, 128, -1008, 8064, -14350, 8064, -1008, 128, -9]) / 5040.0,
     }
-    
+
     if order < n + 1:
         raise ValueError(
             "'order' (the number of points used to compute the derivative), "
-            "must be at least the derivative order 'n' + 1."
+            "must be at least the derivative order 'n' + 1.",
         )
-    elif order % 2 == 0:
+    if order % 2 == 0:
         raise ValueError(
             "'order' (the number of points used to compute the derivative) "
-            "must be odd."
+            "must be odd.",
         )
-    else:
-        pass
-    
+
     # pre-computed for n=1 and 2 and low-order for speed.
     if n == 1:
         if order == 3:
@@ -160,10 +159,7 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
             weights = first_deriv_weight_map.get(9)
         else:
             weights = _central_diff_weights(order, 1)
-    # TODO(mrauen):
-    # I couldn't find a case in overreact where we use the second derivative.
-    # Therefore, I think we can delete this piece of code...
-    # Or maybe just leave it here for the future implementations (who knows)
+    # TODO(mrauen): I couldn't find a case in overreact where we use the second derivative. Therefore, I think we can delete this piece of code...Or maybe just leave it here for the future implementations (who knows)
     elif n == 2:
         if order == 3:
             weights = second_deriv_weight_map.get(3)
@@ -173,18 +169,18 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
             weights = second_deriv_weight_map.get(7)
         elif n == 2 and order == 9:
             weights = second_deriv_weight_map.get(9)
-        else: 
+        else:
             weights = _central_diff_weights(order, 2)
     else:
         weights = _central_diff_weights(order, n)
-    
+
     val = 0.0
     ho = order >> 1
     for k in range(order):
         val += weights[k] * func(x0 + (k - ho) * dx, *args)
     return val / prod((dx,) * n, axis=0)
 
-def make_hashable(obj): 
+def make_hashable(obj):
     """
     Given an array, list or set make it immutable by transforming it into a tuple.
     
@@ -206,7 +202,7 @@ def make_hashable(obj):
             return tuple(make_hashable(item) for item in obj)
     else:
         return obj
-   
+
 def copy_unhashable(maxsize=128, typed=False):
     """
     Decorator function that caches resultant tuples while handling the received unhashable types (array, list, dictionaries).
@@ -233,7 +229,7 @@ def copy_unhashable(maxsize=128, typed=False):
         def cached_func(*hashable_args, **hashable_kwargs):
             args = []
             kwargs = {}
-           
+
             def convert_back(arg):
                 if isinstance(arg, tuple) and len(arg) == 2:
                     shape, flat_data = arg
@@ -243,13 +239,13 @@ def copy_unhashable(maxsize=128, typed=False):
                         and isinstance(flat_data, tuple)
                     ):
                         if len(flat_data) == 0 or any(dim <= 0 for dim in shape):
-                            return np.array([])  
+                            return np.array([])
                         try:
                             return np.array(flat_data).reshape(shape)
                         except ValueError as e:
                             raise ValueError(f"Reshape error: {e} - shape: {shape}, data: {flat_data}")
                 return arg
- 
+
 
             for arg in hashable_args:
                 args.append(convert_back(arg))
@@ -261,7 +257,7 @@ def copy_unhashable(maxsize=128, typed=False):
         def wrapper(*args, **kwargs):
             wrapper_hashable_args = []
             wrapper_hashable_kwargs = {}
-            
+
             for arg in args:
                 wrapper_hashable_args.append(make_hashable(arg))
             for k,v in kwargs.items():

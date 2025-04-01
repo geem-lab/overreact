@@ -8,12 +8,12 @@ probably start here.
 from __future__ import annotations
 
 __all__ = [
+    "get_enthalpies",
+    "get_entropies",
+    "get_freeenergies",
+    "get_internal_energies",
     "get_k",
     "get_kappa",
-    "get_freeenergies",
-    "get_entropies",
-    "get_enthalpies",
-    "get_internal_energies",
 ]
 
 

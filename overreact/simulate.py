@@ -7,7 +7,7 @@ the time simulations.
 # TODO(schneiderfelipe): type this module.
 from __future__ import annotations
 
-__all__ = ["get_y", "get_dydt", "get_fixed_scheme"]
+__all__ = ["get_dydt", "get_fixed_scheme", "get_y"]
 
 
 import logging
@@ -40,8 +40,7 @@ logger = logging.getLogger(__name__)
 
 if _found_jax:
     import jax.numpy as jnp
-    from jax import jacfwd, jit
-    from jax import config
+    from jax import config, jacfwd, jit
 
     config.update("jax_enable_x64", True)
 else:

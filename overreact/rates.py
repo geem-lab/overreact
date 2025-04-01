@@ -42,8 +42,8 @@ def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     return rx._misc._get_chemical(id, temperature, pressure).mul
 
 
-# TODO(schneiderfelipe): log the calculated diffusional reaction rate limit.
-def smoluchowski(
+# TODO(mrauen): log the calculated diffusional reaction rate limit.
+def collins_kimball(
     radii,
     viscosity=None,
     reactive_radius=None,
@@ -93,13 +93,12 @@ def smoluchowski(
     Examples
     --------
     >>> radii = np.array([2.59, 2.71]) * constants.angstrom
-    >>> smoluchowski(radii, reactive_radius=2.6 * constants.angstrom,
+    >>> collins_kimball(radii, reactive_radius=2.6 * constants.angstrom,
     ...              viscosity=8.91e-4) / constants.liter
     3.6e9
-    >>> smoluchowski(radii, "water", reactive_radius=2.6 * constants.angstrom) \
-    ...     / constants.liter
+    >>> collins_kimball(radii, "water", reactive_radius=2.6 * constants.angstrom) / constants.liter
     3.6e9
-    >>> smoluchowski(radii, viscosity=8.91e-4) / constants.liter
+    >>> collins_kimball(radii, viscosity=8.91e-4) / constants.liter
     3.7e9
     """
     radii = np.asarray(radii)
@@ -110,6 +109,7 @@ def smoluchowski(
             viscosity = viscosity(temperature)
         elif isinstance(viscosity, str):
             viscosity = liquid_viscosity(viscosity, temperature, pressure)
+        # NOTE(mrauen): maybe we could check if the radii of the analyzed species are approximately the same, if so, we could use the simple expression: kd = (8 * constants.k * temperature) / (3 * np.asarray(viscosity))
         mutual_diff_coef = (
             constants.k * temperature / (6.0 * np.pi * np.asarray(viscosity))
         ) * np.sum(1.0 / radii)
@@ -124,14 +124,14 @@ def smoluchowski(
     return 4.0 * np.pi * mutual_diff_coef * reactive_radius * constants.N_A
 
 
-def collins_kimball(k_tst, k_diff):
+def ck_corrected(k_tst, k_diff):
     """Calculate reaction rate constant inclusing diffusion effects.
 
     This implementation is based on doi:10.1016/0095-8522(49)90023-9.
 
     Examples
     --------
-    >>> collins_kimball(2.3e7, 3.6e9)
+    >>> ck_corrected(2.3e7, 3.6e9)
     2.3e7
     """
     return k_tst * k_diff / (k_tst + k_diff)
