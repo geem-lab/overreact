@@ -102,10 +102,11 @@ target-version = "py38"
 
 [tool.ruff.lint]
 select = ["ALL"]
-# TODO(schneiderfelipe): make this list shorter
+# TODO(mrauen): make this list shorter
 ignore = [
   "A002",
   "A003",
+  "A005",
   "ANN001", # MissingTypeFunctionArgument
   "ANN002",
   "ANN003",
@@ -116,6 +117,7 @@ ignore = [
   "B008",
   "B023",
   "B026",
+  "B904",
   "C901",
   "E501",
   "FBT001",
@@ -126,6 +128,7 @@ ignore = [
   "N803",
   "N806",
   "NPY002",
+  "PLC0206", # Extracting value from dictionary without calling .items()
   "PLC0208",
   "PLR0912",
   "PLR0913",
