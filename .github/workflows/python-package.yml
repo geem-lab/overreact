@@ -40,7 +40,7 @@ jobs:
           poetry install --extras "cli fast solvents"
 
       - name: Lint with Ruff
-      - run: |
+        run: |
           poetry run ruff check --output-format=github .
 
       - name: Lint with Black
