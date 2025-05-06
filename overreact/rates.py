@@ -109,7 +109,7 @@ def collins_kimball(
             viscosity = viscosity(temperature)
         elif isinstance(viscosity, str):
             viscosity = liquid_viscosity(viscosity, temperature, pressure)
-        # NOTE(mrauen): maybe we could check if the radii of the analyzed species are approximately the same, if so, we could use the simple expression: kd = (8 * constants.k * temperature) / (3 * np.asarray(viscosity))
+        # NOTE(mrauen): maybe we could check if the radii of the analyzed species are approximately the same, if so, we could use the simple expression: D = (8 * constants.k * temperature) / (3 * np.asarray(viscosity))
         mutual_diff_coef = (
             constants.k * temperature / (6.0 * np.pi * np.asarray(viscosity))
         ) * np.sum(1.0 / radii)
@@ -128,6 +128,15 @@ def ck_corrected(k_tst, k_diff):
     """Calculate reaction rate constant inclusing diffusion effects.
 
     This implementation is based on doi:10.1016/0095-8522(49)90023-9.
+
+    Parameters
+    ----------
+    k_tst : float or array-like
+    k_diff : float or array-like
+
+    Returns
+    -------
+    float
 
     Examples
     --------

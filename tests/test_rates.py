@@ -1,3 +1,4 @@
+#ruff: noqa: ERA001
 """Tests for rates module."""
 
 from __future__ import annotations
@@ -76,7 +77,7 @@ def test_eyring_calculates_reaction_barrier() -> None:
         temperature=[298.15, 1074.0],
     ) == pytest.approx([1.38, 3.2513e9], 4e-3)
 
-
+# TODO(mrauen): this piece of code tests the old implementation for diffusion controlled reactions. I will implement the new test and change it here.
 #def test_smoluchowski_calculates_diffusion_limited_reaction_rates() -> None:
     # """Ensure Smoluchowski rates are correct."""
     # radii = np.array([2.59, 2.71]) * constants.angstrom

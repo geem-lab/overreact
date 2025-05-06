@@ -74,7 +74,6 @@ def get_internal_energies(
     for name in compounds:
         logger.info(f"calculate internal energy: {name}")
 
-        # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
             compounds[name].atommasses,
             compounds[name].atomcoords,
@@ -140,7 +139,6 @@ def get_enthalpies(
     for name in compounds:
         logger.info(f"calculate enthalpy: {name}")
 
-        # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
             compounds[name].atommasses,
             compounds[name].atomcoords,
@@ -233,7 +231,6 @@ def get_entropies(
             )
         symmetry_number = coords.symmetry_number(point_group)
 
-        # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
             compounds[name].atommasses,
             compounds[name].atomcoords,

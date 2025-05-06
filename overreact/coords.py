@@ -15,9 +15,8 @@ from scipy.spatial import cKDTree as KDTree
 from scipy.spatial.distance import pdist, squareform
 from scipy.spatial.transform import Rotation
 
-import overreact as rx
 from overreact import _constants as constants
-from overreact import _misc as _misc
+from overreact import _misc as misc
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +130,7 @@ def get_molecular_volume(
     if full_output and method == "izato":
         cav_volumes = []
     for _ in range(trials):
-        points = rx._misc.halton(n, 3)
+        points = misc.halton(n, 3)
         points = v1 + points * (v2 - v1)
         tree = KDTree(points)
 
@@ -235,7 +234,7 @@ def _garza(
     >>> _garza(100.0, full_output=True, environment="benzene")
     (665., 1.0, 1.07586575757374)
     """
-    solvent = rx._misc._get_chemical(environment, temperature, pressure)
+    solvent = misc._get_chemical(environment, temperature, pressure)
 
     # TODO(schneiderfelipe): things to do:
     # 1. check correctness of this function,
@@ -1681,7 +1680,7 @@ def gyradius(atommasses, atomcoords, method="iupac"):
         msg = f"unavailable method: '{method}'"
         raise ValueError(msg)
 
-@rx._misc.copy_unhashable()
+@misc.copy_unhashable()
 def inertia(atommasses, atomcoords, align=True):
     r"""Calculate primary moments and axes from the inertia tensor.
 

@@ -20,15 +20,15 @@ from overreact import _constants as constants
 
 def _central_diff_weights(Np, ndiv=1):
     """
-    Extracted directly from Scipy 'finite_differences' module 
-    (https://github.com/scipy/scipy/blob/d1073acbc804b721cfe356969d8461cdd25a7839/scipy/stats/_finite_differences.py)
-    
     Return weights for an Np-point central derivative.
 
     Assumes equally-spaced function points.
 
     If weights are in the vector w, then
     derivative is w[0] * f(x-ho*dx) + ... + w[-1] * f(x+h0*dx)
+
+    Extracted directly from Scipy 'finite_differences' module.
+    (https://github.com/scipy/scipy/blob/d1073acbc804b721cfe356969d8461cdd25a7839/scipy/stats/_finite_differences.py)
 
     Parameters
     ----------
@@ -69,11 +69,11 @@ def _central_diff_weights(Np, ndiv=1):
 
     """
     if Np < ndiv + 1:
-        raise ValueError(
-            "Number of points must be at least the derivative order + 1.",
-        )
+        msg = "Number of points must be at least the derivative order + 1."
+        raise ValueError(msg)
     if Np % 2 == 0:
-        raise ValueError("The number of points must be odd.")
+        msg = "The number of points must be odd."
+        raise ValueError(msg)
     from scipy import linalg
 
     ho = Np >> 1
@@ -87,13 +87,13 @@ def _central_diff_weights(Np, ndiv=1):
 
 def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
     """
-    Extracted directly from Scipy 'finite_differences' module 
-    (https://github.com/scipy/scipy/blob/d1073acbc804b721cfe356969d8461cdd25a7839/scipy/stats/_finite_differences.py)
-    
     Find the nth derivative of a function at a point.
 
     Given a function, use a central difference formula with spacing `dx` to
     compute the nth derivative at `x0`.
+
+    Extracted directly from Scipy 'finite_differences' module.
+    (https://github.com/scipy/scipy/blob/d1073acbc804b721cfe356969d8461cdd25a7839/scipy/stats/_finite_differences.py)
 
     Parameters
     ----------
@@ -120,7 +120,6 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
     ...     return x**3 + x**2
     >>> _derivative(f, 1.0, dx=1e-6)
     4.9999999999217337
-
     """
     first_deriv_weight_map = {
         3: array([-1, 0, 1]) / 2.0,
@@ -137,15 +136,11 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
     }
 
     if order < n + 1:
-        raise ValueError(
-            "'order' (the number of points used to compute the derivative), "
-            "must be at least the derivative order 'n' + 1.",
-        )
+        msg = "'order' (the number of points used to compute the derivative), must be at least the derivative order 'n' + 1."
+        raise ValueError(msg)
     if order % 2 == 0:
-        raise ValueError(
-            "'order' (the number of points used to compute the derivative) "
-            "must be odd.",
-        )
+        msg = "'order' (the number of points used to compute the derivative) must be odd."
+        raise ValueError(msg)
 
     # pre-computed for n=1 and 2 and low-order for speed.
     if n == 1:
@@ -183,32 +178,32 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
 def make_hashable(obj):
     """
     Given an array, list or set make it immutable by transforming it into a tuple.
-    
+
     Parameters
     ----------
     obj : array
-    
+
     Returns
     -------
     tuple
-    
+
     Notes
     -----
     List comprehension it's key here for list and set, otherwise it will return a tuple with only the first item.
     """
     if isinstance(obj, np.ndarray):
         return (tuple(obj.shape), tuple(obj.ravel()))
-    elif isinstance(obj, list) or isinstance(obj, set):
+    elif isinstance(obj, (list, set)):
             return tuple(make_hashable(item) for item in obj)
     else:
         return obj
 
 def copy_unhashable(maxsize=128, typed=False):
     """
-    Decorator function that caches resultant tuples while handling the received unhashable types (array, list, dictionaries).
-    
+    Cache resultant tuples while handling the received unhashable types (array, list, dictionaries).
+
     Convert unhashable arguments into hashable before passing it to 'lru_cache'. Then, reconstruct the (now) hashable tuple back to return it for the function caller. A copy of the received argument is made in order to prevent errors and side-effects to the original array/list/etc.
-    
+
     Parameters
     ----------
     maxsize : int
@@ -216,12 +211,12 @@ def copy_unhashable(maxsize=128, typed=False):
     typed : bool
         If set to True, arguments of different types will be cache separately. Default from functools.lru_cache()
     func : function
-        The function to be wrapped and cached       
-        
+        The function to be wrapped and cached
+
     Returns
     -------
     function
-        A wrapper version of the original function that is cacheable now 
+        A wrapper version of the original function that is cacheable now
     """
     def decorator(func):
         @cache(maxsize=maxsize, typed=typed)
@@ -243,12 +238,12 @@ def copy_unhashable(maxsize=128, typed=False):
                         try:
                             return np.array(flat_data).reshape(shape)
                         except ValueError as e:
-                            raise ValueError(f"Reshape error: {e} - shape: {shape}, data: {flat_data}")
+                            msg = f"Reshape error: {e} - shape: {shape}, data: {flat_data}"
+                            raise ValueError(msg)
                 return arg
 
 
-            for arg in hashable_args:
-                args.append(convert_back(arg))
+            args = [convert_back(arg) for arg in hashable_args]
             for k, v in hashable_kwargs.items():
                 kwargs[k] = convert_back(v)
             args = tuple(args)
@@ -258,8 +253,7 @@ def copy_unhashable(maxsize=128, typed=False):
             wrapper_hashable_args = []
             wrapper_hashable_kwargs = {}
 
-            for arg in args:
-                wrapper_hashable_args.append(make_hashable(arg))
+            wrapper_hashable_args = [make_hashable(arg) for arg in args]
             for k,v in kwargs.items():
                 wrapper_hashable_kwargs[k] = make_hashable(v)
             wrapper_hashable_args = tuple(wrapper_hashable_args)
