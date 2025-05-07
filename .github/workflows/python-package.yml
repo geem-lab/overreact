@@ -48,7 +48,8 @@ jobs:
           poetry run ruff check --output-format=github .
 
       - name: Lint with Black
-        uses: psf/black@stable
+        run: |
+          poetry run black --check . 
 
       - name: Test with pytest
         run: |
