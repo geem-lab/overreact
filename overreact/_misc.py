@@ -139,7 +139,9 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
         msg = "'order' (the number of points used to compute the derivative), must be at least the derivative order 'n' + 1."
         raise ValueError(msg)
     if order % 2 == 0:
-        msg = "'order' (the number of points used to compute the derivative) must be odd."
+        msg = (
+            "'order' (the number of points used to compute the derivative) must be odd."
+        )
         raise ValueError(msg)
 
     # pre-computed for n=1 and 2 and low-order for speed.
@@ -175,6 +177,7 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
         val += weights[k] * func(x0 + (k - ho) * dx, *args)
     return val / prod((dx,) * n, axis=0)
 
+
 def make_hashable(obj):
     """
     Given an array, list or set make it immutable by transforming it into a tuple.
@@ -194,9 +197,10 @@ def make_hashable(obj):
     if isinstance(obj, np.ndarray):
         return (tuple(obj.shape), tuple(obj.ravel()))
     elif isinstance(obj, (list, set)):
-            return tuple(make_hashable(item) for item in obj)
+        return tuple(make_hashable(item) for item in obj)
     else:
         return obj
+
 
 def copy_unhashable(maxsize=128, typed=False):
     """
@@ -218,6 +222,7 @@ def copy_unhashable(maxsize=128, typed=False):
     function
         A wrapper version of the original function that is cacheable now
     """
+
     def decorator(func):
         @cache(maxsize=maxsize, typed=typed)
         @wraps(func)
@@ -242,7 +247,6 @@ def copy_unhashable(maxsize=128, typed=False):
                             raise ValueError(msg)
                 return arg
 
-
             args = [convert_back(arg) for arg in hashable_args]
             for k, v in hashable_kwargs.items():
                 kwargs[k] = convert_back(v)
@@ -254,13 +258,17 @@ def copy_unhashable(maxsize=128, typed=False):
             wrapper_hashable_kwargs = {}
 
             wrapper_hashable_args = [make_hashable(arg) for arg in args]
-            for k,v in kwargs.items():
+            for k, v in kwargs.items():
                 wrapper_hashable_kwargs[k] = make_hashable(v)
             wrapper_hashable_args = tuple(wrapper_hashable_args)
-            return deepcopy(cached_func(*wrapper_hashable_args, **wrapper_hashable_kwargs))
+            return deepcopy(
+                cached_func(*wrapper_hashable_args, **wrapper_hashable_kwargs),
+            )
 
         return wrapper
+
     return decorator
+
 
 def _find_package(package):
     """Check if a package exists without importing it.

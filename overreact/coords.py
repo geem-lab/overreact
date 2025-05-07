@@ -1680,6 +1680,7 @@ def gyradius(atommasses, atomcoords, method="iupac"):
         msg = f"unavailable method: '{method}'"
         raise ValueError(msg)
 
+
 @misc.copy_unhashable()
 def inertia(atommasses, atomcoords, align=True):
     r"""Calculate primary moments and axes from the inertia tensor.
