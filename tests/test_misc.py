@@ -33,13 +33,22 @@ def test_broaden_spectrum_works() -> None:
     )
 
 
+def test_number_points_central_diff() -> None:
+    """Ensure that number of points is odd and less than number of divisions"""
+    with pytest.raises(ValueError, match=r"^Number of points must be at least\s*"):
+        rx._misc._central_diff_weights(Np=1, ndiv=2)
+
+    with pytest.raises(ValueError, match=r"^The number of points must be odd"):
+        rx._misc._central_diff_weights(Np=2, ndiv=1)
+
+
 def test_derivative_order() -> None:
     """Ensures that 'order' is less than 'n', and, odd."""
     with pytest.raises(ValueError, match=r"^'order'\s*"):
         rx._misc._derivative(np.sin, x0=0, n=3, order=1)
 
-    with pytest.raises(ValueError, match=r"^'order'\s*"):
-        rx._misc._derivative(np.sin, x0=0, n=2, order=2)
+    with pytest.raises(ValueError, match=r"\ must be odd.$"):
+        rx._misc._derivative(np.sin, x0=0, n=2, order=4)
 
 
 def test_first_derivative() -> None:
@@ -59,8 +68,11 @@ def test_second_derivative() -> None:
 
 def test_high_order_derivative() -> None:
     """Confirms the right value for the nth derivative of a function."""
-    high_order = rx._misc._derivative(np.sin, x0=np.pi / 2, n=4, order=11)
-    assert high_order == pytest.approx(np.sin(np.pi / 2), rel=1e-3)
+    first_derivative_high_order = rx._misc._derivative(np.sin, x0=np.pi / 2, n=1, order=11)
+    assert first_derivative_high_order == pytest.approx(np.cos(np.pi / 2), rel=1e-3)
+
+    second_derivative_high_order = rx._misc._derivative(np.sin, x0=np.pi / 2, n=2, order=11)
+    assert second_derivative_high_order == pytest.approx(-np.sin(np.pi / 2), rel=1e-3)
 
 
 @rx._misc.copy_unhashable()
