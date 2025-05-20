@@ -156,7 +156,7 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
             weights = first_deriv_weight_map.get(9)
         else:
             weights = _central_diff_weights(order, 1)
-    # TODO(mrauen): I couldn't find a case in overreact where we use the second derivative. Therefore, I think we can delete this piece of code...Or maybe just leave it here for the future implementations (who knows)
+    # TODO(mrauen): I couldn't find a case in overreact where we use the second (or higher) derivatives. Therefore, I think we can delete this piece of code...Or maybe just leave it here for the future implementations (who knows)
     elif n == 2:
         if order == 3:
             weights = second_deriv_weight_map.get(3)
