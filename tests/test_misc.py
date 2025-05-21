@@ -34,7 +34,7 @@ def test_broaden_spectrum_works() -> None:
 
 
 def test_number_points_central_diff() -> None:
-    """Ensure that number of points is odd and less than number of divisions"""
+    """Ensure that number of points is odd and less than number of divisions."""
     with pytest.raises(ValueError, match=r"^Number of points must be at least\s*"):
         rx._misc._central_diff_weights(Np=1, ndiv=2)
 
@@ -68,10 +68,14 @@ def test_second_derivative() -> None:
 
 def test_high_order_derivative() -> None:
     """Confirms the right value for the nth derivative of a function."""
-    first_derivative_high_order = rx._misc._derivative(np.sin, x0=np.pi / 2, n=1, order=11)
+    first_derivative_high_order = rx._misc._derivative(
+        np.sin, x0=np.pi / 2, n=1, order=11
+    )
     assert first_derivative_high_order == pytest.approx(np.cos(np.pi / 2), rel=1e-3)
 
-    second_derivative_high_order = rx._misc._derivative(np.sin, x0=np.pi / 2, n=2, order=11)
+    second_derivative_high_order = rx._misc._derivative(
+        np.sin, x0=np.pi / 2, n=2, order=11
+    )
     assert second_derivative_high_order == pytest.approx(-np.sin(np.pi / 2), rel=1e-3)
 
 
