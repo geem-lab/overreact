@@ -33,6 +33,10 @@ jobs:
         with:
           poetry-version: ${{ matrix.poetry-version }}
 
+      - name: Configure Poetry to use matrix Python version
+        run: |
+          poetry env use python${{ matrix.python-version }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -40,11 +44,12 @@ jobs:
           poetry install --extras "cli fast solvents"
 
       - name: Lint with Ruff
-      - run: |
+        run: |
           poetry run ruff check --output-format=github .
 
       - name: Lint with Black
-        uses: psf/black@stable
+        run: |
+          poetry run black --check . 
 
       - name: Test with pytest
         run: |

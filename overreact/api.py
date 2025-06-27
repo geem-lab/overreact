@@ -8,12 +8,12 @@ probably start here.
 from __future__ import annotations
 
 __all__ = [
+    "get_enthalpies",
+    "get_entropies",
+    "get_freeenergies",
+    "get_internal_energies",
     "get_k",
     "get_kappa",
-    "get_freeenergies",
-    "get_entropies",
-    "get_enthalpies",
-    "get_internal_energies",
 ]
 
 
@@ -22,11 +22,11 @@ import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
-from scipy.misc import derivative
 
 import overreact as rx
 from overreact import _constants as constants
 from overreact import coords, rates, tunnel
+from overreact._misc import _derivative as derivative
 
 if TYPE_CHECKING:
     from overreact.core import Scheme
@@ -74,7 +74,6 @@ def get_internal_energies(
     for name in compounds:
         logger.info(f"calculate internal energy: {name}")
 
-        # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
             compounds[name].atommasses,
             compounds[name].atomcoords,
@@ -140,7 +139,6 @@ def get_enthalpies(
     for name in compounds:
         logger.info(f"calculate enthalpy: {name}")
 
-        # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
             compounds[name].atommasses,
             compounds[name].atomcoords,
@@ -233,7 +231,6 @@ def get_entropies(
             )
         symmetry_number = coords.symmetry_number(point_group)
 
-        # TODO(schneiderfelipe): inertia might benefit from caching
         moments, _, _ = coords.inertia(
             compounds[name].atommasses,
             compounds[name].atomcoords,

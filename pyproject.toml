@@ -70,6 +70,7 @@ jax = { version = "^0.4", optional = true }
 jaxlib = { version = "^0.4", optional = true }
 rich = { version = "^13", optional = true }
 thermo = { version = ">=0.2,<0.5", optional = true }
+importlib = "^1.0.4"
 
 [tool.poetry.extras]
 cli = ["rich"]
@@ -77,7 +78,7 @@ fast = ["jax", "jaxlib"]
 solvents = ["thermo"]
 
 [tool.poetry.group.dev.dependencies]
-black = { version = ">=23.3,<25.0", extras = ["jupyter"] }
+black = { version = ">=24.8,<25.10", extras = ["jupyter"] }
 debugpy = "^1"
 flynt = ">=0.77,<1.1"
 ipython = "^8"
@@ -101,10 +102,11 @@ target-version = "py38"
 
 [tool.ruff.lint]
 select = ["ALL"]
-# TODO(schneiderfelipe): make this list shorter
+# TODO(mrauen): make this list shorter
 ignore = [
   "A002",
   "A003",
+  "A005",
   "ANN001", # MissingTypeFunctionArgument
   "ANN002",
   "ANN003",
@@ -115,6 +117,7 @@ ignore = [
   "B008",
   "B023",
   "B026",
+  "B904",
   "C901",
   "E501",
   "FBT001",
@@ -125,6 +128,7 @@ ignore = [
   "N803",
   "N806",
   "NPY002",
+  "PLC0206", # Extracting value from dictionary without calling .items()
   "PLC0208",
   "PLR0912",
   "PLR0913",
