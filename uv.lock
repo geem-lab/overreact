@@ -1851,8 +1851,10 @@ dev = [
     { name = "perflint" },
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "rich" },
     { name = "ruff" },
     { name = "seaborn" },
+    { name = "thermo" },
     { name = "types-setuptools" },
 ]
 
@@ -1864,7 +1866,7 @@ requires-dist = [
     { name = "jaxlib", marker = "extra == 'fast'", specifier = ">=0.4" },
     { name = "rich", marker = "extra == 'cli'", specifier = ">=13,<15" },
     { name = "scipy", specifier = ">=1.10,<2" },
-    { name = "thermo", marker = "extra == 'solvents'", specifier = ">=0.2,<0.5" },
+    { name = "thermo", marker = "extra == 'solvents'", specifier = ">=0.2" },
 ]
 provides-extras = ["cli", "fast", "solvents"]
 
@@ -1881,8 +1883,10 @@ dev = [
     { name = "perflint", specifier = ">=0.7.1,<0.9.0" },
     { name = "pytest", specifier = ">=7.2,<9.0" },
     { name = "pytest-cov", specifier = ">=4,<6" },
+    { name = "rich", specifier = ">=13,<15" },
     { name = "ruff", specifier = ">=0.0.210,<0.9.3" },
     { name = "seaborn", specifier = ">=0.12,<0.14" },
+    { name = "thermo", specifier = ">=0.2" },
     { name = "types-setuptools", specifier = ">=65,<76" },
 ]
 
@@ -2034,7 +2038,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess" },
+    { name = "ptyprocess", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
@@ -2834,7 +2838,7 @@ wheels = [
 
 [[package]]
 name = "thermo"
-version = "0.4.2"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "chemicals" },
@@ -2842,9 +2846,9 @@ dependencies = [
     { name = "pandas" },
     { name = "scipy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/30/0d/d010c2d4994a8a4754d54ca34fbcb41376aeec6a30b3d40bf872ab72a7d7/thermo-0.4.2.tar.gz", hash = "sha256:7a76376c57067399d465101b133dee8f0b52b1691b81eaad543084807bd208f8", size = 9993398, upload-time = "2025-03-16T21:42:54.719Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/a0/edfde91215009164e84523c6645a8933c94f529226c3d7b7a72a5cf62e7b/thermo-0.6.0.tar.gz", hash = "sha256:fe75036747c052173633a0799b0e9907b5a5305e440029f76c28dffcc2c5b925", size = 7078520, upload-time = "2025-10-26T19:14:55.796Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/b7/0ccdb1feac57fdb42f7a1312a58b46e7d0880e056a87999164e18703ede9/thermo-0.4.2-py3-none-any.whl", hash = "sha256:cdc4c03860ea3ba14cc5f3cfaf81d563362d54bdb4511cd31c5b79c7f7479ef2", size = 6815920, upload-time = "2025-03-16T21:42:32.663Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/bb/37c92edbeb224c54572c7bb486acd7cb0970303e02bf03dacca4a0d74be1/thermo-0.6.0-py3-none-any.whl", hash = "sha256:ff95281a9e453338f45a0dde1723fe8269c4edcad800b87575682c0945385223", size = 6405195, upload-time = "2025-10-26T19:14:53.228Z" },
 ]
 
 [[package]]
