@@ -759,7 +759,8 @@ def _parse_reactions(text):
         for reactants, arrow, products in zip(
             pieces[:-2:2],
             pieces[1:-1:2],
-            pieces[2::2], strict=False,
+            pieces[2::2],
+            strict=False,
         ):
             if arrow == "<-":
                 reactants, products, arrow = products, reactants, "->"

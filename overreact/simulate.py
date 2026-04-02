@@ -548,7 +548,8 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     for compound, row_A, row_B in zip(
         scheme.compounds,
         scheme.A,
-        scheme.B, strict=False,
+        scheme.B,
+        strict=False,
     ):
         if compound not in fixed_y0:
             new_compounds.append(compound)
