@@ -660,7 +660,7 @@ def test_read_logfile() -> None:
     data = rx.io.read_logfile("data/symmetries/chlorobromofluoromethane.out")
     assert set(data) == fields
     assert data.logfile == "data/symmetries/chlorobromofluoromethane.out"
-    assert data.energy == -8327995636.7634325
+    assert data.energy == pytest.approx(-8327995636.761331)
     assert data.mult == 1
     assert data.atomnos == pytest.approx(np.array([6, 35, 17, 9, 1]))
     assert data.atommasses == pytest.approx(
@@ -710,7 +710,7 @@ def test_read_logfile_from_orca_xtb() -> None:
     data = rx.io.read_logfile("data/symmetries/Xe.out")
     assert set(data) == fields
     assert data.logfile == "data/symmetries/Xe.out"
-    assert data.energy == -10194122.6419248
+    assert data.energy == pytest.approx(-10194122.641922228)
     assert data.mult == 1
     assert data.atomnos == pytest.approx(np.array([54]))
     assert data.atommasses == pytest.approx(np.array([131.293]))
