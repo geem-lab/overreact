@@ -318,8 +318,8 @@ def _adjust_k(scheme, k, ef=EF):
     >>> model = rx.parse_model("data/acetate/Orca4/model.k")
     >>> _adjust_k(model.scheme,
     ...           rx.get_k(model.scheme, model.compounds))
-    Array([1.00000000e+00, 5.74491548e+04, 1.61152010e+07,
-           1.00000000e+00, 1.55695112e+56, 1.00000000e+00], ...)
+    Array([1.00000000e+00, 5.74491546e+04, 1.61152010e+07,
+           1.00000000e+00, 1.55695111e+56, 1.00000000e+00], dtype=float64)
 
     >>> model = rx.parse_model(
     ...     "data/perez-soto2020/RI/BLYP-D4/def2-TZVP/model.k"
