@@ -133,6 +133,7 @@ ignore = [
   "NPY002",
   "PLC0206", # Extracting value from dictionary without calling .items()
   "PLC0208",
+  "PLC0415", # Allow importing inside of functions
   "PLR0912",
   "PLR0913",
   "PLR0915",

@@ -285,7 +285,7 @@ def test_rate_constants_for_hickel1992() -> None:
     for k, k_ref, tols in zip(
         [k_cla, k_eck],
         [k_cla_ref, k_eck_ref],
-        [(1.0e-1, 0.62, 2e-3, 5e-8, 3e-2), (1.1e-1, 0.75, 2e-3, 3e-8, 2e-2)],
+        [(1.0e-1, 0.62, 2e-3, 5e-8, 3e-2), (1.1e-1, 0.75, 2e-3, 3e-8, 2e-2)], strict=False,
     ):
         linregress = stats.linregress(np.log10(k), np.log10(k_ref))
         assert linregress.slope == pytest.approx(1.0, tols[0])
@@ -399,7 +399,7 @@ def test_rate_constants_for_tanaka1996() -> None:
             (2e-2, 0.08, 9e-6, 5e-6, 3e-3),
             (5e-2, 0.52, 4e-4, 2e-4, 2e-2),
             (5e-2, 0.60, 3e-6, 2e-3, 2e-3),
-        ],
+        ], strict=False,
     ):
         linregress = stats.linregress(np.log10(k), np.log10(k_ref))
         assert linregress.slope == pytest.approx(1.0, tols[0])

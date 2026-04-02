@@ -2095,7 +2095,7 @@ def _equivalent_atoms(
                     criteria[clusters == cluster, 0],
                     criteria[clusters == cluster, 1],
                 )
-            for i, (atommass, _) in enumerate(zip(atommasses, clusters)):
+            for i, (atommass, _) in enumerate(zip(atommasses, clusters, strict=False)):
                 plt.annotate(atommass, (criteria[i, 0], criteria[i, 1]))
             plt.xlabel("omega")
             plt.ylabel("sigma")

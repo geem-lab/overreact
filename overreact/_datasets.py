@@ -2,33 +2,22 @@
 
 from __future__ import annotations
 
-import os
+from pathlib import Path
 
 import overreact as rx
 
-data_path = os.path.normpath(
-    os.path.join(os.path.dirname(__file__), "../data/"),
-)
-
+data_path = Path(__file__).parent.parent / "data"
 
 logfiles = {}
-for name in os.listdir(data_path):
-    walk_dir = os.path.join(data_path, name)
-    if os.path.isdir(walk_dir):
+for walk_dir in data_path.iterdir():
+    if walk_dir.is_dir():
+        name = walk_dir.name
         logfiles[name] = rx.io._LazyDict()
         logfiles[name]._function = rx.io.read_logfile
-        for root, _, files in os.walk(walk_dir):
-            for filename in files:
-                if filename.endswith(".out"):
-                    logfiles[name][
-                        f"{filename[:-4]}@{os.path.relpath(root, walk_dir)}".replace(
-                            "@.",
-                            "",
-                        )
-                    ] = os.path.join(
-                        root,
-                        filename,
-                    )
+        for filepath in walk_dir.rglob("*.out"):
+            rel = filepath.parent.relative_to(walk_dir)
+            key = f"{filepath.stem}@{rel}".replace("@.", "")
+            logfiles[name][key] = str(filepath)
 
 
 if __name__ == "__main__":

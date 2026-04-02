@@ -747,7 +747,7 @@ def _read_orca_hess(path):
                     columns = [int(j) for j in line.split()]
                     for i in range(n):
                         entries = next(file).split()[1:]  # first is same as i
-                        for j, entry in zip(columns, entries):
+                        for j, entry in zip(columns, entries, strict=False):
                             hessian[i, j] = float(entry)
                     line = next(file).strip()
         return hessian

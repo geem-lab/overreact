@@ -841,7 +841,7 @@ def broaden_spectrum(
                 *args,
                 **kwargs,
             )
-            for xp, yp in zip(x0, y0)
+            for xp, yp in zip(x0, y0, strict=False)
         ],
         axis=0,
     )
