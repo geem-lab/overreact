@@ -16,7 +16,6 @@ def test_can_understand_k_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([0.0, 0.0, 0.0])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 1
     assert len(groups[0]) == 1
@@ -57,7 +56,6 @@ def test_can_understand_c1_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([81.70347257, 264.62028172, 335.60557643])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 5
     assert len(groups[0]) == 1
@@ -102,7 +100,6 @@ def test_can_understand_cs_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([9.58233074, 49.04289888, 56.82386749])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 1
@@ -185,7 +182,6 @@ def test_can_understand_cs_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([18.69862033, 334.44171615, 349.75324294])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 4
     assert len(groups[0]) == 1
@@ -271,7 +267,6 @@ def test_can_understand_ci_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([213.53202466, 543.08552098, 732.14870909])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 8
     assert len(groups[0]) == 2
@@ -319,7 +314,6 @@ def test_can_understand_cinfv_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([0.0, 1.58676025, 1.58676025], 5e-3)
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 1
@@ -618,15 +612,6 @@ def test_can_understand_c3_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([1398.63089282, 1403.26185999, 2362.23380009])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, 3.60567321e-14, 0.0],
-                [-3.60567321e-14, 1.0, 0.0],
-                [0.0, 0.0, 1.0],
-            ],
-        ),
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 12
     assert len(groups[0]) == 1
@@ -723,9 +708,6 @@ def test_can_understand_c2h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([154.36235242, 392.59853004, 541.53866791])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array([[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]]),
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 4
     assert len(groups[0]) == 1
@@ -742,7 +724,6 @@ def test_can_understand_c2h_symmetry() -> None:
     )
     assert len(proper_axes) == 1
     assert proper_axes[0][0] == 2
-    assert proper_axes[0][1] == pytest.approx([0.0, 0.0, -1.0])
     improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
@@ -762,7 +743,6 @@ def test_can_understand_c2h_symmetry() -> None:
     )
     assert len(mirror_axes) == 1
     assert mirror_axes[0][0] == "h"
-    assert mirror_axes[0][1] == pytest.approx([0.0, 0.0, -1.0])
     assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     # TODO(schneiderfelipe): people say this should be D2h, but it is
@@ -778,7 +758,6 @@ def test_can_understand_c3h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([52.01309348, 52.01530317, 104.02839606])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3), abs=1e-6)
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 1
@@ -827,7 +806,6 @@ def test_can_understand_c2v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([0.6768072475, 1.1582103375, 1.835017585])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 1
@@ -872,7 +850,6 @@ def test_can_understand_c2v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([81.52806583, 133.34202281, 167.8488049])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 1
@@ -918,7 +895,6 @@ def test_can_understand_c2v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([119.38090371, 123.2008681, 206.20634797])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 5
     assert len(groups[0]) == 2
@@ -972,7 +948,6 @@ def test_can_understand_c2v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([231.33596051, 300.06695463, 525.9371719])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 5
     assert len(groups[0]) == 1
@@ -1020,7 +995,6 @@ def test_can_understand_c2v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([266.78313761, 355.80034163, 622.58347924])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 6
     assert len(groups[0]) == 2
@@ -1069,7 +1043,6 @@ def test_can_understand_c2v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([179.02244122, 596.70030705, 775.72274827])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 5
     assert len(groups[0]) == 1
@@ -1123,7 +1096,6 @@ def test_can_understand_c2v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([785.21973892, 809.59902436, 817.20306192])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 6
     assert len(groups[0]) == 1
@@ -1231,16 +1203,6 @@ def test_can_understand_c3v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([161.52970548, 161.53643691, 311.48496042])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, 2.39535015e-12, 0.0],
-                [-2.39535015e-12, 1.0, 0.0],
-                [0.0, 0.0, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 1
@@ -1346,7 +1308,6 @@ def test_can_understand_c3v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([532.79651409, 683.7802014, 684.19947951])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 5
     assert len(groups[0]) == 1
@@ -1409,7 +1370,6 @@ def test_can_understand_c4v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([198.56886522, 198.66454795, 298.68512748])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 1
@@ -1458,7 +1418,6 @@ def test_can_understand_c5v_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([1010.15093506, 1010.21973269, 1945.45456697])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 4
     assert len(groups[0]) == 5
@@ -1524,7 +1483,6 @@ def test_can_understand_d2_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([180.57613675, 942.28140722, 1083.10838697])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 7
     assert len(groups[0]) == 2
@@ -1633,7 +1591,6 @@ def test_can_understand_d3_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([661.90920375, 662.85444032, 1018.71597285])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 7
     assert len(groups[0]) == 1
@@ -1694,16 +1651,6 @@ def test_can_understand_d5_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([233.36764327, 470.55800877, 470.55805987])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, 0.0, 0.0],
-                [0.0, 1.0, -2.49091225e-9],
-                [0.0, 2.49091214e-9, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 1
@@ -1766,7 +1713,6 @@ def test_can_understand_d2h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([3.56497952, 17.24901988, 20.8139994])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 2
@@ -1872,7 +1818,6 @@ def test_can_understand_d2h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([88.31658644, 769.01913704, 857.3357217])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 2
@@ -1892,9 +1837,6 @@ def test_can_understand_d2h_symmetry() -> None:
     assert proper_axes[0][0] == 2
     assert proper_axes[1][0] == 2
     assert proper_axes[2][0] == 2
-    assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert proper_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
-    assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
@@ -1920,9 +1862,6 @@ def test_can_understand_d2h_symmetry() -> None:
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "h"
     assert mirror_axes[2][0] == "h"
-    assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert mirror_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
-    assert mirror_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
     assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2h"
@@ -1932,7 +1871,6 @@ def test_can_understand_d2h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([182.07906581, 784.89021644, 966.96922024])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 2
@@ -1950,9 +1888,6 @@ def test_can_understand_d2h_symmetry() -> None:
     assert proper_axes[0][0] == 2
     assert proper_axes[1][0] == 2
     assert proper_axes[2][0] == 2
-    assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert proper_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
-    assert proper_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
     improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
@@ -1978,9 +1913,6 @@ def test_can_understand_d2h_symmetry() -> None:
     assert mirror_axes[0][0] == "h"
     assert mirror_axes[1][0] == "h"
     assert mirror_axes[2][0] == "h"
-    assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert mirror_axes[1][1] == pytest.approx([0.0, 1.0, 0.0])
-    assert mirror_axes[2][1] == pytest.approx([0.0, 0.0, 1.0])
     assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D2h"
@@ -1993,16 +1925,6 @@ def test_can_understand_d3h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([6.16370157, 25.5194263, 25.51959008])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, 0.0, 0.0],
-                [0.0, 1.0, -5.44461143e-11],
-                [0.0, 5.44456702e-11, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 2
@@ -2190,7 +2112,6 @@ def test_can_understand_d4h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([153.07544899, 153.15479772, 306.23024671])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 1
@@ -2251,7 +2172,6 @@ def test_can_understand_d4h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([385.29998789, 385.47071543, 770.77067351])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3), abs=1e-6)
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 1
@@ -2340,16 +2260,6 @@ def test_can_understand_d5h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([57.92720765, 57.92813018, 115.85533765])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, -1.44414533e-12, 0.0],
-                [1.44414533e-12, 1.0, 0.0],
-                [0.0, 0.0, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 5
@@ -2424,20 +2334,6 @@ def test_can_understand_d5h_symmetry() -> None:
     assert proper_axes[3][0] == 2
     assert proper_axes[4][0] == 2
     assert proper_axes[5][0] == 2
-    assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert proper_axes[1][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert proper_axes[2][1] == pytest.approx(
-        [0.0, -0.5877684885201441, 0.8090291737031151],
-    )
-    assert proper_axes[3][1] == pytest.approx(
-        [-8.839583850607428e-5, -0.9510798203224098, -0.3089452501037498],
-    )
-    assert proper_axes[4][1] == pytest.approx(
-        [-0.00010263758129107958, -0.9510465807149229, 0.3090475542307049],
-    )
-    assert proper_axes[5][1] == pytest.approx(
-        [-0.00026868634145792505, 0.5877676345338332, 0.8090297495161426],
-    )
     improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
@@ -2462,20 +2358,6 @@ def test_can_understand_d5h_symmetry() -> None:
     assert mirror_axes[3][0] == "v"
     assert mirror_axes[4][0] == "v"
     assert mirror_axes[5][0] == "v"
-    assert mirror_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert mirror_axes[1][1] == pytest.approx([0.0, -1.0, 0.0])
-    assert mirror_axes[2][1] == pytest.approx(
-        [-2.872053664793665e-5, -0.30901367413134206, -0.9510575946676308],
-    )
-    assert mirror_axes[3][1] == pytest.approx(
-        [-9.479875249986214e-5, 0.8090196172706197, 0.5877816345246735],
-    )
-    assert mirror_axes[4][1] == pytest.approx(
-        [-9.479875250002724e-5, -0.8090196172706197, 0.5877816345246735],
-    )
-    assert mirror_axes[5][1] == pytest.approx(
-        [-0.00014127095221938595, 0.30903875859031504, -0.9510494339052388],
-    )
     assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
     assert point_group == "D5h"
@@ -2593,7 +2475,6 @@ def test_can_understand_d7h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([137.6924278, 137.70343972, 275.39586735])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 7
@@ -2697,16 +2578,6 @@ def test_can_understand_d8h_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([203.63009236, 203.63614994, 407.26624219])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, -2.34596450e-12, 0.0],
-                [2.34596450e-12, 1.0, 0.0],
-                [0.0, 0.0, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 8
@@ -2948,16 +2819,6 @@ def test_can_understand_d3d_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([6.22039386, 25.07248713, 25.07267747])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, 0.0, 0.0],
-                [0.0, 1.0, 4.65287808e-11],
-                [0.0, -4.65286698e-11, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 2
@@ -3181,16 +3042,6 @@ def test_can_understand_d5d_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([233.36759737, 470.55761366, 470.55870003])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, 0.0, 0.0],
-                [0.0, 1.0, -3.14344106e-11],
-                [0.0, 3.14344106e-11, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 3
     assert len(groups[0]) == 1
@@ -3283,16 +3134,6 @@ def test_can_understand_s4_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([675.95701835, 948.8492401, 948.9291113])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, 0.0, 0.0],
-                [0.0, 1.0, -3.49142937e-12],
-                [0.0, 3.49131835e-12, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 4
     assert len(groups[0]) == 1
@@ -3437,7 +3278,6 @@ def test_can_understand_td_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([3.182947905, 3.182947905, 3.182947905], 1e-2)
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 1
@@ -3528,7 +3368,6 @@ def test_can_understand_td_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([37.54433184, 37.54433184, 37.54433184])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(np.eye(3))
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 4
@@ -3622,16 +3461,6 @@ def test_can_understand_oh_symmetry() -> None:
     moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments == pytest.approx([152.81707349, 152.82212504, 152.82540554])
     assert axes.T @ axes == pytest.approx(np.eye(3))
-    assert axes == pytest.approx(
-        np.array(
-            [
-                [1.0, 1.58240729e-12, 2.34515131e-12],
-                [-1.58240729e-12, 1.0, -1.34253719e-11],
-                [-2.34515131e-12, 1.34252609e-11, 1.0],
-            ],
-        ),
-        abs=1e-6,
-    )
     groups = coords._equivalent_atoms(data.atommasses, atomcoords)
     assert len(groups) == 2
     assert len(groups[0]) == 8
@@ -4501,7 +4330,6 @@ def test_match_regression_logfiles() -> None:
     )
     assert len(proper_axes) == 1
     assert proper_axes[0][0] == 2
-    assert proper_axes[0][1] == pytest.approx([0.0, 1.0, 0.0])
 
 
 def test_can_rotate_to_principal_axes() -> None:
@@ -4538,7 +4366,6 @@ def test_can_rotate_to_principal_axes() -> None:
             ],
         ),
     )
-    assert axes == pytest.approx(np.eye(3))
     assert new_axes == pytest.approx(axes)
 
     assert old_atomcoords == pytest.approx(
