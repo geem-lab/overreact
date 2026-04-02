@@ -73,7 +73,6 @@ overreact = "overreact._cli:main"
 
 [dependency-groups]
 dev = [
-    "black[jupyter]>=24.8,<25.10",
     "debugpy>=1,<2",
     "flynt>=0.77,<1.1",
     "ipython>=8,<9",
@@ -114,7 +113,6 @@ ignore = [
   "ANN001", # MissingTypeFunctionArgument
   "ANN002",
   "ANN003",
-  "ANN101",
   "ANN201", # MissingReturnTypePublicFunction
   "ANN202", # MissingReturnTypePrivateFunction
   "ANN204",
@@ -123,6 +121,7 @@ ignore = [
   "B026",
   "B904",
   "C901",
+  "COM812",
   "E501",
   "FBT001",
   "FBT002",
