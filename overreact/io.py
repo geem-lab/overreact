@@ -656,7 +656,7 @@ def read_logfile(path):
         data = {
             "logfile": path,
             # This energy may lack dispersion, solvation, correlation, etc.
-            "energy": ccdata.scfenergies[-1] * constants.eV * constants.N_A,
+            "energy": float(ccdata.scfenergies[-1]) * constants.eV * constants.N_A,
             "mult": ccdata.mult,
             "atomnos": rx._misc.totuple(ccdata.atomnos),
             "atommasses": rx._misc.totuple(ccdata.atommasses),

@@ -111,7 +111,7 @@ def get_transition_states(A, B, is_half_equilibrium):
            is_half_equilibrium=(False,),
            A=((0.,), (0.,)),
            B=((-1.,), (1.,)))
-    >>> get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium)
+    >>> tuple(int(x) for x in get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium))
     (1,)
 
     >>> scheme = parse_reactions("E + S <=> ES -> ES‡ -> E + P")
@@ -129,7 +129,7 @@ def get_transition_states(A, B, is_half_equilibrium):
               (1.,  0., -1.),
               (0.,  0.,  1.),
               (0.,  0.,  0.)))
-    >>> get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium)
+    >>> tuple(x if x is None else int(x) for x in get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium))
     (None, None, 3)
 
     """

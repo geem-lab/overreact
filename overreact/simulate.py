@@ -118,7 +118,7 @@ def get_y(
     The `y` object stores information about the simulation time, which can be
     used to produce a suitable vector of timepoints for, e.g., plotting:
 
-    >>> y.t_min, y.t_max
+    >>> float(y.t_min), float(y.t_max)
     (0.0, 3.0)
     >>> t = np.linspace(y.t_min, y.t_max)
     >>> t
@@ -643,7 +643,7 @@ def get_bias(
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal
+    >>> float(get_bias(model.scheme, model.compounds, data, y0) / constants.kcal)
     -1.4
     """
     max_time = np.max(data["t"])

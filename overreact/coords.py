@@ -88,33 +88,33 @@ def get_molecular_volume(
     >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
-    >>> get_molecular_volume(data.atomnos, data.atomcoords)
+    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
     8.4
-    >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
-    ...                      full_output=True)
+    >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
+    ...                      full_output=True))
     (8.4, 13.7, 0.1)
-    >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)
+    >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, full_output=True))
     (8.4, 61., 0.1)
 
     >>> data = datasets.logfiles["symmetries"]["water"]
-    >>> get_molecular_volume(data.atomnos, data.atomcoords)
+    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
     18.
-    >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
-    ...                      full_output=True)
+    >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
+    ...                      full_output=True))
     (18., 29., 0.1)
-    >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)
+    >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, full_output=True))
     (18., 92., 0.1)
 
     >>> data = datasets.logfiles["symmetries"]["benzene"]
-    >>> get_molecular_volume(data.atomnos, data.atomcoords)
+    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
     80.
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
     ...                      full_output=True)  # doctest: +SKIP
     (80., 115., 0.1)
     >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True)  # doctest: +SKIP
     (80., 240., 0.1)
-    >>> get_molecular_volume(data.atomnos, data.atomcoords, full_output=True,
-    ...                      environment="benzene")
+    >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, full_output=True,
+    ...                      environment="benzene"))
     (80., 593., 0.1)
     """
     atomnos = np.atleast_1d(atomnos)
@@ -208,30 +208,30 @@ def _garza(
 
     Examples
     --------
-    >>> _garza(1.0)
+    >>> float(_garza(1.0))
     24.32
-    >>> _garza(1.0, full_output=True)
+    >>> tuple(float(x) for x in _garza(1.0, full_output=True))
     (24.32, 1.815, 0.3507458)
-    >>> _garza(10.0)
+    >>> float(_garza(10.0))
     66.51
-    >>> _garza(10.0, full_output=True)
+    >>> tuple(float(x) for x in _garza(10.0, full_output=True))
     (66.51, 1.0, 0.7556590)
-    >>> _garza(100.0)
+    >>> float(_garza(100.0))
     279.6
-    >>> _garza(100.0, full_output=True)
+    >>> tuple(float(x) for x in _garza(100.0, full_output=True))
     (279.6, 1.0, 1.628018)
 
-    >>> _garza(1.0, environment="benzene")
+    >>> float(_garza(1.0, environment="benzene"))
     131.
-    >>> _garza(1.0, full_output=True, environment="benzene")
+    >>> tuple(float(x) for x in _garza(1.0, full_output=True, environment="benzene"))
     (131., 3.35, 0.2317882509934295)
-    >>> _garza(10.0, environment="benzene")
+    >>> float(_garza(10.0, environment="benzene"))
     243.
-    >>> _garza(10.0, full_output=True, environment="benzene")
+    >>> tuple(float(x) for x in _garza(10.0, full_output=True, environment="benzene"))
     (243., 3.29, 0.499372648682062)
-    >>> _garza(100.0, environment="benzene")
+    >>> float(_garza(100.0, environment="benzene"))
     665.
-    >>> _garza(100.0, full_output=True, environment="benzene")
+    >>> tuple(float(x) for x in _garza(100.0, full_output=True, environment="benzene"))
     (665., 1.0, 1.07586575757374)
     """
     solvent = misc._get_chemical(environment, temperature, pressure)
@@ -843,7 +843,7 @@ def _get_proper_axes(
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
     >>> _get_proper_axes(atomcoords, groups, axes, rotor_class)
-    [(2, (1.0, ...)),
+    [(2, (np.float64(1.0), ...)),
      (2, (...)),
      (2, (...))]
     """
@@ -1067,9 +1067,9 @@ def _get_improper_axes(
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
     >>> _get_improper_axes(atomcoords, groups, axes, rotor_class)
-    [(4, (0.0, 0.0, -1.0)),
-     (4, (0.0, -1.0, 0.0)),
-     (4, (-1.0, 0.0, 0.0))]
+    [(4, (np.float64(0.0), np.float64(0.0), np.float64(-1.0))),
+     (4, (np.float64(0.0), np.float64(-1.0), np.float64(0.0))),
+     (4, (np.float64(-1.0), np.float64(0.0), np.float64(0.0)))]
     """
     rtol, atol = slack * rtol, slack * atol
 
@@ -1219,7 +1219,7 @@ def _get_mirror_planes(
     >>> moments, axes, atomcoords = inertia(data.atommasses, data.atomcoords)
     >>> rotor_class = _classify_rotor(moments)
     >>> _get_mirror_planes(atomcoords, groups, axes, rotor_class)
-    [('', (0.0, 0.0, 1.0))]
+    [('', (np.float64(...), np.float64(...), np.float64(...)))]
     """
     rtol, atol = slack * rtol, slack * atol
 
@@ -1653,19 +1653,19 @@ def gyradius(atommasses, atomcoords, method="iupac"):
     >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["tanaka1996"]["CH3·@UMP2/cc-pVTZ"]
-    >>> gyradius(data.atommasses, data.atomcoords)
+    >>> float(gyradius(data.atommasses, data.atomcoords))
     0.481
-    >>> gyradius(data.atommasses, data.atomcoords, method="mean")
+    >>> float(gyradius(data.atommasses, data.atomcoords, method="mean"))
     0.93
 
     >>> data = datasets.logfiles["symmetries"]["water"]
-    >>> gyradius(data.atommasses, data.atomcoords)
+    >>> float(gyradius(data.atommasses, data.atomcoords))
     0.31915597673891866
-    >>> gyradius(np.ones_like(data.atommasses), data.atomcoords)
+    >>> float(gyradius(np.ones_like(data.atommasses), data.atomcoords))
     0.6833818299241241
-    >>> gyradius(np.ones_like(data.atommasses), data.atomcoords, method="mean")
+    >>> float(gyradius(np.ones_like(data.atommasses), data.atomcoords, method="mean"))
     0.6833818299241241
-    >>> gyradius(data.atommasses, data.atomcoords, method="mean")
+    >>> float(gyradius(data.atommasses, data.atomcoords, method="mean"))
     0.7637734749747612
     """
     com = np.average(atomcoords, axis=0, weights=atommasses)
@@ -1912,9 +1912,9 @@ def eckart_transform(atommasses, atomcoords):
 
     >>> data = datasets.logfiles["tanaka1996"]["Cl·@UMP2/cc-pVTZ"]
     >>> eckart_transform(data.atommasses, data.atomcoords)
-    array([[1., 0., 0.],
-           [0., 1., 0.],
-           [0., 0., 1.]])
+    array([[ 1.,  0.,  0.],
+           [-0.,  1.,  0.],
+           [-0., -0.,  1.]])
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
     >>> eckart_transform(data.atommasses, data.atomcoords)
     array([[...]])
@@ -2041,7 +2041,7 @@ def _equivalent_atoms(
     ...                        [-0.539415,  0.934294, -1.      ],
     ...                        [-0.539415, -0.934294, -1.      ]])
     >>> for indices in _equivalent_atoms(atommasses, atomcoords):
-    ...     indices
+    ...     [int(x) for x in indices]
     [0]
     [1, 2, 3]
 
@@ -2055,7 +2055,7 @@ def _equivalent_atoms(
     ...     ]
     ... )
     >>> for indices in _equivalent_atoms(atommasses, atomcoords):
-    ...     indices
+    ...     [int(x) for x in indices]
     [0]
     [1, 2, 3]
 

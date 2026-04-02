@@ -93,12 +93,12 @@ def collins_kimball(
     Examples
     --------
     >>> radii = np.array([2.59, 2.71]) * constants.angstrom
-    >>> collins_kimball(radii, reactive_radius=2.6 * constants.angstrom,
-    ...              viscosity=8.91e-4) / constants.liter
+    >>> float(collins_kimball(radii, reactive_radius=2.6 * constants.angstrom,
+    ...              viscosity=8.91e-4) / constants.liter)
     3.6e9
-    >>> collins_kimball(radii, "water", reactive_radius=2.6 * constants.angstrom) / constants.liter
+    >>> float(collins_kimball(radii, "water", reactive_radius=2.6 * constants.angstrom) / constants.liter)
     3.6e9
-    >>> collins_kimball(radii, viscosity=8.91e-4) / constants.liter
+    >>> float(collins_kimball(radii, viscosity=8.91e-4) / constants.liter)
     3.7e9
     """
     radii = np.asarray(radii)
@@ -202,14 +202,14 @@ def convert_rate_constant(
 
     There are many options for `old_scale` and `new_scale`:
 
-    >>> convert_rate_constant(1.0, "m3 mol-1 s-1", "atm-1 s-1",
-    ...                       molecularity=2, temperature=1.0)
+    >>> float(convert_rate_constant(1.0, "m3 mol-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=1.0))
     8.21e-5
-    >>> convert_rate_constant(1.0, "cm3 particle-1 s-1", "atm-1 s-1",
-    ...                       molecularity=2, temperature=1.0)
+    >>> float(convert_rate_constant(1.0, "cm3 particle-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=1.0))
     13.63e-23
-    >>> convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1",
-    ...                       molecularity=2, temperature=273.15)
+    >>> float(convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1",
+    ...                       molecularity=2, temperature=273.15))
     22414.
 
     If `old_scale` is the same as `new_scale`, or if the molecularity is one,
@@ -222,14 +222,14 @@ def convert_rate_constant(
 
     Below are some examples regarding some accepted alternative symbols:
 
-    >>> convert_rate_constant(1.0, "M-1 s-1", molecularity=2) \
-    ...     == convert_rate_constant(1.0, "l mol-1 s-1", molecularity=2)
+    >>> bool(convert_rate_constant(1.0, "M-1 s-1", molecularity=2) \
+    ...     == convert_rate_constant(1.0, "l mol-1 s-1", molecularity=2))
     True
-    >>> convert_rate_constant(1.0, "ml mol-1 s-1", molecularity=2) \
-    ...     == convert_rate_constant(1.0, "cm3 mol-1 s-1", molecularity=2)
+    >>> bool(convert_rate_constant(1.0, "ml mol-1 s-1", molecularity=2) \
+    ...     == convert_rate_constant(1.0, "cm3 mol-1 s-1", molecularity=2))
     True
-    >>> convert_rate_constant(1.0, "torr-1 s-1", molecularity=2) \
-    ...     == convert_rate_constant(1.0, "mmHg-1 s-1", molecularity=2)
+    >>> bool(convert_rate_constant(1.0, "torr-1 s-1", molecularity=2) \
+    ...     == convert_rate_constant(1.0, "mmHg-1 s-1", molecularity=2))
     True
     """
     for alt, ref in [("M-1", "l mol-1"), ("ml", "cm3"), ("torr-1", "mmHg-1")]:

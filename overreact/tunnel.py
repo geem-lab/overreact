@@ -37,11 +37,11 @@ def _check_nu(vibfreq: float) -> float:
     Examples
     --------
     >>> vibfreq = 1000.0
-    >>> _check_nu(vibfreq)
+    >>> float(_check_nu(vibfreq))
     2.99792458e13
-    >>> _check_nu(2.0 * vibfreq) / _check_nu(vibfreq)
+    >>> float(_check_nu(2.0 * vibfreq) / _check_nu(vibfreq))
     2.0
-    >>> _check_nu(vibfreq) == _check_nu(-vibfreq)
+    >>> bool(_check_nu(vibfreq) == _check_nu(-vibfreq))
     True
     """
     if np.isclose(vibfreq, 0.0).any():
@@ -76,15 +76,15 @@ def wigner(
 
     Examples
     --------
-    >>> wigner(1821.0777)
+    >>> float(wigner(1821.0777))
     4.218
-    >>> wigner(262.38)
+    >>> float(wigner(262.38))
     1.06680
-    >>> wigner(190.5927)
+    >>> float(wigner(190.5927))
     1.03525
-    >>> wigner(169.14)
+    >>> float(wigner(169.14))
     1.02776
-    >>> wigner(113.87)
+    >>> float(wigner(113.87))
     1.01258
 
     """
@@ -156,11 +156,11 @@ def eckart(
     And if either the forward or backward barrier is non-positive, we fall back
     to the Wigner correction, but a warning is issued:
 
-    >>> eckart(190.5927, 109920.73434972763, -154.0231580734253)
+    >>> float(eckart(190.5927, 109920.73434972763, -154.0231580734253))
     1.03525
-    >>> eckart(190.5927, -154.0231580734253, 109920.73434972763)
+    >>> float(eckart(190.5927, -154.0231580734253, 109920.73434972763))
     1.03525
-    >>> eckart(190.5927, -154.0231580734253)
+    >>> float(eckart(190.5927, -154.0231580734253))
     1.03525
 
     """
