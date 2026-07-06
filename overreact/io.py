@@ -950,7 +950,7 @@ class DotDict(dict):
         super().__init__(*args, **kwargs)
 
         for key, val in self.items():
-            if isinstance(val, (list, np.ndarray)):
+            if isinstance(val, list | np.ndarray):
                 super().__setitem__(key, rx._misc.totuple(val))
             elif isinstance(val, dict):
                 super().__setitem__(key, DotDict(val))

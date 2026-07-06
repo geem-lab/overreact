@@ -196,7 +196,7 @@ def make_hashable(obj):
     """
     if isinstance(obj, np.ndarray):
         return (tuple(obj.shape), tuple(obj.ravel()))
-    elif isinstance(obj, (list, set)):
+    elif isinstance(obj, list | set):
         return tuple(make_hashable(item) for item in obj)
     else:
         return obj
@@ -235,7 +235,7 @@ def copy_unhashable(maxsize=128, typed=False):
                     shape, flat_data = arg
                     if (
                         isinstance(shape, tuple)
-                        and all(isinstance(dim, (int, np.integer)) for dim in shape)
+                        and all(isinstance(dim, int | np.integer) for dim in shape)
                         and isinstance(flat_data, tuple)
                     ):
                         if len(flat_data) == 0 or any(dim <= 0 for dim in shape):
@@ -873,7 +873,7 @@ def totuple(a):
     ((2, 2), (2, -2))
     """
     # we don't touch some types, and this includes namedtuples
-    if isinstance(a, (int, float, str, rx.Scheme)):
+    if isinstance(a, int | float | str | rx.Scheme):
         return a
 
     with contextlib.suppress(AttributeError):
