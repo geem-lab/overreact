@@ -11,13 +11,20 @@ forked repository.
 > from [Open Source Guides](https://opensource.guide/) They may even have a
 > translation for your native language!
 
-After cloning your fork, we recommend using [Poetry](https://python-poetry.org/)
-for managing your contributions:
+We use [`uv`](https://docs.astral.sh/uv/) to develop the project, so first make sure it's installed.
+
+After cloning your fork, run:
 
 ```console
-$ git clone git@github.com:your-username/overreact.git # your-username is your GitHub username
+$ git clone --recurse-submodules git@github.com:your-username/overreact.git # your-username is your GitHub username
 $ cd overreact
-$ poetry install -E cli -E fast -E solvents # all optional features
+$ uv sync --all-extras
+```
+
+Before submitting any pull requests, make sure all tests pass with:
+
+```console
+$ uv run pytest
 ```
 
 ## Recommended practices
@@ -54,7 +61,8 @@ questions, the discussions are a better place to ask questions 😄.)
 - Include tests if your patch solves a bug, and explain clearly
   under which circumstances the bug happens. Make sure the test fails without
   your patch.
-- Use [Black](https://black.readthedocs.io/) to auto-format your code.
+- Use [ruff format](https://docs.astral.sh/ruff/formatter/) to auto-format your code.
+- Use [ruff check](https://docs.astral.sh/ruff/linter/) to check for code quality issues.
 - Use
   [Numpydoc documentation strings](https://numpydoc.readthedocs.io/en/latest/format.html)
   to document your code.

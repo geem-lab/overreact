@@ -79,26 +79,26 @@ def calc_trans_entropy(
 
     Examples
     --------
-    >>> calc_trans_entropy(35.45)  # Cl-
+    >>> float(calc_trans_entropy(35.45))  # Cl-
     153.246
-    >>> calc_trans_entropy(35.45, pressure=constants.bar)
+    >>> float(calc_trans_entropy(35.45, pressure=constants.bar))
     153.356
 
-    >>> calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water")
+    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water"))
     153.246
 
     As we can see, the "environment" parameter has only effect if set together
     with a proper "method":
 
-    >>> calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
-    ...                    method="garza")
+    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
+    ...                    method="garza"))
     103.7
-    >>> calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
-    ...                    method="izato")
+    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
+    ...                    method="izato"))
     51.
 
-    >>> calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="benzene",
-    ...                    method="garza")
+    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="benzene",
+    ...                    method="garza"))
     121.7
     """
     # TODO(schneiderfelipe): This is probably an ugly hack for zero temperature and
@@ -177,7 +177,7 @@ def calc_internal_energy(
 
     Examples
     --------
-    >>> calc_internal_energy()  # F
+    >>> float(calc_internal_energy())  # F
     3718.
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -190,9 +190,9 @@ def calc_internal_energy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> calc_internal_energy(
+    >>> float(calc_internal_energy(
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
-    ...     degeneracy=degeneracy)  # F
+    ...     degeneracy=degeneracy))  # F
     4039.
 
     """
@@ -247,7 +247,7 @@ def calc_enthalpy(
 
     Examples
     --------
-    >>> calc_enthalpy()  # F
+    >>> float(calc_enthalpy())  # F
     6197.
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -260,8 +260,8 @@ def calc_enthalpy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> calc_enthalpy(energy=energy * 100 * constants.h * constants.c * constants.N_A,
-    ...               degeneracy=degeneracy)  # F
+    >>> float(calc_enthalpy(energy=energy * 100 * constants.h * constants.c * constants.N_A,
+    ...               degeneracy=degeneracy))  # F
     6518.
 
     """
@@ -368,7 +368,7 @@ def calc_entropy(
 
     Examples
     --------
-    >>> calc_entropy(18.998)  # F
+    >>> float(calc_entropy(18.998))  # F
     145.467
 
     The example above ignores the electronic entropy. Taking electronic entropy
@@ -381,9 +381,9 @@ def calc_entropy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> calc_entropy(18.998,
+    >>> float(calc_entropy(18.998,
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
-    ...     degeneracy=degeneracy)  # F
+    ...     degeneracy=degeneracy))  # F
     158.641
 
     The following calculates the solvation entropy of a hydrogen atom in water:
@@ -495,7 +495,7 @@ def calc_heat_capacity(
 
     Examples
     --------
-    >>> calc_heat_capacity()  # F
+    >>> float(calc_heat_capacity())  # F
     12.47
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -508,9 +508,9 @@ def calc_heat_capacity(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> calc_heat_capacity(
+    >>> float(calc_heat_capacity(
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
-    ...     degeneracy=degeneracy)  # F
+    ...     degeneracy=degeneracy))  # F
     14.43
 
     """
@@ -592,13 +592,13 @@ def get_delta(transform, property):
 
     Examples
     --------
-    >>> get_delta([-1, 1], [-10, 10])
+    >>> int(get_delta([-1, 1], [-10, 10]))
     20
 
     You must ensure the transformation is properly defined, as no test is made
     to ensure, e.g., conservation of matter:
 
-    >>> get_delta([-1, 0], [-10, 20])
+    >>> int(get_delta([-1, 0], [-10, 20]))
     10
 
     Normally, transformations are given as columns in a matrix:
@@ -815,21 +815,21 @@ def change_reference_state(
     By default, the correction returns a change in concentration from the gas
     phase standard concentration to the solvated-state standard concentration:
 
-    >>> -rx.change_reference_state() / constants.calorie
+    >>> float(-rx.change_reference_state() / constants.calorie)
     -6.4
-    >>> 298.15 * rx.change_reference_state() / constants.kcal
+    >>> float(298.15 * rx.change_reference_state() / constants.kcal)
     1.89
-    >>> 273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal
+    >>> float(273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal)
     1.69
 
     But this function can also be used to adjust symmetry effects from C1
     calculations (symmetry number equals to one). For D7h, for instance, the
     symmetry number is 14:
 
-    >>> -298.15 * rx.change_reference_state(14, 1) / constants.kcal
+    >>> float(-298.15 * rx.change_reference_state(14, 1) / constants.kcal)
     -1.56
 
-    >>> rx.change_reference_state(sign=-1) == -rx.change_reference_state()
+    >>> bool(rx.change_reference_state(sign=-1) == -rx.change_reference_state())
     True
 
     """

@@ -386,7 +386,9 @@ class Report:
                 temperature=self.temperature,
                 pressure=self.pressure,
             ),
-        ), "reaction free energies do not match reaction enthalpies and reaction entropies"
+        ), (
+            "reaction free energies do not match reaction enthalpies and reaction entropies"
+        )
 
         delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
         delta_activation_energies = rx.get_delta(scheme.B, energies)
@@ -413,7 +415,9 @@ class Report:
                 temperature=self.temperature,
                 pressure=self.pressure,
             ),
-        ), "activation free energies do not match activation enthalpies and activation entropies"
+        ), (
+            "activation free energies do not match activation enthalpies and activation entropies"
+        )
 
         circ_table = Table(
             Column("no", justify="right"),

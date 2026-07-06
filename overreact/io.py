@@ -74,7 +74,7 @@ def parse_model(path: str, force_compile: bool = False):
            B=((-1.0,), (1.0,)))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
-     'energy': -209483812.77142256,
+     'energy': -209483812.7713697,
      'mult': 1,
      'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
      'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
@@ -143,7 +143,7 @@ def _parse_model(file_or_path):
            B=((-1.,), (1.,)))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
-     'energy': -209483812.77142256,
+     'energy': -209483812.7713697,
      'mult': 1,
      'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
      'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
@@ -156,7 +156,7 @@ def _parse_model(file_or_path):
                    (-0.011061, -0.030431, -0.027036)))}
     >>> model.compounds["E‡"]
     {'logfile': 'data/ethane/B97-3c/eclipsed.out',
-     'energy': -209472585.3539883,
+     'energy': -209472585.35393545,
      'mult': 1,
      'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
      'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
@@ -291,7 +291,7 @@ def _unparse_source(model):
     $compounds
      S:
       logfile="data/ethane/B97-3c/staggered.out"
-      energy=-209483812.77142256
+      energy=-209483812.7713697
       mult=1
       atomnos=[6, 6, 1, 1, 1, 1, 1, 1]
       atommasses=[12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008]
@@ -300,7 +300,7 @@ def _unparse_source(model):
       vibdisps=[[[-1.7e-05, 3.4e-05, 5.4e-05], ..., [..., -0.027036]]]
      E‡:
       logfile="data/ethane/B97-3c/eclipsed.out"
-      energy=-209472585.3539883
+      energy=-209472585.35393545
       mult=1
       ...
     $end
@@ -317,7 +317,7 @@ def _unparse_source(model):
            B=((-1.,), (1.,)))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
-     'energy': -209483812.77142256,
+     'energy': -209483812.7713697,
      'mult': 1,
      'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
      'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
@@ -330,7 +330,7 @@ def _unparse_source(model):
                    (-0.011061, -0.030431, -0.027036)))}
     >>> model.compounds["E‡"]
     {'logfile': 'data/ethane/B97-3c/eclipsed.out',
-     'energy': -209472585.3539883,
+     'energy': -209472585.35393545,
      'mult': 1,
      'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
      'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
@@ -408,7 +408,7 @@ def _check_compounds(compounds):
     --------
     >>> _check_compounds({"S": "data/ethane/B97-3c/staggered.out"})
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
-           'energy': -209483812.77142256,
+           'energy': -209483812.7713697,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
@@ -421,7 +421,7 @@ def _check_compounds(compounds):
                          (-0.011061, -0.030431, -0.027036)))}}
     >>> _check_compounds(_check_compounds({"S": "data/ethane/B97-3c/staggered.out"}))
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
-           'energy': -209483812.77142256,
+           'energy': -209483812.7713697,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            'atommasses': (12.011, 12.011, 1.008, 1.008, 1.008, 1.008, 1.008, 1.008),
@@ -467,7 +467,7 @@ def parse_compounds(text, path=("",), select=None):
     >>> compounds = rx.parse_compounds("S: data/ethane/B97-3c/staggered.out")
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
-           'energy': -209483812.77142256,
+           'energy': -209483812.7713697,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
@@ -475,7 +475,7 @@ def parse_compounds(text, path=("",), select=None):
     >>> compounds = rx.parse_compounds({"S": "data/ethane/B97-3c/staggered.out"})
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
-           'energy': -209483812.77142256,
+           'energy': -209483812.7713697,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
@@ -484,12 +484,12 @@ def parse_compounds(text, path=("",), select=None):
     ...                              "E‡: data/ethane/B97-3c/eclipsed.out"])
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
-           'energy': -209483812.77142256,
+           'energy': -209483812.7713697,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...},
     'E‡': {'logfile': 'data/ethane/B97-3c/eclipsed.out',
-           'energy': -209472585.3539883,
+           'energy': -209472585.35393545,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
@@ -498,12 +498,12 @@ def parse_compounds(text, path=("",), select=None):
     ...                                E‡: data/ethane/B97-3c/eclipsed.out''')
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
-           'energy': -209483812.77142256,
+           'energy': -209483812.7713697,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...},
     'E‡': {'logfile': 'data/ethane/B97-3c/eclipsed.out',
-           'energy': -209472585.3539883,
+           'energy': -209472585.35393545,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
@@ -512,12 +512,12 @@ def parse_compounds(text, path=("",), select=None):
     ...                              "E‡": "data/ethane/B97-3c/eclipsed.out"})
     >>> compounds
     {'S': {'logfile': 'data/ethane/B97-3c/staggered.out',
-           'energy': -209483812.77142256,
+           'energy': -209483812.7713697,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...},
     'E‡': {'logfile': 'data/ethane/B97-3c/eclipsed.out',
-           'energy': -209472585.3539883,
+           'energy': -209472585.35393545,
            'mult': 1,
            'atomnos': (6, 6, 1, 1, 1, 1, 1, 1),
            ...}}
@@ -603,7 +603,7 @@ def read_logfile(path):
 
     >>> rx.io.read_logfile("data/symmetries/benzene.out")
     {'logfile': 'data/symmetries/benzene.out',
-     'energy': -609176691.0746485,
+     'energy': -609176691.0744948,
      'mult': 1,
      'atomnos': (6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1),
      'atommasses': (12.011, ..., 1.008),
@@ -617,7 +617,7 @@ def read_logfile(path):
 
     >>> rx.io.read_logfile("data/hickel1992/UM06-2X/6-311++G(d,p)/OH·.out")
     {'logfile': 'data/hickel1992/UM06-2X/6-311++G(d,p)/OH·.out',
-     'energy': -198844853.7713648,
+     'energy': -198844853.77131462,
      'mult': 2,
      'atomnos': (8, 1),
      'atommasses': (15.999, 1.008),
@@ -656,7 +656,7 @@ def read_logfile(path):
         data = {
             "logfile": path,
             # This energy may lack dispersion, solvation, correlation, etc.
-            "energy": ccdata.scfenergies[-1] * constants.eV * constants.N_A,
+            "energy": float(ccdata.scfenergies[-1]) * constants.eV * constants.N_A,
             "mult": ccdata.mult,
             "atomnos": rx._misc.totuple(ccdata.atomnos),
             "atommasses": rx._misc.totuple(ccdata.atommasses),
@@ -747,7 +747,7 @@ def _read_orca_hess(path):
                     columns = [int(j) for j in line.split()]
                     for i in range(n):
                         entries = next(file).split()[1:]  # first is same as i
-                        for j, entry in zip(columns, entries):
+                        for j, entry in zip(columns, entries, strict=False):
                             hessian[i, j] = float(entry)
                     line = next(file).strip()
         return hessian
@@ -773,12 +773,12 @@ def _read_orca_logfile(path, minimal=True):
     Examples
     --------
     >>> _read_orca_logfile("data/symmetries/benzene.out")
-    {'energy': -609176691.0746485}
+    {'energy': -609176691.0744948}
     >>> _read_orca_logfile("data/tanaka1996/UMP2/cc-pVTZ/Cl·.out")
     {'energy': ...,
      'hessian': ((...))}
     >>> _read_orca_logfile("data/symmetries/benzene.out", minimal=False)
-    {'energy': -609176691.0746485,
+    {'energy': -609176691.0744948,
      'logfile': 'data/symmetries/benzene.out',
      'mult': 1,
      'atomnos': (6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1),
@@ -789,7 +789,7 @@ def _read_orca_logfile(path, minimal=True):
      'vibfreqs': (397.68, 397.72, ..., 3099.78, 3109.35)}
     >>> _read_orca_logfile("data/tanaka1996/UMP2/cc-pVTZ/Cl·.out",
     ...                    minimal=False)
-    {'energy': -1206878421.4741397,
+    {'energy': -1206878421.4738352,
      'hessian': ((2.4367721762e-11, ..., 1.0639954754e-11)),
      'logfile': 'data/tanaka1996/UMP2/cc-pVTZ/Cl·.out',
      'mult': 2,

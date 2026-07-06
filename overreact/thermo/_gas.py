@@ -29,9 +29,9 @@ def calc_trans_energy(temperature=298.15):
 
     Examples
     --------
-    >>> calc_trans_energy()
+    >>> float(calc_trans_energy())
     3718.
-    >>> calc_trans_energy(373.15)
+    >>> float(calc_trans_energy(373.15))
     4653.
     """
     temperature = np.asarray(temperature)
@@ -72,11 +72,11 @@ def calc_elec_energy(energy=0.0, degeneracy=1, temperature=298.15):
     case is independent of the ground state degeneracy and, if not given,
     non-degenerate is assumed:
 
-    >>> calc_elec_energy(1234.0, degeneracy=4)
+    >>> float(calc_elec_energy(1234.0, degeneracy=4))
     1234.0
-    >>> np.isclose(calc_elec_energy(1234.0, 3), calc_elec_energy(1234.0, 2))
+    >>> bool(np.isclose(calc_elec_energy(1234.0, 3), calc_elec_energy(1234.0, 2)))
     True
-    >>> calc_elec_energy(1234.0)  # singlet by default
+    >>> float(calc_elec_energy(1234.0))  # singlet by default
     1234.0
 
     But you can consider excited states too. Below is a calculation with
@@ -90,9 +90,9 @@ def calc_elec_energy(energy=0.0, degeneracy=1, temperature=298.15):
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> calc_elec_energy(
+    >>> float(calc_elec_energy(
     ...     energy * 100 * constants.h * constants.c * constants.N_A, degeneracy
-    ... )
+    ... ))
     321.00
     """
     temperature = np.asarray(temperature)
@@ -142,18 +142,18 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     case is independent of the ground state energy and, if not given, zero
     energy is assumed:
 
-    >>> calc_elec_entropy(degeneracy=4)
+    >>> float(calc_elec_entropy(degeneracy=4))
     11.526
-    >>> np.isclose(calc_elec_entropy(degeneracy=3),
-    ...            calc_elec_entropy(1234.0, 3))
+    >>> bool(np.isclose(calc_elec_entropy(degeneracy=3),
+    ...            calc_elec_entropy(1234.0, 3)))
     True
-    >>> np.isclose(calc_elec_entropy(0.0, 2), calc_elec_entropy(1234.0, 2))
+    >>> bool(np.isclose(calc_elec_entropy(0.0, 2), calc_elec_entropy(1234.0, 2)))
     True
-    >>> calc_elec_entropy(1234.0, 2)
+    >>> float(calc_elec_entropy(1234.0, 2))
     5.763
-    >>> calc_elec_entropy()  # singlet by default
+    >>> float(calc_elec_entropy())  # singlet by default
     0.0
-    >>> calc_elec_entropy(1234.0)  # singlet by default
+    >>> float(calc_elec_entropy(1234.0))  # singlet by default
     0.0
 
     But you can consider excited states too. Below is a calculation with
@@ -167,8 +167,8 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> calc_elec_entropy(energy * 100 * constants.h * constants.c * constants.N_A,
-    ...                   degeneracy)
+    >>> float(calc_elec_entropy(energy * 100 * constants.h * constants.c * constants.N_A,
+    ...                   degeneracy))
     13.175
     """
     temperature = np.asarray(temperature)
@@ -225,15 +225,15 @@ def calc_rot_energy(
     Examples
     --------
     >>> i = 8.53818341e1
-    >>> calc_rot_energy([i, i])
+    >>> float(calc_rot_energy([i, i]))
     2479.
-    >>> np.allclose(calc_rot_energy(i), calc_rot_energy([i]))
+    >>> bool(np.allclose(calc_rot_energy(i), calc_rot_energy([i])))
     True
     >>> ia = (constants.hbar ** 2 / (2.0 * constants.k * 13.6)) \
     ...     / (constants.atomic_mass * constants.angstrom ** 2)
     >>> ib = (constants.hbar ** 2 / (2.0 * constants.k * 8.92)) \
     ...     / (constants.atomic_mass * constants.angstrom ** 2)
-    >>> calc_rot_energy([ia, ib, ib])  # NH3
+    >>> float(calc_rot_energy([ia, ib, ib]))  # NH3
     3674.
 
     If no moments of inertia are given, a monoatomic gas is assumed:
@@ -345,17 +345,17 @@ def calc_rot_entropy(
     --------
     >>> i = (constants.hbar**2 / (2.0 * constants.k * 15.02)) \
     ...     / (constants.atomic_mass * constants.angstrom ** 2)
-    >>> calc_rot_entropy(moments=[i, i])  # HCl
+    >>> float(calc_rot_entropy(moments=[i, i]))  # HCl
     33.16
     >>> i = (constants.hbar**2 / (2.0 * constants.k * 87.6)) \
     ...     / (constants.atomic_mass * constants.angstrom ** 2)
-    >>> calc_rot_entropy(moments=[i, i], symmetry_number=2)  # H2
+    >>> float(calc_rot_entropy(moments=[i, i], symmetry_number=2))  # H2
     12.73
     >>> ia = (constants.hbar ** 2 / (2.0 * constants.k * 13.6)) \
     ...     / (constants.atomic_mass * constants.angstrom ** 2)
     >>> ib = (constants.hbar ** 2 / (2.0 * constants.k * 8.92)) \
     ...     / (constants.atomic_mass * constants.angstrom ** 2)
-    >>> calc_rot_entropy(moments=[ia, ib, ib], symmetry_number=3)  # NH3
+    >>> float(calc_rot_entropy(moments=[ia, ib, ib], symmetry_number=3))  # NH3
     50.11
 
     If no moments of inertia are given, an ideal monoatomic gas is assumed:
@@ -367,15 +367,15 @@ def calc_rot_entropy(
 
     >>> data = datasets.logfiles["symmetries"]["water"]
     >>> moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
-    >>> calc_rot_entropy(moments=moments)
-    50.03250369082377
-    >>> calc_rot_entropy(moments=moments, environment="water",
+    >>> float(calc_rot_entropy(moments=moments))
+    50.03250370917331
+    >>> float(calc_rot_entropy(moments=moments, environment="water",
     ...                  atommasses=data.atommasses, atomnos=data.atomnos,
-    ...                  atomcoords=data.atomcoords)
-    50.03250369082377
-    >>> calc_rot_entropy(moments=moments, environment="water", method="garza",
+    ...                  atomcoords=data.atomcoords))
+    50.03250370917331
+    >>> float(calc_rot_entropy(moments=moments, environment="water", method="garza",
     ...                  atommasses=data.atommasses, atomnos=data.atomnos,
-    ...                  atomcoords=data.atomcoords)
+    ...                  atomcoords=data.atomcoords))
     47.1
     """
     temperature = np.asarray(temperature)
@@ -464,24 +464,24 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
 
     Examples
     --------
-    >>> calc_vib_energy(3374 \
+    >>> float(calc_vib_energy(3374 \
     ...     * constants.k * constants.centi \
-    ...     / (constants.h * constants.c))  # nitrogen molecule
+    ...     / (constants.h * constants.c)))  # nitrogen molecule
     14026.
-    >>> calc_vib_energy(310 \
+    >>> float(calc_vib_energy(310 \
     ...     * constants.k * constants.centi / (constants.h * constants.c),
-    ...                 temperature=1000)  # elemental iodine
+    ...                 temperature=1000))  # elemental iodine
     8.e3
 
     >>> vibfreqs = np.array([3360, 954, 954, 1890]) \
     ...     * constants.k * constants.centi / (constants.h * constants.c)
-    >>> calc_vib_energy(vibfreqs)  # CO2
+    >>> float(calc_vib_energy(vibfreqs))  # CO2
     3.045e4
 
     The following zero point energy (ZPE) of CO2 agrees with a calculation at
     CCSD(T)/aug-cc-pVDZ:
 
-    >>> calc_vib_energy(vibfreqs, temperature=0.0) / constants.kcal
+    >>> float(calc_vib_energy(vibfreqs, temperature=0.0) / constants.kcal)
     7.1
 
     If no frequencies are given, an ideal monoatomic gas is assumed:
@@ -549,19 +549,19 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
     --------
     >>> import overreact as rx
 
-    >>> calc_vib_entropy(3374 \
+    >>> float(calc_vib_entropy(3374 \
     ...     * constants.k * constants.centi \
-    ...     / (constants.h * constants.c))  # nitrogen molecule
+    ...     / (constants.h * constants.c)))  # nitrogen molecule
     0.0013
     >>> vibfreqs = np.array([3360, 954, 954, 1890]) \
     ...     * constants.k * constants.centi / (constants.h * constants.c)
-    >>> calc_vib_entropy(vibfreqs)  # CO2
+    >>> float(calc_vib_entropy(vibfreqs))  # CO2
     3.06
 
     A molecule can be loaded and its vibrational entropy calculated right away:
 
     >>> data = rx.io.read_logfile("data/hickel1992/UM06-2X/6-311++G(d,p)/NH3·OH.out")
-    >>> 298.15 * calc_vib_entropy(data.vibfreqs) / constants.kcal
+    >>> float(298.15 * calc_vib_entropy(data.vibfreqs) / constants.kcal)
     1.89
 
     If no frequencies are given, an ideal monoatomic gas is assumed:
@@ -621,7 +621,7 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
 
     Examples
     --------
-    >>> _sackur_tetrode(18.01528, 0.0993e-30 * constants.N_A)  # water est. free volume
+    >>> float(_sackur_tetrode(18.01528, 0.0993e-30 * constants.N_A))  # water est. free volume
     37.36
     """
     temperature = np.asarray(temperature)
@@ -663,19 +663,19 @@ def _rotational_temperature(moments=None, thresh=3e-47):
     >>> _rotational_temperature()
     array([], ...)
     >>> _rotational_temperature(i)
-    array([81.88521438])
+    array([81.88521427])
     >>> _rotational_temperature([i])
-    array([81.88521438])
+    array([81.88521427])
     >>> _rotational_temperature([i, i])
-    array([81.88521438, 81.88521438])
+    array([81.88521427, 81.88521427])
     >>> _rotational_temperature([0.0, i])
-    array([81.88521438])
+    array([81.88521427])
     >>> _rotational_temperature([0.0, 0.0, i])
-    array([81.88521438])
+    array([81.88521427])
     >>> _rotational_temperature([0.0, i, i])
-    array([81.88521438, 81.88521438])
+    array([81.88521427, 81.88521427])
     >>> _rotational_temperature([i, i, i])
-    array([81.88521438, 81.88521438, 81.88521438])
+    array([81.88521427, 81.88521427, 81.88521427])
 
     Small values are considered zero with comparison to thresh:
 
@@ -903,19 +903,19 @@ def molar_volume(temperature=298.15, pressure=constants.atm):
 
     Examples
     --------
-    >>> molar_volume(temperature=273.15)
+    >>> float(molar_volume(temperature=273.15))
     0.0224140
-    >>> molar_volume(temperature=273.15, pressure=constants.bar)
+    >>> float(molar_volume(temperature=273.15, pressure=constants.bar))
     0.0227110
-    >>> molar_volume()
+    >>> float(molar_volume())
     0.0244654
-    >>> molar_volume(pressure=constants.bar)
+    >>> float(molar_volume(pressure=constants.bar))
     0.0247896
 
     Below we calculate the molar volume at 298.15 K and 1 atm in Å³ per molecule:
 
-    >>> molar_volume() / (constants.angstrom ** 3 * constants.N_A)
-    40625.758632362515
+    >>> float(molar_volume() / (constants.angstrom ** 3 * constants.N_A))
+    40625.75863311126
     """
     temperature = np.asarray(temperature)
 

@@ -118,7 +118,7 @@ def get_y(
     The `y` object stores information about the simulation time, which can be
     used to produce a suitable vector of timepoints for, e.g., plotting:
 
-    >>> y.t_min, y.t_max
+    >>> float(y.t_min), float(y.t_max)
     (0.0, 3.0)
     >>> t = np.linspace(y.t_min, y.t_max)
     >>> t
@@ -187,7 +187,7 @@ def get_y(
         # TODO(schneiderfelipe): this is probably not the best way to
         # vectorize a function!
         try:
-            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T)]).T
+            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T, strict=False)]).T
         except TypeError:
             return dydt(t, y(t))
 
@@ -318,8 +318,8 @@ def _adjust_k(scheme, k, ef=EF):
     >>> model = rx.parse_model("data/acetate/Orca4/model.k")
     >>> _adjust_k(model.scheme,
     ...           rx.get_k(model.scheme, model.compounds))
-    Array([1.00000000e+00, 5.74491548e+04, 1.61152010e+07,
-           1.00000000e+00, 1.55695112e+56, 1.00000000e+00], ...)
+    Array([1.00000000e+00, 5.74491546e+04, 1.61152010e+07,
+           1.00000000e+00, 1.55695111e+56, 1.00000000e+00], dtype=float64)
 
     >>> model = rx.parse_model(
     ...     "data/perez-soto2020/RI/BLYP-D4/def2-TZVP/model.k"
@@ -516,7 +516,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     new_k = np.asarray(k, dtype=np.float64).copy()
     new_reactions = []
     for i, (reaction, is_half_equilibrium) in enumerate(
-        zip(scheme.reactions, scheme.is_half_equilibrium),
+        zip(scheme.reactions, scheme.is_half_equilibrium, strict=False),
     ):
         for reactants, products, _ in rx.core._parse_reactions(
             reaction,
@@ -549,6 +549,7 @@ def get_fixed_scheme(scheme, k, fixed_y0):
         scheme.compounds,
         scheme.A,
         scheme.B,
+        strict=False,
     ):
         if compound not in fixed_y0:
             new_compounds.append(compound)
@@ -643,7 +644,7 @@ def get_bias(
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> get_bias(model.scheme, model.compounds, data, y0) / constants.kcal
+    >>> float(get_bias(model.scheme, model.compounds, data, y0) / constants.kcal)
     -1.4
     """
     max_time = np.max(data["t"])

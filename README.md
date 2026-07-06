@@ -121,11 +121,10 @@ output files thanks to [`cclib`](https://cclib.github.io/) (see the
 
 ## Installation
 
-**overreact** is a Python package, so you can easily install it with
-[`pip`](https://pypi.org/project/pip/):
+The preferred method of installation is through [`uv`](https://docs.astral.sh/uv/)
 
 ```console
-$ pip install "overreact[cli,fast]"
+$ uv tool install "overreact[cli,fast]"
 ```
 
 See the
