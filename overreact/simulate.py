@@ -69,8 +69,8 @@ def get_y(
 
     This function provides two functions that calculate the concentrations and
     the rates of formation at any point in time for any compound. It does that
-    by solving an initial value problem (IVP) through scipy's ``solve_ivp``
-    under the hood.
+    by solving an initial value problem (IVP) through scipy's ``solve_ivp`` or
+    Diffrax's ``diffeqsolve`` under the hood.
 
     Parameters
     ----------
@@ -84,9 +84,12 @@ def get_y(
         is chosen based on the system at hand (the method of choice works for
         any zeroth-, first- or second-order reactions).
     method : str, optional
-        Integration method to use. See `scipy.integrate.solve_ivp` for details.
-        Kinetics problems are very often stiff and, as such, "RK23" and "RK45" may be
-        unsuited. "LSODA", "BDF", and "Radau" are worth a try if things go bad.
+        Integration method to use. All existing methods are
+        provided by `scipy.integrate.solve_ivp`, except for "Kvaerno3",
+        "Kvaerno4", and "Kvaerno5", which use Diffrax instead.
+        Kinetics problems are very often stiff and, as such,
+        "RK23" and "RK45" may be unsuited. "LSODA", "BDF", "Radau", and the
+        Kvaerno methods are worth trying for stiff systems.
     max_step : float, optional
         Maximum step to be performed by the integrator.
         Defaults to half the total time span.
@@ -104,8 +107,12 @@ def get_y(
     -------
     y, r : callable
         Concentrations and reaction rates as functions of time. The y object
-        is an OdeSolution and stores attributes t_min and t_max.
+        stores attributes t_min and t_max.
 
+    Notes
+    -----
+    Diffrax's implicit Kvaerno solvers use adaptive step sizes controlled by
+    ``rtol`` and ``atol``. 
 
     Examples
     --------
