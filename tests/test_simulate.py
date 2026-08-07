@@ -118,7 +118,7 @@ def test_get_y_conservation_in_equilibria() -> None:
         for sub0 in [0.01, 0.02]
         for keq in [1.0, 10.0, 100.0]
         for kcat in [1e-1, 1e1, 1e10, 1e11, 1e13]
-        for method in ("RK23", "LSODA", "Radau", "BDF")
+        for method in ("RK23", "LSODA", "Radau", "BDF", "Kvaerno5")
     ],
 )
 def test_simple_michaelis_menten(
@@ -166,7 +166,7 @@ CS -> TS‡ -> C + P  // Catalyst is released
         for sub0 in [0.01, 0.02]
         for keq in [1.0, 10.0, 100.0]
         for kcat in [1e-1, 1e1, 1e10, 1e11, 1e13]
-        for method in ("RK23", "LSODA", "Radau", "BDF")
+        for method in ("RK23", "LSODA", "Radau", "BDF", "Kvaerno5")
     ],
 )
 def test_consuming_michaelis_menten(
