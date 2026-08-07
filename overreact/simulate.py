@@ -112,7 +112,7 @@ def get_y(
     Notes
     -----
     Diffrax's implicit Kvaerno solvers use adaptive step sizes controlled by
-    ``rtol`` and ``atol``. 
+    ``rtol`` and ``atol``.
 
     Examples
     --------
@@ -331,7 +331,10 @@ def get_dydt(scheme, k, ef=EF):
     k_adj = _adjust_k(scheme, k, ef=ef)
 
     def _dydt(_t, y):
-        r = k_adj * jnp.prod(jnp.power(y, M), axis=1)
+        # Avoid differentiating 0**0 for compounds that do not participate in
+        # a reaction, this causes NaN fileed jacobians in diffrax otherwise.
+        bases = jnp.where(M == 0, 1.0, y)
+        r = k_adj * jnp.prod(jnp.power(bases, M), axis=1)
         return jnp.dot(A, r)
 
     if _found_jax:
