@@ -34,6 +34,8 @@ from overreact._misc import _found_jax
 # TODO(schneiderfelipe): this should probably be exposed to the user and use the actual simulation temperature.
 EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 
+_DIFFRAX_METHODS = ("Kvaerno3", "Kvaerno4", "Kvaerno5")
+
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +60,7 @@ def get_y(
     t_span=None,
     method="RK23",
     max_step=np.inf,
-    first_step=np.finfo(np.float64).eps,
+    first_step=None,
     rtol=1e-3,
     atol=1e-6,
     max_time=1 * 60 * 60,
@@ -67,8 +69,8 @@ def get_y(
 
     This function provides two functions that calculate the concentrations and
     the rates of formation at any point in time for any compound. It does that
-    by solving an initial value problem (IVP) through scipy's ``solve_ivp``
-    under the hood.
+    by solving an initial value problem (IVP) through scipy's ``solve_ivp`` or
+    Diffrax's ``diffeqsolve`` under the hood.
 
     Parameters
     ----------
@@ -82,16 +84,19 @@ def get_y(
         is chosen based on the system at hand (the method of choice works for
         any zeroth-, first- or second-order reactions).
     method : str, optional
-        Integration method to use. See `scipy.integrate.solve_ivp` for details.
-        Kinetics problems are very often stiff and, as such, "RK23" and "RK45" may be
-        unsuited. "LSODA", "BDF", and "Radau" are worth a try if things go bad.
+        Integration method to use. All existing methods are
+        provided by `scipy.integrate.solve_ivp`, except for "Kvaerno3",
+        "Kvaerno4", and "Kvaerno5", which use Diffrax instead.
+        Kinetics problems are very often stiff and, as such,
+        "RK23" and "RK45" may be unsuited. "LSODA", "BDF", "Radau", and the
+        Kvaerno methods are worth trying for stiff systems.
     max_step : float, optional
         Maximum step to be performed by the integrator.
         Defaults to half the total time span.
     first_step : float, optional
-        First step size.
-        Defaults to half the maximum step, or `np.finfo(np.float64).eps`,
-        whichever is smallest.
+        First step size. If not given, Diffrax chooses one automatically,
+        while the SciPy backend uses `np.finfo(np.float64).eps` for backwards
+        compatibility.
     rtol, atol : array-like, optional
         See `scipy.integrate.solve_ivp` for details.
     max_time : float, optional
@@ -102,8 +107,12 @@ def get_y(
     -------
     y, r : callable
         Concentrations and reaction rates as functions of time. The y object
-        is an OdeSolution and stores attributes t_min and t_max.
+        stores attributes t_min and t_max.
 
+    Notes
+    -----
+    Diffrax's implicit Kvaerno solvers use adaptive step sizes controlled by
+    ``rtol`` and ``atol``.
 
     Examples
     --------
@@ -160,28 +169,44 @@ def get_y(
     max_step = np.min([max_step, (t_span[1] - t_span[0]) / 2.0])
     logger.warning(f"max step = {max_step} s")
 
-    first_step = np.min([first_step, max_step / 2.0])
+    if first_step is not None:
+        first_step = np.min([first_step, max_step / 2.0])
     logger.warning(f"first step = {first_step} s")
 
-    jac = None
-    if hasattr(dydt, "jac"):
-        jac = dydt.jac  # noqa: F841
+    if method in _DIFFRAX_METHODS:
+        y = _get_y_diffrax(
+            dydt,
+            y0,
+            t_span,
+            method,
+            max_step,
+            first_step,
+            rtol,
+            atol,
+        )
+    else:
+        if first_step is None:
+            first_step = np.finfo(np.float64).eps
 
-    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
-    res = solve_ivp(
-        dydt,
-        t_span,
-        y0,
-        method=method,
-        dense_output=True,
-        max_step=max_step,
-        first_step=first_step,
-        rtol=rtol,
-        atol=atol,
-        # jac=jac,  # noqa: ERA001
-    )
-    logger.warning(res)
-    y = res.sol
+        jac = None
+        if hasattr(dydt, "jac"):
+            jac = dydt.jac  # noqa: F841
+
+        logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
+        res = solve_ivp(
+            dydt,
+            t_span,
+            y0,
+            method=method,
+            dense_output=True,
+            max_step=max_step,
+            first_step=first_step,
+            rtol=rtol,
+            atol=atol,
+            # jac=jac,  # noqa: ERA001
+        )
+        logger.warning(res)
+        y = res.sol
 
     def r(t):
         # TODO(schneiderfelipe): this is probably not the best way to
@@ -192,6 +217,52 @@ def get_y(
             return dydt(t, y(t))
 
     return y, r
+
+
+def _get_y_diffrax(dydt, y0, t_span, method, max_step, first_step, rtol, atol):
+    """Solve an initial value problem with a Diffrax stiff solver."""
+    try:
+        import diffrax
+        import jax
+        import jax.numpy as jnp
+    except ImportError as exc:
+        msg = (
+            f"the {method} solver requires Diffrax; "
+            'install it with `pip install "overreact[fast]"`'
+        )
+        raise ImportError(msg) from exc
+
+    solver = {
+        "Kvaerno3": diffrax.Kvaerno3,
+        "Kvaerno4": diffrax.Kvaerno4,
+        "Kvaerno5": diffrax.Kvaerno5,
+    }[method]()
+    term = diffrax.ODETerm(lambda t, y, _args: dydt(t, y))
+    stepsize_controller = diffrax.PIDController(
+        rtol=rtol,
+        atol=atol,
+        dtmax=max_step,
+    )
+    solution = diffrax.diffeqsolve(
+        term,
+        solver,
+        t0=t_span[0],
+        t1=t_span[1],
+        dt0=first_step,
+        y0=jnp.asarray(y0),
+        saveat=diffrax.SaveAt(dense=True),
+        stepsize_controller=stepsize_controller,
+    )
+
+    def y(t):
+        if np.ndim(t) == 0:
+            return np.asarray(solution.evaluate(t))
+        values = jax.vmap(solution.evaluate)(jnp.asarray(t))
+        return np.asarray(values).T
+
+    y.t_min = float(solution.t0)
+    y.t_max = float(solution.t1)
+    return y
 
 
 def get_dydt(scheme, k, ef=EF):
@@ -260,7 +331,10 @@ def get_dydt(scheme, k, ef=EF):
     k_adj = _adjust_k(scheme, k, ef=ef)
 
     def _dydt(_t, y):
-        r = k_adj * jnp.prod(jnp.power(y, M), axis=1)
+        # Avoid differentiating 0**0 for compounds that do not participate in
+        # a reaction, this causes NaN fileed jacobians in diffrax otherwise.
+        bases = jnp.where(M == 0, 1.0, y)
+        r = k_adj * jnp.prod(jnp.power(bases, M), axis=1)
         return jnp.dot(A, r)
 
     if _found_jax:
