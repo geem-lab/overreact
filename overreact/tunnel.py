@@ -6,12 +6,16 @@ __all__ = ["eckart", "wigner"]
 
 
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.integrate import fixed_quad
 from scipy.special import roots_laguerre
 
 from overreact import _constants as constants
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +56,8 @@ def _check_nu(vibfreq: float) -> float:
 
 def wigner(
     vibfreq: float,
-    temperature: float | np.ndarray = 298.15,
-) -> float:
+    temperature: float | npt.ArrayLike = 298.15,
+) -> float | np.ndarray:
     """Calculate the Wigner correction to quantum tunneling.
 
     Parameters

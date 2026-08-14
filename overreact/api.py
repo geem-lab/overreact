@@ -412,7 +412,7 @@ def get_k(
     scheme: Scheme,
     compounds: dict | None = None,
     bias: float = 0.0,
-    tunneling: str = "eckart",
+    tunneling: str | None = "eckart",
     qrrho: bool | tuple[bool, bool] = True,
     scale: str = "l mol-1 s-1",
     temperature: float = 298.15,
@@ -420,7 +420,7 @@ def get_k(
     delta_freeenergies: float | None = None,
     molecularity: float | None = None,
     volume: float | None = None,
-) -> float:
+) -> float | np.ndarray:
     r"""Obtain reaction rate constants for a given reaction scheme.
 
     Parameters
@@ -605,7 +605,7 @@ def get_k(
         "(classical) reaction rate constants: "
         f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
     )
-    if tunneling not in {"none", None}:
+    if tunneling is not None and tunneling != "none":
         if compounds is not None:
             kappa = get_kappa(
                 scheme,

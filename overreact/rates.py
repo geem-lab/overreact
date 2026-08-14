@@ -6,11 +6,15 @@ __all__ = ["eyring"]
 
 
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 import overreact as rx
 from overreact import _constants as constants
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 
 logger = logging.getLogger(__name__)
 
@@ -288,9 +292,9 @@ def convert_rate_constant(
 
 
 def eyring(
-    delta_freeenergy: float | np.ndarray,
+    delta_freeenergy: float | npt.ArrayLike,
     molecularity: int | None = None,
-    temperature: float | np.ndarray = 298.15,
+    temperature: float | npt.ArrayLike = 298.15,
     pressure: float = constants.atm,
     volume: float | None = None,
 ):

@@ -26,7 +26,7 @@ class Scheme(NamedTuple):
     """A descriptor of compounds."""
     reactions: tuple[str, ...]
     """A descriptor of reactions."""
-    is_half_equilibrium: list[bool]
+    is_half_equilibrium: tuple[bool, ...]
     """An indicator of whether a reaction is half-equilibrium."""
     A: np.ndarray
     """A matrix of stoichiometric coefficients between reactants and products."""
