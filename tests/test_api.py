@@ -98,9 +98,9 @@ def test_compare_calc_star_with_get_star() -> None:
         - 0.00462348,  # NH4+(w) + correct rot. entropy (ORCA didn't get C2v)
     ]  # ORCA logfiles, Eh
 
+    qrrho_options: list[bool | tuple[bool, bool]] = [True, False, (False, True)]
     for bias in np.array([-1, 0, 1]) * constants.kcal:
         for environment in ["gas", "solvent"]:
-            qrrho_options: list[bool | tuple[bool, bool]] = [True, False, (False, True)]
             for qrrho in qrrho_options:
                 qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(
                     qrrho,
