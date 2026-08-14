@@ -166,7 +166,7 @@ def test_enthalpy_ideal_gases() -> None:
 
     # He
     j = np.array([0, 1, 0])
-    degeneracy = 2 * j + 1
+    degeneracy: float | np.ndarray = 2 * j + 1
     energy = np.array([0.000, 159855.9745, 166277.4403])
     internal_energy = rx.thermo.calc_internal_energy(
         energy=energy * 100 * constants.h * constants.c * constants.N_A,

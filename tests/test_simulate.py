@@ -12,9 +12,9 @@ from overreact import simulate
 def test_get_dydt_calculates_reaction_rate() -> None:
     """Ensure get_dydt gives correct reaction rates."""
     scheme = rx.Scheme(
-        compounds=["A", "B"],
-        reactions=["A -> B"],
-        is_half_equilibrium=np.array([False]),
+        compounds=("A", "B"),
+        reactions=("A -> B",),
+        is_half_equilibrium=(False,),
         A=np.array([[-1.0], [1.0]]),
         B=np.array([[-1.0], [1.0]]),
     )
@@ -33,9 +33,9 @@ def test_get_dydt_calculates_reaction_rate() -> None:
 def test_get_y_propagates_reaction_automatically() -> None:
     """Ensure get_y properly propagates reactions with automatic time span."""
     scheme = rx.Scheme(
-        compounds=["A", "B", "AB4"],
-        reactions=["A + 4 B -> AB4", "AB4 -> A + 4 B"],
-        is_half_equilibrium=np.array([True, True]),
+        compounds=("A", "B", "AB4"),
+        reactions=("A + 4 B -> AB4", "AB4 -> A + 4 B"),
+        is_half_equilibrium=(True, True),
         A=np.array([[-1.0, 1.0], [-4.0, 4.0], [1.0, -1.0]]),
         B=np.array([[-1.0, 0.0], [-4.0, 0.0], [1.0, 0.0]]),
     )
@@ -59,9 +59,9 @@ def test_get_y_propagates_reaction_automatically() -> None:
 def test_get_y_propagates_reaction_with_fixed_time() -> None:
     """Ensure get_y properly propagates reactions when given time span."""
     scheme = rx.Scheme(
-        compounds=["A", "B", "AB4"],
-        reactions=["A + 4 B -> AB4", "AB4 -> A + 4 B"],
-        is_half_equilibrium=np.array([True, True]),
+        compounds=("A", "B", "AB4"),
+        reactions=("A + 4 B -> AB4", "AB4 -> A + 4 B"),
+        is_half_equilibrium=(True, True),
         A=np.array([[-1.0, 1.0], [-4.0, 4.0], [1.0, -1.0]]),
         B=np.array([[-1.0, 0.0], [-4.0, 0.0], [1.0, 0.0]]),
     )
