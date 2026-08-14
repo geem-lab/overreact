@@ -605,7 +605,7 @@ def get_k(
         "(classical) reaction rate constants: "
         f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
     )
-    if tunneling is not None and tunneling != "none":
+    if tunneling not in {"none", None}:
         if compounds is not None:
             kappa = get_kappa(
                 scheme,
@@ -644,7 +644,7 @@ def get_k(
 def get_kappa(
     scheme: Scheme,
     compounds: dict,
-    method: str = "eckart",
+    method: str | None = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
 ):
