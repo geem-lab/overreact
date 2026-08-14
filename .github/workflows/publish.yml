@@ -24,13 +24,25 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  checks:
     # Guard against a fork pushing a matching tag and trying to build/publish
     # under this identity (trusted publishing would reject it anyway, since
     # it's bound to this exact repository + workflow, but fail fast and
     # quietly instead of burning CI time on a run that can't succeed).
     if: github.repository == 'geem-lab/overreact'
+    # Re-run the exact same lint/type/test checks as python-package.yml
+    # (checks.yml), against the exact tagged commit: a tag can in principle
+    # point anywhere, so a release shouldn't only trust that *some* commit on
+    # main once passed CI. Sharing the workflow file instead of duplicating
+    # its steps here means the two can't drift out of sync.
+    uses: ./.github/workflows/checks.yml
+    secrets: inherit
+
+  build:
+    needs: checks
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check-version.outputs.version }}
 
     steps:
       - uses: actions/checkout@v7
@@ -49,6 +61,7 @@ jobs:
         # Catches the classic footgun of tagging a commit whose
         # pyproject.toml version wasn't actually bumped to match, before
         # a single-use, non-reusable PyPI version gets burned on it.
+        id: check-version
         run: |
           tag_version="${GITHUB_REF_NAME#v}"
           pkg_version="$(uv run python -c 'import overreact; print(overreact.__version__)')"
@@ -56,22 +69,7 @@ jobs:
             echo "::error::tag $GITHUB_REF_NAME does not match package version $pkg_version (pyproject.toml)"
             exit 1
           fi
-
-      # Full battery of checks the build/test/lint workflow also runs,
-      # re-verified here against the exact tagged commit: a tag can in
-      # principle point anywhere, so a release shouldn't only trust that
-      # *some* commit on main once passed CI.
-      - name: Lint with Ruff
-        run: uv run ruff check .
-
-      - name: Format check with Ruff
-        run: uv run ruff format --check .
-
-      - name: Type check with mypy
-        run: uv run mypy overreact tests
-
-      - name: Test with pytest
-        run: uv run pytest
+          echo "version=$pkg_version" >> "$GITHUB_OUTPUT"
 
       - name: Build sdist and wheel
         run: uv build
@@ -88,7 +86,10 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/project/overreact/${{ github.ref_name }}
+      # needs.build.outputs.version is the tag with its leading "v" already
+      # stripped (e.g. "1.2.0"), matching PyPI's actual URL scheme -- unlike
+      # github.ref_name (e.g. "v1.2.0"), which PyPI has no page for.
+      url: https://pypi.org/project/overreact/${{ needs.build.outputs.version }}
     permissions:
       id-token: write # required for PyPI Trusted Publishing (OIDC)
 

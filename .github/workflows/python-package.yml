@@ -1,13 +1,15 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+# Runs the shared lint/type/test checks (checks.yml) on every push to main
+# and every pull request.
 
 name: build
 
 on:
   push:
     branches: [main]
+    paths-ignore: ["**.md", "docs/**"]
   pull_request:
     branches: [main]
+    paths-ignore: ["**.md", "docs/**"]
 
 # Cancel any run still going for a previous commit on the same branch/PR once
 # a new one is pushed, instead of letting superseded runs burn CI minutes.
@@ -19,62 +21,6 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    # Static checks (Ruff, mypy) don't depend on which Python interpreter runs
-    # them, only on the tool versions and the target-version/python_version
-    # pinned in pyproject.toml. Run them once here instead of once per entry
-    # in the test matrix below.
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Lint with Ruff
-        run: uv run ruff check --output-format=github .
-
-      - name: Format check with Ruff
-        run: uv run ruff format --check .
-
-      - name: Type check with mypy
-        run: uv run mypy overreact tests
-
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        # --all-extras is required (not just recommended): it installs jax/jaxlib
-        # (the "fast" extra), which several doctests in overreact/simulate.py
-        # depend on for their expected output. See CONTRIBUTING.md.
-        run: uv sync --all-extras
-
-      - name: Test with pytest
-        run: uv run pytest --cov=. --cov-report=xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+  checks:
+    uses: ./.github/workflows/checks.yml
+    secrets: inherit
