@@ -105,3 +105,32 @@ questions, the discussions are a better place to ask questions 😄.)
   issue you fixed). See
   [Closing issues using keywords](https://help.github.com/articles/creating-a-pull-request/).
 - Bump version according to [semantic versioning](https://semver.org/).
+
+### Releasing
+
+Publishing to PyPI is automatic: `.github/workflows/publish.yml` builds,
+tests, and publishes a release the moment a `vX.Y.Z` tag lands on the
+repository (using PyPI's
+[Trusted Publishing](https://docs.pypi.org/trusted-publishers/), so no PyPI
+token is stored as a secret). It also creates/updates the matching GitHub
+release with the built sdist and wheel attached. So, to cut a release:
+
+1. Make sure `version` in `pyproject.toml` is bumped to the version you're
+   releasing (usually already done per-patch, per the semver bullet above;
+   double-check it here). This must match the tag below exactly, or the
+   workflow will refuse to publish.
+2. On `main`, tag that commit and push the tag: `git tag vX.Y.Z && git push
+   origin vX.Y.Z`.
+3. Watch the "Publish" workflow run in
+   [Actions](https://github.com/geem-lab/overreact/actions/workflows/publish.yml).
+   It re-runs the full lint/type/test suite against the tagged commit before
+   building and publishing, so a red run means nothing was published.
+
+**One-time setup, before the first release under this workflow** (a PyPI
+project owner needs to do this once, on
+[pypi.org](https://pypi.org/manage/project/overreact/settings/publishing/)):
+add a Trusted Publisher for GitHub with owner `geem-lab`, repository
+`overreact`, workflow `publish.yml`, and environment `pypi`. The `pypi`
+[environment](https://github.com/geem-lab/overreact/settings/environments)
+that step creates can also be configured with required reviewers, if you
+ever want a manual approval gate before a publish goes out.
