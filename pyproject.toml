@@ -81,6 +81,7 @@ dev = [
     "mypy>=0.991,<2.4",
     "pdoc>=12,<17",
     "perflint>=0.7.1,<0.9.0",
+    "pre-commit>=3,<5",
     "pytest-cov>=4,<8",
     "pytest>=7.2,<10.0",
     "rich>=13,<16",

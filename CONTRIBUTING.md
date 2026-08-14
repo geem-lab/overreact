@@ -43,6 +43,25 @@ Before submitting any pull requests, make sure all tests pass with:
 $ uv run pytest
 ```
 
+### Git hooks
+
+We use [`pre-commit`](https://pre-commit.com/) to run Ruff (lint and format)
+and mypy locally before each commit, so most CI failures are caught before you
+even push. It's a dev dependency, so it's already installed after `uv sync
+--all-extras` above; you still need to install the hooks themselves once per
+clone:
+
+```console
+$ uv run pre-commit install
+```
+
+From then on, `git commit` runs the checks automatically. To run them on
+demand against the whole repository (e.g. before opening a PR):
+
+```console
+$ uv run pre-commit run --all-files
+```
+
 ## Recommended practices
 
 ### Reporting issues

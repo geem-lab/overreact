@@ -1,0 +1,27 @@
+# See CONTRIBUTING.md for installation instructions.
+#
+# Hooks below shell out to `uv run` instead of pinning their own `rev:`, so
+# they always use the exact tool versions locked in uv.lock (the same ones
+# CI runs in .github/workflows/python-package.yml) with nothing extra to
+# keep in sync.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check
+        language: system
+        types: [python]
+
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format --check
+        language: system
+        types: [python]
+
+      - id: mypy
+        name: mypy (overreact/)
+        entry: uv run mypy overreact
+        language: system
+        files: ^overreact/.*\.py$
+        pass_filenames: false
