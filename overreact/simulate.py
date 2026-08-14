@@ -18,6 +18,7 @@ __all__ = ["get_dydt", "get_fixed_scheme", "get_y"]
 
 
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -26,6 +27,9 @@ from scipy.optimize import minimize_scalar
 import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _found_jax
+
+if TYPE_CHECKING:
+    import types
 
 # Energetic advantage given to half-equilibrium reactions.
 #
@@ -45,6 +49,7 @@ EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 logger = logging.getLogger(__name__)
 
 
+jnp: types.ModuleType
 if _found_jax:
     import jax.numpy as jnp
     from jax import config, jacfwd, jit

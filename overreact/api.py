@@ -722,7 +722,7 @@ def get_kappa(
             energies,
         )  # B - C == B - A - (C - A)
 
-    kappas = []
+    kappas: list[float | np.ndarray] = []
     for i, ts in enumerate(
         rx.get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium),
     ):

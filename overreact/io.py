@@ -12,7 +12,8 @@ import os
 import textwrap
 import warnings
 from collections import defaultdict
-from collections.abc import MutableMapping
+from collections.abc import Callable, MutableMapping
+from typing import Any
 
 import numpy as np
 
@@ -988,7 +989,7 @@ class DotDict(dict):
 class _LazyDict(MutableMapping):
     """Lazily evaluated dictionary."""
 
-    _function = None
+    _function: Callable[[Any], Any] | None = None
 
     def __init__(self, *args, **kwargs) -> None:
         self._dict = dict(*args, **kwargs)

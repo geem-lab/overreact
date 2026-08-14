@@ -22,9 +22,9 @@ class Scheme(NamedTuple):
     See `overreact.io.parse_model`.
     """
 
-    compounds: list[str]
+    compounds: tuple[str, ...]
     """A descriptor of compounds."""
-    reactions: list[str]
+    reactions: tuple[str, ...]
     """A descriptor of reactions."""
     is_half_equilibrium: list[bool]
     """An indicator of whether a reaction is half-equilibrium."""
