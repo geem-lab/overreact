@@ -292,9 +292,9 @@ def convert_rate_constant(
 
 
 def eyring(
-    delta_freeenergy: float | npt.ArrayLike,
+    delta_freeenergy: npt.ArrayLike,
     molecularity: int | None = None,
-    temperature: float | npt.ArrayLike = 298.15,
+    temperature: npt.ArrayLike = 298.15,
     pressure: float = constants.atm,
     volume: float | None = None,
 ):

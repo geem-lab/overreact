@@ -56,7 +56,7 @@ def _check_nu(vibfreq: float) -> float:
 
 def wigner(
     vibfreq: float,
-    temperature: float | npt.ArrayLike = 298.15,
+    temperature: npt.ArrayLike = 298.15,
 ) -> float | np.ndarray:
     """Calculate the Wigner correction to quantum tunneling.
 
