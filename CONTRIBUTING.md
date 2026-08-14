@@ -21,6 +21,16 @@ $ cd overreact
 $ uv sync --all-extras
 ```
 
+> **⚠️** The `--recurse-submodules` flag is also required, not optional: the test
+> suite reads sample data (logfiles, models) from the
+> [`overreact-data`](https://github.com/geem-lab/overreact-data) submodule
+> checked out at `data/`. If you already cloned without it (or the `data/`
+> directory is empty), fetch it after the fact with:
+>
+> ```console
+> $ git submodule update --init --recursive
+> ```
+
 > **⚠️** The `--all-extras` flag is required, not optional. Without it, `jax`/`jaxlib`
 > (the `fast` extra) won't be installed, `overreact` silently falls back to NumPy,
 > and several doctests in `overreact/simulate.py` will fail with mismatched output
