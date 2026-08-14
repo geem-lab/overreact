@@ -9,8 +9,49 @@ on:
   pull_request:
     branches: [main]
 
+# Cancel any run still going for a previous commit on the same branch/PR once
+# a new one is pushed, instead of letting superseded runs burn CI minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
-  build:
+  lint:
+    # Static checks (Ruff, mypy) don't depend on which Python interpreter runs
+    # them, only on the tool versions and the target-version/python_version
+    # pinned in pyproject.toml. Run them once here instead of once per entry
+    # in the test matrix below.
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Lint with Ruff
+        run: uv run ruff check --output-format=github .
+
+      - name: Format check with Ruff
+        run: uv run ruff format --check .
+
+      - name: Type check with mypy
+        # Scoped to the overreact/ package, not tests/: the test suite still
+        # has a substantial number of numeric-typing findings of its own that
+        # haven't been triaged yet.
+        run: uv run mypy overreact
+
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -32,12 +73,6 @@ jobs:
         # (the "fast" extra), which several doctests in overreact/simulate.py
         # depend on for their expected output. See CONTRIBUTING.md.
         run: uv sync --all-extras
-
-      - name: Lint with Ruff
-        run: uv run ruff check --output-format=github .
-
-      - name: Format check with Ruff
-        run: uv run ruff format --check .
 
       - name: Test with pytest
         run: uv run pytest --cov=. --cov-report=xml
