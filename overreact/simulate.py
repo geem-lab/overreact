@@ -2,6 +2,13 @@
 
 Here are functions that calculate reaction rates as well, which is needed for
 the time simulations.
+
+.. note::
+   The doctests below assume JAX is installed (the ``fast`` extra: ``pip
+   install "overreact[fast]"``, or ``uv sync --all-extras`` for development).
+   Without it, arrays fall back to plain NumPy and are printed as
+   ``array([...])`` instead of ``Array([...], ...)``, which fails the
+   doctests below even though nothing is actually broken.
 """
 
 # TODO(schneiderfelipe): type this module.

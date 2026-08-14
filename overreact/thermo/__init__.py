@@ -23,6 +23,7 @@ from overreact.thermo._gas import (
     calc_vib_entropy,
     molar_volume,
 )
+from overreact.thermo._solv import calc_cav_entropy, molar_free_volume
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,7 @@ def calc_trans_entropy(
     else:
         assert atomnos is not None, "atomnos must be provided"
         assert atomcoords is not None, "atomcoords must be provided"
-        volume = rx.thermo._solv.molar_free_volume(
+        volume = molar_free_volume(
             atomnos=atomnos,
             atomcoords=atomcoords,
             environment=environment,
@@ -441,7 +442,7 @@ def calc_entropy(
             assert atomcoords is not None, "atomcoords must be provided"
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
-            entropy = entropy + rx.thermo._solv.calc_cav_entropy(
+            entropy = entropy + calc_cav_entropy(
                 atomnos=atomnos,
                 atomcoords=atomcoords,
                 environment=environment,

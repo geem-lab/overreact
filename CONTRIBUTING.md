@@ -21,6 +21,12 @@ $ cd overreact
 $ uv sync --all-extras
 ```
 
+> **⚠️** The `--all-extras` flag is required, not optional. Without it, `jax`/`jaxlib`
+> (the `fast` extra) won't be installed, `overreact` silently falls back to NumPy,
+> and several doctests in `overreact/simulate.py` will fail with mismatched output
+> (`Array([...], ...)` from JAX vs. plain `array([...])` from NumPy). A plain
+> `uv sync` is *not* enough to run the test suite cleanly.
+
 Before submitting any pull requests, make sure all tests pass with:
 
 ```console
