@@ -20,8 +20,8 @@ repos:
         types: [python]
 
       - id: mypy
-        name: mypy (overreact/)
-        entry: uv run mypy overreact
+        name: mypy (overreact/, tests/)
+        entry: uv run mypy overreact tests
         language: system
-        files: ^overreact/.*\.py$
+        files: ^(overreact|tests)/.*\.py$
         pass_filenames: false

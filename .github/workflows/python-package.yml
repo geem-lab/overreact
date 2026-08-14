@@ -46,10 +46,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Type check with mypy
-        # Scoped to the overreact/ package, not tests/: the test suite still
-        # has a substantial number of numeric-typing findings of its own that
-        # haven't been triaged yet.
-        run: uv run mypy overreact
+        run: uv run mypy overreact tests
 
   test:
     runs-on: ubuntu-latest
