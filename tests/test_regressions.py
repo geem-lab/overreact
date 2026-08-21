@@ -5,8 +5,6 @@ This also tests the high-level application programming interface.
 
 from __future__ import annotations
 
-from typing import cast
-
 import numpy as np
 import pytest
 from scipy import stats
@@ -83,14 +81,11 @@ def test_basic_example_for_solvation_equilibria() -> None:
             7e-3,
         )
 
-        k = cast(
-            np.ndarray,
-            rx.get_k(
-                model.scheme,
-                model.compounds,
-                temperature=temperature,
-                qrrho=qrrho,
-            ),
+        k = rx.get_k(
+            model.scheme,
+            model.compounds,
+            temperature=temperature,
+            qrrho=qrrho,
         )
         assert -np.log10(k[0] / k[1]) == pytest.approx(p_k, 7e-3)
 
@@ -217,18 +212,15 @@ def test_basic_example_for_gas_phase_kinetics() -> None:
     )
 
     # concentration correction, symmetry and tunneling included
-    kappa = cast(np.ndarray, rx.tunnel.wigner(1218, temperature=temperatures))
+    kappa = rx.tunnel.wigner(1218, temperature=temperatures)
     assert kappa[0] == pytest.approx(4.2, 3e-4)
     assert kappa[2] == pytest.approx(2.4, 1e-2)
 
-    kappa = cast(
-        np.ndarray,
-        rx.tunnel.eckart(
-            1218,
-            4.1 * constants.kcal,
-            3.4 * constants.kcal,
-            temperature=temperatures,
-        ),
+    kappa = rx.tunnel.eckart(
+        1218,
+        4.1 * constants.kcal,
+        3.4 * constants.kcal,
+        temperature=temperatures,
     )
     assert kappa == pytest.approx([17.1, 4.0, 3.9, 2.3], 2.1e-2)
 
@@ -264,28 +256,22 @@ def test_rate_constants_for_hickel1992() -> None:
     k_eck_list = []
     for temperature in temperatures:
         k_cla_list.append(
-            cast(
-                np.ndarray,
-                rx.get_k(
-                    model.scheme,
-                    model.compounds,
-                    tunneling=None,
-                    qrrho=(False, True),
-                    scale="M-1 s-1",
-                    temperature=temperature,
-                ),
+            rx.get_k(
+                model.scheme,
+                model.compounds,
+                tunneling=None,
+                qrrho=(False, True),
+                scale="M-1 s-1",
+                temperature=temperature,
             )[0],
         )
         k_eck_list.append(
-            cast(
-                np.ndarray,
-                rx.get_k(
-                    model.scheme,
-                    model.compounds,
-                    qrrho=(False, True),
-                    scale="M-1 s-1",
-                    temperature=temperature,
-                ),
+            rx.get_k(
+                model.scheme,
+                model.compounds,
+                qrrho=(False, True),
+                scale="M-1 s-1",
+                temperature=temperature,
             )[0],
         )
     k_cla = np.asarray(k_cla_list).flatten()
@@ -367,28 +353,22 @@ def test_rate_constants_for_tanaka1996() -> None:
     k_eck_list = []
     for temperature in temperatures:
         k_cla_list.append(
-            cast(
-                np.ndarray,
-                rx.get_k(
-                    model.scheme,
-                    model.compounds,
-                    tunneling=None,
-                    qrrho=True,
-                    scale="cm3 particle-1 s-1",
-                    temperature=temperature,
-                ),
+            rx.get_k(
+                model.scheme,
+                model.compounds,
+                tunneling=None,
+                qrrho=True,
+                scale="cm3 particle-1 s-1",
+                temperature=temperature,
             )[0],
         )
         k_eck_list.append(
-            cast(
-                np.ndarray,
-                rx.get_k(
-                    model.scheme,
-                    model.compounds,
-                    qrrho=True,
-                    scale="cm3 particle-1 s-1",
-                    temperature=temperature,
-                ),
+            rx.get_k(
+                model.scheme,
+                model.compounds,
+                qrrho=True,
+                scale="cm3 particle-1 s-1",
+                temperature=temperature,
             )[0],
         )
     k_cla = np.asarray(k_cla_list).flatten()
