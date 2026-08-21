@@ -19,7 +19,7 @@ __all__ = [
 
 import logging
 import warnings
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast, overload
 
 import numpy as np
 
@@ -29,6 +29,8 @@ from overreact import coords, rates, tunnel
 from overreact._misc import _derivative as derivative
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+
     from overreact.core import Scheme
 
 logger = logging.getLogger(__name__)
@@ -408,6 +410,35 @@ def get_freeenergies(
     return enthalpies - temperature * entropies + np.asarray(bias)
 
 
+@overload
+def get_k(
+    scheme: Scheme,
+    compounds: dict | None = ...,
+    bias: float = ...,
+    tunneling: str | None = ...,
+    qrrho: bool | tuple[bool, bool] = ...,
+    scale: str = ...,
+    temperature: float = ...,
+    pressure: float = ...,
+    *,
+    delta_freeenergies: float,
+    molecularity: float | None = ...,
+    volume: float | None = ...,
+) -> float: ...
+@overload
+def get_k(
+    scheme: Scheme,
+    compounds: dict | None = ...,
+    bias: float = ...,
+    tunneling: str | None = ...,
+    qrrho: bool | tuple[bool, bool] = ...,
+    scale: str = ...,
+    temperature: float = ...,
+    pressure: float = ...,
+    delta_freeenergies: npt.ArrayLike | None = ...,
+    molecularity: float | None = ...,
+    volume: float | None = ...,
+) -> np.ndarray: ...
 def get_k(
     scheme: Scheme,
     compounds: dict | None = None,
@@ -417,7 +448,7 @@ def get_k(
     scale: str = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
-    delta_freeenergies: float | None = None,
+    delta_freeenergies: npt.ArrayLike | None = None,
     molecularity: float | None = None,
     volume: float | None = None,
 ) -> float | np.ndarray:
@@ -569,11 +600,25 @@ def get_k(
 
     # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
-    k = rates.eyring(
-        delta_freeenergies,
-        temperature=temperature,
-        pressure=pressure,
-        volume=volume,
+    #
+    # NOTE(schneiderfelipe): the loop right below slices k unconditionally
+    # whenever the scheme has a half-equilibrium reaction, which requires k
+    # to be array-like. That's guaranteed when delta_freeenergies came from
+    # the branch above (always one value per reaction), but *not* if a
+    # caller passed a bare scalar delta_freeenergies by hand for a scheme
+    # that also has a half-equilibrium reaction -- an edge case nothing in
+    # this codebase actually exercises today, and pre-existing (not
+    # something this cast introduces): asserting it here, rather than
+    # silently accepting whatever mypy would otherwise infer, at least
+    # makes the assumption explicit.
+    k = cast(
+        np.ndarray,
+        rates.eyring(
+            delta_freeenergies,
+            temperature=temperature,
+            pressure=pressure,
+            volume=volume,
+        ),
     )
 
     # make reaction rate constants for equilibria as close as possible to one
