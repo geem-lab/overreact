@@ -6,7 +6,7 @@ __all__ = ["eckart", "wigner"]
 
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from scipy.integrate import fixed_quad
@@ -54,6 +54,10 @@ def _check_nu(vibfreq: float) -> float:
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
+@overload
+def wigner(vibfreq: float, temperature: float = ...) -> float: ...
+@overload
+def wigner(vibfreq: float, temperature: npt.ArrayLike = ...) -> np.ndarray: ...
 def wigner(
     vibfreq: float,
     temperature: npt.ArrayLike = 298.15,
@@ -102,11 +106,25 @@ def wigner(
     return kappa
 
 
+@overload
+def eckart(
+    vibfreq: float,
+    delta_forward: float,
+    delta_backward: float | None = ...,
+    temperature: float = ...,
+) -> float: ...
+@overload
+def eckart(
+    vibfreq: float,
+    delta_forward: float,
+    delta_backward: float | None = ...,
+    temperature: npt.ArrayLike = ...,
+) -> np.ndarray: ...
 def eckart(
     vibfreq: float,
     delta_forward: float,
     delta_backward: float | None = None,
-    temperature: float | np.ndarray = 298.15,
+    temperature: npt.ArrayLike = 298.15,
 ) -> float | np.ndarray:
     """Calculate the Eckart correction to quantum tunneling.
 
