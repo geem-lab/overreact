@@ -19,7 +19,7 @@ __all__ = [
 
 import logging
 import warnings
-from typing import TYPE_CHECKING, cast, overload
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -410,35 +410,6 @@ def get_freeenergies(
     return enthalpies - temperature * entropies + np.asarray(bias)
 
 
-@overload
-def get_k(
-    scheme: Scheme,
-    compounds: dict | None = ...,
-    bias: float = ...,
-    tunneling: str | None = ...,
-    qrrho: bool | tuple[bool, bool] = ...,
-    scale: str = ...,
-    temperature: float = ...,
-    pressure: float = ...,
-    *,
-    delta_freeenergies: float,
-    molecularity: float | None = ...,
-    volume: float | None = ...,
-) -> float: ...
-@overload
-def get_k(
-    scheme: Scheme,
-    compounds: dict | None = ...,
-    bias: float = ...,
-    tunneling: str | None = ...,
-    qrrho: bool | tuple[bool, bool] = ...,
-    scale: str = ...,
-    temperature: float = ...,
-    pressure: float = ...,
-    delta_freeenergies: npt.ArrayLike | None = ...,
-    molecularity: float | None = ...,
-    volume: float | None = ...,
-) -> np.ndarray: ...
 def get_k(
     scheme: Scheme,
     compounds: dict | None = None,
@@ -451,7 +422,7 @@ def get_k(
     delta_freeenergies: npt.ArrayLike | None = None,
     molecularity: float | None = None,
     volume: float | None = None,
-) -> float | np.ndarray:
+) -> np.ndarray:
     r"""Obtain reaction rate constants for a given reaction scheme.
 
     Parameters
@@ -601,24 +572,15 @@ def get_k(
     # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
     #
-    # NOTE(schneiderfelipe): the loop right below slices k unconditionally
-    # whenever the scheme has a half-equilibrium reaction, which requires k
-    # to be array-like. That's guaranteed when delta_freeenergies came from
-    # the branch above (always one value per reaction), but *not* if a
-    # caller passed a bare scalar delta_freeenergies by hand for a scheme
-    # that also has a half-equilibrium reaction -- an edge case nothing in
-    # this codebase actually exercises today, and pre-existing (not
-    # something this cast introduces): asserting it here, rather than
-    # silently accepting whatever mypy would otherwise infer, at least
-    # makes the assumption explicit.
-    k = cast(
-        np.ndarray,
-        rates.eyring(
-            delta_freeenergies,
-            temperature=temperature,
-            pressure=pressure,
-            volume=volume,
-        ),
+    # NOTE(schneiderfelipe): rates.eyring (via thermo.equilibrium_constant's
+    # np.atleast_1d) always returns an ndarray, one value per reaction, even
+    # for scalar delta_freeenergies/temperature -- so k is always safe to
+    # slice/index below, regardless of what the caller passed in.
+    k = rates.eyring(
+        delta_freeenergies,
+        temperature=temperature,
+        pressure=pressure,
+        volume=volume,
     )
 
     # make reaction rate constants for equilibria as close as possible to one
@@ -692,7 +654,7 @@ def get_kappa(
     method: str | None = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
-):
+) -> np.ndarray:
     r"""Obtain tunneling transmission coefficients at a given temperature.
 
     One tunneling transmission coefficient is calculated for each reaction. If

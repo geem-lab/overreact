@@ -617,7 +617,7 @@ def equilibrium_constant(
     temperature: float | np.ndarray = 298.15,
     pressure: float = constants.atm,
     volume: float | None = None,
-):
+) -> np.ndarray:
     r"""Calculate an equilibrium constant from a reaction [Gibbs free energy](https://en.wikipedia.org/wiki/Gibbs_free_energy).
 
     This function uses the usual `relationship between reaction Gibbs energy

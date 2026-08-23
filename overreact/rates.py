@@ -6,7 +6,7 @@ __all__ = ["eyring"]
 
 
 import logging
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -291,29 +291,13 @@ def convert_rate_constant(
     return val * factor
 
 
-@overload
-def eyring(
-    delta_freeenergy: float,
-    molecularity: int | None = ...,
-    temperature: float = ...,
-    pressure: float = ...,
-    volume: float | None = ...,
-) -> float: ...
-@overload
-def eyring(
-    delta_freeenergy: npt.ArrayLike,
-    molecularity: int | None = ...,
-    temperature: npt.ArrayLike = ...,
-    pressure: float = ...,
-    volume: float | None = ...,
-) -> np.ndarray: ...
 def eyring(
     delta_freeenergy: npt.ArrayLike,
     molecularity: int | None = None,
     temperature: npt.ArrayLike = 298.15,
     pressure: float = constants.atm,
     volume: float | None = None,
-) -> float | np.ndarray:
+) -> np.ndarray:
     r"""Calculate a reaction rate constant.
 
     This function uses the `Eyring-Evans-Polanyi equation
