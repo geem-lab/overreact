@@ -656,7 +656,7 @@ def get_bias(
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> float(get_bias(model.scheme, model.compounds, data, y0) / constants.kcal)
+    >>> print(get_bias(model.scheme, model.compounds, data, y0) / constants.kcal)
     -1.4
     """
     max_time = np.max(data["t"])

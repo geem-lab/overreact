@@ -97,12 +97,12 @@ def collins_kimball(
     Examples
     --------
     >>> radii = np.array([2.59, 2.71]) * constants.angstrom
-    >>> float(collins_kimball(radii, reactive_radius=2.6 * constants.angstrom,
+    >>> print(collins_kimball(radii, reactive_radius=2.6 * constants.angstrom,
     ...              viscosity=8.91e-4) / constants.liter)
     3.6e9
-    >>> float(collins_kimball(radii, "water", reactive_radius=2.6 * constants.angstrom) / constants.liter)
+    >>> print(collins_kimball(radii, "water", reactive_radius=2.6 * constants.angstrom) / constants.liter)
     3.6e9
-    >>> float(collins_kimball(radii, viscosity=8.91e-4) / constants.liter)
+    >>> print(collins_kimball(radii, viscosity=8.91e-4) / constants.liter)
     3.7e9
     """
     radii = np.asarray(radii)
@@ -206,13 +206,13 @@ def convert_rate_constant(
 
     There are many options for `old_scale` and `new_scale`:
 
-    >>> float(convert_rate_constant(1.0, "m3 mol-1 s-1", "atm-1 s-1",
+    >>> print(convert_rate_constant(1.0, "m3 mol-1 s-1", "atm-1 s-1",
     ...                       molecularity=2, temperature=1.0))
     8.21e-5
-    >>> float(convert_rate_constant(1.0, "cm3 particle-1 s-1", "atm-1 s-1",
+    >>> print(convert_rate_constant(1.0, "cm3 particle-1 s-1", "atm-1 s-1",
     ...                       molecularity=2, temperature=1.0))
     13.63e-23
-    >>> float(convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1",
+    >>> print(convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1",
     ...                       molecularity=2, temperature=273.15))
     22414.
 
@@ -365,23 +365,23 @@ def eyring(
     [Thermochemistry in Gaussian](https://gaussian.com/thermo/), in which the
     kinetic isotope effect of a bimolecular reaction is analyzed:
 
-    >>> float(eyring(17.26 * constants.kcal))
+    >>> print(eyring(17.26 * constants.kcal))
     1.38
-    >>> float(eyring(18.86 * constants.kcal))
+    >>> print(eyring(18.86 * constants.kcal))
     0.093
 
     It is well known that, at room temperature, if you "decrease" a reaction
     barrier by 1.4 kcal/mol, the reaction becomes around ten times faster:
 
     >>> dG = np.random.uniform(1.0, 100.0) * constants.kcal
-    >>> float(eyring(dG - 1.4 * constants.kcal) / eyring(dG))
+    >>> print(eyring(dG - 1.4 * constants.kcal) / eyring(dG))
     10.
 
     A similar relationship is found for a twofold increase in speed and a
     0.4 kcal/mol decrease in the reaction barrier (again, at room
     temperature):
 
-    >>> float(eyring(dG - 0.4 * constants.kcal) / eyring(dG))
+    >>> print(eyring(dG - 0.4 * constants.kcal) / eyring(dG))
     2.0
 
     """

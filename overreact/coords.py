@@ -88,7 +88,7 @@ def get_molecular_volume(
     >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
-    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
+    >>> print(get_molecular_volume(data.atomnos, data.atomcoords))
     8.4
     >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
     ...                      full_output=True))
@@ -97,7 +97,7 @@ def get_molecular_volume(
     (8.4, 61., 0.1)
 
     >>> data = datasets.logfiles["symmetries"]["water"]
-    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
+    >>> print(get_molecular_volume(data.atomnos, data.atomcoords))
     18.
     >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
     ...                      full_output=True))
@@ -106,7 +106,7 @@ def get_molecular_volume(
     (18., 92., 0.1)
 
     >>> data = datasets.logfiles["symmetries"]["benzene"]
-    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
+    >>> print(get_molecular_volume(data.atomnos, data.atomcoords))
     80.
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
     ...                      full_output=True)  # doctest: +SKIP
@@ -208,28 +208,28 @@ def _garza(
 
     Examples
     --------
-    >>> float(_garza(1.0))
+    >>> print(_garza(1.0))
     24.32
     >>> tuple(float(x) for x in _garza(1.0, full_output=True))
     (24.32, 1.815, 0.3507458)
-    >>> float(_garza(10.0))
+    >>> print(_garza(10.0))
     66.51
     >>> tuple(float(x) for x in _garza(10.0, full_output=True))
     (66.51, 1.0, 0.7556590)
-    >>> float(_garza(100.0))
+    >>> print(_garza(100.0))
     279.6
     >>> tuple(float(x) for x in _garza(100.0, full_output=True))
     (279.6, 1.0, 1.628018)
 
-    >>> float(_garza(1.0, environment="benzene"))
+    >>> print(_garza(1.0, environment="benzene"))
     131.
     >>> tuple(float(x) for x in _garza(1.0, full_output=True, environment="benzene"))
     (131., 3.35, 0.2317882509934295)
-    >>> float(_garza(10.0, environment="benzene"))
+    >>> print(_garza(10.0, environment="benzene"))
     243.
     >>> tuple(float(x) for x in _garza(10.0, full_output=True, environment="benzene"))
     (243., 3.29, 0.499372648682062)
-    >>> float(_garza(100.0, environment="benzene"))
+    >>> print(_garza(100.0, environment="benzene"))
     665.
     >>> tuple(float(x) for x in _garza(100.0, full_output=True, environment="benzene"))
     (665., 1.0, 1.07586575757374)
@@ -1653,19 +1653,19 @@ def gyradius(atommasses, atomcoords, method="iupac"):
     >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["tanaka1996"]["CH3·@UMP2/cc-pVTZ"]
-    >>> float(gyradius(data.atommasses, data.atomcoords))
+    >>> print(gyradius(data.atommasses, data.atomcoords))
     0.481
-    >>> float(gyradius(data.atommasses, data.atomcoords, method="mean"))
+    >>> print(gyradius(data.atommasses, data.atomcoords, method="mean"))
     0.93
 
     >>> data = datasets.logfiles["symmetries"]["water"]
-    >>> float(gyradius(data.atommasses, data.atomcoords))
+    >>> print(gyradius(data.atommasses, data.atomcoords))
     0.31915597673891866
-    >>> float(gyradius(np.ones_like(data.atommasses), data.atomcoords))
+    >>> print(gyradius(np.ones_like(data.atommasses), data.atomcoords))
     0.6833818299241241
-    >>> float(gyradius(np.ones_like(data.atommasses), data.atomcoords, method="mean"))
+    >>> print(gyradius(np.ones_like(data.atommasses), data.atomcoords, method="mean"))
     0.6833818299241241
-    >>> float(gyradius(data.atommasses, data.atomcoords, method="mean"))
+    >>> print(gyradius(data.atommasses, data.atomcoords, method="mean"))
     0.7637734749747612
     """
     com = np.average(atomcoords, axis=0, weights=atommasses)

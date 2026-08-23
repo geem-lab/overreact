@@ -41,9 +41,9 @@ def _check_nu(vibfreq: float) -> float:
     Examples
     --------
     >>> vibfreq = 1000.0
-    >>> float(_check_nu(vibfreq))
+    >>> print(_check_nu(vibfreq))
     2.99792458e13
-    >>> float(_check_nu(2.0 * vibfreq) / _check_nu(vibfreq))
+    >>> print(_check_nu(2.0 * vibfreq) / _check_nu(vibfreq))
     2.0
     >>> bool(_check_nu(vibfreq) == _check_nu(-vibfreq))
     True
@@ -84,15 +84,15 @@ def wigner(
 
     Examples
     --------
-    >>> float(wigner(1821.0777))
+    >>> print(wigner(1821.0777))
     4.218
-    >>> float(wigner(262.38))
+    >>> print(wigner(262.38))
     1.06680
-    >>> float(wigner(190.5927))
+    >>> print(wigner(190.5927))
     1.03525
-    >>> float(wigner(169.14))
+    >>> print(wigner(169.14))
     1.02776
-    >>> float(wigner(113.87))
+    >>> print(wigner(113.87))
     1.01258
 
     """
@@ -178,11 +178,11 @@ def eckart(
     And if either the forward or backward barrier is non-positive, we fall back
     to the Wigner correction, but a warning is issued:
 
-    >>> float(eckart(190.5927, 109920.73434972763, -154.0231580734253))
+    >>> print(eckart(190.5927, 109920.73434972763, -154.0231580734253))
     1.03525
-    >>> float(eckart(190.5927, -154.0231580734253, 109920.73434972763))
+    >>> print(eckart(190.5927, -154.0231580734253, 109920.73434972763))
     1.03525
-    >>> float(eckart(190.5927, -154.0231580734253))
+    >>> print(eckart(190.5927, -154.0231580734253))
     1.03525
 
     """

@@ -67,16 +67,16 @@ def calc_cav_entropy(
     >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
-    >>> float(calc_cav_entropy(data.atomnos, data.atomcoords))
+    >>> print(calc_cav_entropy(data.atomnos, data.atomcoords))
     -30.
     >>> data = datasets.logfiles["symmetries"]["water"]
-    >>> float(calc_cav_entropy(data.atomnos, data.atomcoords))
+    >>> print(calc_cav_entropy(data.atomnos, data.atomcoords))
     -40.
     >>> data = datasets.logfiles["tanaka1996"]["Cl·@UMP2/cc-pVTZ"]
-    >>> float(calc_cav_entropy(data.atomnos, data.atomcoords))
+    >>> print(calc_cav_entropy(data.atomnos, data.atomcoords))
     -43.
     >>> data = datasets.logfiles["symmetries"]["tetraphenylborate-"]
-    >>> float(calc_cav_entropy(data.atomnos, data.atomcoords))
+    >>> print(calc_cav_entropy(data.atomnos, data.atomcoords))
     -133.1
     """
     temperature = np.asarray(temperature)
@@ -228,35 +228,35 @@ def molar_free_volume(
     >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords, method="izato") \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords, method="izato") \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     0.05
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords) \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords) \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     61.
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     7.7e2
 
     >>> data = datasets.logfiles["symmetries"]["water"]
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords, method="izato") \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords, method="izato") \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     0.09
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords) \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords) \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     92.
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     90e1
 
     >>> data = datasets.logfiles["symmetries"]["benzene"]
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords, method="izato") \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords, method="izato") \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     0.17
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords) \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords) \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     240.
-    >>> float(molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
+    >>> print(molar_free_volume(data.atomnos, data.atomcoords, environment="benzene") \
     ...     / (constants.angstrom ** 3 * constants.N_A))
     593.
     """

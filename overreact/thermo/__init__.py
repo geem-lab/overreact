@@ -84,25 +84,25 @@ def calc_trans_entropy(
 
     Examples
     --------
-    >>> float(calc_trans_entropy(35.45))  # Cl-
+    >>> print(calc_trans_entropy(35.45))  # Cl-
     153.246
-    >>> float(calc_trans_entropy(35.45, pressure=constants.bar))
+    >>> print(calc_trans_entropy(35.45, pressure=constants.bar))
     153.356
 
-    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water"))
+    >>> print(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water"))
     153.246
 
     As we can see, the "environment" parameter has only effect if set together
     with a proper "method":
 
-    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
+    >>> print(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
     ...                    method="garza"))
     103.7
-    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
+    >>> print(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
     ...                    method="izato"))
     51.
 
-    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="benzene",
+    >>> print(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="benzene",
     ...                    method="garza"))
     121.7
     """
@@ -182,7 +182,7 @@ def calc_internal_energy(
 
     Examples
     --------
-    >>> float(calc_internal_energy())  # F
+    >>> print(calc_internal_energy())  # F
     3718.
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -195,7 +195,7 @@ def calc_internal_energy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> float(calc_internal_energy(
+    >>> print(calc_internal_energy(
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
     ...     degeneracy=degeneracy))  # F
     4039.
@@ -252,7 +252,7 @@ def calc_enthalpy(
 
     Examples
     --------
-    >>> float(calc_enthalpy())  # F
+    >>> print(calc_enthalpy())  # F
     6197.
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -265,7 +265,7 @@ def calc_enthalpy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> float(calc_enthalpy(energy=energy * 100 * constants.h * constants.c * constants.N_A,
+    >>> print(calc_enthalpy(energy=energy * 100 * constants.h * constants.c * constants.N_A,
     ...               degeneracy=degeneracy))  # F
     6518.
 
@@ -373,7 +373,7 @@ def calc_entropy(
 
     Examples
     --------
-    >>> float(calc_entropy(18.998))  # F
+    >>> print(calc_entropy(18.998))  # F
     145.467
 
     The example above ignores the electronic entropy. Taking electronic entropy
@@ -386,7 +386,7 @@ def calc_entropy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> float(calc_entropy(18.998,
+    >>> print(calc_entropy(18.998,
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
     ...     degeneracy=degeneracy))  # F
     158.641
@@ -500,7 +500,7 @@ def calc_heat_capacity(
 
     Examples
     --------
-    >>> float(calc_heat_capacity())  # F
+    >>> print(calc_heat_capacity())  # F
     12.47
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -513,7 +513,7 @@ def calc_heat_capacity(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> float(calc_heat_capacity(
+    >>> print(calc_heat_capacity(
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
     ...     degeneracy=degeneracy))  # F
     14.43
@@ -707,13 +707,13 @@ def equilibrium_constant(
 
     >>> temperature = 298.15
     >>> dG = -constants.R * temperature * np.log(Kc)
-    >>> float(equilibrium_constant(dG))
+    >>> print(equilibrium_constant(dG))
     24.5
 
     By giving a `delta_moles` value (in this case, :math:`2 - 2 - 1 = -1`),
     we can calculate the corresponding `K_p`:
 
-    >>> float(equilibrium_constant(dG, delta_moles=-1))
+    >>> print(equilibrium_constant(dG, delta_moles=-1))
     1.002
 
     (As expected, it makes sense for gases to favor the most entropic side of
@@ -724,13 +724,13 @@ def equilibrium_constant(
     from one molar to one atmosphere using `change_reference_state`):
 
     >>> dG += temperature * rx.change_reference_state()
-    >>> float(equilibrium_constant(dG))
+    >>> print(equilibrium_constant(dG))
     1.002
 
     Having gas phase information, the inverse path can be taken just by
     inverting the sign of `delta_moles`:
 
-    >>> float(equilibrium_constant(dG, delta_moles=1))
+    >>> print(equilibrium_constant(dG, delta_moles=1))
     24.5
 
     The following example is from
@@ -740,10 +740,10 @@ def equilibrium_constant(
     solution standard Gibbs reaction free energy that is given:
 
     >>> dG1 = -37.4e3
-    >>> float(np.log10(equilibrium_constant(dG1)))
+    >>> print(np.log10(equilibrium_constant(dG1)))
     6.55
     >>> dG2 = -60.67e3
-    >>> float(np.log10(equilibrium_constant(dG2)))
+    >>> print(np.log10(equilibrium_constant(dG2)))
     10.62
 
     The above are thus :math:`\log_{10}(K_c)`. Since we are talking about a
@@ -751,9 +751,9 @@ def equilibrium_constant(
     respectively, and we could obtain the :math:`\log_{10}(K_p)` the following
     way:
 
-    >>> float(np.log10(equilibrium_constant(dG1, delta_moles=-4)))
+    >>> print(np.log10(equilibrium_constant(dG1, delta_moles=-4)))
     0.998
-    >>> float(np.log10(equilibrium_constant(dG2, delta_moles=-2)))
+    >>> print(np.log10(equilibrium_constant(dG2, delta_moles=-2)))
     7.85
 
     You can easily check that the above values match the values given
@@ -836,18 +836,18 @@ def change_reference_state(
     By default, the correction returns a change in concentration from the gas
     phase standard concentration to the solvated-state standard concentration:
 
-    >>> float(-rx.change_reference_state() / constants.calorie)
+    >>> print(-rx.change_reference_state() / constants.calorie)
     -6.4
-    >>> float(298.15 * rx.change_reference_state() / constants.kcal)
+    >>> print(298.15 * rx.change_reference_state() / constants.kcal)
     1.89
-    >>> float(273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal)
+    >>> print(273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal)
     1.69
 
     But this function can also be used to adjust symmetry effects from C1
     calculations (symmetry number equals to one). For D7h, for instance, the
     symmetry number is 14:
 
-    >>> float(-298.15 * rx.change_reference_state(14, 1) / constants.kcal)
+    >>> print(-298.15 * rx.change_reference_state(14, 1) / constants.kcal)
     -1.56
 
     >>> bool(rx.change_reference_state(sign=-1) == -rx.change_reference_state())
