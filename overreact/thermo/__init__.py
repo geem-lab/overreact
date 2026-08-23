@@ -6,6 +6,7 @@ __all__ = ["change_reference_state", "equilibrium_constant"]
 
 
 import logging
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from scipy.special import factorial
@@ -13,6 +14,9 @@ from scipy.special import factorial
 import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _derivative as derivative
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 from overreact.thermo._gas import (
     calc_elec_energy,
     calc_elec_entropy,
@@ -611,13 +615,29 @@ def get_delta(transform, property):
     return np.asarray(transform).T @ np.asarray(property)
 
 
+@overload
 def equilibrium_constant(
-    delta_freeenergy: float | np.ndarray,
-    delta_moles: int | np.ndarray | None = None,
-    temperature: float | np.ndarray = 298.15,
+    delta_freeenergy: float,
+    delta_moles: int | None = ...,
+    temperature: float = ...,
+    pressure: float = ...,
+    volume: float | None = ...,
+) -> float: ...
+@overload
+def equilibrium_constant(
+    delta_freeenergy: npt.ArrayLike,
+    delta_moles: npt.ArrayLike | None = ...,
+    temperature: npt.ArrayLike = ...,
+    pressure: float = ...,
+    volume: float | None = ...,
+) -> np.ndarray: ...
+def equilibrium_constant(
+    delta_freeenergy: npt.ArrayLike,
+    delta_moles: npt.ArrayLike | None = None,
+    temperature: npt.ArrayLike = 298.15,
     pressure: float = constants.atm,
     volume: float | None = None,
-) -> np.ndarray:
+) -> float | np.ndarray:
     r"""Calculate an equilibrium constant from a reaction [Gibbs free energy](https://en.wikipedia.org/wiki/Gibbs_free_energy).
 
     This function uses the usual `relationship between reaction Gibbs energy
@@ -687,14 +707,14 @@ def equilibrium_constant(
 
     >>> temperature = 298.15
     >>> dG = -constants.R * temperature * np.log(Kc)
-    >>> equilibrium_constant(dG)
-    array([24.5])
+    >>> float(equilibrium_constant(dG))
+    24.5
 
     By giving a `delta_moles` value (in this case, :math:`2 - 2 - 1 = -1`),
     we can calculate the corresponding `K_p`:
 
-    >>> equilibrium_constant(dG, delta_moles=-1)
-    array([1.002])
+    >>> float(equilibrium_constant(dG, delta_moles=-1))
+    1.002
 
     (As expected, it makes sense for gases to favor the most entropic side of
     the equilibrium.) The example above clearly used "solution-based" data
@@ -704,14 +724,14 @@ def equilibrium_constant(
     from one molar to one atmosphere using `change_reference_state`):
 
     >>> dG += temperature * rx.change_reference_state()
-    >>> equilibrium_constant(dG)
-    array([1.002])
+    >>> float(equilibrium_constant(dG))
+    1.002
 
     Having gas phase information, the inverse path can be taken just by
     inverting the sign of `delta_moles`:
 
-    >>> equilibrium_constant(dG, delta_moles=1)
-    array([24.5])
+    >>> float(equilibrium_constant(dG, delta_moles=1))
+    24.5
 
     The following example is from
     [Wikipedia](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
@@ -720,21 +740,21 @@ def equilibrium_constant(
     solution standard Gibbs reaction free energy that is given:
 
     >>> dG1 = -37.4e3
-    >>> np.log10(equilibrium_constant(dG1))
-    array([6.55])
+    >>> float(np.log10(equilibrium_constant(dG1)))
+    6.55
     >>> dG2 = -60.67e3
-    >>> np.log10(equilibrium_constant(dG2))
-    array([10.62])
+    >>> float(np.log10(equilibrium_constant(dG2)))
+    10.62
 
     The above are thus :math:`\log_{10}(K_c)`. Since we are talking about a
     mono- and a bidendate ligands, the `delta_moles` are -4 and -2,
     respectively, and we could obtain the :math:`\log_{10}(K_p)` the following
     way:
 
-    >>> np.log10(equilibrium_constant(dG1, delta_moles=-4))
-    array([0.998])
-    >>> np.log10(equilibrium_constant(dG2, delta_moles=-2))
-    array([7.85])
+    >>> float(np.log10(equilibrium_constant(dG1, delta_moles=-4)))
+    0.998
+    >>> float(np.log10(equilibrium_constant(dG2, delta_moles=-2)))
+    7.85
 
     You can easily check that the above values match the values given
     [here](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
@@ -742,14 +762,14 @@ def equilibrium_constant(
     temperature = np.asarray(temperature)
 
     equilibrium_constant = np.exp(
-        -np.atleast_1d(delta_freeenergy) / (constants.R * temperature),
+        -np.asarray(delta_freeenergy) / (constants.R * temperature),
     )
 
     if delta_moles is not None:
         if volume is None:
             volume = molar_volume(temperature, pressure) * constants.kilo
 
-        equilibrium_constant *= volume**delta_moles
+        equilibrium_constant *= volume ** np.asarray(delta_moles)
 
     logger.info(f"equilibrium constant = {equilibrium_constant}")
     return equilibrium_constant

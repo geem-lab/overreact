@@ -572,15 +572,18 @@ def get_k(
     # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
     #
-    # NOTE(schneiderfelipe): rates.eyring (via thermo.equilibrium_constant's
-    # np.atleast_1d) always returns an ndarray, one value per reaction, even
-    # for scalar delta_freeenergies/temperature -- so k is always safe to
-    # slice/index below, regardless of what the caller passed in.
-    k = rates.eyring(
-        delta_freeenergies,
-        temperature=temperature,
-        pressure=pressure,
-        volume=volume,
+    # NOTE(schneiderfelipe): rates.eyring is shape-preserving (scalar in,
+    # scalar out), but get_k's own contract is to always return one value
+    # per reaction -- so, unlike rates.eyring itself, k is forced to be at
+    # least 1-D here, to stay safe to slice/index below regardless of
+    # whether delta_freeenergies/temperature were passed in as scalars.
+    k = np.atleast_1d(
+        rates.eyring(
+            delta_freeenergies,
+            temperature=temperature,
+            pressure=pressure,
+            volume=volume,
+        ),
     )
 
     # make reaction rate constants for equilibria as close as possible to one

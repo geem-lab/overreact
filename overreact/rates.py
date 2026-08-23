@@ -6,7 +6,7 @@ __all__ = ["eyring"]
 
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 
@@ -291,13 +291,29 @@ def convert_rate_constant(
     return val * factor
 
 
+@overload
+def eyring(
+    delta_freeenergy: float,
+    molecularity: int | None = ...,
+    temperature: float = ...,
+    pressure: float = ...,
+    volume: float | None = ...,
+) -> float: ...
+@overload
+def eyring(
+    delta_freeenergy: npt.ArrayLike,
+    molecularity: int | None = ...,
+    temperature: npt.ArrayLike = ...,
+    pressure: float = ...,
+    volume: float | None = ...,
+) -> np.ndarray: ...
 def eyring(
     delta_freeenergy: npt.ArrayLike,
     molecularity: int | None = None,
     temperature: npt.ArrayLike = 298.15,
     pressure: float = constants.atm,
     volume: float | None = None,
-) -> np.ndarray:
+) -> float | np.ndarray:
     r"""Calculate a reaction rate constant.
 
     This function uses the `Eyring-Evans-Polanyi equation
@@ -349,24 +365,24 @@ def eyring(
     [Thermochemistry in Gaussian](https://gaussian.com/thermo/), in which the
     kinetic isotope effect of a bimolecular reaction is analyzed:
 
-    >>> eyring(17.26 * constants.kcal)
-    array([1.38])
-    >>> eyring(18.86 * constants.kcal)
-    array([0.093])
+    >>> float(eyring(17.26 * constants.kcal))
+    1.38
+    >>> float(eyring(18.86 * constants.kcal))
+    0.093
 
     It is well known that, at room temperature, if you "decrease" a reaction
     barrier by 1.4 kcal/mol, the reaction becomes around ten times faster:
 
     >>> dG = np.random.uniform(1.0, 100.0) * constants.kcal
-    >>> eyring(dG - 1.4 * constants.kcal) / eyring(dG)
-    array([10.])
+    >>> float(eyring(dG - 1.4 * constants.kcal) / eyring(dG))
+    10.
 
     A similar relationship is found for a twofold increase in speed and a
     0.4 kcal/mol decrease in the reaction barrier (again, at room
     temperature):
 
-    >>> eyring(dG - 0.4 * constants.kcal) / eyring(dG)
-    array([2.0])
+    >>> float(eyring(dG - 0.4 * constants.kcal) / eyring(dG))
+    2.0
 
     """
     temperature = np.asarray(temperature)
