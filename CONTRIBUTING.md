@@ -62,6 +62,20 @@ demand against the whole repository (e.g. before opening a PR):
 $ uv run pre-commit run --all-files
 ```
 
+### Documentation
+
+API docs (<https://geem-lab.github.io/overreact/>) are built with
+[pdoc](https://pdoc.dev/) from docstrings and deployed automatically by
+`.github/workflows/docs.yml` on every push to `main` that touches
+`overreact/`, `README.md`, or `gendocs.sh` -- nothing to run or commit by
+hand. To preview locally:
+
+```console
+$ uv run bash gendocs.sh -o docs-build
+```
+
+and open `docs-build/overreact.html`.
+
 ## Recommended practices
 
 ### Reporting issues

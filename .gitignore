@@ -160,3 +160,7 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
+
+# pdoc build output (see gendocs.sh and .github/workflows/docs.yml -- docs
+# are built and deployed to GitHub Pages by CI, never committed)
+/docs-build/

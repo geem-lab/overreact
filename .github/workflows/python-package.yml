@@ -6,10 +6,10 @@ name: build
 on:
   push:
     branches: [main]
-    paths-ignore: ["**.md", "docs/**"]
+    paths-ignore: ["**.md"]
   pull_request:
     branches: [main]
-    paths-ignore: ["**.md", "docs/**"]
+    paths-ignore: ["**.md"]
 
 # Cancel any run still going for a previous commit on the same branch/PR once
 # a new one is pushed, instead of letting superseded runs burn CI minutes.
