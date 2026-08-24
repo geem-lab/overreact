@@ -162,7 +162,10 @@ python_version = "3.11"
 
 # These third-party packages don't ship type stubs or a py.typed marker, so
 # mypy can't analyze them; silence the resulting "missing library stubs"
-# noise instead of import-guarding every call site.
+# noise instead of import-guarding every call site. "thermo.*" is the PyPI
+# `thermo` package (the optional `solvents` extra), not overreact's own
+# overreact.thermo -- module patterns match from the root namespace, so
+# there's no actual overlap, just a similar name.
 [[tool.mypy.overrides]]
 module = ["scipy.*", "seaborn.*", "thermo.*"]
 ignore_missing_imports = true

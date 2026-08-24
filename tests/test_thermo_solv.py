@@ -300,12 +300,13 @@ def test_translational_entropy_liquid_phase() -> None:
         data.atomcoords,
         method="izato",
     )
-    # NOTE(schneiderfelipe): the free volume above is the difference of two
-    # close cube roots of Quasi-Monte Carlo volume estimates (see
+    # NOTE(schneiderfelipe): free volume here is the difference of two close
+    # cube roots of Quasi-Monte Carlo volume estimates (see
     # `overreact.coords.get_molecular_volume`), which amplifies the sampling
-    # noise from the unseeded Halton sequence. A tolerance of 3e-2 was
-    # occasionally too tight and caused flaky failures; 3.2e-2 comfortably
-    # covers the observed variance.
+    # noise from the unseeded Halton sequence -- the same root cause behind
+    # every method="izato" free-volume assertion in this file. A tolerance
+    # of 3e-2 was occasionally too tight (observed as an intermittent CI
+    # failure on one of these); 3.2e-2 comfortably covers the variance.
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.144,
         3.2e-2,
@@ -386,12 +387,13 @@ def test_translational_entropy_liquid_phase() -> None:
         data.atomcoords,
         method="izato",
     )
-    # NOTE(schneiderfelipe): the free volume above is the difference of two
-    # close cube roots of Quasi-Monte Carlo volume estimates (see
+    # NOTE(schneiderfelipe): free volume here is the difference of two close
+    # cube roots of Quasi-Monte Carlo volume estimates (see
     # `overreact.coords.get_molecular_volume`), which amplifies the sampling
-    # noise from the unseeded Halton sequence. A tolerance of 3e-2 was
-    # occasionally too tight and caused flaky failures; 3.2e-2 comfortably
-    # covers the observed variance.
+    # noise from the unseeded Halton sequence -- the same root cause behind
+    # every method="izato" free-volume assertion in this file. A tolerance
+    # of 3e-2 was occasionally too tight (observed as an intermittent CI
+    # failure on one of these); 3.2e-2 comfortably covers the variance.
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.161,
         3.2e-2,
@@ -472,12 +474,13 @@ def test_translational_entropy_liquid_phase() -> None:
         data.atomcoords,
         method="izato",
     )
-    # NOTE(schneiderfelipe): the free volume above is the difference of two
-    # close cube roots of Quasi-Monte Carlo volume estimates (see
+    # NOTE(schneiderfelipe): free volume here is the difference of two close
+    # cube roots of Quasi-Monte Carlo volume estimates (see
     # `overreact.coords.get_molecular_volume`), which amplifies the sampling
-    # noise from the unseeded Halton sequence. A tolerance of 3e-2 was
-    # occasionally too tight and caused flaky failures; 3.2e-2 comfortably
-    # covers the observed variance.
+    # noise from the unseeded Halton sequence -- the same root cause behind
+    # every method="izato" free-volume assertion in this file. A tolerance
+    # of 3e-2 was occasionally too tight (observed as an intermittent CI
+    # failure on one of these); 3.2e-2 comfortably covers the variance.
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.152,
         3.2e-2,
@@ -790,12 +793,13 @@ def test_translational_entropy_liquid_phase() -> None:
         data.atomcoords,
         method="izato",
     )
-    # NOTE(schneiderfelipe): the free volume above is the difference of two
-    # close cube roots of Quasi-Monte Carlo volume estimates (see
+    # NOTE(schneiderfelipe): free volume here is the difference of two close
+    # cube roots of Quasi-Monte Carlo volume estimates (see
     # `overreact.coords.get_molecular_volume`), which amplifies the sampling
-    # noise from the unseeded Halton sequence. A tolerance of 3e-2 was
-    # occasionally too tight and caused flaky failures; 3.2e-2 comfortably
-    # covers the observed variance.
+    # noise from the unseeded Halton sequence -- the same root cause behind
+    # every method="izato" free-volume assertion in this file. A tolerance
+    # of 3e-2 was occasionally too tight (observed as an intermittent CI
+    # failure on one of these); 3.2e-2 comfortably covers the variance.
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.164,
         3.2e-2,
@@ -876,12 +880,13 @@ def test_translational_entropy_liquid_phase() -> None:
         data.atomcoords,
         method="izato",
     )
-    # NOTE(schneiderfelipe): the free volume above is the difference of two
-    # close cube roots of Quasi-Monte Carlo volume estimates (see
+    # NOTE(schneiderfelipe): free volume here is the difference of two close
+    # cube roots of Quasi-Monte Carlo volume estimates (see
     # `overreact.coords.get_molecular_volume`), which amplifies the sampling
-    # noise from the unseeded Halton sequence. A tolerance of 3e-2 was
-    # occasionally too tight and caused flaky failures; 3.2e-2 comfortably
-    # covers the observed variance.
+    # noise from the unseeded Halton sequence -- the same root cause behind
+    # every method="izato" free-volume assertion in this file. A tolerance
+    # of 3e-2 was occasionally too tight (observed as an intermittent CI
+    # failure on one of these); 3.2e-2 comfortably covers the variance.
     assert free_volume / (constants.angstrom**3 * constants.N_A) == pytest.approx(
         0.164,
         3.2e-2,

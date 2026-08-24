@@ -2,11 +2,12 @@
 # Pages via Actions -- replacing the previous setup, where a maintainer ran
 # gendocs.sh locally and committed the generated docs/ folder to main.
 #
-# One-time setup required (a repo admin, on GitHub, not something this
-# workflow can do for itself): Settings -> Pages -> Build and deployment ->
-# Source -> switch from "Deploy from a branch" to "GitHub Actions". Until
-# that's done, this workflow will build docs successfully but the deploy
-# step will fail (Pages isn't listening for Actions deployments yet).
+# Requires Pages source to be set to "GitHub Actions" in Settings -> Pages
+# -> Build and deployment -> Source (a repo admin, on GitHub; not something
+# this workflow can do for itself). Already done for this repo -- if it's
+# ever reset to "Deploy from a branch", this workflow will keep building
+# docs successfully but the deploy step will fail (Pages stops listening
+# for Actions deployments).
 
 name: Deploy docs to Pages
 
@@ -36,6 +37,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # No `submodules: true` here, unlike the other workflows: pdoc only
+      # introspects docstrings/signatures, it never touches data/, and
+      # overreact/_datasets.py's module-level directory walk degrades to an
+      # empty dict (not an error) when data/ is absent.
       - uses: actions/checkout@v7
 
       - name: Set up uv

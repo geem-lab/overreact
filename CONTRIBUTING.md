@@ -11,6 +11,8 @@ forked repository.
 > from [Open Source Guides](https://opensource.guide/) They may even have a
 > translation for your native language!
 
+## Development setup
+
 We use [`uv`](https://docs.astral.sh/uv/) to develop the project, so first make sure it's installed.
 
 After cloning your fork, run:
@@ -120,7 +122,7 @@ questions, the discussions are a better place to ask questions 😄.)
   [Closing issues using keywords](https://help.github.com/articles/creating-a-pull-request/).
 - Bump version according to [semantic versioning](https://semver.org/).
 
-### Releasing
+## Releasing
 
 Publishing to PyPI is automatic: `.github/workflows/publish.yml` builds,
 tests, and publishes a release the moment a `vX.Y.Z` tag lands on the

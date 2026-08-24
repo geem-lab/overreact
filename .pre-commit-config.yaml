@@ -2,8 +2,8 @@
 #
 # Hooks below shell out to `uv run` instead of pinning their own `rev:`, so
 # they always use the exact tool versions locked in uv.lock (the same ones
-# CI runs in .github/workflows/python-package.yml) with nothing extra to
-# keep in sync.
+# CI runs in .github/workflows/checks.yml) with nothing extra to keep in
+# sync.
 repos:
   - repo: local
     hooks:
