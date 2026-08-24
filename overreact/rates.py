@@ -20,14 +20,14 @@ logger = logging.getLogger(__name__)
 
 
 @np.vectorize
-def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
+def liquid_viscosity(identifier, temperature=298.15, pressure=constants.atm):
     """Dynamic viscosity of a solvent.
 
     This function requires the `thermo` package for obtaining property values.
 
     Parameters
     ----------
-    id : str,
+    identifier : str,
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
@@ -43,7 +43,7 @@ def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     >>> liquid_viscosity("water", temperature=299.26)
     8.90e-4
     """
-    return rx._misc._get_chemical(id, temperature, pressure).mul
+    return rx._misc._get_chemical(identifier, temperature, pressure).mul
 
 
 # TODO(mrauen): log the calculated diffusional reaction rate limit.

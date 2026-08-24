@@ -650,9 +650,10 @@ class Report:
             yield conc_table
 
             t_span = y.t_max - y.t_min
+            rng = np.random.default_rng()
             active = ~np.isclose(
-                y(y.t_min + 0.01 * t_span * np.random.rand()),
-                y(y.t_max - 0.01 * t_span * np.random.rand()),
+                y(y.t_min + 0.01 * t_span * rng.random()),
+                y(y.t_max - 0.01 * t_span * rng.random()),
                 rtol=0.01,
             )
             if self.plot == "all" or not np.any(active):
@@ -682,7 +683,7 @@ class Report:
             for i, name in enumerate(scheme.compounds):
                 if not rx.is_transition_state(name):
                     res = minimize_scalar(
-                        lambda t: -r(t)[i],
+                        lambda t, i=i: -r(t)[i],
                         bounds=(y.t_min, (t_max + y.t_max) / 2),
                         method="bounded",
                     )
@@ -756,8 +757,8 @@ def _prepare_simulation(scheme, k, concentrations):
     scheme, k = rx.get_fixed_scheme(scheme, k, fixed_y0)
 
     y0 = np.zeros(len(scheme.compounds))
-    for compound in free_y0:
-        y0[scheme.compounds.index(compound)] = free_y0[compound]
+    for compound, concentration in free_y0.items():
+        y0[scheme.compounds.index(compound)] = concentration
 
     return scheme, k, y0
 

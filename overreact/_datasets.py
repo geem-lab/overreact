@@ -21,6 +21,6 @@ for walk_dir in data_path.iterdir():
 
 
 if __name__ == "__main__":
-    for name in logfiles:
-        for compound in logfiles[name]:
-            print(name, compound, logfiles[name][compound].logfile)
+    for name, compounds in logfiles.items():
+        for compound, data in compounds.items():
+            print(name, compound, data.logfile)  # noqa: T201

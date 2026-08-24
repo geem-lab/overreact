@@ -196,10 +196,9 @@ def make_hashable(obj):
     """
     if isinstance(obj, np.ndarray):
         return (tuple(obj.shape), tuple(obj.ravel()))
-    elif isinstance(obj, list | set):
+    if isinstance(obj, list | set):
         return tuple(make_hashable(item) for item in obj)
-    else:
-        return obj
+    return obj
 
 
 def copy_unhashable(maxsize=128, typed=False):
@@ -244,7 +243,7 @@ def copy_unhashable(maxsize=128, typed=False):
                             return np.array(flat_data).reshape(shape)
                         except ValueError as e:
                             msg = f"Reshape error: {e} - shape: {shape}, data: {flat_data}"
-                            raise ValueError(msg)
+                            raise ValueError(msg) from e
                 return arg
 
             args = [convert_back(arg) for arg in hashable_args]
@@ -837,8 +836,8 @@ def broaden_spectrum(
             * distribution.pdf(
                 x,
                 xp,
-                scale=scale,
                 *args,
+                scale=scale,
                 **kwargs,
             )
             for xp, yp in zip(x0, y0, strict=False)
@@ -962,7 +961,7 @@ def halton(num, dim=None, jump=1, cranley_patterson=True):
     )
 
     if cranley_patterson:
-        res = (res + np.random.rand(actual_dim, 1)) % 1.0
+        res = (res + np.random.default_rng().random((actual_dim, 1))) % 1.0
     if dim is None:
         return res.reshape((num,))
     return res.T

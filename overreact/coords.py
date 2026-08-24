@@ -159,7 +159,7 @@ def get_molecular_volume(
                 f"Izato cavity volume = {cav_volume} ± {cav_err} Å³",
             )
             return (vdw_volume, cav_volume, max(vdw_err, cav_err))
-        elif method == "garza":
+        if method == "garza":
             # TODO(schneiderfelipe): test for the following solvents: water,
             # pentane, hexane, heptane and octane.
 
@@ -171,9 +171,8 @@ def get_molecular_volume(
             )
             logger.debug(f"Garza cavity volume = {cav_volume} Å³")
             return (vdw_volume, cav_volume, vdw_err)
-        else:
-            msg = f"unavailable method: '{method}'"
-            raise ValueError(msg)
+        msg = f"unavailable method: '{method}'"
+        raise ValueError(msg)
     return vdw_volume
 
 
@@ -487,8 +486,7 @@ def _find_point_group_linear(atomcoords, groups, rtol=0.0, atol=1.0e-2):
     """
     if _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
         return "D∞h"
-    else:
-        return "C∞v"
+    return "C∞v"
 
 
 def _find_point_group_spheric(
@@ -523,7 +521,7 @@ def _find_point_group_spheric(
     for n, _ in proper_axes:
         if n == 5:
             return "Ih"
-        elif n < 5:
+        if n < 5:
             break
     return "Oh"
 
@@ -572,7 +570,7 @@ def _find_point_group_asymmetric(
             rtol=rtol,
             atol=atol,
         )
-    elif rotor_class[1] in {
+    if rotor_class[1] in {
         "regular planar",
         "irregular planar",
     } or _get_mirror_planes(
@@ -585,7 +583,7 @@ def _find_point_group_asymmetric(
         atol=atol,
     ):
         return "Cs"
-    elif _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
+    if _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
         return "Ci"
     return "C1"
 
@@ -683,7 +681,7 @@ def _find_point_group_symmetric_dihedral(
     if mirror_axes:
         if mirror_axes[0][0] == "h":
             return f"D{proper_axes[0][0]}h"
-        elif len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
+        if len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
             # all vertical mirror planes are dihedral for Dnd point groups
             return f"D{proper_axes[0][0]}d"
     return f"D{proper_axes[0][0]}"
@@ -726,7 +724,7 @@ def _find_point_group_symmetric_nondihedral(
     if mirror_axes:
         if mirror_axes[0][0] == "h":
             return f"C{proper_axes[0][0]}h"
-        elif len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
+        if len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
             return f"C{proper_axes[0][0]}v"
 
     improper_axes = _get_improper_axes(
@@ -1244,8 +1242,7 @@ def _get_mirror_planes(
         c, v = x
         if c:
             return -ord(c), v
-        else:
-            return 0, v
+        return 0, v
 
     found_axes = []
     nondeg_axes = []
@@ -1479,19 +1476,19 @@ def _operation(name, order=2, axis=None):
     if name == "e":
         return np.eye(3)
 
-    if name in {"c", "σ", "sigma", "s"}:
+    if name in {"c", "σ", "sigma", "s"}:  # noqa: RUF001
         # normalize axis
         axis = np.asarray(axis)
         axis = axis / np.linalg.norm(axis)
 
         if name in {"c", "s"}:
             rotation = Rotation.from_rotvec(2.0 * np.pi * axis / order).as_matrix()
-        if name in {"σ", "sigma", "s"}:
+        if name in {"σ", "sigma", "s"}:  # noqa: RUF001
             reflection = np.eye(3) - 2.0 * np.outer(axis, axis)
 
         if name == "c":
             return rotation
-        if name in {"σ", "sigma"}:
+        if name in {"σ", "sigma"}:  # noqa: RUF001
             return reflection
         if name == "s":
             return rotation @ reflection
@@ -1674,11 +1671,10 @@ def gyradius(atommasses, atomcoords, method="iupac"):
         return np.sqrt(
             np.average(np.diag(atomcoords @ atomcoords.T), weights=atommasses),
         )
-    elif method == "mean":
+    if method == "mean":
         return np.sqrt(np.mean(np.diag(atomcoords @ atomcoords.T)))
-    else:
-        msg = f"unavailable method: '{method}'"
-        raise ValueError(msg)
+    msg = f"unavailable method: '{method}'"
+    raise ValueError(msg)
 
 
 @misc.copy_unhashable()
@@ -2062,7 +2058,7 @@ def _equivalent_atoms(
     """
     if len(atommasses) == 1:  # atom
         return [[0]]
-    elif len(atommasses) == 2:  # diatomic molecule
+    if len(atommasses) == 2:  # diatomic molecule
         if atommasses[0] == atommasses[1]:
             return [[0, 1]]
         return [[0], [1]]

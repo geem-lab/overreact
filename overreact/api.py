@@ -306,13 +306,12 @@ def _check_qrrho(
     """
     if qrrho is True:
         return True, True
-    elif qrrho is False:
+    if qrrho is False:
         return False, False
-    elif isinstance(qrrho, tuple):
+    if isinstance(qrrho, tuple):
         return qrrho
-    else:
-        msg = f"unrecognized QRRHO specification: {qrrho}"
-        raise ValueError(msg)
+    msg = f"unrecognized QRRHO specification: {qrrho}"
+    raise ValueError(msg)
 
 
 def get_freeenergies(

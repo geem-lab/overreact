@@ -572,7 +572,7 @@ def get_molecularity(transform):
     return np.where(res > 0, res, 1)
 
 
-def get_delta(transform, property):
+def get_delta(transform, properties):
     """Calculate deltas according to reactions.
 
     Delta properties are differences in a property between the final and
@@ -589,7 +589,7 @@ def get_delta(transform, property):
     Parameters
     ----------
     transform : array-like
-    property : array-like
+    properties : array-like
 
     Returns
     -------
@@ -612,7 +612,7 @@ def get_delta(transform, property):
     ...            [ 1,  3]], [-5, 12])
     array([17, 46])
     """
-    return np.asarray(transform).T @ np.asarray(property)
+    return np.asarray(transform).T @ np.asarray(properties)
 
 
 @overload
