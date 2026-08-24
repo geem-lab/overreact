@@ -1,0 +1,69 @@
+# Builds API docs with pdoc (see gendocs.sh) and deploys them to GitHub
+# Pages via Actions -- replacing the previous setup, where a maintainer ran
+# gendocs.sh locally and committed the generated docs/ folder to main.
+#
+# One-time setup required (a repo admin, on GitHub, not something this
+# workflow can do for itself): Settings -> Pages -> Build and deployment ->
+# Source -> switch from "Deploy from a branch" to "GitHub Actions". Until
+# that's done, this workflow will build docs successfully but the deploy
+# step will fail (Pages isn't listening for Actions deployments yet).
+
+name: Deploy docs to Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "overreact/**"
+      - "README.md"
+      - "gendocs.sh"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Pages deployments shouldn't race each other or be cancelled mid-flight by
+# a newer push (unlike checks.yml/CI, where cancelling a superseded run is
+# fine) -- queue them instead.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Build docs
+        run: uv run bash gendocs.sh -o docs-build
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload docs artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs-build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
