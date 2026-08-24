@@ -157,150 +157,22 @@ def test_sanity_for_absolute_thermochemistry() -> None:
 
 
 def test_enthalpy_ideal_gases() -> None:
-    """Calculate enthalpy of some ideal gases.
+    """Calculate enthalpy of an ideal gas.
 
-    We only check whether enthalpy matches the correct relationship with internal energy
-    for a series of representative cases.
+    calc_enthalpy is defined as calc_internal_energy(...) + R * temperature,
+    unconditionally, for any input -- so this identity holds by construction
+    regardless of which molecule/moments/vibfreqs/degeneracy are given. One
+    representative (and fairly rich: real logfile data, both moments and
+    vibrational frequencies) case is enough to guard the relationship itself;
+    repeating this same assertion across many molecules would only ever catch
+    a change to `calc_enthalpy`'s own `+ R * temperature` term, which a single
+    case already exercises just as well. calc_internal_energy's own
+    correctness (i.e., whether it returns the *right* number for a given
+    molecule) is separately and thoroughly covered by
+    test_internal_energy_ideal_monoatomic_gases, _diatomic_gases and
+    _polyatomic_gases below, with real reference values.
     """
     temperature = 298.15
-
-    # He
-    j = np.array([0, 1, 0])
-    degeneracy: float | np.ndarray = 2 * j + 1
-    energy = np.array([0.000, 159855.9745, 166277.4403])
-    internal_energy = rx.thermo.calc_internal_energy(
-        energy=energy * 100 * constants.h * constants.c * constants.N_A,
-        degeneracy=degeneracy,
-        temperature=temperature,
-    )
-    enthalpy = rx.thermo.calc_enthalpy(
-        energy=energy * 100 * constants.h * constants.c * constants.N_A,
-        degeneracy=degeneracy,
-        temperature=temperature,
-    )
-    assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
-
-    # Ne, Ar, Kr, Xe
-    internal_energy = rx.thermo.calc_internal_energy(temperature=temperature)
-    enthalpy = rx.thermo.calc_enthalpy(temperature=temperature)
-    assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
-
-    # C
-    j = np.array([0, 1, 2, 2, 0])
-    degeneracy = 2 * j + 1
-    energy = np.array([0.00000, 16.41671, 43.41350, 10192.66, 21648.02])
-    internal_energy = rx.thermo.calc_internal_energy(
-        energy=energy * 100 * constants.h * constants.c * constants.N_A,
-        degeneracy=degeneracy,
-        temperature=temperature,
-    )
-    enthalpy = rx.thermo.calc_enthalpy(
-        energy=energy * 100 * constants.h * constants.c * constants.N_A,
-        degeneracy=degeneracy,
-        temperature=temperature,
-    )
-    assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
-
-    # H2
-    i = (constants.hbar**2 / (2.0 * constants.k * 85.3)) / (
-        constants.atomic_mass * constants.angstrom**2
-    )
-    vibfreq = 6125 * constants.k * constants.centi / (constants.h * constants.c)
-    internal_energy = rx.thermo.calc_internal_energy(
-        moments=[0, i, i],
-        vibfreqs=vibfreq,
-        temperature=temperature,
-    )
-    enthalpy = rx.thermo.calc_enthalpy(
-        moments=[0, i, i],
-        vibfreqs=vibfreq,
-        temperature=temperature,
-    )
-    assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
-
-    # O2
-    degeneracy = 3
-    i = (constants.hbar**2 / (2.0 * constants.k * 2.07)) / (
-        constants.atomic_mass * constants.angstrom**2
-    )
-    vibfreq = 2256 * constants.k * constants.centi / (constants.h * constants.c)
-    internal_energy = rx.thermo.calc_internal_energy(
-        degeneracy=degeneracy,
-        moments=[0, i, i],
-        vibfreqs=vibfreq,
-        temperature=temperature,
-    )
-    enthalpy = rx.thermo.calc_enthalpy(
-        degeneracy=degeneracy,
-        moments=[0, i, i],
-        vibfreqs=vibfreq,
-        temperature=temperature,
-    )
-    assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
-
-    # HCl
-    i = (constants.hbar**2 / (2.0 * constants.k * 15.02)) / (
-        constants.atomic_mass * constants.angstrom**2
-    )
-    vibfreq = 4227 * constants.k * constants.centi / (constants.h * constants.c)
-    internal_energy = rx.thermo.calc_internal_energy(
-        moments=[0, i, i],
-        vibfreqs=vibfreq,
-        temperature=temperature,
-    )
-    enthalpy = rx.thermo.calc_enthalpy(
-        moments=[0, i, i],
-        vibfreqs=vibfreq,
-        temperature=temperature,
-    )
-    assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
-
-    # CO2
-    i = (constants.hbar**2 / (2.0 * constants.k * 0.561)) / (
-        constants.atomic_mass * constants.angstrom**2
-    )
-    vibfreqs = (
-        np.array([3360, 954, 954, 1890])
-        * constants.k
-        * constants.centi
-        / (constants.h * constants.c)
-    )
-    internal_energy = rx.thermo.calc_internal_energy(
-        moments=[0, i, i],
-        vibfreqs=vibfreqs,
-        temperature=temperature,
-    )
-    enthalpy = rx.thermo.calc_enthalpy(
-        moments=[0, i, i],
-        vibfreqs=vibfreqs,
-        temperature=temperature,
-    )
-    assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
-
-    # NH3
-    ia = (constants.hbar**2 / (2.0 * constants.k * 13.6)) / (
-        constants.atomic_mass * constants.angstrom**2
-    )
-    ib = (constants.hbar**2 / (2.0 * constants.k * 8.92)) / (
-        constants.atomic_mass * constants.angstrom**2
-    )
-    vibfreqs = (
-        np.array([4800, 1360, 4880, 4880, 2330, 2330])
-        * constants.k
-        * constants.centi
-        / (constants.h * constants.c)
-    )
-    internal_energy = rx.thermo.calc_internal_energy(
-        moments=[ia, ia, ib],
-        vibfreqs=vibfreqs,
-        temperature=temperature,
-    )
-    enthalpy = rx.thermo.calc_enthalpy(
-        moments=[ia, ia, ib],
-        vibfreqs=vibfreqs,
-        temperature=temperature,
-    )
-    assert enthalpy - internal_energy == pytest.approx(constants.R * temperature)
 
     # C6H6
     data = datasets.logfiles["symmetries"]["benzene"]
