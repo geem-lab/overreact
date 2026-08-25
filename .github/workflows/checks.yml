@@ -25,7 +25,7 @@ jobs:
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"
 
       - name: Install dependencies
         run: uv sync --all-extras
@@ -44,7 +44,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12"]
+        # Only the extremes of what pyproject.toml's requires-python
+        # actually supports (oldest) and the newest CPython release
+        # (newest) -- not every version in between. CPython's compatibility
+        # story is strongly monotonic for pure-Python code, so this catches
+        # nearly everything a full N-version matrix would while cutting CI
+        # time; the main residual risk is a version-specific bug in a
+        # compiled dependency (this project leans on NumPy/SciPy/JAX) on an
+        # untested intermediate version, which is judged an acceptable
+        # tradeoff here. Bump both ends as Python's own support windows move
+        # (https://endoflife.date/python) and pyproject.toml's requires-python
+        # changes.
+        python-version: ["3.11", "3.14"]
 
     steps:
       - uses: actions/checkout@v7
