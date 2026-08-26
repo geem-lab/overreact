@@ -55,7 +55,7 @@ jobs:
         # tradeoff here. Bump both ends as Python's own support windows move
         # (https://endoflife.date/python) and pyproject.toml's requires-python
         # changes.
-        python-version: ["3.11", "3.14"]
+        python-version: ["3.12", "3.14"]
 
     steps:
       - uses: actions/checkout@v7

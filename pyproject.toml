@@ -6,7 +6,7 @@ authors = [
     { name = "Felipe S. S. Schneider", email = "schneider.felipe@posgrad.ufsc.br" },
     { name = "Giovanni F. Caramori", email = "giovanni.caramori@ufsc.br" },
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 readme = "README.md"
 license = "MIT"
 keywords = [
@@ -39,7 +39,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -102,7 +101,7 @@ requires = ["uv_build>=0.9.18,<0.13.0"]
 build-backend = "uv_build"
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -160,7 +159,7 @@ ignore = [
 convention = "numpy"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 
 # These third-party packages don't ship type stubs or a py.typed marker, so
 # mypy can't analyze them; silence the resulting "missing library stubs"
