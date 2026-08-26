@@ -10,6 +10,14 @@ on:
   pull_request:
     branches: [main]
     paths-ignore: ["**.md"]
+  # Lets a commit that only bumps the data submodule pointer (or any other
+  # commit paths-ignore skips) be checked on demand: GitHub's paths-ignore
+  # filter only fires push/pull_request when the commit has at least one
+  # changed file that doesn't match the ignore list, and a submodule pointer
+  # bump doesn't count as such a file for that evaluation -- so those commits
+  # otherwise get no CI run at all. Trigger from the Actions tab or
+  # `gh workflow run build.yml --ref <branch>`.
+  workflow_dispatch:
 
 # Cancel any run still going for a previous commit on the same branch/PR once
 # a new one is pushed, instead of letting superseded runs burn CI minutes.
