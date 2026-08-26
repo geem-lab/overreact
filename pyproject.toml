@@ -87,7 +87,7 @@ dev = [
     "thermo>=0.2",
     "ruff>=0.0.210,<0.16.5",
     "seaborn>=0.12,<0.14",
-    "types-setuptools>=65,<84",
+    "types-setuptools>=65,<85",
 ]
 
 [tool.uv]
