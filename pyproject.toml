@@ -159,7 +159,18 @@ ignore = [
 convention = "numpy"
 
 [tool.mypy]
-python_version = "3.12"
+# Deliberately the newest CI-tested version (see checks.yml's test matrix),
+# not the floor set by requires-python above: mypy parses third-party stub
+# files (.pyi) according to this setting too, and a dependency's stubs can
+# use syntax newer than this project's own floor -- e.g. numpy's stubs
+# started using a PEP 695 `type` statement (3.12+-only) that mypy rejected
+# outright while this was pinned to our floor version, even though nothing
+# in *our* code needed anything past the floor. Pinning to the newest
+# tested version instead avoids that whole class of false failures on every
+# dependency bump, at the cost of not catching our own code accidentally
+# using syntax unavailable on the floor version -- pytest running the floor
+# version in CI is the actual guard for that.
+python_version = "3.14"
 
 # These third-party packages don't ship type stubs or a py.typed marker, so
 # mypy can't analyze them; silence the resulting "missing library stubs"
