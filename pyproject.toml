@@ -129,6 +129,7 @@ ignore = [
   "B008",   # false positive here: the one flagged default (np.finfo(np.float64).eps) is an immutable constant, not a mutable-default footgun
   "C901",
   "COM812",
+  "CPY001", # per-file copyright headers would just duplicate the copyright notice already in LICENSE
   "E501",
   "FBT001",
   "FBT002",
@@ -141,6 +142,7 @@ ignore = [
   "PLR0912",
   "PLR0913",
   "PLR0915",
+  "PLR0917", # positional-specific sibling of PLR0913 above; same reasoning -- many of this project's functions take several physically-meaningful parameters (temperature, pressure, vibfreqs, ...) that read better positionally than forced keyword-only
   "PLR2004",
   "PLW2901", # the loop-variable reassignments this flags are all the safe "normalize once, use for the rest of this iteration" idiom
   "PTH112",

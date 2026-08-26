@@ -1948,7 +1948,7 @@ def eckart_transform(atommasses, atomcoords):
     natom = len(atommasses)
     dof = 3 * natom
 
-    moments, axes, atomcoords = inertia(atommasses, atomcoords, align=False)
+    _moments, axes, atomcoords = inertia(atommasses, atomcoords, align=False)
 
     x = np.block(
         [

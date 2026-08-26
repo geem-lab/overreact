@@ -1040,7 +1040,7 @@ class InterfaceFormatter(logging.Formatter):
         """Format log message."""
         self.wrapper.initial_indent = self.tab
         self.wrapper.subsequent_indent = 2 * self.tab
-        if record.module in {"api"}:
+        if record.module == "api":
             self.wrapper.initial_indent = "\n@ "
             self.wrapper.subsequent_indent = "@   "
         return self.wrapper.fill(super().format(record))

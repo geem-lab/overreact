@@ -151,7 +151,7 @@ CS -> TS‡ -> C + P  // Catalyst is released
     # actual reaction does not change
     assert np.allclose(dydt.k[2], k[2])
 
-    y, r = simulate.get_y(dydt, y0=y0, method=method)
+    y, _r = simulate.get_y(dydt, y0=y0, method=method)
 
     # catalyst is completely regenerated in the end
     # the substrate is completely consumed in the end
@@ -195,7 +195,7 @@ CS -> TS‡ -> P  // Catalyst is consumed instead of being released
     # actual reaction does not change
     assert np.allclose(dydt.k[2], k[2])
 
-    y, r = simulate.get_y(dydt, y0=y0, method=method)
+    y, _r = simulate.get_y(dydt, y0=y0, method=method)
 
     # catalyst is completely consumed in the end
     # the substrate is completely consumed in the end

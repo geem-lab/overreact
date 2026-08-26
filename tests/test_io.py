@@ -60,7 +60,7 @@ def test_sanity_for_absolute_thermochemistry() -> None:
         1e-3,
     )
     assert np.sum(data.atommasses) == pytest.approx(30.04695, 8e-4)
-    moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
+    moments, _axes, _atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments * constants.angstrom**2 / constants.bohr**2 == pytest.approx(
         [23.57594, 88.34097, 88.34208],
         7e-2,
@@ -163,7 +163,7 @@ def test_sanity_for_absolute_thermochemistry() -> None:
         1e-3,
     )
     assert np.sum(data.atommasses) == pytest.approx(30.04695, 8e-4)
-    moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
+    moments, _axes, _atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments * constants.angstrom**2 / constants.bohr**2 == pytest.approx(
         [23.57594, 88.34097, 88.34208],
         6e-2,
@@ -270,7 +270,7 @@ def test_compare_rrho_with_orca_logfile() -> None:
     # benzene
     data = rx.io.read_logfile("data/symmetries/benzene.out")
     assert np.sum(data.atommasses) == pytest.approx(78.11, 6e-5)
-    moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
+    moments, _axes, _atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     symmetry_number = coords.symmetry_number(
         coords.find_point_group(data.atommasses, data.atomcoords),
     )
@@ -454,7 +454,7 @@ def test_compare_qrrho_with_orca_logfile() -> None:
     # triphenylphosphine
     data = rx.io.read_logfile("data/symmetries/triphenylphosphine.out")
     assert np.sum(data.atommasses) == pytest.approx(262.29, 8e-6)
-    moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
+    moments, _axes, _atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     symmetry_number = coords.symmetry_number(
         coords.find_point_group(data.atommasses, data.atomcoords),
     )
