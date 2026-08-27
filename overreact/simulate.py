@@ -197,7 +197,7 @@ def get_y(
 
         jac = None
         if hasattr(dydt, "jac"):
-            jac = dydt.jac  # noqa: F841
+            jac = dydt.jac
 
         logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
         res = solve_ivp(
@@ -210,7 +210,7 @@ def get_y(
             first_step=first_step,
             rtol=rtol,
             atol=atol,
-            # jac=jac,  # noqa: ERA001
+            jac=jac,
         )
         logger.warning(res)
         y = res.sol
@@ -355,7 +355,7 @@ def get_dydt(scheme, k, ef=EF):
 
     def _dydt(_t, y):
         # Avoid differentiating 0**0 for compounds that do not participate in
-        # a reaction, this causes NaN fileed jacobians in diffrax otherwise.
+        # a reaction, this causes NaN filled jacobians in jax otherwise.
         bases = jnp.where(M == 0, 1.0, y)
         r = k_adj * jnp.prod(jnp.power(bases, M), axis=1)
         return jnp.dot(A, r)
