@@ -1666,25 +1666,24 @@ def test_can_understand_d5_symmetry() -> None:
     )
     assert len(proper_axes) == 6
     assert proper_axes[0][0] == 5
-    assert proper_axes[1][0] == 2
-    assert proper_axes[2][0] == 2
-    assert proper_axes[3][0] == 2
-    assert proper_axes[4][0] == 2
-    assert proper_axes[5][0] == 2
+    assert [order for order, _ in proper_axes[1:]] == [2, 2, 2, 2, 2]
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert proper_axes[1][1] == pytest.approx(
+    # The five order-2 axes are the C5 axis's symmetry-equivalent partners:
+    # which one lands at which index is an accident of how ties are broken
+    # among equal-order axes (itself sensitive to the BLAS/LAPACK backend's
+    # choice of eigenvectors for coords.inertia()'s two near-degenerate
+    # moments, see moments[1] vs moments[2] above), not something with
+    # physical meaning -- so check the *set* of them, unordered, instead of
+    # asserting each one at a specific position.
+    order2_axes = [axis for _, axis in proper_axes[1:]]
+    for expected in (
         [0.0, 0.309016595317643, 0.9510566459566391],
-    )
-    assert proper_axes[2][1] == pytest.approx(
         [0.0, 0.8090168824555769, 0.5877854063362405],
-    )
-    assert proper_axes[3][1] == pytest.approx(
         [0.0, 0.3090161353437463, -0.9510567954108816],
-    )
-    assert proper_axes[4][1] == pytest.approx([0.0, 1.0, 0.0])
-    assert proper_axes[5][1] == pytest.approx(
+        [0.0, 1.0, 0.0],
         [0.0, 0.8090168500740541, -0.5877854509055626],
-    )
+    ):
+        assert any(axis == pytest.approx(expected) for axis in order2_axes)
     improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
