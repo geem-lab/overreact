@@ -1,21 +1,22 @@
 # Runs the shared lint/type/test checks (checks.yml) on every push to main
 # and every pull request.
+#
+# Deliberately no paths-ignore here (e.g. excluding **.md): checks / lint and
+# checks / test (3.14) are required status checks on main's branch
+# protection, and a required check that a doc-only PR's commits never
+# trigger leaves that PR permanently stuck on "Expected -- waiting for
+# status" -- paths-ignore and required-status-checks don't mix.
 
 name: build
 
 on:
   push:
     branches: [main]
-    paths-ignore: ["**.md"]
   pull_request:
     branches: [main]
-    paths-ignore: ["**.md"]
-  # Lets a commit that only bumps the data submodule pointer (or any other
-  # commit paths-ignore skips) be checked on demand: GitHub's paths-ignore
-  # filter only fires push/pull_request when the commit has at least one
-  # changed file that doesn't match the ignore list, and a submodule pointer
-  # bump doesn't count as such a file for that evaluation -- so those commits
-  # otherwise get no CI run at all. Trigger from the Actions tab or
+  # Manual re-run without a throwaway commit -- e.g. after a GitHub Actions
+  # incident drops the webhook for a push/pull_request event and no run
+  # ever gets created for that commit. Trigger from the Actions tab or
   # `gh workflow run build.yml --ref <branch>`.
   workflow_dispatch:
 

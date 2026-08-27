@@ -1,0 +1,33 @@
+# Composite action factoring out the set up uv -> install dependencies
+# sequence shared by checks.yml, docs.yml, and publish.yml, so a future
+# change to *how* the project is installed (a new uv flag, an extra) only
+# needs to be made here instead of in every caller.
+#
+# Deliberately doesn't also do the checkout: a *local* composite action
+# (referenced as `./path`, as opposed to `owner/repo@ref`) can only be
+# resolved once the repository is already present in the job's workspace, so
+# each caller must run actions/checkout itself, before this action, not the
+# other way around.
+
+name: Set up uv environment
+description: Install Python and project dependencies with uv (after checkout).
+
+inputs:
+  python-version:
+    description: Python version to set up (passed through to astral-sh/setup-uv).
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v7
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install dependencies
+      # --all-extras is required (not just recommended): it installs jax/jaxlib
+      # (the "fast" extra), which several doctests in overreact/simulate.py
+      # depend on for their expected output. See CONTRIBUTING.md.
+      run: uv sync --all-extras
+      shell: bash

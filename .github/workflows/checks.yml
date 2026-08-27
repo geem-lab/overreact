@@ -22,13 +22,9 @@ jobs:
         with:
           submodules: true
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+      - uses: ./.github/actions/setup-uv-env
         with:
           python-version: "3.14"
-
-      - name: Install dependencies
-        run: uv sync --all-extras
 
       - name: Lint with Ruff
         run: uv run ruff check --output-format=github .
@@ -62,16 +58,9 @@ jobs:
         with:
           submodules: true
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+      - uses: ./.github/actions/setup-uv-env
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        # --all-extras is required (not just recommended): it installs jax/jaxlib
-        # (the "fast" extra), which several doctests in overreact/simulate.py
-        # depend on for their expected output. See CONTRIBUTING.md.
-        run: uv sync --all-extras
 
       - name: Test with pytest
         run: uv run pytest --cov=. --cov-report=xml

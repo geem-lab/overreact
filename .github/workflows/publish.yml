@@ -49,13 +49,9 @@ jobs:
         with:
           submodules: true
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+      - uses: ./.github/actions/setup-uv-env
         with:
           python-version: "3.14"
-
-      - name: Install dependencies
-        run: uv sync --all-extras
 
       - name: Verify tag matches package version
         # Catches the classic footgun of tagging a commit whose
@@ -123,16 +119,15 @@ jobs:
         # Upsert rather than a bare `gh release create`: past releases in
         # this repo were sometimes created by hand around the same tag, and
         # a hard `create` would fail outright if one already exists for
-        # $GITHUB_REF_NAME.
+        # $GITHUB_REF_NAME. Attempt create first and fall back to upload on
+        # failure, instead of probing with a separate `gh release view` --
+        # same upsert semantics, one API call short.
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber dist/*
-          else
-            gh release create "$GITHUB_REF_NAME" \
-              --repo "$GITHUB_REPOSITORY" \
-              --title "$GITHUB_REF_NAME" \
-              --generate-notes \
-              dist/*
-          fi
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            dist/* \
+            || gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber dist/*
