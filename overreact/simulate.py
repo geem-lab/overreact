@@ -34,7 +34,17 @@ from overreact._misc import _found_jax
 # TODO(schneiderfelipe): this should probably be exposed to the user and use the actual simulation temperature.
 EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 
-_DIFFRAX_METHODS = ("Kvaerno3", "Kvaerno4", "Kvaerno5")
+_SCIPY_SOLVERS = (
+    "RK23",
+    "DOP853",
+    "RK45",
+    "LSODA",
+    "BDF",
+    "Radau",
+)
+_DIFFRAX_SOLVERS = ("Kvaerno3", "Kvaerno4", "Kvaerno5")
+
+SUPPORTED_SOLVERS = _SCIPY_SOLVERS + _DIFFRAX_SOLVERS
 
 
 logger = logging.getLogger(__name__)
@@ -173,7 +183,7 @@ def get_y(
         first_step = np.min([first_step, max_step / 2.0])
     logger.warning(f"first step = {first_step} s")
 
-    if method in _DIFFRAX_METHODS:
+    if method in _DIFFRAX_SOLVERS:
         y = _get_y_diffrax(
             dydt,
             y0,
@@ -229,6 +239,8 @@ def _get_y_diffrax(dydt, y0, t_span, method, max_step, first_step, rtol, atol):
         msg = (
             f"the {method} solver requires Diffrax; "
             'install it with `pip install "overreact[fast]"`'
+            "or choose one of the following solvers: "
+            f"{', '.join(_SCIPY_SOLVERS)}"
         )
         raise ImportError(msg) from exc
 

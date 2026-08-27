@@ -856,17 +856,7 @@ def main(arguments=None):
             "integrator used in solving the ODE system of the microkinetic "
             "simulation (Kvaerno methods require overreact[fast])"
         ),
-        choices=[
-            "RK23",
-            "DOP853",
-            "RK45",
-            "LSODA",
-            "BDF",
-            "Radau",
-            "Kvaerno3",
-            "Kvaerno4",
-            "Kvaerno5",
-        ],
+        choices=rx.simulate.SUPPORTED_SOLVERS,
         default="RK23",
     )
     parser.add_argument(
