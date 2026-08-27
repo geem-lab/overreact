@@ -1010,7 +1010,7 @@ class _LazyDict(MutableMapping):
 
     def __delitem__(self, key) -> None:
         """Delete value."""
-        return self._dict[key]
+        del self._dict[key]
 
     def __iter__(self):
         """Iterate over dictionary."""

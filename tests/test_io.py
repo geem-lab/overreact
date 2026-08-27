@@ -22,6 +22,15 @@ def test_parse_model_raises_filenotfounderror() -> None:
         rx.io.parse_model("unreachable.jk")
 
 
+def test_lazydict_del_actually_deletes() -> None:
+    """Ensure deleting a key from a _LazyDict removes it, not just reads it."""
+    lazy_dict = rx.io._LazyDict(a=1, b=2)
+    del lazy_dict["a"]
+    assert "a" not in lazy_dict
+    assert list(lazy_dict) == ["b"]
+    assert len(lazy_dict) == 1
+
+
 def test_sanity_for_absolute_thermochemistry() -> None:
     """Ensure we have decent quality for (absolute) thermochemical analysis.
 
