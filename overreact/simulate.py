@@ -226,7 +226,16 @@ def get_y(
     return y, r
 
 
-def _get_y_diffrax(dydt, y0, t_span, method, max_step, first_step, rtol, atol):
+def _get_y_diffrax(
+    dydt,
+    y0,
+    t_span,
+    method="Kvaerno3",
+    max_step=np.inf,
+    first_step=None,
+    rtol=1e-3,
+    atol=1e-6,
+):
     """Solve an initial value problem with a Diffrax stiff solver."""
     try:
         import diffrax
