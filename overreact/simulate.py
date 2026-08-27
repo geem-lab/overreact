@@ -179,10 +179,6 @@ def get_y(
     max_step = np.min([max_step, (t_span[1] - t_span[0]) / 2.0])
     logger.warning(f"max step = {max_step} s")
 
-    if first_step is not None:
-        first_step = np.min([first_step, max_step / 2.0])
-    logger.warning(f"first step = {first_step} s")
-
     if method in _DIFFRAX_SOLVERS:
         y = _get_y_diffrax(
             dydt,
@@ -196,7 +192,8 @@ def get_y(
         )
     else:
         if first_step is None:
-            first_step = np.finfo(np.float64).eps
+            first_step = np.min([np.finfo(np.float64).eps, max_step / 2.0])
+        logger.warning(f"first step = {first_step} s")
 
         jac = None
         if hasattr(dydt, "jac"):
@@ -243,6 +240,11 @@ def _get_y_diffrax(dydt, y0, t_span, method, max_step, first_step, rtol, atol):
             f"{', '.join(_SCIPY_SOLVERS)}"
         )
         raise ImportError(msg) from exc
+
+    if first_step is not None:
+        logger.warning(f"first step = {first_step} s")
+    else:
+        logger.warning("no first step given, diffrax will choose automatically")
 
     solver = {
         "Kvaerno3": diffrax.Kvaerno3,
