@@ -162,7 +162,7 @@ def test_enthalpy_ideal_gases() -> None:
     calc_enthalpy is defined as calc_internal_energy(...) + R * temperature,
     unconditionally, for any input -- so this identity holds by construction
     regardless of which molecule/moments/vibfreqs/degeneracy are given. One
-    representative (and fairly rich: real logfile data, both moments and
+    representative (and rich: real logfile data, both moments and
     vibrational frequencies) case is enough to guard the relationship itself;
     repeating this same assertion across many molecules would only ever catch
     a change to `calc_enthalpy`'s own `+ R * temperature` term, which a single
