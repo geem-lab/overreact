@@ -54,8 +54,6 @@ dependencies = [
 cli = ["rich>=13,<16"]
 fast = [
     "diffrax>=0.7,<0.8",
-    "jax>=0.4",
-    "jaxlib>=0.4",
 ]
 solvents = ["thermo>=0.2"]
 
