@@ -11,7 +11,7 @@ import logging
 import os
 import textwrap
 import warnings
-from collections import defaultdict
+from collections import UserDict, defaultdict
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -987,14 +987,24 @@ class DotDict(dict):
         return self._key() == other._key()
 
 
-class _LazyDict(dict):
+class _LazyDict(UserDict):
     """Lazily evaluated dictionary.
 
-    A plain ``dict`` subclass: values that aren't themselves a ``dict`` are
-    treated as unevaluated and replaced, in place and memoized, by calling
-    `_function` on them the first time they're read. Everything else
-    (``__setitem__``, ``__delitem__``, ``__iter__``, ``__len__``, ...) is
-    exactly `dict`'s own behavior, inherited for free.
+    Values that aren't themselves a ``dict`` are treated as unevaluated and
+    replaced, in place and memoized, by calling `_function` on them the
+    first time they're read.
+
+    Subclasses ``UserDict``, not ``dict`` directly: ``dict``'s own C-level
+    methods (``.get()``, ``.items()``, ``.values()``, ...) read the
+    underlying hash table directly and do *not* call an overridden
+    ``__getitem__``, so a plain ``dict`` subclass would silently return the
+    unevaluated raw value through any accessor other than ``[]`` --
+    verified concretely, not just in theory (see
+    https://stackoverflow.com/a/47212782/4039050). ``UserDict`` keeps its
+    real storage in ``self.data`` and implements every other mapping method
+    in pure Python *in terms of* ``self[key]``, so they all consistently
+    route through our `__getitem__` override -- while still meaning we only
+    have to write that one method ourselves.
     """
 
     _function: Callable[[Any], Any] | None = None

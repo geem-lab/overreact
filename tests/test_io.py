@@ -31,6 +31,30 @@ def test_lazydict_del_actually_deletes() -> None:
     assert len(lazy_dict) == 1
 
 
+def test_lazydict_evaluates_through_every_accessor() -> None:
+    """Ensure .get()/.items()/.values() evaluate lazily too, not just [].
+
+    A plain `dict` subclass would silently fail this: dict's own C-level
+    .get()/.items()/.values() read the underlying hash table directly and
+    never call an overridden __getitem__, so they'd return the raw,
+    unevaluated value instead of triggering `_function`. See
+    https://stackoverflow.com/a/47212782/4039050.
+    """
+    evaluated = {"evaluated": True}
+
+    lazy_dict = rx.io._LazyDict(a="raw")
+    lazy_dict._function = lambda _raw: evaluated
+    assert lazy_dict.get("a") == evaluated
+
+    lazy_dict = rx.io._LazyDict(a="raw")
+    lazy_dict._function = lambda _raw: evaluated
+    assert list(lazy_dict.items()) == [("a", evaluated)]
+
+    lazy_dict = rx.io._LazyDict(a="raw")
+    lazy_dict._function = lambda _raw: evaluated
+    assert list(lazy_dict.values()) == [evaluated]
+
+
 def test_sanity_for_absolute_thermochemistry() -> None:
     """Ensure we have decent quality for (absolute) thermochemical analysis.
 
