@@ -43,9 +43,13 @@ jobs:
       # empty dict (not an error) when data/ is absent.
       - uses: actions/checkout@v7
 
-      - uses: ./.github/actions/setup-uv-env
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.14"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
 
       - name: Build docs
         run: uv run bash gendocs.sh -o docs-build

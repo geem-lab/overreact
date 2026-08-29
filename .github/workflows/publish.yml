@@ -49,9 +49,13 @@ jobs:
         with:
           submodules: true
 
-      - uses: ./.github/actions/setup-uv-env
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.14"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
 
       - name: Verify tag matches package version
         # Catches the classic footgun of tagging a commit whose
