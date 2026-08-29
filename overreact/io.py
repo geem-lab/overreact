@@ -12,10 +12,12 @@ import os
 import textwrap
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, MutableMapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 import overreact as rx
 from overreact import _constants as constants
@@ -985,40 +987,25 @@ class DotDict(dict):
         return self._key() == other._key()
 
 
-# https://stackoverflow.com/a/61144084/4039050
-class _LazyDict(MutableMapping):
-    """Lazily evaluated dictionary."""
+class _LazyDict(dict):
+    """Lazily evaluated dictionary.
+
+    A plain ``dict`` subclass: values that aren't themselves a ``dict`` are
+    treated as unevaluated and replaced, in place and memoized, by calling
+    `_function` on them the first time they're read. Everything else
+    (``__setitem__``, ``__delitem__``, ``__iter__``, ``__len__``, ...) is
+    exactly `dict`'s own behavior, inherited for free.
+    """
 
     _function: Callable[[Any], Any] | None = None
 
-    def __init__(self, *args, **kwargs) -> None:
-        self._dict = dict(*args, **kwargs)
-
     def __getitem__(self, key):
         """Evaluate value."""
-        value = self._dict[key]
+        value = super().__getitem__(key)
         if not isinstance(value, dict):
-            data = self._function(value)
-
-            value = data
-            self._dict[key] = data
+            value = self._function(value)
+            self[key] = value
         return value
-
-    def __setitem__(self, key, value) -> None:
-        """Store value lazily."""
-        self._dict[key] = value
-
-    def __delitem__(self, key) -> None:
-        """Delete value."""
-        del self._dict[key]
-
-    def __iter__(self):
-        """Iterate over dictionary."""
-        return iter(self._dict)
-
-    def __len__(self) -> int:
-        """Evaluate size of dictionary."""
-        return len(self._dict)
 
 
 class InterfaceFormatter(logging.Formatter):
