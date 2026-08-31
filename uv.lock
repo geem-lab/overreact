@@ -1862,8 +1862,6 @@ cli = [
 ]
 fast = [
     { name = "diffrax" },
-    { name = "jax" },
-    { name = "jaxlib" },
 ]
 solvents = [
     { name = "thermo" },
@@ -1893,9 +1891,7 @@ requires-dist = [
     { name = "cclib", specifier = ">=1,<2" },
     { name = "diffrax", marker = "extra == 'fast'", specifier = ">=0.7,<0.8" },
     { name = "importlib", specifier = ">=1.0.4,<2" },
-    { name = "jax", marker = "extra == 'fast'", specifier = ">=0.4" },
-    { name = "jaxlib", marker = "extra == 'fast'", specifier = ">=0.4" },
-    { name = "rich", marker = "extra == 'cli'", specifier = ">=13,<15" },
+    { name = "rich", marker = "extra == 'cli'", specifier = ">=13,<16" },
     { name = "scipy", specifier = ">=1.10,<2" },
     { name = "thermo", marker = "extra == 'solvents'", specifier = ">=0.2" },
 ]
@@ -1905,19 +1901,19 @@ provides-extras = ["cli", "fast", "solvents"]
 dev = [
     { name = "debugpy", specifier = ">=1,<2" },
     { name = "flynt", specifier = ">=0.77,<1.1" },
-    { name = "ipython", specifier = ">=8,<9" },
+    { name = "ipython", specifier = ">=8,<10" },
     { name = "jupyter", specifier = ">=1.0.0,<2" },
     { name = "matplotlib", specifier = ">=3,<4" },
     { name = "mypy", specifier = ">=0.991,<2.4" },
-    { name = "pdoc", specifier = ">=12,<15" },
+    { name = "pdoc", specifier = ">=12,<17" },
     { name = "perflint", specifier = ">=0.7.1,<0.9.0" },
     { name = "pytest", specifier = ">=7.2,<10.0" },
-    { name = "pytest-cov", specifier = ">=4,<6" },
-    { name = "rich", specifier = ">=13,<15" },
-    { name = "ruff", specifier = ">=0.0.210,<0.16.3" },
+    { name = "pytest-cov", specifier = ">=4,<8" },
+    { name = "rich", specifier = ">=13,<16" },
+    { name = "ruff", specifier = ">=0.0.210,<0.16.5" },
     { name = "seaborn", specifier = ">=0.12,<0.14" },
     { name = "thermo", specifier = ">=0.2" },
-    { name = "types-setuptools", specifier = ">=65,<84" },
+    { name = "types-setuptools", specifier = ">=65,<85" },
 ]
 
 [[package]]
@@ -2059,7 +2055,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess" },
+    { name = "ptyprocess", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
