@@ -6,6 +6,7 @@ __all__ = ["change_reference_state", "equilibrium_constant"]
 
 
 import logging
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from scipy.special import factorial
@@ -13,6 +14,9 @@ from scipy.special import factorial
 import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _derivative as derivative
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 from overreact.thermo._gas import (
     calc_elec_energy,
     calc_elec_entropy,
@@ -23,6 +27,7 @@ from overreact.thermo._gas import (
     calc_vib_entropy,
     molar_volume,
 )
+from overreact.thermo._solv import calc_cav_entropy, molar_free_volume
 
 logger = logging.getLogger(__name__)
 
@@ -79,25 +84,25 @@ def calc_trans_entropy(
 
     Examples
     --------
-    >>> float(calc_trans_entropy(35.45))  # Cl-
+    >>> print(calc_trans_entropy(35.45))  # Cl-
     153.246
-    >>> float(calc_trans_entropy(35.45, pressure=constants.bar))
+    >>> print(calc_trans_entropy(35.45, pressure=constants.bar))
     153.356
 
-    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water"))
+    >>> print(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water"))
     153.246
 
     As we can see, the "environment" parameter has only effect if set together
     with a proper "method":
 
-    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
+    >>> print(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
     ...                    method="garza"))
     103.7
-    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
+    >>> print(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="water",
     ...                    method="izato"))
     51.
 
-    >>> float(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="benzene",
+    >>> print(calc_trans_entropy(35.45, [17], [[0, 0, 0]], environment="benzene",
     ...                    method="garza"))
     121.7
     """
@@ -118,7 +123,7 @@ def calc_trans_entropy(
     else:
         assert atomnos is not None, "atomnos must be provided"
         assert atomcoords is not None, "atomcoords must be provided"
-        volume = rx.thermo._solv.molar_free_volume(
+        volume = molar_free_volume(
             atomnos=atomnos,
             atomcoords=atomcoords,
             environment=environment,
@@ -177,7 +182,7 @@ def calc_internal_energy(
 
     Examples
     --------
-    >>> float(calc_internal_energy())  # F
+    >>> print(calc_internal_energy())  # F
     3718.
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -190,7 +195,7 @@ def calc_internal_energy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> float(calc_internal_energy(
+    >>> print(calc_internal_energy(
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
     ...     degeneracy=degeneracy))  # F
     4039.
@@ -247,7 +252,7 @@ def calc_enthalpy(
 
     Examples
     --------
-    >>> float(calc_enthalpy())  # F
+    >>> print(calc_enthalpy())  # F
     6197.
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -260,7 +265,7 @@ def calc_enthalpy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> float(calc_enthalpy(energy=energy * 100 * constants.h * constants.c * constants.N_A,
+    >>> print(calc_enthalpy(energy=energy * 100 * constants.h * constants.c * constants.N_A,
     ...               degeneracy=degeneracy))  # F
     6518.
 
@@ -368,7 +373,7 @@ def calc_entropy(
 
     Examples
     --------
-    >>> float(calc_entropy(18.998))  # F
+    >>> print(calc_entropy(18.998))  # F
     145.467
 
     The example above ignores the electronic entropy. Taking electronic entropy
@@ -381,7 +386,7 @@ def calc_entropy(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> float(calc_entropy(18.998,
+    >>> print(calc_entropy(18.998,
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
     ...     degeneracy=degeneracy))  # F
     158.641
@@ -441,7 +446,7 @@ def calc_entropy(
             assert atomcoords is not None, "atomcoords must be provided"
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
-            entropy = entropy + rx.thermo._solv.calc_cav_entropy(
+            entropy = entropy + calc_cav_entropy(
                 atomnos=atomnos,
                 atomcoords=atomcoords,
                 environment=environment,
@@ -495,7 +500,7 @@ def calc_heat_capacity(
 
     Examples
     --------
-    >>> float(calc_heat_capacity())  # F
+    >>> print(calc_heat_capacity())  # F
     12.47
 
     The example above ignores the electronic energy. Taking electronic energy
@@ -508,7 +513,7 @@ def calc_heat_capacity(
     >>> degeneracy = 2 * j + 1
     >>> energy = np.array([0.000, 404.141, 102405.714, 102680.439,  # cm-1
     ...                    102840.378, 104731.048, 105056.283])
-    >>> float(calc_heat_capacity(
+    >>> print(calc_heat_capacity(
     ...     energy=energy * 100 * constants.h * constants.c * constants.N_A,
     ...     degeneracy=degeneracy))  # F
     14.43
@@ -567,7 +572,7 @@ def get_molecularity(transform):
     return np.where(res > 0, res, 1)
 
 
-def get_delta(transform, property):
+def get_delta(transform, properties):
     """Calculate deltas according to reactions.
 
     Delta properties are differences in a property between the final and
@@ -584,7 +589,7 @@ def get_delta(transform, property):
     Parameters
     ----------
     transform : array-like
-    property : array-like
+    properties : array-like
 
     Returns
     -------
@@ -607,16 +612,32 @@ def get_delta(transform, property):
     ...            [ 1,  3]], [-5, 12])
     array([17, 46])
     """
-    return np.asarray(transform).T @ np.asarray(property)
+    return np.asarray(transform).T @ np.asarray(properties)
 
 
+@overload
 def equilibrium_constant(
-    delta_freeenergy: float | np.ndarray,
-    delta_moles: int | np.ndarray | None = None,
-    temperature: float | np.ndarray = 298.15,
+    delta_freeenergy: float,
+    delta_moles: int | None = ...,
+    temperature: float = ...,
+    pressure: float = ...,
+    volume: float | None = ...,
+) -> float: ...
+@overload
+def equilibrium_constant(
+    delta_freeenergy: npt.ArrayLike,
+    delta_moles: npt.ArrayLike | None = ...,
+    temperature: npt.ArrayLike = ...,
+    pressure: float = ...,
+    volume: float | None = ...,
+) -> np.ndarray: ...
+def equilibrium_constant(
+    delta_freeenergy: npt.ArrayLike,
+    delta_moles: npt.ArrayLike | None = None,
+    temperature: npt.ArrayLike = 298.15,
     pressure: float = constants.atm,
     volume: float | None = None,
-):
+) -> float | np.ndarray:
     r"""Calculate an equilibrium constant from a reaction [Gibbs free energy](https://en.wikipedia.org/wiki/Gibbs_free_energy).
 
     This function uses the usual `relationship between reaction Gibbs energy
@@ -686,14 +707,14 @@ def equilibrium_constant(
 
     >>> temperature = 298.15
     >>> dG = -constants.R * temperature * np.log(Kc)
-    >>> equilibrium_constant(dG)
-    array([24.5])
+    >>> print(equilibrium_constant(dG))
+    24.5
 
     By giving a `delta_moles` value (in this case, :math:`2 - 2 - 1 = -1`),
     we can calculate the corresponding `K_p`:
 
-    >>> equilibrium_constant(dG, delta_moles=-1)
-    array([1.002])
+    >>> print(equilibrium_constant(dG, delta_moles=-1))
+    1.002
 
     (As expected, it makes sense for gases to favor the most entropic side of
     the equilibrium.) The example above clearly used "solution-based" data
@@ -703,14 +724,14 @@ def equilibrium_constant(
     from one molar to one atmosphere using `change_reference_state`):
 
     >>> dG += temperature * rx.change_reference_state()
-    >>> equilibrium_constant(dG)
-    array([1.002])
+    >>> print(equilibrium_constant(dG))
+    1.002
 
     Having gas phase information, the inverse path can be taken just by
     inverting the sign of `delta_moles`:
 
-    >>> equilibrium_constant(dG, delta_moles=1)
-    array([24.5])
+    >>> print(equilibrium_constant(dG, delta_moles=1))
+    24.5
 
     The following example is from
     [Wikipedia](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
@@ -719,21 +740,21 @@ def equilibrium_constant(
     solution standard Gibbs reaction free energy that is given:
 
     >>> dG1 = -37.4e3
-    >>> np.log10(equilibrium_constant(dG1))
-    array([6.55])
+    >>> print(np.log10(equilibrium_constant(dG1)))
+    6.55
     >>> dG2 = -60.67e3
-    >>> np.log10(equilibrium_constant(dG2))
-    array([10.62])
+    >>> print(np.log10(equilibrium_constant(dG2)))
+    10.62
 
     The above are thus :math:`\log_{10}(K_c)`. Since we are talking about a
     mono- and a bidendate ligands, the `delta_moles` are -4 and -2,
     respectively, and we could obtain the :math:`\log_{10}(K_p)` the following
     way:
 
-    >>> np.log10(equilibrium_constant(dG1, delta_moles=-4))
-    array([0.998])
-    >>> np.log10(equilibrium_constant(dG2, delta_moles=-2))
-    array([7.85])
+    >>> print(np.log10(equilibrium_constant(dG1, delta_moles=-4)))
+    0.998
+    >>> print(np.log10(equilibrium_constant(dG2, delta_moles=-2)))
+    7.85
 
     You can easily check that the above values match the values given
     [here](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
@@ -741,14 +762,14 @@ def equilibrium_constant(
     temperature = np.asarray(temperature)
 
     equilibrium_constant = np.exp(
-        -np.atleast_1d(delta_freeenergy) / (constants.R * temperature),
+        -np.asarray(delta_freeenergy) / (constants.R * temperature),
     )
 
     if delta_moles is not None:
         if volume is None:
             volume = molar_volume(temperature, pressure) * constants.kilo
 
-        equilibrium_constant *= volume**delta_moles
+        equilibrium_constant *= volume ** np.asarray(delta_moles)
 
     logger.info(f"equilibrium constant = {equilibrium_constant}")
     return equilibrium_constant
@@ -815,18 +836,18 @@ def change_reference_state(
     By default, the correction returns a change in concentration from the gas
     phase standard concentration to the solvated-state standard concentration:
 
-    >>> float(-rx.change_reference_state() / constants.calorie)
+    >>> print(-rx.change_reference_state() / constants.calorie)
     -6.4
-    >>> float(298.15 * rx.change_reference_state() / constants.kcal)
+    >>> print(298.15 * rx.change_reference_state() / constants.kcal)
     1.89
-    >>> float(273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal)
+    >>> print(273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal)
     1.69
 
     But this function can also be used to adjust symmetry effects from C1
     calculations (symmetry number equals to one). For D7h, for instance, the
     symmetry number is 14:
 
-    >>> float(-298.15 * rx.change_reference_state(14, 1) / constants.kcal)
+    >>> print(-298.15 * rx.change_reference_state(14, 1) / constants.kcal)
     -1.56
 
     >>> bool(rx.change_reference_state(sign=-1) == -rx.change_reference_state())

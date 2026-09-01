@@ -9,6 +9,53 @@ from overreact import _datasets as datasets
 from overreact import coords
 
 
+def _assert_axes_match_unordered(found_axes, expected_vectors) -> None:
+    """Assert `found_axes` matches `expected_vectors`, ignoring order.
+
+    `found_axes` is a list of ``(order_or_type, vector)`` tuples -- e.g. a
+    slice of `coords._get_proper_axes`'s or `coords._get_mirror_planes`'s
+    return value covering one tied group (same order/type throughout).
+    `expected_vectors` is the corresponding list of expected vectors.
+
+    Several point groups have multiple symmetry-equivalent axes/planes that
+    share an order/type (Td's four C3 axes, Oh's three C4 axes, six mirror
+    planes, ...); which one a sort tie-break happens to put first isn't
+    semantically meaningful, and is sensitive to the BLAS/LAPACK backend's
+    choice of eigenvectors for (near-)degenerate moments of inertia -- see
+    test_can_understand_d5_symmetry for the concrete CI flake this guards
+    against (github.com/geem-lab/overreact/pull/834). Compare the *set* of
+    vectors instead of positional equality, still at the same tight
+    pytest.approx tolerance.
+    """
+    remaining = [vector for _, vector in found_axes]
+    for expected in expected_vectors:
+        for i, vector in enumerate(remaining):
+            if vector == pytest.approx(expected):
+                del remaining[i]
+                break
+        else:
+            pytest.fail(
+                f"no axis among {remaining} matches expected {expected}",
+            )
+    assert not remaining, f"found unexpected extra axes: {remaining}"
+
+
+def test_get_molecular_volume_is_reproducible_given_an_rng() -> None:
+    """Ensure passing an explicit rng makes get_molecular_volume reproducible."""
+    data = datasets.logfiles["symmetries"]["water"]
+    first = coords.get_molecular_volume(
+        data.atomnos,
+        data.atomcoords,
+        rng=np.random.default_rng(0),
+    )
+    second = coords.get_molecular_volume(
+        data.atomnos,
+        data.atomcoords,
+        rng=np.random.default_rng(0),
+    )
+    assert first == second
+
+
 # TODO(schneiderfelipe): add one extra atom
 def test_can_understand_k_symmetry() -> None:
     """Ensure values match regression logfiles for K symmetry."""
@@ -1666,24 +1713,20 @@ def test_can_understand_d5_symmetry() -> None:
     )
     assert len(proper_axes) == 6
     assert proper_axes[0][0] == 5
-    assert proper_axes[1][0] == 2
-    assert proper_axes[2][0] == 2
-    assert proper_axes[3][0] == 2
-    assert proper_axes[4][0] == 2
-    assert proper_axes[5][0] == 2
+    assert [order for order, _ in proper_axes[1:]] == [2, 2, 2, 2, 2]
     assert proper_axes[0][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert proper_axes[1][1] == pytest.approx(
-        [0.0, 0.309016595317643, 0.9510566459566391],
-    )
-    assert proper_axes[2][1] == pytest.approx(
-        [0.0, 0.8090168824555769, 0.5877854063362405],
-    )
-    assert proper_axes[3][1] == pytest.approx(
-        [0.0, 0.3090161353437463, -0.9510567954108816],
-    )
-    assert proper_axes[4][1] == pytest.approx([0.0, 1.0, 0.0])
-    assert proper_axes[5][1] == pytest.approx(
-        [0.0, 0.8090168500740541, -0.5877854509055626],
+    # The five order-2 axes are the C5 axis's symmetry-equivalent partners
+    # (see moments[1] vs moments[2] above, near-degenerate) -- see
+    # _assert_axes_match_unordered's docstring for why order doesn't matter.
+    _assert_axes_match_unordered(
+        proper_axes[1:],
+        [
+            [0.0, 0.309016595317643, 0.9510566459566391],
+            [0.0, 0.8090168824555769, 0.5877854063362405],
+            [0.0, 0.3090161353437463, -0.9510567954108816],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.8090168500740541, -0.5877854509055626],
+        ],
     )
     improper_axes = coords._get_improper_axes(
         atomcoords,
@@ -3298,21 +3341,22 @@ def test_can_understand_td_symmetry() -> None:
     assert proper_axes[4][0] == 2
     assert proper_axes[5][0] == 2
     assert proper_axes[6][0] == 2
-    assert proper_axes[0][1] == pytest.approx(
-        [0.5773502691896257, 0.5773502691896257, 0.5773502691896257],
+    # The four C3 axes and, separately, the three C2 axes are each other's
+    # symmetry-equivalent partners -- see _assert_axes_match_unordered's
+    # docstring for why order within a tied group doesn't matter.
+    _assert_axes_match_unordered(
+        proper_axes[0:4],
+        [
+            [0.5773502691896257, 0.5773502691896257, 0.5773502691896257],
+            [0.5773502691896257, -0.5773502691896257, -0.5773502691896257],
+            [-0.5773502691896257, 0.5773502691896257, -0.5773502691896257],
+            [-0.5773502691896257, -0.5773502691896257, 0.5773502691896257],
+        ],
     )
-    assert proper_axes[1][1] == pytest.approx(
-        [0.5773502691896257, -0.5773502691896257, -0.5773502691896257],
+    _assert_axes_match_unordered(
+        proper_axes[4:7],
+        [[0.0, 0.0, -1.0], [0.0, -1.0, 0.0], [-1.0, 0.0, 0.0]],
     )
-    assert proper_axes[2][1] == pytest.approx(
-        [-0.5773502691896257, 0.5773502691896257, -0.5773502691896257],
-    )
-    assert proper_axes[3][1] == pytest.approx(
-        [-0.5773502691896257, -0.5773502691896257, 0.5773502691896257],
-    )
-    assert proper_axes[4][1] == pytest.approx([0.0, 0.0, -1.0])
-    assert proper_axes[5][1] == pytest.approx([0.0, -1.0, 0.0])
-    assert proper_axes[6][1] == pytest.approx([-1.0, 0.0, 0.0])
     improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
@@ -3341,23 +3385,18 @@ def test_can_understand_td_symmetry() -> None:
     assert mirror_axes[3][0] == "v"
     assert mirror_axes[4][0] == "v"
     assert mirror_axes[5][0] == "v"
-    assert mirror_axes[0][1] == pytest.approx(
-        [0.7071067811865476, -0.7071067811865476, 0.0],
-    )
-    assert mirror_axes[1][1] == pytest.approx(
-        [0.0, -0.7071067811865476, 0.7071067811865476],
-    )
-    assert mirror_axes[2][1] == pytest.approx(
-        [0.0, -0.7071067811865476, -0.7071067811865476],
-    )
-    assert mirror_axes[3][1] == pytest.approx(
-        [-0.7071067811865476, 0.0, 0.7071067811865476],
-    )
-    assert mirror_axes[4][1] == pytest.approx(
-        [-0.7071067811865476, 0.0, -0.7071067811865476],
-    )
-    assert mirror_axes[5][1] == pytest.approx(
-        [-0.7071067811865476, -0.7071067811865476, 0.0],
+    # All six mirror planes are of the same type ("v"), so they're one tied
+    # group too.
+    _assert_axes_match_unordered(
+        mirror_axes,
+        [
+            [0.7071067811865476, -0.7071067811865476, 0.0],
+            [0.0, -0.7071067811865476, 0.7071067811865476],
+            [0.0, -0.7071067811865476, -0.7071067811865476],
+            [-0.7071067811865476, 0.0, 0.7071067811865476],
+            [-0.7071067811865476, 0.0, -0.7071067811865476],
+            [-0.7071067811865476, -0.7071067811865476, 0.0],
+        ],
     )
     assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
@@ -3388,21 +3427,19 @@ def test_can_understand_td_symmetry() -> None:
     assert proper_axes[4][0] == 2
     assert proper_axes[5][0] == 2
     assert proper_axes[6][0] == 2
-    assert proper_axes[0][1] == pytest.approx(
-        [0.5773502691896257, 0.5773502691896257, 0.5773502691896257],
+    _assert_axes_match_unordered(
+        proper_axes[0:4],
+        [
+            [0.5773502691896257, 0.5773502691896257, 0.5773502691896257],
+            [0.5773502691896257, -0.5773502691896257, -0.5773502691896257],
+            [-0.5773502691896257, 0.5773502691896257, -0.5773502691896257],
+            [-0.5773502691896257, -0.5773502691896257, 0.5773502691896257],
+        ],
     )
-    assert proper_axes[1][1] == pytest.approx(
-        [0.5773502691896257, -0.5773502691896257, -0.5773502691896257],
+    _assert_axes_match_unordered(
+        proper_axes[4:7],
+        [[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]],
     )
-    assert proper_axes[2][1] == pytest.approx(
-        [-0.5773502691896257, 0.5773502691896257, -0.5773502691896257],
-    )
-    assert proper_axes[3][1] == pytest.approx(
-        [-0.5773502691896257, -0.5773502691896257, 0.5773502691896257],
-    )
-    assert proper_axes[4][1] == pytest.approx([1.0, 0.0, 0.0])
-    assert proper_axes[5][1] == pytest.approx([0.0, 0.0, 1.0])
-    assert proper_axes[6][1] == pytest.approx([0.0, -1.0, 0.0])
     improper_axes = coords._get_improper_axes(
         atomcoords,
         groups,
@@ -3431,23 +3468,16 @@ def test_can_understand_td_symmetry() -> None:
     assert mirror_axes[3][0] == "v"
     assert mirror_axes[4][0] == "v"
     assert mirror_axes[5][0] == "v"
-    assert mirror_axes[0][1] == pytest.approx(
-        [0.7071067811865476, 0.0, 0.7071067811865476],
-    )
-    assert mirror_axes[1][1] == pytest.approx(
-        [0.7071067811865476, 0.0, -0.7071067811865476],
-    )
-    assert mirror_axes[2][1] == pytest.approx(
-        [0.7071067811865476, -0.7071067811865476, 0.0],
-    )
-    assert mirror_axes[3][1] == pytest.approx(
-        [0.0, -0.7071067811865476, 0.7071067811865476],
-    )
-    assert mirror_axes[4][1] == pytest.approx(
-        [0.0, -0.7071067811865476, -0.7071067811865476],
-    )
-    assert mirror_axes[5][1] == pytest.approx(
-        [-0.7071067811865476, -0.7071067811865476, 0.0],
+    _assert_axes_match_unordered(
+        mirror_axes,
+        [
+            [0.7071067811865476, 0.0, 0.7071067811865476],
+            [0.7071067811865476, 0.0, -0.7071067811865476],
+            [0.7071067811865476, -0.7071067811865476, 0.0],
+            [0.0, -0.7071067811865476, 0.7071067811865476],
+            [0.0, -0.7071067811865476, -0.7071067811865476],
+            [-0.7071067811865476, -0.7071067811865476, 0.0],
+        ],
     )
     assert not coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
@@ -3487,44 +3517,36 @@ def test_can_understand_oh_symmetry() -> None:
     assert proper_axes[10][0] == 2
     assert proper_axes[11][0] == 2
     assert proper_axes[12][0] == 2
-    assert proper_axes[0][1] == pytest.approx(
-        [0.968308520495324, -0.11479281066604227, -0.22181347965249296],
+    # Each order (4, 3, 2) forms its own tied group of symmetry-equivalent
+    # axes -- see _assert_axes_match_unordered's docstring for why order
+    # within a tied group doesn't matter.
+    _assert_axes_match_unordered(
+        proper_axes[0:3],
+        [
+            [0.968308520495324, -0.11479281066604227, -0.22181347965249296],
+            [0.20662295557340749, 0.8670054245107972, 0.45344078786426145],
+            [0.14026927413438356, -0.4849352789341263, 0.863227841290406],
+        ],
     )
-    assert proper_axes[1][1] == pytest.approx(
-        [0.20662295557340749, 0.8670054245107972, 0.45344078786426145],
+    _assert_axes_match_unordered(
+        proper_axes[3:7],
+        [
+            [0.7594175301605084, 0.15422201930436788, 0.632060585424053],
+            [0.5207643090392388, -0.846788719179745, 0.10841309653732524],
+            [-0.35890424644962937, 0.2869097992842958, 0.8881838261053108],
+            [-0.5974379572306865, -0.7141760979809005, 0.36471960234240147],
+        ],
     )
-    assert proper_axes[2][1] == pytest.approx(
-        [0.14026927413438356, -0.4849352789341263, 0.863227841290406],
-    )
-    assert proper_axes[3][1] == pytest.approx(
-        [0.7594175301605084, 0.15422201930436788, 0.632060585424053],
-    )
-    assert proper_axes[4][1] == pytest.approx(
-        [0.5207643090392388, -0.846788719179745, 0.10841309653732524],
-    )
-    assert proper_axes[5][1] == pytest.approx(
-        [-0.35890424644962937, 0.2869097992842958, 0.8881838261053108],
-    )
-    assert proper_axes[6][1] == pytest.approx(
-        [-0.5974379572306865, -0.7141760979809005, 0.36471960234240147],
-    )
-    assert proper_axes[7][1] == pytest.approx(
-        [0.8308871547755614, 0.5317883462007422, 0.16379160806968113],
-    )
-    assert proper_axes[8][1] == pytest.approx(
-        [0.7839254119807916, -0.42410024141273434, 0.45343128882379397],
-    )
-    assert proper_axes[9][1] == pytest.approx(
-        [0.2452941410444507, 0.27016222944019364, 0.9310441204116856],
-    )
-    assert proper_axes[10][1] == pytest.approx(
-        [-0.04695657771738413, -0.9559494552467201, 0.2897511325647759],
-    )
-    assert proper_axes[11][1] == pytest.approx(
-        [-0.5386892802030987, 0.6941984955014298, 0.47739114805138466],
-    )
-    assert proper_axes[12][1] == pytest.approx(
-        [-0.5856129657464667, -0.26164449901693576, 0.7672024572978141],
+    _assert_axes_match_unordered(
+        proper_axes[7:13],
+        [
+            [0.8308871547755614, 0.5317883462007422, 0.16379160806968113],
+            [0.7839254119807916, -0.42410024141273434, 0.45343128882379397],
+            [0.2452941410444507, 0.27016222944019364, 0.9310441204116856],
+            [-0.04695657771738413, -0.9559494552467201, 0.2897511325647759],
+            [-0.5386892802030987, 0.6941984955014298, 0.47739114805138466],
+            [-0.5856129657464667, -0.26164449901693576, 0.7672024572978141],
+        ],
     )
     improper_axes = coords._get_improper_axes(
         atomcoords,
@@ -3577,32 +3599,24 @@ def test_can_understand_oh_symmetry() -> None:
     assert mirror_axes[6][0] == "v"
     assert mirror_axes[7][0] == "v"
     assert mirror_axes[8][0] == "v"
-    assert mirror_axes[0][1] == pytest.approx(
-        [0.1402494302759853, -0.4850199193326482, 0.863183511866285],
+    _assert_axes_match_unordered(
+        mirror_axes[0:3],
+        [
+            [0.1402494302759853, -0.4850199193326482, 0.863183511866285],
+            [-0.20660962696401017, -0.867052560973589, -0.4533567232929642],
+            [-0.9683115428116573, 0.11488480242450885, 0.22175265100915806],
+        ],
     )
-    assert mirror_axes[1][1] == pytest.approx(
-        [-0.20660962696401017, -0.867052560973589, -0.4533567232929642],
-    )
-    assert mirror_axes[2][1] == pytest.approx(
-        [-0.9683115428116573, 0.11488480242450885, 0.22175265100915806],
-    )
-    assert mirror_axes[3][1] == pytest.approx(
-        [0.7839107873403623, -0.424053445907144, 0.4535003335232401],
-    )
-    assert mirror_axes[4][1] == pytest.approx(
-        [0.24529741116177126, 0.2702228702802404, 0.9310256604706667],
-    )
-    assert mirror_axes[5][1] == pytest.approx(
-        [-0.046980250747360834, -0.9559757997415224, 0.28966036378536764],
-    )
-    assert mirror_axes[6][1] == pytest.approx(
-        [-0.5386394026228776, 0.6941906525287401, 0.47745882742262874],
-    )
-    assert mirror_axes[7][1] == pytest.approx(
-        [-0.5856652230138192, -0.26168375604832583, 0.7671491760880759],
-    )
-    assert mirror_axes[8][1] == pytest.approx(
-        [-0.8309038705883419, -0.531787711389286, -0.16370885088063244],
+    _assert_axes_match_unordered(
+        mirror_axes[3:9],
+        [
+            [0.7839107873403623, -0.424053445907144, 0.4535003335232401],
+            [0.24529741116177126, 0.2702228702802404, 0.9310256604706667],
+            [-0.046980250747360834, -0.9559757997415224, 0.28966036378536764],
+            [-0.5386394026228776, 0.6941906525287401, 0.47745882742262874],
+            [-0.5856652230138192, -0.26168375604832583, 0.7671491760880759],
+            [-0.8309038705883419, -0.531787711389286, -0.16370885088063244],
+        ],
     )
     assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
@@ -3639,44 +3653,33 @@ def test_can_understand_oh_symmetry() -> None:
     assert proper_axes[10][0] == 2
     assert proper_axes[11][0] == 2
     assert proper_axes[12][0] == 2
-    assert proper_axes[0][1] == pytest.approx(
-        [0.20842728261025004, 0.9069406581468825, 0.36608292839711426],
+    _assert_axes_match_unordered(
+        proper_axes[0:3],
+        [
+            [0.20842728261025004, 0.9069406581468825, 0.36608292839711426],
+            [-0.6591913953359633, 0.40680141589916896, -0.6324391767889282],
+            [-0.7226336862477715, -0.10950265597784735, 0.6825025449284087],
+        ],
     )
-    assert proper_axes[1][1] == pytest.approx(
-        [-0.6591913953359633, 0.40680141589916896, -0.6324391767889282],
+    _assert_axes_match_unordered(
+        proper_axes[3:7],
+        [
+            [0.9180372654355696, 0.35199529029607535, 0.18250176678860658],
+            [0.6773692961070812, -0.695282947684529, -0.24031741374796345],
+            [0.15693255867682493, 0.8216792490527968, -0.547919139748902],
+            [-0.08368409490810279, -0.22550865619699081, -0.97064041654963],
+        ],
     )
-    assert proper_axes[2][1] == pytest.approx(
-        [-0.7226336862477715, -0.10950265597784735, 0.6825025449284087],
-    )
-    assert proper_axes[3][1] == pytest.approx(
-        [0.9180372654355696, 0.35199529029607535, 0.18250176678860658],
-    )
-    assert proper_axes[4][1] == pytest.approx(
-        [0.6773692961070812, -0.695282947684529, -0.24031741374796345],
-    )
-    assert proper_axes[5][1] == pytest.approx(
-        [0.15693255867682493, 0.8216792490527968, -0.547919139748902],
-    )
-    assert proper_axes[6][1] == pytest.approx(
-        [-0.08368409490810279, -0.22550865619699081, -0.97064041654963],
-    )
-    assert proper_axes[7][1] == pytest.approx(
-        [0.6583352159729611, 0.7187052894540965, -0.2237352236920646],
-    )
-    assert proper_axes[8][1] == pytest.approx(
-        [0.6135077290343502, 0.3536546811989033, 0.7060712661489746],
-    )
-    assert proper_axes[9][1] == pytest.approx(
-        [0.044864368068234406, 0.36511253176985675, -0.92988172776028],
-    )
-    assert proper_axes[10][1] == pytest.approx(
-        [-0.3187354165588673, 0.9289431135238319, -0.18834124898092444],
-    )
-    assert proper_axes[11][1] == pytest.approx(
-        [-0.3636141504484658, 0.5638938311603796, 0.7414907260194895],
-    )
-    assert proper_axes[12][1] == pytest.approx(
-        [-0.9770164502779867, 0.21020438400853103, 0.03539735625433769],
+    _assert_axes_match_unordered(
+        proper_axes[7:13],
+        [
+            [0.6583352159729611, 0.7187052894540965, -0.2237352236920646],
+            [0.6135077290343502, 0.3536546811989033, 0.7060712661489746],
+            [0.044864368068234406, 0.36511253176985675, -0.92988172776028],
+            [-0.3187354165588673, 0.9289431135238319, -0.18834124898092444],
+            [-0.3636141504484658, 0.5638938311603796, 0.7414907260194895],
+            [-0.9770164502779867, 0.21020438400853103, 0.03539735625433769],
+        ],
     )
     improper_axes = coords._get_improper_axes(
         atomcoords,
@@ -3729,32 +3732,24 @@ def test_can_understand_oh_symmetry() -> None:
     assert mirror_axes[6][0] == "v"
     assert mirror_axes[7][0] == "v"
     assert mirror_axes[8][0] == "v"
-    assert mirror_axes[0][1] == pytest.approx(
-        [0.20842727455881338, 0.9069406295933482, 0.36608300372020325],
+    _assert_axes_match_unordered(
+        mirror_axes[0:3],
+        [
+            [0.20842727455881338, 0.9069406295933482, 0.36608300372020325],
+            [-0.6591914380472336, 0.4068014132082195, -0.6324391340018544],
+            [-0.7226337899365044, -0.10950260471276833, 0.6825024433678778],
+        ],
     )
-    assert mirror_axes[1][1] == pytest.approx(
-        [-0.6591914380472336, 0.4068014132082195, -0.6324391340018544],
-    )
-    assert mirror_axes[2][1] == pytest.approx(
-        [-0.7226337899365044, -0.10950260471276833, 0.6825024433678778],
-    )
-    assert mirror_axes[3][1] == pytest.approx(
-        [0.9770164393202924, -0.21020448690808052, -0.035397047639711646],
-    )
-    assert mirror_axes[4][1] == pytest.approx(
-        [0.6583351398364776, 0.7187052740147074, -0.22373549731754638],
-    )
-    assert mirror_axes[5][1] == pytest.approx(
-        [0.6135076831741578, 0.35365462575178835, 0.7060713337692159],
-    )
-    assert mirror_axes[6][1] == pytest.approx(
-        [-0.044864382245252285, -0.36511251216163504, 0.9298817347753271],
-    )
-    assert mirror_axes[7][1] == pytest.approx(
-        [-0.31873544248905106, 0.9289431247821802, -0.188341149569678],
-    )
-    assert mirror_axes[8][1] == pytest.approx(
-        [-0.3636141885662752, 0.5638940339581285, 0.7414905531021403],
+    _assert_axes_match_unordered(
+        mirror_axes[3:9],
+        [
+            [0.9770164393202924, -0.21020448690808052, -0.035397047639711646],
+            [0.6583351398364776, 0.7187052740147074, -0.22373549731754638],
+            [0.6135076831741578, 0.35365462575178835, 0.7060713337692159],
+            [-0.044864382245252285, -0.36511251216163504, 0.9298817347753271],
+            [-0.31873544248905106, 0.9289431247821802, -0.188341149569678],
+            [-0.3636141885662752, 0.5638940339581285, 0.7414905531021403],
+        ],
     )
     assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
@@ -3818,50 +3813,30 @@ def test_can_understand_ih_symmetry() -> None:
     assert mirror_axes[12][0] == "v"
     assert mirror_axes[13][0] == "v"
     assert mirror_axes[14][0] == "v"
-    assert mirror_axes[0][1] == pytest.approx(
-        [0.7406252312928405, -0.5000080663393951, 0.44884986395003595],
+    _assert_axes_match_unordered(
+        mirror_axes[0:10],
+        [
+            [0.7406252312928405, -0.5000080663393951, 0.44884986395003595],
+            [0.5844072246729994, 0.8090067396306037, -0.06305783838875868],
+            [0.5843682562650157, -0.8090320546656534, -0.06309418034380233],
+            [0.3315804589223854, 0.30902105108328864, -0.8913811694489624],
+            [0.2528103591750081, -0.5000190334881637, 0.8282921516248757],
+            [-1.7851852306723233e-13, -1.0, -6.642652751092994e-14],
+            [-0.20489043911377544, 0.8090477535862791, 0.5508735248464567],
+            [-0.20492966629436482, -0.8090141005350259, 0.5509083562698821],
+            [-0.6139542311602695, 1.620534225899669e-13, -0.7893416256858639],
+            [-0.9455539364150436, 0.30903900618790064, 0.10209136096854846],
+        ],
     )
-    assert mirror_axes[1][1] == pytest.approx(
-        [0.5844072246729994, 0.8090067396306037, -0.06305783838875868],
-    )
-    assert mirror_axes[2][1] == pytest.approx(
-        [0.5843682562650157, -0.8090320546656534, -0.06309418034380233],
-    )
-    assert mirror_axes[3][1] == pytest.approx(
-        [0.3315804589223854, 0.30902105108328864, -0.8913811694489624],
-    )
-    assert mirror_axes[4][1] == pytest.approx(
-        [0.2528103591750081, -0.5000190334881637, 0.8282921516248757],
-    )
-    assert mirror_axes[5][1] == pytest.approx(
-        [-1.7851852306723233e-13, -1.0, -6.642652751092994e-14],
-    )
-    assert mirror_axes[6][1] == pytest.approx(
-        [-0.20489043911377544, 0.8090477535862791, 0.5508735248464567],
-    )
-    assert mirror_axes[7][1] == pytest.approx(
-        [-0.20492966629436482, -0.8090141005350259, 0.5509083562698821],
-    )
-    assert mirror_axes[8][1] == pytest.approx(
-        [-0.6139542311602695, 1.620534225899669e-13, -0.7893416256858639],
-    )
-    assert mirror_axes[9][1] == pytest.approx(
-        [-0.9455539364150436, 0.30903900618790064, 0.10209136096854846],
-    )
-    assert mirror_axes[10][1] == pytest.approx(
-        [0.7406572278221821, 0.5000169176578358, 0.44878720228045393],
-    )
-    assert mirror_axes[11][1] == pytest.approx(
-        [0.2528103591751866, 0.5000190334879634, 0.828292151624942],
-    )
-    assert mirror_axes[12][1] == pytest.approx(
-        [-0.3315804589222751, 0.3090210510832886, 0.8913811694490034],
-    )
-    assert mirror_axes[13][1] == pytest.approx(
-        [-0.7892975299967038, 1.001511141455943e-13, 0.6140109193989163],
-    )
-    assert mirror_axes[14][1] == pytest.approx(
-        [-0.945553936415154, -0.30903900618757657, 0.10209136096850731],
+    _assert_axes_match_unordered(
+        mirror_axes[10:15],
+        [
+            [0.7406572278221821, 0.5000169176578358, 0.44878720228045393],
+            [0.2528103591751866, 0.5000190334879634, 0.828292151624942],
+            [-0.3315804589222751, 0.3090210510832886, 0.8913811694490034],
+            [-0.7892975299967038, 1.001511141455943e-13, 0.6140109193989163],
+            [-0.945553936415154, -0.30903900618757657, 0.10209136096850731],
+        ],
     )
     assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)
@@ -4044,80 +4019,40 @@ def test_can_understand_ih_symmetry() -> None:
     assert proper_axes[0][1] == pytest.approx(
         [-0.43323728588212457, -0.29725084310715066, -0.8508509801331712],
     )
-    assert proper_axes[1][1] == pytest.approx(
-        [0.7730790204640104, 0.5256477128224002, 0.3550257879689668],
+    _assert_axes_match_unordered(
+        proper_axes[1:11],
+        [
+            [0.7730790204640104, 0.5256477128224002, 0.3550257879689668],
+            [0.15158168357811375, 0.8000219937686652, 0.5805065052951898],
+            [0.1450907559831708, 0.8033231148089758, -0.5775990354405356],
+            [-0.19771726502363846, 0.2945110090568182, 0.934971202046302],
+            [-0.20401689339532977, 0.29794469238410615, -0.9325267114080213],
+            [-0.23651459756576956, 0.9716193328591106, 0.004088661482529412],
+            [-0.7688459299583754, -0.5322916638748053, 0.3543183886786462],
+            [-0.8013828638531268, 0.15391944650120618, -0.578008918193589],
+            [-0.8017166254761412, 0.153653414451914, 0.5776167247080171],
+            [-0.8214456016789993, 0.5702740207003627, 0.0038294642535675236],
+        ],
     )
-    assert proper_axes[2][1] == pytest.approx(
-        [0.15158168357811375, 0.8000219937686652, 0.5805065052951898],
-    )
-    assert proper_axes[3][1] == pytest.approx(
-        [0.1450907559831708, 0.8033231148089758, -0.5775990354405356],
-    )
-    assert proper_axes[4][1] == pytest.approx(
-        [-0.19771726502363846, 0.2945110090568182, 0.934971202046302],
-    )
-    assert proper_axes[5][1] == pytest.approx(
-        [-0.20401689339532977, 0.29794469238410615, -0.9325267114080213],
-    )
-    assert proper_axes[6][1] == pytest.approx(
-        [-0.23651459756576956, 0.9716193328591106, 0.004088661482529412],
-    )
-    assert proper_axes[7][1] == pytest.approx(
-        [-0.7688459299583754, -0.5322916638748053, 0.3543183886786462],
-    )
-    assert proper_axes[8][1] == pytest.approx(
-        [-0.8013828638531268, 0.15391944650120618, -0.578008918193589],
-    )
-    assert proper_axes[9][1] == pytest.approx(
-        [-0.8017166254761412, 0.153653414451914, 0.5776167247080171],
-    )
-    assert proper_axes[10][1] == pytest.approx(
-        [-0.8214456016789993, 0.5702740207003627, 0.0038294642535675236],
-    )
-    assert proper_axes[11][1] == pytest.approx(
-        [0.8421379703632436, 0.20303867473786846, -0.49957875798833457],
-    )
-    assert proper_axes[12][1] == pytest.approx(
-        [0.8245933142510103, 0.565725826628097, 0.0003939270120550409],
-    )
-    assert proper_axes[13][1] == pytest.approx(
-        [0.4924099305028999, 0.7126314811226139, -0.4996887355695732],
-    )
-    assert proper_axes[14][1] == pytest.approx(
-        [0.4921145718059886, 0.7124170096771929, 0.5002851712161925],
-    )
-    assert proper_axes[15][1] == pytest.approx(
-        [-0.0002887993033004395, -0.00023006122270818622, 0.9999999318333957],
-    )
-    assert proper_axes[16][1] == pytest.approx(
-        [-0.027850303016893885, 0.5873084880802376, -0.8088838609162458],
-    )
-    assert proper_axes[17][1] == pytest.approx(
-        [-0.028317541371115862, 0.5869360099803028, 0.809137959212826],
-    )
-    assert proper_axes[18][1] == pytest.approx(
-        [-0.04534656462060827, 0.9500408685141216, -0.3088139200716869],
-    )
-    assert proper_axes[19][1] == pytest.approx(
-        [-0.045559902513684546, 0.9499032477386635, 0.3092056196424684],
-    )
-    assert proper_axes[20][1] == pytest.approx(
-        [-0.5374746977379148, 0.23765954826552577, -0.8090975765689595],
-    )
-    assert proper_axes[21][1] == pytest.approx(
-        [-0.5379419182424852, 0.23728720736695694, 0.8088963306985552],
-    )
-    assert proper_axes[22][1] == pytest.approx(
-        [-0.5657701507551198, 0.8245629968765673, 2.6390585100327075e-5],
-    )
-    assert proper_axes[23][1] == pytest.approx(
-        [-0.8417666877910532, -0.20282071665898357, -0.5002925146543927],
-    )
-    assert proper_axes[24][1] == pytest.approx(
-        [-0.8699069667952585, 0.38427951382181996, -0.309178143435041],
-    )
-    assert proper_axes[25][1] == pytest.approx(
-        [-0.8700854547086772, 0.38413725024405565, 0.30885251250286183],
+    _assert_axes_match_unordered(
+        proper_axes[11:26],
+        [
+            [0.8421379703632436, 0.20303867473786846, -0.49957875798833457],
+            [0.8245933142510103, 0.565725826628097, 0.0003939270120550409],
+            [0.4924099305028999, 0.7126314811226139, -0.4996887355695732],
+            [0.4921145718059886, 0.7124170096771929, 0.5002851712161925],
+            [-0.0002887993033004395, -0.00023006122270818622, 0.9999999318333957],
+            [-0.027850303016893885, 0.5873084880802376, -0.8088838609162458],
+            [-0.028317541371115862, 0.5869360099803028, 0.809137959212826],
+            [-0.04534656462060827, 0.9500408685141216, -0.3088139200716869],
+            [-0.045559902513684546, 0.9499032477386635, 0.3092056196424684],
+            [-0.5374746977379148, 0.23765954826552577, -0.8090975765689595],
+            [-0.5379419182424852, 0.23728720736695694, 0.8088963306985552],
+            [-0.5657701507551198, 0.8245629968765673, 2.6390585100327075e-5],
+            [-0.8417666877910532, -0.20282071665898357, -0.5002925146543927],
+            [-0.8699069667952585, 0.38427951382181996, -0.309178143435041],
+            [-0.8700854547086772, 0.38413725024405565, 0.30885251250286183],
+        ],
     )
     improper_axes = coords._get_improper_axes(
         atomcoords,
@@ -4202,50 +4137,30 @@ def test_can_understand_ih_symmetry() -> None:
     assert mirror_axes[12][0] == "v"
     assert mirror_axes[13][0] == "v"
     assert mirror_axes[14][0] == "v"
-    assert mirror_axes[0][1] == pytest.approx(
-        [0.8698296452143535, -0.38448665353327943, 0.3091381593415023],
+    _assert_axes_match_unordered(
+        mirror_axes[0:10],
+        [
+            [0.8698296452143535, -0.38448665353327943, 0.3091381593415023],
+            [0.8417946825484951, 0.2028096944676698, 0.5002498778240818],
+            [0.8246198528746818, 0.5656871593325626, 0.00036879695507299417],
+            [0.5380548456059006, -0.23704700989966598, -0.8088916480083338],
+            [0.5374259789281473, -0.23777671430427477, 0.8090955143292947],
+            [0.4920627193088096, 0.7124240356381789, 0.5003261673263055],
+            [-0.00028905577051272966, -0.0002296065494731591, 0.9999999318637947],
+            [-0.027796383613830928, 0.5871366696835493, -0.809010440087706],
+            [-0.028438480152180923, 0.5868774909077528, 0.8091761634603769],
+            [-0.045497246073414814, 0.9499165164627902, 0.30917408098178745],
+        ],
     )
-    assert mirror_axes[1][1] == pytest.approx(
-        [0.8417946825484951, 0.2028096944676698, 0.5002498778240818],
-    )
-    assert mirror_axes[2][1] == pytest.approx(
-        [0.8246198528746818, 0.5656871593325626, 0.00036879695507299417],
-    )
-    assert mirror_axes[3][1] == pytest.approx(
-        [0.5380548456059006, -0.23704700989966598, -0.8088916480083338],
-    )
-    assert mirror_axes[4][1] == pytest.approx(
-        [0.5374259789281473, -0.23777671430427477, 0.8090955143292947],
-    )
-    assert mirror_axes[5][1] == pytest.approx(
-        [0.4920627193088096, 0.7124240356381789, 0.5003261673263055],
-    )
-    assert mirror_axes[6][1] == pytest.approx(
-        [-0.00028905577051272966, -0.0002296065494731591, 0.9999999318637947],
-    )
-    assert mirror_axes[7][1] == pytest.approx(
-        [-0.027796383613830928, 0.5871366696835493, -0.809010440087706],
-    )
-    assert mirror_axes[8][1] == pytest.approx(
-        [-0.028438480152180923, 0.5868774909077528, 0.8091761634603769],
-    )
-    assert mirror_axes[9][1] == pytest.approx(
-        [-0.045497246073414814, 0.9499165164627902, 0.30917408098178745],
-    )
-    assert mirror_axes[10][1] == pytest.approx(
-        [0.8700983968716308, -0.3841192000885663, -0.30883850129920337],
-    )
-    assert mirror_axes[11][1] == pytest.approx(
-        [0.8421437863381498, 0.2028798699994556, -0.49963346713470747],
-    )
-    assert mirror_axes[12][1] == pytest.approx(
-        [0.492642249244334, 0.7126481211852062, -0.499435951479946],
-    )
-    assert mirror_axes[13][1] == pytest.approx(
-        [-0.04530773468376337, 0.9500692347171875, -0.30873234106864056],
-    )
-    assert mirror_axes[14][1] == pytest.approx(
-        [-0.565929883314664, 0.8244533722328923, -6.469360643961685e-5],
+    _assert_axes_match_unordered(
+        mirror_axes[10:15],
+        [
+            [0.8700983968716308, -0.3841192000885663, -0.30883850129920337],
+            [0.8421437863381498, 0.2028798699994556, -0.49963346713470747],
+            [0.492642249244334, 0.7126481211852062, -0.499435951479946],
+            [-0.04530773468376337, 0.9500692347171875, -0.30873234106864056],
+            [-0.565929883314664, 0.8244533722328923, -6.469360643961685e-5],
+        ],
     )
     assert coords._has_inversion_center(atomcoords, groups)
     point_group = coords.find_point_group(data.atommasses, atomcoords, proper_axes)

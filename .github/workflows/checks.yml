@@ -1,0 +1,82 @@
+# Shared lint/type/test checks, callable from other workflows instead of
+# copy-pasted into them. python-package.yml calls this on every push/PR;
+# publish.yml calls it to re-verify the exact tagged commit before a release
+# goes out. Keeping the checks in one place means those two triggers can't
+# quietly drift out of sync with each other.
+
+name: checks
+
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    # Static checks (Ruff, mypy) don't depend on which Python interpreter runs
+    # them, only on the tool versions and the target-version/python_version
+    # pinned in pyproject.toml. Run them once here instead of once per entry
+    # in the test matrix below.
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Lint with Ruff
+        run: uv run ruff check --output-format=github .
+
+      - name: Format check with Ruff
+        run: uv run ruff format --check .
+
+      - name: Type check with mypy
+        run: uv run mypy overreact tests
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Only the extremes of what pyproject.toml's requires-python
+        # actually supports (oldest) and the newest CPython release
+        # (newest) -- not every version in between. CPython's compatibility
+        # story is strongly monotonic for pure-Python code, so this catches
+        # nearly everything a full N-version matrix would while cutting CI
+        # time; the main residual risk is a version-specific bug in a
+        # compiled dependency (this project leans on NumPy/SciPy/JAX) on an
+        # untested intermediate version, which is judged an acceptable
+        # tradeoff here. Bump both ends as Python's own support windows move
+        # (https://endoflife.date/python) and pyproject.toml's requires-python
+        # changes.
+        python-version: ["3.12", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        # --all-extras is required (not just recommended): it installs jax/jaxlib
+        # (the "fast" extra), which several doctests in overreact/simulate.py
+        # depend on for their expected output. See CONTRIBUTING.md.
+        run: uv sync --all-extras
+
+      - name: Test with pytest
+        run: uv run pytest --cov=. --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

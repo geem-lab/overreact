@@ -110,3 +110,15 @@ def test_reshape_error() -> None:
     """Ensure a ValueError is raised when reshaping fails due to invalid data and shape mismatch."""
     with pytest.raises(ValueError, match=r"^Reshape error:\s*"):
         cached_function(((2, 2), (-1, 2)))
+
+
+def test_halton_is_reproducible_given_an_rng() -> None:
+    """Ensure passing an explicit rng makes halton's output reproducible."""
+    first = rx._misc.halton(10, 3, rng=np.random.default_rng(0))
+    second = rx._misc.halton(10, 3, rng=np.random.default_rng(0))
+    assert first == pytest.approx(second)
+
+    # Without an explicit rng, each call draws fresh entropy: not equal.
+    third = rx._misc.halton(10, 3)
+    fourth = rx._misc.halton(10, 3)
+    assert third != pytest.approx(fourth)

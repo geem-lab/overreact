@@ -57,7 +57,7 @@ def _central_diff_weights(Np, ndiv=1):
     >>> Np = 3 # point number for central derivative
     >>> weights = _central_diff_weights(Np) # weights for first derivative
     >>> vals = [f(x + (i - Np/2) * h) for i in range(Np)]
-    >>> float(sum(w * v for (w, v) in zip(weights, vals))/h)
+    >>> print(sum(w * v for (w, v) in zip(weights, vals))/h)
     11.79999999999998
 
     This value is close to the analytical solution:
@@ -118,7 +118,7 @@ def _derivative(func, x0, dx=1.0, n=1, args=(), order=3):
     --------
     >>> def f(x):
     ...     return x**3 + x**2
-    >>> float(_derivative(f, 1.0, dx=1e-6))
+    >>> print(_derivative(f, 1.0, dx=1e-6))
     4.9999999999217337
     """
     first_deriv_weight_map = {
@@ -196,10 +196,9 @@ def make_hashable(obj):
     """
     if isinstance(obj, np.ndarray):
         return (tuple(obj.shape), tuple(obj.ravel()))
-    elif isinstance(obj, list | set):
+    if isinstance(obj, list | set):
         return tuple(make_hashable(item) for item in obj)
-    else:
-        return obj
+    return obj
 
 
 def copy_unhashable(maxsize=128, typed=False):
@@ -244,7 +243,7 @@ def copy_unhashable(maxsize=128, typed=False):
                             return np.array(flat_data).reshape(shape)
                         except ValueError as e:
                             msg = f"Reshape error: {e} - shape: {shape}, data: {flat_data}"
-                            raise ValueError(msg)
+                            raise ValueError(msg) from e
                 return arg
 
             args = [convert_back(arg) for arg in hashable_args]
@@ -837,8 +836,8 @@ def broaden_spectrum(
             * distribution.pdf(
                 x,
                 xp,
-                scale=scale,
                 *args,
+                scale=scale,
                 **kwargs,
             )
             for xp, yp in zip(x0, y0, strict=False)
@@ -885,7 +884,7 @@ def totuple(a):
         return a
 
 
-def halton(num, dim=None, jump=1, cranley_patterson=True):
+def halton(num, dim=None, jump=1, cranley_patterson=True, rng=None):
     """Calculate Halton low-discrepancy sequences.
 
     Those sequences are good performers for Quasi-Monte Carlo numerical
@@ -898,6 +897,12 @@ def halton(num, dim=None, jump=1, cranley_patterson=True):
     dim : int, optional
     jump : int, optional
     cranley_patterson : bool, optional
+    rng : numpy.random.Generator, optional
+        Used for the Cranley-Patterson rotation. A fresh, unseeded
+        `numpy.random.default_rng()` is constructed if not given -- pass an
+        explicit `numpy.random.default_rng(seed)` for reproducible output,
+        or share one `Generator` across repeated calls (e.g. across Monte
+        Carlo trials) to avoid reconstructing it every time.
 
     Returns
     -------
@@ -932,7 +937,7 @@ def halton(num, dim=None, jump=1, cranley_patterson=True):
     estimates done with Halton sequences. Compare the following estimates of
     the integral of x between 0 and 1, which is exactly 0.5:
 
-    >>> float(np.mean(halton(100, cranley_patterson=False)))
+    >>> print(np.mean(halton(100, cranley_patterson=False)))
     0.489921875
     >>> I = [np.mean(halton(100)) for i in range(1000)]
     >>> float(np.mean(I)), bool(np.var(I) < 0.00004)
@@ -940,16 +945,16 @@ def halton(num, dim=None, jump=1, cranley_patterson=True):
 
     Now the integral of x**2 between 0 and 1, which is exactly 1/3:
 
-    >>> float(np.mean(halton(100, cranley_patterson=False)**2))
+    >>> print(np.mean(halton(100, cranley_patterson=False)**2))
     0.3222149658203125
     >>> I = [np.mean(halton(100)**2) for i in range(1000)]
     >>> float(np.mean(I)), bool(np.var(I) < 0.00004)
     (0.333, True)
 
     >>> x = halton(1500)
-    >>> float(np.mean(x))  # estimate of the integral of x between 0 and 1
+    >>> print(np.mean(x))  # estimate of the integral of x between 0 and 1
     0.50
-    >>> float(np.mean(x**2))  # estimate of the integral of x**2 between 0 and 1
+    >>> print(np.mean(x**2))  # estimate of the integral of x**2 between 0 and 1
     0.33
     """
     actual_dim = 1 if dim is None else dim
@@ -962,7 +967,9 @@ def halton(num, dim=None, jump=1, cranley_patterson=True):
     )
 
     if cranley_patterson:
-        res = (res + np.random.rand(actual_dim, 1)) % 1.0
+        if rng is None:
+            rng = np.random.default_rng()
+        res = (res + rng.random((actual_dim, 1))) % 1.0
     if dim is None:
         return res.reshape((num,))
     return res.T

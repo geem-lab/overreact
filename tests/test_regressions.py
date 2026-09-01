@@ -53,7 +53,8 @@ def test_basic_example_for_solvation_equilibria() -> None:
         temperature=temperature,
     )
 
-    for qrrho in [False, (False, True), True]:
+    qrrho_options: list[bool | tuple[bool, bool]] = [False, (False, True), True]
+    for qrrho in qrrho_options:
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_freeenergies = rx.get_delta(
             model.scheme.A,
@@ -251,10 +252,10 @@ def test_rate_constants_for_hickel1992() -> None:
     k_cla_ref = np.array([9.8e6, 1.0e7, 1.2e7, 1.4e7, 1.7e7, 1.9e7, 2.2e7])
     k_eck_ref = np.array([2.3e7, 2.4e7, 2.7e7, 3.0e7, 3.3e7, 3.7e7, 4.1e7])
 
-    k_cla = []
-    k_eck = []
+    k_cla_list = []
+    k_eck_list = []
     for temperature in temperatures:
-        k_cla.append(
+        k_cla_list.append(
             rx.get_k(
                 model.scheme,
                 model.compounds,
@@ -264,7 +265,7 @@ def test_rate_constants_for_hickel1992() -> None:
                 temperature=temperature,
             )[0],
         )
-        k_eck.append(
+        k_eck_list.append(
             rx.get_k(
                 model.scheme,
                 model.compounds,
@@ -273,8 +274,8 @@ def test_rate_constants_for_hickel1992() -> None:
                 temperature=temperature,
             )[0],
         )
-    k_cla = np.asarray(k_cla).flatten()
-    k_eck = np.asarray(k_eck).flatten()
+    k_cla = np.asarray(k_cla_list).flatten()
+    k_eck = np.asarray(k_eck_list).flatten()
     assert k_eck / k_cla == pytest.approx([2.3, 2.3, 2.2, 2.1, 2.0, 1.9, 1.9], 7e-2)
 
     assert k_cla == pytest.approx(k_cla_ref, 1.2e-1)
@@ -348,11 +349,10 @@ def test_rate_constants_for_tanaka1996() -> None:
         ],
     )
 
-    k_cla = []
-    k_wig = []
-    k_eck = []
+    k_cla_list = []
+    k_eck_list = []
     for temperature in temperatures:
-        k_cla.append(
+        k_cla_list.append(
             rx.get_k(
                 model.scheme,
                 model.compounds,
@@ -362,17 +362,7 @@ def test_rate_constants_for_tanaka1996() -> None:
                 temperature=temperature,
             )[0],
         )
-        k_wig.append(
-            rx.get_k(
-                model.scheme,
-                model.compounds,
-                tunneling="wigner",
-                qrrho=True,
-                scale="cm3 particle-1 s-1",
-                temperature=temperature,
-            )[0],
-        )
-        k_eck.append(
+        k_eck_list.append(
             rx.get_k(
                 model.scheme,
                 model.compounds,
@@ -381,9 +371,8 @@ def test_rate_constants_for_tanaka1996() -> None:
                 temperature=temperature,
             )[0],
         )
-    k_cla = np.asarray(k_cla).flatten()
-    k_wig = np.asarray(k_wig).flatten()
-    k_eck = np.asarray(k_eck).flatten()
+    k_cla = np.asarray(k_cla_list).flatten()
+    k_eck = np.asarray(k_eck_list).flatten()
     assert k_eck / k_cla == pytest.approx([17.1, 4.0, 3.9, 2.3], 1.7e-1)
 
     assert 1e16 * k_cla == pytest.approx(1e16 * k_cla_ref, 1.9e-1)
@@ -429,7 +418,7 @@ def test_delta_energies_for_hickel1992() -> None:
     temperatures = np.array([298.15, 300, 310, 320, 330, 340, 350])
     delta_freeenergies_ref = [9.8, 9.9, 10.1, 10.4, 10.6, 10.9, 11.2]
 
-    delta_freeenergies = []
+    delta_freeenergies_list = []
     for temperature in temperatures:
         freeenergies = rx.get_freeenergies(
             model.compounds,
@@ -442,8 +431,8 @@ def test_delta_energies_for_hickel1992() -> None:
             * rx.get_reaction_entropies(model.scheme.B, temperature=temperature)
         )[0]
 
-        delta_freeenergies.append(delta_freeenergy)
-    delta_freeenergies = np.asarray(delta_freeenergies)
+        delta_freeenergies_list.append(delta_freeenergy)
+    delta_freeenergies = np.asarray(delta_freeenergies_list)
 
     assert delta_freeenergies / constants.kcal == pytest.approx(
         delta_freeenergies_ref
@@ -477,10 +466,10 @@ def test_delta_energies_for_tanaka1996() -> None:
     basisset = "6-311G(2d,p)"
     model = rx.parse_model(f"data/tanaka1996/{theory}/{basisset}/model.k")
 
-    temperatures = [0.0]
+    temperatures: list[float] | np.ndarray = [0.0]
     delta_freeenergies_ref = [5.98]
 
-    delta_freeenergies = []
+    delta_freeenergies_list = []
     for temperature in temperatures:
         freeenergies = rx.get_freeenergies(model.compounds, temperature=temperature)
         delta_freeenergy = (
@@ -489,8 +478,8 @@ def test_delta_energies_for_tanaka1996() -> None:
             * rx.get_reaction_entropies(model.scheme.B, temperature=temperature)[0]
         )[0]
 
-        delta_freeenergies.append(delta_freeenergy)
-    delta_freeenergies = np.asarray(delta_freeenergies)
+        delta_freeenergies_list.append(delta_freeenergy)
+    delta_freeenergies = np.asarray(delta_freeenergies_list)
 
     assert delta_freeenergies / constants.kcal == pytest.approx(
         delta_freeenergies_ref,
@@ -508,7 +497,7 @@ def test_delta_energies_for_tanaka1996() -> None:
     temperatures = np.array([200, 298.15, 300, 400])
     delta_freeenergies_ref = [7.4, 9.4, 9.5, 11.5]
 
-    delta_freeenergies = []
+    delta_freeenergies_list = []
     for temperature in temperatures:
         freeenergies = rx.get_freeenergies(model.compounds, temperature=temperature)
         delta_freeenergy = (
@@ -517,8 +506,8 @@ def test_delta_energies_for_tanaka1996() -> None:
             * rx.get_reaction_entropies(model.scheme.B, temperature=temperature)[0]
         )[0]
 
-        delta_freeenergies.append(delta_freeenergy)
-    delta_freeenergies = np.asarray(delta_freeenergies)
+        delta_freeenergies_list.append(delta_freeenergy)
+    delta_freeenergies = np.asarray(delta_freeenergies_list)
 
     assert delta_freeenergies / constants.kcal == pytest.approx(
         delta_freeenergies_ref,

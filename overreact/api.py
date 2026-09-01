@@ -29,6 +29,8 @@ from overreact import coords, rates, tunnel
 from overreact._misc import _derivative as derivative
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+
     from overreact.core import Scheme
 
 logger = logging.getLogger(__name__)
@@ -304,13 +306,12 @@ def _check_qrrho(
     """
     if qrrho is True:
         return True, True
-    elif qrrho is False:
+    if qrrho is False:
         return False, False
-    elif isinstance(qrrho, tuple):
+    if isinstance(qrrho, tuple):
         return qrrho
-    else:
-        msg = f"unrecognized QRRHO specification: {qrrho}"
-        raise ValueError(msg)
+    msg = f"unrecognized QRRHO specification: {qrrho}"
+    raise ValueError(msg)
 
 
 def get_freeenergies(
@@ -412,15 +413,15 @@ def get_k(
     scheme: Scheme,
     compounds: dict | None = None,
     bias: float = 0.0,
-    tunneling: str = "eckart",
+    tunneling: str | None = "eckart",
     qrrho: bool | tuple[bool, bool] = True,
     scale: str = "l mol-1 s-1",
     temperature: float = 298.15,
     pressure: float = constants.atm,
-    delta_freeenergies: float | None = None,
+    delta_freeenergies: npt.ArrayLike | None = None,
     molecularity: float | None = None,
     volume: float | None = None,
-) -> float:
+) -> np.ndarray:
     r"""Obtain reaction rate constants for a given reaction scheme.
 
     Parameters
@@ -569,11 +570,19 @@ def get_k(
 
     # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
-    k = rates.eyring(
-        delta_freeenergies,
-        temperature=temperature,
-        pressure=pressure,
-        volume=volume,
+    #
+    # NOTE(schneiderfelipe): rates.eyring is shape-preserving (scalar in,
+    # scalar out), but get_k's own contract is to always return one value
+    # per reaction -- so, unlike rates.eyring itself, k is forced to be at
+    # least 1-D here, to stay safe to slice/index below regardless of
+    # whether delta_freeenergies/temperature were passed in as scalars.
+    k = np.atleast_1d(
+        rates.eyring(
+            delta_freeenergies,
+            temperature=temperature,
+            pressure=pressure,
+            volume=volume,
+        ),
     )
 
     # make reaction rate constants for equilibria as close as possible to one
@@ -644,10 +653,10 @@ def get_k(
 def get_kappa(
     scheme: Scheme,
     compounds: dict,
-    method: str = "eckart",
+    method: str | None = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
-):
+) -> np.ndarray:
     r"""Obtain tunneling transmission coefficients at a given temperature.
 
     One tunneling transmission coefficient is calculated for each reaction. If
@@ -722,7 +731,7 @@ def get_kappa(
             energies,
         )  # B - C == B - A - (C - A)
 
-    kappas = []
+    kappas: list[float | np.ndarray] = []
     for i, ts in enumerate(
         rx.get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium),
     ):

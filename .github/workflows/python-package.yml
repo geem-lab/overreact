@@ -1,5 +1,14 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+# Runs the shared lint/type/test checks (checks.yml) on every push to main
+# and every pull request.
+#
+# Deliberately no paths-ignore here (e.g. excluding **.md): checks / lint
+# and checks / test (3.14) are required status checks on main's branch
+# protection (as of this writing -- checks / test (3.12) is not yet
+# required too, but may be worth adding now that its CI flakiness is
+# fixed; check current branch protection settings rather than trust this
+# comment for the exact list), and a required check that a doc-only PR's
+# commits never trigger leaves that PR permanently stuck on "Expected --
+# waiting for status" -- paths-ignore and required-status-checks don't mix.
 
 name: build
 
@@ -8,38 +17,22 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Manual re-run without a throwaway commit -- e.g. after a GitHub Actions
+  # incident drops the webhook for a push/pull_request event and no run
+  # ever gets created for that commit. Trigger from the Actions tab or
+  # `gh workflow run build.yml --ref <branch>`.
+  workflow_dispatch:
+
+# Cancel any run still going for a previous commit on the same branch/PR once
+# a new one is pushed, instead of letting superseded runs burn CI minutes.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: uv sync --all-extras
-
-      - name: Lint with Ruff
-        run: uv run ruff check --output-format=github .
-
-      - name: Format check with Ruff
-        run: uv run ruff format --check .
-
-      - name: Test with pytest
-        run: uv run pytest --cov=. --cov-report=xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+  checks:
+    uses: ./.github/workflows/checks.yml
+    secrets: inherit

@@ -2,6 +2,13 @@
 
 Here are functions that calculate reaction rates as well, which is needed for
 the time simulations.
+
+.. note::
+   The doctests below assume JAX is installed (the ``fast`` extra: ``pip
+   install "overreact[fast]"``, or ``uv sync --all-extras`` for development).
+   Without it, arrays fall back to plain NumPy and are printed as
+   ``array([...])`` instead of ``Array([...], ...)``, which fails the
+   doctests below even though nothing is actually broken.
 """
 
 # TODO(schneiderfelipe): type this module.
@@ -11,6 +18,7 @@ __all__ = ["get_dydt", "get_fixed_scheme", "get_y"]
 
 
 import logging
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -19,6 +27,9 @@ from scipy.optimize import minimize_scalar
 import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _found_jax
+
+if TYPE_CHECKING:
+    import types
 
 # Energetic advantage given to half-equilibrium reactions.
 #
@@ -38,6 +49,7 @@ EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 logger = logging.getLogger(__name__)
 
 
+jnp: types.ModuleType
 if _found_jax:
     import jax.numpy as jnp
     from jax import config, jacfwd, jit
@@ -644,7 +656,7 @@ def get_bias(
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> float(get_bias(model.scheme, model.compounds, data, y0) / constants.kcal)
+    >>> print(get_bias(model.scheme, model.compounds, data, y0) / constants.kcal)
     -1.4
     """
     max_time = np.max(data["t"])

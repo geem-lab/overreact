@@ -6,24 +6,28 @@ __all__ = ["eyring"]
 
 
 import logging
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 
 import overreact as rx
 from overreact import _constants as constants
 
+if TYPE_CHECKING:
+    import numpy.typing as npt
+
 logger = logging.getLogger(__name__)
 
 
 @np.vectorize
-def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
+def liquid_viscosity(identifier, temperature=298.15, pressure=constants.atm):
     """Dynamic viscosity of a solvent.
 
     This function requires the `thermo` package for obtaining property values.
 
     Parameters
     ----------
-    id : str,
+    identifier : str,
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
@@ -39,7 +43,7 @@ def liquid_viscosity(id, temperature=298.15, pressure=constants.atm):
     >>> liquid_viscosity("water", temperature=299.26)
     8.90e-4
     """
-    return rx._misc._get_chemical(id, temperature, pressure).mul
+    return rx._misc._get_chemical(identifier, temperature, pressure).mul
 
 
 # TODO(mrauen): log the calculated diffusional reaction rate limit.
@@ -93,12 +97,12 @@ def collins_kimball(
     Examples
     --------
     >>> radii = np.array([2.59, 2.71]) * constants.angstrom
-    >>> float(collins_kimball(radii, reactive_radius=2.6 * constants.angstrom,
+    >>> print(collins_kimball(radii, reactive_radius=2.6 * constants.angstrom,
     ...              viscosity=8.91e-4) / constants.liter)
     3.6e9
-    >>> float(collins_kimball(radii, "water", reactive_radius=2.6 * constants.angstrom) / constants.liter)
+    >>> print(collins_kimball(radii, "water", reactive_radius=2.6 * constants.angstrom) / constants.liter)
     3.6e9
-    >>> float(collins_kimball(radii, viscosity=8.91e-4) / constants.liter)
+    >>> print(collins_kimball(radii, viscosity=8.91e-4) / constants.liter)
     3.7e9
     """
     radii = np.asarray(radii)
@@ -202,13 +206,13 @@ def convert_rate_constant(
 
     There are many options for `old_scale` and `new_scale`:
 
-    >>> float(convert_rate_constant(1.0, "m3 mol-1 s-1", "atm-1 s-1",
+    >>> print(convert_rate_constant(1.0, "m3 mol-1 s-1", "atm-1 s-1",
     ...                       molecularity=2, temperature=1.0))
     8.21e-5
-    >>> float(convert_rate_constant(1.0, "cm3 particle-1 s-1", "atm-1 s-1",
+    >>> print(convert_rate_constant(1.0, "cm3 particle-1 s-1", "atm-1 s-1",
     ...                       molecularity=2, temperature=1.0))
     13.63e-23
-    >>> float(convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1",
+    >>> print(convert_rate_constant(1e3, "l mol-1 s-1", "atm-1 s-1",
     ...                       molecularity=2, temperature=273.15))
     22414.
 
@@ -287,13 +291,29 @@ def convert_rate_constant(
     return val * factor
 
 
+@overload
 def eyring(
-    delta_freeenergy: float | np.ndarray,
+    delta_freeenergy: float,
+    molecularity: int | None = ...,
+    temperature: float = ...,
+    pressure: float = ...,
+    volume: float | None = ...,
+) -> float: ...
+@overload
+def eyring(
+    delta_freeenergy: npt.ArrayLike,
+    molecularity: int | None = ...,
+    temperature: npt.ArrayLike = ...,
+    pressure: float = ...,
+    volume: float | None = ...,
+) -> np.ndarray: ...
+def eyring(
+    delta_freeenergy: npt.ArrayLike,
     molecularity: int | None = None,
-    temperature: float | np.ndarray = 298.15,
+    temperature: npt.ArrayLike = 298.15,
     pressure: float = constants.atm,
     volume: float | None = None,
-):
+) -> float | np.ndarray:
     r"""Calculate a reaction rate constant.
 
     This function uses the `Eyring-Evans-Polanyi equation
@@ -345,24 +365,24 @@ def eyring(
     [Thermochemistry in Gaussian](https://gaussian.com/thermo/), in which the
     kinetic isotope effect of a bimolecular reaction is analyzed:
 
-    >>> eyring(17.26 * constants.kcal)
-    array([1.38])
-    >>> eyring(18.86 * constants.kcal)
-    array([0.093])
+    >>> print(eyring(17.26 * constants.kcal))
+    1.38
+    >>> print(eyring(18.86 * constants.kcal))
+    0.093
 
     It is well known that, at room temperature, if you "decrease" a reaction
     barrier by 1.4 kcal/mol, the reaction becomes around ten times faster:
 
     >>> dG = np.random.uniform(1.0, 100.0) * constants.kcal
-    >>> eyring(dG - 1.4 * constants.kcal) / eyring(dG)
-    array([10.])
+    >>> print(eyring(dG - 1.4 * constants.kcal) / eyring(dG))
+    10.
 
     A similar relationship is found for a twofold increase in speed and a
     0.4 kcal/mol decrease in the reaction barrier (again, at room
     temperature):
 
-    >>> eyring(dG - 0.4 * constants.kcal) / eyring(dG)
-    array([2.0])
+    >>> print(eyring(dG - 0.4 * constants.kcal) / eyring(dG))
+    2.0
 
     """
     temperature = np.asarray(temperature)

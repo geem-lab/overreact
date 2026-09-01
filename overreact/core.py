@@ -22,11 +22,11 @@ class Scheme(NamedTuple):
     See `overreact.io.parse_model`.
     """
 
-    compounds: list[str]
+    compounds: tuple[str, ...]
     """A descriptor of compounds."""
-    reactions: list[str]
+    reactions: tuple[str, ...]
     """A descriptor of reactions."""
-    is_half_equilibrium: list[bool]
+    is_half_equilibrium: tuple[bool, ...]
     """An indicator of whether a reaction is half-equilibrium."""
     A: np.ndarray
     """A matrix of stoichiometric coefficients between reactants and products."""
@@ -395,7 +395,7 @@ def is_transition_state(name):
     >>> is_transition_state("TS~(w)")
     False
     """
-    return any(marker in name for marker in {"‡", "#"})
+    return any(marker in name for marker in ("‡", "#"))
 
 
 def parse_reactions(text: str | list[str]) -> Scheme:
@@ -675,7 +675,7 @@ def parse_reactions(text: str | list[str]) -> Scheme:
             else:
                 after_transitions[reactants] = [products]
             continue
-        elif is_transition_state(products[-1][-1]):
+        if is_transition_state(products[-1][-1]):
             for after_products in after_transitions.get(products, []):
                 _add_reaction(reactants, after_products, is_half_equilibrium, products)
 

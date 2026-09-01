@@ -1,0 +1,137 @@
+# Publishes overreact to PyPI whenever a version tag (e.g. v1.2.0) is pushed.
+#
+# Uses PyPI's Trusted Publishing (OIDC): no PyPI API token is stored as a
+# repository secret. This requires a one-time setup on PyPI by a project
+# owner, done *before* the first tag is pushed after adding this workflow:
+# https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+#   - Publisher: GitHub
+#   - Owner: geem-lab
+#   - Repository: overreact
+#   - Workflow name: publish.yml
+#   - Environment name: pypi
+#
+# The `pypi` environment referenced below also lets you require manual
+# approval before a publish goes out -- Settings -> Environments -> pypi ->
+# "Required reviewers" -- without touching this file.
+
+name: Publish
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    # Guard against a fork pushing a matching tag and trying to build/publish
+    # under this identity (trusted publishing would reject it anyway, since
+    # it's bound to this exact repository + workflow, but fail fast and
+    # quietly instead of burning CI time on a run that can't succeed).
+    if: github.repository == 'geem-lab/overreact'
+    # Re-run the exact same lint/type/test checks as python-package.yml
+    # (checks.yml), against the exact tagged commit: a tag can in principle
+    # point anywhere, so a release shouldn't only trust that *some* commit on
+    # main once passed CI. Sharing the workflow file instead of duplicating
+    # its steps here means the two can't drift out of sync.
+    uses: ./.github/workflows/checks.yml
+    secrets: inherit
+
+  build:
+    needs: checks
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check-version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Verify tag matches package version
+        # Catches the classic footgun of tagging a commit whose
+        # pyproject.toml version wasn't actually bumped to match, before
+        # a single-use, non-reusable PyPI version gets burned on it.
+        id: check-version
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          pkg_version="$(uv run python -c 'import overreact; print(overreact.__version__)')"
+          if [ "$tag_version" != "$pkg_version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package version $pkg_version (pyproject.toml)"
+            exit 1
+          fi
+          echo "version=$pkg_version" >> "$GITHUB_OUTPUT"
+
+      - name: Build sdist and wheel
+        run: uv build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      # needs.build.outputs.version is the tag with its leading "v" already
+      # stripped (e.g. "1.2.0"), matching PyPI's actual URL scheme -- unlike
+      # github.ref_name (e.g. "v1.2.0"), which PyPI has no page for.
+      url: https://pypi.org/project/overreact/${{ needs.build.outputs.version }}
+    permissions:
+      id-token: write # required for PyPI Trusted Publishing (OIDC)
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # No username/password/token: identity comes from OIDC + the `pypi`
+        # environment above. Sigstore build provenance attestations are
+        # generated and uploaded automatically (attestations: true default).
+
+  github-release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # required to create the GitHub release
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Create or update GitHub release
+        # Upsert rather than a bare `gh release create`: past releases in
+        # this repo were sometimes created by hand around the same tag, and
+        # a hard `create` would fail outright if one already exists for
+        # $GITHUB_REF_NAME. Attempt create first and fall back to upload on
+        # failure, instead of probing with a separate `gh release view` --
+        # same upsert semantics, one API call short.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            dist/* \
+            || gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber dist/*

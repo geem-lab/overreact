@@ -33,6 +33,7 @@ def get_molecular_volume(
     alpha=1.2,
     num=250,
     trials=3,
+    rng=None,
 ):
     """Calculate van der Waals volumes.
 
@@ -65,6 +66,11 @@ def get_molecular_volume(
         Reference gas pressure.
     alpha : float, optional
     num, trials : int, optional
+    rng : numpy.random.Generator, optional
+        Used for the Quasi-Monte Carlo integration's Cranley-Patterson
+        rotation, shared across all `trials`. A fresh, unseeded
+        `numpy.random.default_rng()` is constructed if not given -- pass an
+        explicit `numpy.random.default_rng(seed)` for reproducible volumes.
 
     Returns
     -------
@@ -88,7 +94,7 @@ def get_molecular_volume(
     >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["symmetries"]["dihydrogen"]
-    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
+    >>> print(get_molecular_volume(data.atomnos, data.atomcoords))
     8.4
     >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
     ...                      full_output=True))
@@ -97,7 +103,7 @@ def get_molecular_volume(
     (8.4, 61., 0.1)
 
     >>> data = datasets.logfiles["symmetries"]["water"]
-    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
+    >>> print(get_molecular_volume(data.atomnos, data.atomcoords))
     18.
     >>> tuple(float(x) for x in get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
     ...                      full_output=True))
@@ -106,7 +112,7 @@ def get_molecular_volume(
     (18., 92., 0.1)
 
     >>> data = datasets.logfiles["symmetries"]["benzene"]
-    >>> float(get_molecular_volume(data.atomnos, data.atomcoords))
+    >>> print(get_molecular_volume(data.atomnos, data.atomcoords))
     80.
     >>> get_molecular_volume(data.atomnos, data.atomcoords, method="izato",
     ...                      full_output=True)  # doctest: +SKIP
@@ -125,12 +131,14 @@ def get_molecular_volume(
     v2 = atomcoords.max(axis=0) + alpha * vdw_radii.max()
     box_volume = np.prod(v2 - v1)
     n = int(num * box_volume)
+    if rng is None:
+        rng = np.random.default_rng()
 
     vdw_volumes = []
     if full_output and method == "izato":
         cav_volumes = []
     for _ in range(trials):
-        points = misc.halton(n, 3)
+        points = misc.halton(n, 3, rng=rng)
         points = v1 + points * (v2 - v1)
         tree = KDTree(points)
 
@@ -159,7 +167,7 @@ def get_molecular_volume(
                 f"Izato cavity volume = {cav_volume} ± {cav_err} Å³",
             )
             return (vdw_volume, cav_volume, max(vdw_err, cav_err))
-        elif method == "garza":
+        if method == "garza":
             # TODO(schneiderfelipe): test for the following solvents: water,
             # pentane, hexane, heptane and octane.
 
@@ -171,9 +179,8 @@ def get_molecular_volume(
             )
             logger.debug(f"Garza cavity volume = {cav_volume} Å³")
             return (vdw_volume, cav_volume, vdw_err)
-        else:
-            msg = f"unavailable method: '{method}'"
-            raise ValueError(msg)
+        msg = f"unavailable method: '{method}'"
+        raise ValueError(msg)
     return vdw_volume
 
 
@@ -208,28 +215,28 @@ def _garza(
 
     Examples
     --------
-    >>> float(_garza(1.0))
+    >>> print(_garza(1.0))
     24.32
     >>> tuple(float(x) for x in _garza(1.0, full_output=True))
     (24.32, 1.815, 0.3507458)
-    >>> float(_garza(10.0))
+    >>> print(_garza(10.0))
     66.51
     >>> tuple(float(x) for x in _garza(10.0, full_output=True))
     (66.51, 1.0, 0.7556590)
-    >>> float(_garza(100.0))
+    >>> print(_garza(100.0))
     279.6
     >>> tuple(float(x) for x in _garza(100.0, full_output=True))
     (279.6, 1.0, 1.628018)
 
-    >>> float(_garza(1.0, environment="benzene"))
+    >>> print(_garza(1.0, environment="benzene"))
     131.
     >>> tuple(float(x) for x in _garza(1.0, full_output=True, environment="benzene"))
     (131., 3.35, 0.2317882509934295)
-    >>> float(_garza(10.0, environment="benzene"))
+    >>> print(_garza(10.0, environment="benzene"))
     243.
     >>> tuple(float(x) for x in _garza(10.0, full_output=True, environment="benzene"))
     (243., 3.29, 0.499372648682062)
-    >>> float(_garza(100.0, environment="benzene"))
+    >>> print(_garza(100.0, environment="benzene"))
     665.
     >>> tuple(float(x) for x in _garza(100.0, full_output=True, environment="benzene"))
     (665., 1.0, 1.07586575757374)
@@ -487,8 +494,7 @@ def _find_point_group_linear(atomcoords, groups, rtol=0.0, atol=1.0e-2):
     """
     if _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
         return "D∞h"
-    else:
-        return "C∞v"
+    return "C∞v"
 
 
 def _find_point_group_spheric(
@@ -523,7 +529,7 @@ def _find_point_group_spheric(
     for n, _ in proper_axes:
         if n == 5:
             return "Ih"
-        elif n < 5:
+        if n < 5:
             break
     return "Oh"
 
@@ -572,7 +578,7 @@ def _find_point_group_asymmetric(
             rtol=rtol,
             atol=atol,
         )
-    elif rotor_class[1] in {
+    if rotor_class[1] in {
         "regular planar",
         "irregular planar",
     } or _get_mirror_planes(
@@ -585,7 +591,7 @@ def _find_point_group_asymmetric(
         atol=atol,
     ):
         return "Cs"
-    elif _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
+    if _has_inversion_center(atomcoords, groups, rtol=rtol, atol=atol):
         return "Ci"
     return "C1"
 
@@ -683,7 +689,7 @@ def _find_point_group_symmetric_dihedral(
     if mirror_axes:
         if mirror_axes[0][0] == "h":
             return f"D{proper_axes[0][0]}h"
-        elif len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
+        if len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
             # all vertical mirror planes are dihedral for Dnd point groups
             return f"D{proper_axes[0][0]}d"
     return f"D{proper_axes[0][0]}"
@@ -726,7 +732,7 @@ def _find_point_group_symmetric_nondihedral(
     if mirror_axes:
         if mirror_axes[0][0] == "h":
             return f"C{proper_axes[0][0]}h"
-        elif len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
+        if len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
             return f"C{proper_axes[0][0]}v"
 
     improper_axes = _get_improper_axes(
@@ -1244,8 +1250,7 @@ def _get_mirror_planes(
         c, v = x
         if c:
             return -ord(c), v
-        else:
-            return 0, v
+        return 0, v
 
     found_axes = []
     nondeg_axes = []
@@ -1479,19 +1484,19 @@ def _operation(name, order=2, axis=None):
     if name == "e":
         return np.eye(3)
 
-    if name in {"c", "σ", "sigma", "s"}:
+    if name in {"c", "σ", "sigma", "s"}:  # noqa: RUF001
         # normalize axis
         axis = np.asarray(axis)
         axis = axis / np.linalg.norm(axis)
 
         if name in {"c", "s"}:
             rotation = Rotation.from_rotvec(2.0 * np.pi * axis / order).as_matrix()
-        if name in {"σ", "sigma", "s"}:
+        if name in {"σ", "sigma", "s"}:  # noqa: RUF001
             reflection = np.eye(3) - 2.0 * np.outer(axis, axis)
 
         if name == "c":
             return rotation
-        if name in {"σ", "sigma"}:
+        if name in {"σ", "sigma"}:  # noqa: RUF001
             return reflection
         if name == "s":
             return rotation @ reflection
@@ -1653,19 +1658,19 @@ def gyradius(atommasses, atomcoords, method="iupac"):
     >>> from overreact import _datasets as datasets
 
     >>> data = datasets.logfiles["tanaka1996"]["CH3·@UMP2/cc-pVTZ"]
-    >>> float(gyradius(data.atommasses, data.atomcoords))
+    >>> print(gyradius(data.atommasses, data.atomcoords))
     0.481
-    >>> float(gyradius(data.atommasses, data.atomcoords, method="mean"))
+    >>> print(gyradius(data.atommasses, data.atomcoords, method="mean"))
     0.93
 
     >>> data = datasets.logfiles["symmetries"]["water"]
-    >>> float(gyradius(data.atommasses, data.atomcoords))
+    >>> print(gyradius(data.atommasses, data.atomcoords))
     0.31915597673891866
-    >>> float(gyradius(np.ones_like(data.atommasses), data.atomcoords))
+    >>> print(gyradius(np.ones_like(data.atommasses), data.atomcoords))
     0.6833818299241241
-    >>> float(gyradius(np.ones_like(data.atommasses), data.atomcoords, method="mean"))
+    >>> print(gyradius(np.ones_like(data.atommasses), data.atomcoords, method="mean"))
     0.6833818299241241
-    >>> float(gyradius(data.atommasses, data.atomcoords, method="mean"))
+    >>> print(gyradius(data.atommasses, data.atomcoords, method="mean"))
     0.7637734749747612
     """
     com = np.average(atomcoords, axis=0, weights=atommasses)
@@ -1674,11 +1679,10 @@ def gyradius(atommasses, atomcoords, method="iupac"):
         return np.sqrt(
             np.average(np.diag(atomcoords @ atomcoords.T), weights=atommasses),
         )
-    elif method == "mean":
+    if method == "mean":
         return np.sqrt(np.mean(np.diag(atomcoords @ atomcoords.T)))
-    else:
-        msg = f"unavailable method: '{method}'"
-        raise ValueError(msg)
+    msg = f"unavailable method: '{method}'"
+    raise ValueError(msg)
 
 
 @misc.copy_unhashable()
@@ -1952,7 +1956,7 @@ def eckart_transform(atommasses, atomcoords):
     natom = len(atommasses)
     dof = 3 * natom
 
-    moments, axes, atomcoords = inertia(atommasses, atomcoords, align=False)
+    _moments, axes, atomcoords = inertia(atommasses, atomcoords, align=False)
 
     x = np.block(
         [
@@ -2062,7 +2066,7 @@ def _equivalent_atoms(
     """
     if len(atommasses) == 1:  # atom
         return [[0]]
-    elif len(atommasses) == 2:  # diatomic molecule
+    if len(atommasses) == 2:  # diatomic molecule
         if atommasses[0] == atommasses[1]:
             return [[0, 1]]
         return [[0], [1]]

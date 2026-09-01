@@ -11,10 +11,13 @@ import logging
 import os
 import textwrap
 import warnings
-from collections import defaultdict
-from collections.abc import MutableMapping
+from collections import UserDict, defaultdict
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 import overreact as rx
 from overreact import _constants as constants
@@ -984,40 +987,35 @@ class DotDict(dict):
         return self._key() == other._key()
 
 
-# https://stackoverflow.com/a/61144084/4039050
-class _LazyDict(MutableMapping):
-    """Lazily evaluated dictionary."""
+class _LazyDict(UserDict):
+    """Lazily evaluated dictionary.
 
-    _function = None
+    Values that aren't themselves a ``dict`` are treated as unevaluated and
+    replaced, in place and memoized, by calling `_function` on them the
+    first time they're read.
 
-    def __init__(self, *args, **kwargs) -> None:
-        self._dict = dict(*args, **kwargs)
+    Subclasses ``UserDict``, not ``dict`` directly: ``dict``'s own C-level
+    methods (``.get()``, ``.items()``, ``.values()``, ...) read the
+    underlying hash table directly and do *not* call an overridden
+    ``__getitem__``, so a plain ``dict`` subclass would silently return the
+    unevaluated raw value through any accessor other than ``[]`` --
+    verified concretely, not just in theory (see
+    https://stackoverflow.com/a/47212782/4039050). ``UserDict`` keeps its
+    real storage in ``self.data`` and implements every other mapping method
+    in pure Python *in terms of* ``self[key]``, so they all consistently
+    route through our `__getitem__` override -- while still meaning we only
+    have to write that one method ourselves.
+    """
+
+    _function: Callable[[Any], Any] | None = None
 
     def __getitem__(self, key):
         """Evaluate value."""
-        value = self._dict[key]
+        value = super().__getitem__(key)
         if not isinstance(value, dict):
-            data = self._function(value)
-
-            value = data
-            self._dict[key] = data
+            value = self._function(value)
+            self[key] = value
         return value
-
-    def __setitem__(self, key, value) -> None:
-        """Store value lazily."""
-        self._dict[key] = value
-
-    def __delitem__(self, key) -> None:
-        """Delete value."""
-        return self._dict[key]
-
-    def __iter__(self):
-        """Iterate over dictionary."""
-        return iter(self._dict)
-
-    def __len__(self) -> int:
-        """Evaluate size of dictionary."""
-        return len(self._dict)
 
 
 class InterfaceFormatter(logging.Formatter):
@@ -1039,7 +1037,7 @@ class InterfaceFormatter(logging.Formatter):
         """Format log message."""
         self.wrapper.initial_indent = self.tab
         self.wrapper.subsequent_indent = 2 * self.tab
-        if record.module in {"api"}:
+        if record.module == "api":
             self.wrapper.initial_indent = "\n@ "
             self.wrapper.subsequent_indent = "@   "
         return self.wrapper.fill(super().format(record))

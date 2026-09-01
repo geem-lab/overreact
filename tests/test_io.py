@@ -22,6 +22,39 @@ def test_parse_model_raises_filenotfounderror() -> None:
         rx.io.parse_model("unreachable.jk")
 
 
+def test_lazydict_del_actually_deletes() -> None:
+    """Ensure deleting a key from a _LazyDict removes it, not just reads it."""
+    lazy_dict = rx.io._LazyDict(a=1, b=2)
+    del lazy_dict["a"]
+    assert "a" not in lazy_dict
+    assert list(lazy_dict) == ["b"]
+    assert len(lazy_dict) == 1
+
+
+def test_lazydict_evaluates_through_every_accessor() -> None:
+    """Ensure .get()/.items()/.values() evaluate lazily too, not just [].
+
+    A plain `dict` subclass would silently fail this: dict's own C-level
+    .get()/.items()/.values() read the underlying hash table directly and
+    never call an overridden __getitem__, so they'd return the raw,
+    unevaluated value instead of triggering `_function`. See
+    https://stackoverflow.com/a/47212782/4039050.
+    """
+    evaluated = {"evaluated": True}
+
+    lazy_dict = rx.io._LazyDict(a="raw")
+    lazy_dict._function = lambda _raw: evaluated
+    assert lazy_dict.get("a") == evaluated
+
+    lazy_dict = rx.io._LazyDict(a="raw")
+    lazy_dict._function = lambda _raw: evaluated
+    assert list(lazy_dict.items()) == [("a", evaluated)]
+
+    lazy_dict = rx.io._LazyDict(a="raw")
+    lazy_dict._function = lambda _raw: evaluated
+    assert list(lazy_dict.values()) == [evaluated]
+
+
 def test_sanity_for_absolute_thermochemistry() -> None:
     """Ensure we have decent quality for (absolute) thermochemical analysis.
 
@@ -60,7 +93,7 @@ def test_sanity_for_absolute_thermochemistry() -> None:
         1e-3,
     )
     assert np.sum(data.atommasses) == pytest.approx(30.04695, 8e-4)
-    moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
+    moments, _axes, _atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments * constants.angstrom**2 / constants.bohr**2 == pytest.approx(
         [23.57594, 88.34097, 88.34208],
         7e-2,
@@ -163,7 +196,7 @@ def test_sanity_for_absolute_thermochemistry() -> None:
         1e-3,
     )
     assert np.sum(data.atommasses) == pytest.approx(30.04695, 8e-4)
-    moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
+    moments, _axes, _atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     assert moments * constants.angstrom**2 / constants.bohr**2 == pytest.approx(
         [23.57594, 88.34097, 88.34208],
         6e-2,
@@ -270,7 +303,7 @@ def test_compare_rrho_with_orca_logfile() -> None:
     # benzene
     data = rx.io.read_logfile("data/symmetries/benzene.out")
     assert np.sum(data.atommasses) == pytest.approx(78.11, 6e-5)
-    moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
+    moments, _axes, _atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     symmetry_number = coords.symmetry_number(
         coords.find_point_group(data.atommasses, data.atomcoords),
     )
@@ -454,7 +487,7 @@ def test_compare_qrrho_with_orca_logfile() -> None:
     # triphenylphosphine
     data = rx.io.read_logfile("data/symmetries/triphenylphosphine.out")
     assert np.sum(data.atommasses) == pytest.approx(262.29, 8e-6)
-    moments, axes, atomcoords = coords.inertia(data.atommasses, data.atomcoords)
+    moments, _axes, _atomcoords = coords.inertia(data.atommasses, data.atomcoords)
     symmetry_number = coords.symmetry_number(
         coords.find_point_group(data.atommasses, data.atomcoords),
     )

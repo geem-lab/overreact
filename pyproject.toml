@@ -1,12 +1,12 @@
 [project]
 name = "overreact"
-version = "1.2.0"
+version = "1.3.0"
 description = "⚛️📈 Create and analyze chemical microkinetic models built from computational chemistry data"
 authors = [
     { name = "Felipe S. S. Schneider", email = "schneider.felipe@posgrad.ufsc.br" },
     { name = "Giovanni F. Caramori", email = "giovanni.caramori@ufsc.br" },
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 readme = "README.md"
 license = "MIT"
 keywords = [
@@ -39,7 +39,6 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -81,12 +80,13 @@ dev = [
     "mypy>=0.991,<2.4",
     "pdoc>=12,<17",
     "perflint>=0.7.1,<0.9.0",
-    "pytest>=7.2,<10.0",
+    "pre-commit>=3,<5",
     "pytest-cov>=4,<8",
+    "pytest>=7.2,<10.0",
     "rich>=13,<16",
-    "thermo>=0.2",
     "ruff>=0.0.210,<0.16.5",
     "seaborn>=0.12,<0.14",
+    "thermo>=0.2",
     "types-setuptools>=65,<85",
 ]
 
@@ -101,27 +101,34 @@ requires = ["uv_build>=0.9.18,<0.13.0"]
 build-backend = "uv_build"
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["ALL"]
 # TODO(mrauen): make this list shorter
+#
+# NOTE(schneiderfelipe): before adding to this list, consider whether the
+# rule is actually the wrong fit for this project (e.g. S101/PLR2004/SLF001,
+# a scientific/test-heavy codebase built on bare `assert`, numeric literal
+# comparisons against real physical/reference values, and deliberate
+# internal-module access) versus genuinely unaddressed debt. Several
+# previously-ignored single/few-occurrence rules were fixed and removed from
+# this list rather than left ignored -- do the same where it's cheap and low
+# risk; a handful of individually-necessary exceptions are marked with
+# `# noqa: <RULE>` at their exact line instead of a blanket ignore here.
 ignore = [
-  "A002",
   "A003",
-  "A005",
+  "A005",   # overreact/io.py deliberately shadows stdlib io; renaming the module is a breaking API change
   "ANN001", # MissingTypeFunctionArgument
   "ANN002",
   "ANN003",
   "ANN201", # MissingReturnTypePublicFunction
   "ANN202", # MissingReturnTypePrivateFunction
   "ANN204",
-  "B008",
-  "B023",
-  "B026",
-  "B904",
+  "B008",   # false positive here: the one flagged default (np.finfo(np.float64).eps) is an immutable constant, not a mutable-default footgun
   "C901",
   "COM812",
+  "CPY001", # per-file copyright headers would just duplicate the copyright notice already in LICENSE
   "E501",
   "FBT001",
   "FBT002",
@@ -130,32 +137,50 @@ ignore = [
   "G004",
   "N803",
   "N806",
-  "NPY002",
-  "PLC0206", # Extracting value from dictionary without calling .items()
-  "PLC0208",
   "PLC0415", # Allow importing inside of functions
   "PLR0912",
   "PLR0913",
   "PLR0915",
+  "PLR0917", # positional-specific sibling of PLR0913 above; same reasoning -- many of this project's functions take several physically-meaningful parameters (temperature, pressure, vibfreqs, ...) that read better positionally than forced keyword-only
   "PLR2004",
-  "PLW2901",
+  "PLW2901", # the loop-variable reassignments this flags are all the safe "normalize once, use for the rest of this iteration" idiom
   "PTH112",
   "PTH113",
   "PTH118",
   "PTH120",
   "PTH122",
   "PTH123",
-  "RET505",
-  "RET507",
-  "RUF001",
   "S101",   # AssertUsed
   "SLF001",
-  "T201",
   "TD003",
 ]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
+
+[tool.mypy]
+# Deliberately the newest CI-tested version (see checks.yml's test matrix),
+# not the floor set by requires-python above: mypy parses third-party stub
+# files (.pyi) according to this setting too, and a dependency's stubs can
+# use syntax newer than this project's own floor -- e.g. numpy's stubs
+# started using a PEP 695 `type` statement (3.12+-only) that mypy rejected
+# outright while this was pinned to our floor version, even though nothing
+# in *our* code needed anything past the floor. Pinning to the newest
+# tested version instead avoids that whole class of false failures on every
+# dependency bump, at the cost of not catching our own code accidentally
+# using syntax unavailable on the floor version -- pytest running the floor
+# version in CI is the actual guard for that.
+python_version = "3.14"
+
+# These third-party packages don't ship type stubs or a py.typed marker, so
+# mypy can't analyze them; silence the resulting "missing library stubs"
+# noise instead of import-guarding every call site. "thermo.*" is the PyPI
+# `thermo` package (the optional `solvents` extra), not overreact's own
+# overreact.thermo -- module patterns match from the root namespace, so
+# there's no actual overlap, just a similar name.
+[[tool.mypy.overrides]]
+module = ["scipy.*", "seaborn.*", "thermo.*"]
+ignore_missing_imports = true
 
 [tool.coverage.run]
 include = ["overreact/*"]

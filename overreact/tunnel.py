@@ -6,12 +6,16 @@ __all__ = ["eckart", "wigner"]
 
 
 import logging
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from scipy.integrate import fixed_quad
 from scipy.special import roots_laguerre
 
 from overreact import _constants as constants
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +41,9 @@ def _check_nu(vibfreq: float) -> float:
     Examples
     --------
     >>> vibfreq = 1000.0
-    >>> float(_check_nu(vibfreq))
+    >>> print(_check_nu(vibfreq))
     2.99792458e13
-    >>> float(_check_nu(2.0 * vibfreq) / _check_nu(vibfreq))
+    >>> print(_check_nu(2.0 * vibfreq) / _check_nu(vibfreq))
     2.0
     >>> bool(_check_nu(vibfreq) == _check_nu(-vibfreq))
     True
@@ -50,10 +54,14 @@ def _check_nu(vibfreq: float) -> float:
     return np.abs(vibfreq) * constants.c / constants.centi
 
 
+@overload
+def wigner(vibfreq: float, temperature: float = ...) -> float: ...
+@overload
+def wigner(vibfreq: float, temperature: npt.ArrayLike = ...) -> np.ndarray: ...
 def wigner(
     vibfreq: float,
-    temperature: float | np.ndarray = 298.15,
-) -> float:
+    temperature: npt.ArrayLike = 298.15,
+) -> float | np.ndarray:
     """Calculate the Wigner correction to quantum tunneling.
 
     Parameters
@@ -76,15 +84,15 @@ def wigner(
 
     Examples
     --------
-    >>> float(wigner(1821.0777))
+    >>> print(wigner(1821.0777))
     4.218
-    >>> float(wigner(262.38))
+    >>> print(wigner(262.38))
     1.06680
-    >>> float(wigner(190.5927))
+    >>> print(wigner(190.5927))
     1.03525
-    >>> float(wigner(169.14))
+    >>> print(wigner(169.14))
     1.02776
-    >>> float(wigner(113.87))
+    >>> print(wigner(113.87))
     1.01258
 
     """
@@ -98,11 +106,25 @@ def wigner(
     return kappa
 
 
+@overload
+def eckart(
+    vibfreq: float,
+    delta_forward: float,
+    delta_backward: float | None = ...,
+    temperature: float = ...,
+) -> float: ...
+@overload
+def eckart(
+    vibfreq: float,
+    delta_forward: float,
+    delta_backward: float | None = ...,
+    temperature: npt.ArrayLike = ...,
+) -> np.ndarray: ...
 def eckart(
     vibfreq: float,
     delta_forward: float,
     delta_backward: float | None = None,
-    temperature: float | np.ndarray = 298.15,
+    temperature: npt.ArrayLike = 298.15,
 ) -> float | np.ndarray:
     """Calculate the Eckart correction to quantum tunneling.
 
@@ -137,8 +159,8 @@ def eckart(
 
     Examples
     --------
-    >>> eckart(1218, 13672.624, 24527.729644, temperature=300)
-    array(3.9)
+    >>> print(eckart(1218, 13672.624, 24527.729644, temperature=300))
+    3.9
     >>> eckart(1218, 13672.624, 24527.729644, temperature=[200, 298.15])
     array([17.1, 4.0])
     >>> eckart([1218, 200], 13672.624, 24527.729644, temperature=400)
@@ -146,21 +168,21 @@ def eckart(
 
     If no backward barrier is given, a symmetric Eckart potential is assumed:
 
-    >>> eckart(414.45, 394.54)
-    array(1.16)
-    >>> eckart(414.45, 789.08)
-    array(1.3)
-    >>> eckart(3315.6, 3156.31)
-    array(3.3)
+    >>> print(eckart(414.45, 394.54))
+    1.16
+    >>> print(eckart(414.45, 789.08))
+    1.3
+    >>> print(eckart(3315.6, 3156.31))
+    3.3
 
     And if either the forward or backward barrier is non-positive, we fall back
     to the Wigner correction, but a warning is issued:
 
-    >>> float(eckart(190.5927, 109920.73434972763, -154.0231580734253))
+    >>> print(eckart(190.5927, 109920.73434972763, -154.0231580734253))
     1.03525
-    >>> float(eckart(190.5927, -154.0231580734253, 109920.73434972763))
+    >>> print(eckart(190.5927, -154.0231580734253, 109920.73434972763))
     1.03525
-    >>> float(eckart(190.5927, -154.0231580734253))
+    >>> print(eckart(190.5927, -154.0231580734253))
     1.03525
 
     """
@@ -193,7 +215,15 @@ def eckart(
     alpha1 = two_pi * delta_forward / (constants.h * nu)
     alpha2 = two_pi * delta_backward / (constants.h * nu)
 
-    kappa = _eckart(u, alpha1, alpha2)
+    # NOTE(schneiderfelipe): _eckart is @np.vectorize-d, which always returns
+    # an ndarray, even for scalar input (a 0-d one in that case) -- unlike
+    # plain numpy arithmetic, which wigner() above uses and which correctly
+    # collapses to a genuine scalar (np.float64) on its own. `[()]` is the
+    # standard numpy idiom to undo that: it unwraps a 0-d array to its scalar,
+    # and is a no-op for any other shape, so this keeps eckart's scalar-in,
+    # scalar-out behavior consistent with wigner's without affecting the
+    # array case at all.
+    kappa = _eckart(u, alpha1, alpha2)[()]
     logger.info(f"Eckart tunneling coefficient: {kappa}")
     return kappa
 
