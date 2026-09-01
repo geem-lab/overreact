@@ -40,6 +40,22 @@ def _assert_axes_match_unordered(found_axes, expected_vectors) -> None:
     assert not remaining, f"found unexpected extra axes: {remaining}"
 
 
+def test_get_molecular_volume_is_reproducible_given_an_rng() -> None:
+    """Ensure passing an explicit rng makes get_molecular_volume reproducible."""
+    data = datasets.logfiles["symmetries"]["water"]
+    first = coords.get_molecular_volume(
+        data.atomnos,
+        data.atomcoords,
+        rng=np.random.default_rng(0),
+    )
+    second = coords.get_molecular_volume(
+        data.atomnos,
+        data.atomcoords,
+        rng=np.random.default_rng(0),
+    )
+    assert first == second
+
+
 # TODO(schneiderfelipe): add one extra atom
 def test_can_understand_k_symmetry() -> None:
     """Ensure values match regression logfiles for K symmetry."""

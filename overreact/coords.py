@@ -33,6 +33,7 @@ def get_molecular_volume(
     alpha=1.2,
     num=250,
     trials=3,
+    rng=None,
 ):
     """Calculate van der Waals volumes.
 
@@ -65,6 +66,11 @@ def get_molecular_volume(
         Reference gas pressure.
     alpha : float, optional
     num, trials : int, optional
+    rng : numpy.random.Generator, optional
+        Used for the Quasi-Monte Carlo integration's Cranley-Patterson
+        rotation, shared across all `trials`. A fresh, unseeded
+        `numpy.random.default_rng()` is constructed if not given -- pass an
+        explicit `numpy.random.default_rng(seed)` for reproducible volumes.
 
     Returns
     -------
@@ -125,12 +131,14 @@ def get_molecular_volume(
     v2 = atomcoords.max(axis=0) + alpha * vdw_radii.max()
     box_volume = np.prod(v2 - v1)
     n = int(num * box_volume)
+    if rng is None:
+        rng = np.random.default_rng()
 
     vdw_volumes = []
     if full_output and method == "izato":
         cav_volumes = []
     for _ in range(trials):
-        points = misc.halton(n, 3)
+        points = misc.halton(n, 3, rng=rng)
         points = v1 + points * (v2 - v1)
         tree = KDTree(points)
 
