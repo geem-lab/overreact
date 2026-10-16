@@ -4,24 +4,30 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import simulate
+from tests.strategies import reactions
 
 
-def test_get_dydt_calculates_reaction_rate() -> None:
-    """Ensure get_dydt gives correct reaction rates."""
-    scheme = rx.parse_reactions("A -> B")
+@settings(deadline=None, max_examples=50)
+@given(reactions(), st.data())
+def test_get_dydt_follows_mass_action(reaction, data) -> None:
+    """Ensure rates are k times the product of concentrations to their coefficients."""
+    reactants, products, _, text = reaction
+    scheme = rx.parse_reactions(text)
+    concentrations = st.floats(min_value=0.1, max_value=10.0)
+    y = np.array([data.draw(concentrations) for _ in scheme.compounds])
+    k = data.draw(concentrations)
 
-    # with jitted dydt, we need to use np.ndarray
-    k = np.array([2.0])
-    dydt = simulate.get_dydt(scheme, k)
-
-    # if JAX is used, dydt won't accept lists, only np.ndarray
-    assert dydt(0.0, np.array([1.0, 0.0])) == pytest.approx([-2.0, 2.0])
-    assert dydt(5.0, np.array([1.0, 0.0])) == pytest.approx([-2.0, 2.0])
-    assert dydt(0.0, np.array([1.0, 1.0])) == pytest.approx([-2.0, 2.0])
-    assert dydt(0.0, np.array([10.0, 0.0])) == pytest.approx([-20.0, 20.0])
+    rate = k * np.prod(
+        [y[scheme.compounds.index(c)] ** n for c, n in reactants.items()],
+    )
+    net = [products.get(c, 0) - reactants.get(c, 0) for c in scheme.compounds]
+    dydt = simulate.get_dydt(scheme, np.array([k]))
+    assert dydt(0.0, y) == pytest.approx(rate * np.array(net))
 
 
 def test_get_y_propagates_reaction_automatically() -> None:
