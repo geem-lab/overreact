@@ -91,3 +91,10 @@ def test_scheme_rejects_invalid_fields(changes, match) -> None:
     }
     with pytest.raises(ValueError, match=match):
         rx.Scheme(**(fields | changes))
+
+
+@given(reactions())
+def test_molecularity_counts_reactant_molecules(reaction) -> None:
+    """Ensure molecularity is the sum of reactant coefficients."""
+    reactants, _, _, text = reaction
+    assert rx.parse_reactions(text).molecularity.tolist() == [sum(reactants.values())]

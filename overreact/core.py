@@ -112,6 +112,11 @@ class Scheme:
         return self.activated - self._array(self.reactants)
 
     @property
+    def molecularity(self) -> np.ndarray:
+        """Number of reactant molecules of each reaction."""
+        return self._array(self.reactants).sum(axis=0)
+
+    @property
     def activated(self) -> np.ndarray:
         """Stoichiometric coefficients of the activated state of each reaction.
 

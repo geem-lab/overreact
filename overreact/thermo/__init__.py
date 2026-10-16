@@ -530,43 +530,6 @@ def calc_heat_capacity(
     return heat_capacity
 
 
-def get_molecularity(transform):
-    """Calculate molecularity of a chemical transformation.
-
-    The returned value is the reaction order, i.e., number of molecules that come
-    together to react. This number is always at least one.
-
-    Parameters
-    ----------
-    transform : array-like
-
-    Returns
-    -------
-    array-like
-
-    Examples
-    --------
-    >>> get_molecularity([-1, 1])
-    array(1)
-    >>> get_molecularity([-1, 0])
-    array(1)
-    >>> get_molecularity([-1, -1, 1])
-    array(2)
-    >>> get_molecularity([-1, -1, 0])
-    array(2)
-    >>> get_molecularity([[-1.,  1.,  1.],
-    ...                   [-1.,  1.,  0.],
-    ...                   [ 1., -1., -1.],
-    ...                   [ 0.,  0.,  0.],
-    ...                   [ 0.,  0.,  1.]])
-    array([2, 1, 1])
-    >>> get_molecularity([[0.], [0.]])
-    array([1])
-    """
-    res = np.sum(np.asarray(transform) < 0, axis=0)
-    return np.where(res > 0, res, 1)
-
-
 def get_delta(transform, property):
     """Calculate deltas according to reactions.
 

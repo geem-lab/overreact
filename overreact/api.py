@@ -565,7 +565,7 @@ def get_k(
         )
 
     if molecularity is None:
-        molecularity = rx.thermo.get_molecularity(scheme.A)
+        molecularity = scheme.molecularity
 
     # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
