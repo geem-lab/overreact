@@ -16,7 +16,6 @@ from overreact.api import (
 )
 from overreact.core import (
     Scheme,
-    get_transition_states,
     is_transition_state,
     parse_reactions,
     unparse_reactions,
@@ -39,7 +38,6 @@ __all__ = [
     "get_k",
     "get_kappa",
     "get_reaction_entropies",
-    "get_transition_states",
     "get_y",
     "is_transition_state",
     "parse_compounds",

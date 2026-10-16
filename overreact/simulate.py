@@ -408,15 +408,8 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     >>> scheme = rx.parse_reactions("AH <=> A- + H+")
     >>> k = np.array([1, 1])
     >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme
-    Scheme(compounds=('AH', 'A-'),
-           reactions=('AH -> A-',
-                      'A- -> AH'),
-           is_half_equilibrium=(True, True),
-           A=((-1.0, 1.0),
-              (1.0, -1.0)),
-           B=((-1.0, 0.0),
-              (1.0, 0.0)))
+    >>> scheme.reactions
+    ('AH -> A-', 'A- -> AH')
     >>> k
     array([1.e+00, 1.e-07])
 
@@ -426,14 +419,8 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     >>> scheme = rx.parse_reactions("A + 2H2O -> B")
     >>> k = np.array([1.0])
     >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H2O": 55.6})
-    >>> scheme
-    Scheme(compounds=('A', 'B'),
-           reactions=('A -> B',),
-           is_half_equilibrium=(False,),
-           A=((-1.0,),
-              (1.0,)),
-           B=((-1.0,),
-              (1.0,)))
+    >>> scheme.reactions
+    ('A -> B',)
     >>> k
     array([3091.36])
 
@@ -443,18 +430,8 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     >>> scheme = rx.parse_reactions("B <- AH <=> A- + H+")
     >>> k = np.array([10.0, 1, 1])
     >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme
-    Scheme(compounds=('AH', 'B', 'A-'),
-           reactions=('AH -> B',
-                      'AH -> A-',
-                      'A- -> AH'),
-           is_half_equilibrium=(False, True, True),
-           A=((-1.0, -1.0, 1.0),
-              (1.0, 0.0, 0.0),
-              (0.0, 1.0, -1.0)),
-           B=((-1.0, -1.0, 0.0),
-              (1.0, 0.0, 0.0),
-              (0.0, 1.0, 0.0)))
+    >>> scheme.reactions
+    ('AH -> B', 'AH -> A-', 'A- -> AH')
     >>> k
     array([1.e+01, 1.e+00, 1.e-12])
 
@@ -462,21 +439,8 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     >>> scheme = rx.parse_reactions(["AH <=> A- + H+", "B- + H+ <=> BH"])
     >>> k = np.array([1, 1, 2, 2])
     >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme
-    Scheme(compounds=('AH', 'A-', 'B-', 'BH'),
-           reactions=('AH -> A-',
-                      'A- -> AH',
-                      'B- -> BH',
-                      'BH -> B-'),
-           is_half_equilibrium=(True, True, True, True),
-           A=((-1.0, 1.0, 0.0, 0.0),
-              (1.0, -1.0, 0.0, 0.0),
-              (0.0, 0.0, -1.0, 1.0),
-              (0.0, 0.0, 1.0, -1.0)),
-           B=((-1.0, 0.0, 0.0, 0.0),
-              (1.0, 0.0, 0.0, 0.0),
-              (0.0, 0.0, -1.0, 0.0),
-              (0.0, 0.0, 1.0, 0.0)))
+    >>> scheme.reactions
+    ('AH -> A-', 'A- -> AH', 'B- -> BH', 'BH -> B-')
     >>> k
     array([1. , 0.01, 0.02, 2. ])
 
@@ -486,18 +450,8 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     >>> scheme = rx.parse_reactions("A + H2O -> B <=> B- + H+")
     >>> k = np.array([1.0, 100.0, 2.0])
     >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH, "H2O": 55.6})
-    >>> scheme
-    Scheme(compounds=('A', 'B', 'B-'),
-           reactions=('A -> B',
-                      'B -> B-',
-                      'B- -> B'),
-           is_half_equilibrium=(False, True, True),
-           A=((-1.0, 0.0, 0.0),
-              (1.0, -1.0, 1.0),
-              (0.0, 1.0, -1.0)),
-           B=((-1.0, 0.0, 0.0),
-              (1.0, -1.0, 0.0),
-              (0.0, 1.0, 0.0)))
+    >>> scheme.reactions
+    ('A -> B', 'B -> B-', 'B- -> B')
     >>> k
     array([5.56e+01, 1.00e+02, 2.00e-06])
 
@@ -513,60 +467,26 @@ def get_fixed_scheme(scheme, k, fixed_y0):
     True
 
     """
-    new_k = np.asarray(k, dtype=np.float64).copy()
-    new_reactions = []
-    for i, (reaction, is_half_equilibrium) in enumerate(
-        zip(scheme.reactions, scheme.is_half_equilibrium, strict=False),
-    ):
-        for reactants, products, _ in rx.core._parse_reactions(
-            reaction,
-        ):
-            new_reactants = tuple(
-                (coeff, compound)
-                for (coeff, compound) in reactants
-                if compound not in fixed_y0
-            )
-            new_products = tuple(
-                (coeff, compound)
-                for (coeff, compound) in products
-                if compound not in fixed_y0
-            )
-
-            for fixed_compound in fixed_y0:
-                for coeff, compound in reactants:
-                    if fixed_compound == compound:
-                        new_k[i] *= fixed_y0[fixed_compound] ** coeff
-
-            new_reactions.append((new_reactants, new_products, is_half_equilibrium))
-
-    new_reactions = tuple(r for r in rx.core._unparse_reactions(new_reactions))
-    new_is_half_equilibrium = scheme.is_half_equilibrium
-
-    new_A = []
-    new_B = []
-    new_compounds = []
-    for compound, row_A, row_B in zip(
-        scheme.compounds,
-        scheme.A,
-        scheme.B,
-        strict=False,
-    ):
-        if compound not in fixed_y0:
-            new_compounds.append(compound)
-            new_A.append(row_A)
-            new_B.append(row_B)
-
-    new_compounds = tuple(new_compounds)
-    new_A = tuple(new_A)
-    new_B = tuple(new_B)
-
+    keep = [
+        i for i, compound in enumerate(scheme.compounds) if compound not in fixed_y0
+    ]
+    fixed = [i for i, compound in enumerate(scheme.compounds) if compound in fixed_y0]
+    reactants = np.asarray(scheme.reactants)
+    concentrations = np.array([fixed_y0[scheme.compounds[i]] for i in fixed])
+    new_k = np.asarray(k, dtype=np.float64) * np.prod(
+        concentrations[:, np.newaxis] ** reactants[fixed],
+        axis=0,
+    )
     return (
         rx.core.Scheme(
-            compounds=new_compounds,
-            reactions=new_reactions,
-            is_half_equilibrium=new_is_half_equilibrium,
-            A=new_A,
-            B=new_B,
+            compounds=tuple(scheme.compounds[i] for i in keep),
+            reactants=reactants[keep],
+            products=np.asarray(scheme.products)[keep],
+            transition_states=tuple(
+                None if ts is None else keep.index(ts)
+                for ts in scheme.transition_states
+            ),
+            is_half_equilibrium=scheme.is_half_equilibrium,
         ),
         new_k,
     )

@@ -2,210 +2,92 @@
 
 from __future__ import annotations
 
-import numpy as np
+import pytest
+from hypothesis import assume, given
 
 import overreact as rx
+from tests.strategies import reactions, schemes_texts
 
 
-def test_parse_works() -> None:
-    """Test parsing of reactions."""
-    scheme = rx.parse_reactions("A -> B  // a direct reaction")
-    assert scheme[0] == ("A", "B")
-    assert scheme[1] == ("A -> B",)
-    assert scheme[2] == (False,)
-    assert np.all(scheme[3] == scheme[4])
-    assert np.all(np.array([[-1], [1]]) == scheme[3])
-
-    scheme = rx.parse_reactions("B <- A  // reverse reaction of the above")
-    assert scheme[0] == ("A", "B")
-    assert scheme[1] == ("A -> B",)
-    assert scheme[2] == (False,)
-    assert np.all(scheme[3] == scheme[4])
-    assert np.all(np.array([[-1], [1]]) == scheme[3])
-
-    scheme = rx.parse_reactions("A <=> B  // an equilibrium")
-    assert scheme[0] == ("A", "B")
-    assert scheme[1] == ("A -> B", "B -> A")
-    assert np.all(np.array([True, True]) == scheme[2])
-    assert np.all(np.array([[-1.0, 1.0], [1.0, -1.0]]) == scheme[3])
-    assert np.all(np.array([[-1.0, 0.0], [1.0, 0.0]]) == scheme[4])
-
-    scheme = rx.parse_reactions(
-        """A <=> B  -> A  // a lot of
-        A  -> B <=> A     // repeated
-        A  -> B <-  A     // reactions
-        B <-  A  -> B""",
+@given(reactions())
+def test_parse_reactions_counts_coefficients(reaction) -> None:
+    """Ensure parsed coefficients add up over repeated compounds on each side."""
+    reactants, products, transition, text = reaction
+    scheme = rx.parse_reactions(text)
+    assert scheme.reactants == tuple(
+        (reactants.get(compound, 0),) for compound in scheme.compounds
     )
-    assert scheme[0] == ("A", "B")
-    assert scheme[1] == ("A -> B", "B -> A")
-    assert np.all(np.array([True, True]) == scheme[2])
-    assert np.all(np.array([[-1.0, 1.0], [1.0, -1.0]]) == scheme[3])
-    assert np.all(np.array([[-1.0, 0.0], [1.0, 0.0]]) == scheme[4])
-
-    scheme = rx.parse_reactions("A -> A‡ -> B  // a transition state")
-    assert scheme[0] == ("A", "A‡", "B")
-    assert scheme[1] == ("A -> B",)
-    assert scheme[2] == (False,)
-    assert np.all(np.array([[-1.0], [0.0], [1.0]]) == scheme[3])
-    assert np.all(np.array([[-1.0], [1.0], [0.0]]) == scheme[4])
-
-    scheme = rx.parse_reactions("A -> A‡ -> B <- A‡ <- A  // (should be) same as above")
-    assert scheme[0] == ("A", "A‡", "B")
-    assert scheme[1] == ("A -> B",)
-    assert scheme[2] == (False,)
-    assert np.all(np.array([[-1.0], [0.0], [1.0]]) == scheme[3])
-    assert np.all(np.array([[-1.0], [1.0], [0.0]]) == scheme[4])
-
-    scheme = rx.parse_reactions(
-        """
-        B  -> B‡  -> C  // chained reactions and transition states
-        B‡ -> D         // this is a bifurcation
-        B  -> B'‡ -> E  // this is a classical competitive reaction
-        A  -> B‡
-    """,
+    assert scheme.products == tuple(
+        (products.get(compound, 0),) for compound in scheme.compounds
     )
-    assert scheme[0] == ("B", "B‡", "C", "D", "B'‡", "E", "A")
-    assert scheme[1] == ("B -> C", "B -> D", "B -> E", "A -> C", "A -> D")
-    assert np.all(np.array([False, False, False, False, False]) == scheme[2])
-    assert np.all(
-        np.array(
-            [
-                [-1.0, -1.0, -1.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0],
-                [1.0, 0.0, 0.0, 1.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0, 1.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, -1.0, -1.0],
-            ],
+    assert scheme.transition_states == (
+        (None,) if transition is None else (scheme.compounds.index(transition),)
+    )
+
+
+def _by_name(scheme):
+    """Describe a scheme independently of the order of its compounds."""
+
+    def side(matrix, j):
+        return {
+            c: row[j] for c, row in zip(scheme.compounds, matrix, strict=True) if row[j]
+        }
+
+    return set(scheme.compounds), [
+        (
+            side(scheme.reactants, j),
+            side(scheme.products, j),
+            None if ts is None else scheme.compounds[ts],
+            scheme.is_half_equilibrium[j],
         )
-        == scheme[3],
-    )
-    assert np.all(
-        np.array(
-            [
-                [-1.0, -1.0, -1.0, 0.0, 0.0],
-                [1.0, 1.0, 0.0, 1.0, 1.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, -1.0, -1.0],
-            ],
-        )
-        == scheme[4],
-    )
-
-    scheme = rx.parse_reactions(
-        """// when in doubt, reactions should be considered distinct
-        A -> A‡ -> B  // this is a tricky example
-        A -> B        // but it's better to be explicit""",
-    )
-    assert scheme[0] == ("A", "A‡", "B")
-    assert scheme[1] == ("A -> B", "A -> B")
-    assert np.all(np.array([False, False]) == scheme[2])
-    assert np.all(np.array([[-1.0, -1.0], [0.0, 0.0], [1.0, 1.0]]) == scheme[3])
-    assert np.all(np.array([[-1.0, -1.0], [1.0, 0.0], [0.0, 1.0]]) == scheme[4])
-
-    scheme = rx.parse_reactions(
-        """
-        // the policy is to not chain transition states
-        A -> A‡ -> A'‡ -> B  // this is weird""",
-    )
-    assert scheme[0] == ("A", "A‡", "A'‡", "B")
-    assert scheme[1] == ("A -> A'‡",)
-    assert scheme[2] == (False,)
-    assert np.all(np.array([[-1.0], [0.0], [1.0], [0.0]]) == scheme[3])
-    assert np.all(np.array([[-1.0], [1.0], [0.0], [0.0]]) == scheme[4])
-
-
-def test_private_functions_work() -> None:
-    """Ensure private functions work as expected."""
-    assert list(rx.core._parse_side("A")) == [(1, "A")]
-    assert list(rx.core._parse_side("A")) == list(
-        rx.core._parse_side("1 A"),
-    )
-    assert list(rx.core._parse_side("A")) == list(
-        rx.core._parse_side("1A"),
-    )
-    assert list(rx.core._parse_side("500 A")) == [(500, "A")]
-    assert list(rx.core._parse_side("A + 2 B + 500 D")) == [
-        (1, "A"),
-        (2, "B"),
-        (500, "D"),
+        for j, ts in enumerate(scheme.transition_states)
     ]
 
-    assert rx.core._unparse_side([(1, "A")]) == "A"
-    assert rx.core._unparse_side([(500, "A")]) == "500 A"
-    assert rx.core._unparse_side([(1, "A"), (2, "B"), (500, "D")]) == "A + 2 B + 500 D"
 
-    assert (
-        rx.core._unparse_side(
-            rx.core._parse_side(
-                " 2  *A*1*   +    40B1     +      chlorophyll",
-            ),
-        )
-        == "2 *A*1* + 40 B1 + chlorophyll"
+@given(schemes_texts())
+def test_unparse_reactions_is_inverse_of_parse_reactions(text) -> None:
+    """Ensure unparsing and parsing again gives the same scheme."""
+    try:
+        scheme = rx.parse_reactions(text)
+    except ValueError:
+        assume(False)
+    assert _by_name(rx.parse_reactions(rx.unparse_reactions(scheme))) == _by_name(
+        scheme
     )
 
-    assert list(rx.core._parse_reactions("A -> B")) == [
-        (((1, "A"),), ((1, "B"),), False),
-    ]
-    assert list(rx.core._parse_reactions("A <=> B")) == [
-        (((1, "A"),), ((1, "B"),), True),
-        (((1, "B"),), ((1, "A"),), True),
-    ]
-    assert list(rx.core._parse_reactions("2 A -> B\nA -> 20B")) == [
-        (((2, "A"),), ((1, "B"),), False),
-        (((1, "A"),), ((20, "B"),), False),
-    ]
-    assert list(
-        rx.core._parse_reactions("E + S <=> ES -> ES‡ -> E + P"),
-    ) == [
-        (((1, "E"), (1, "S")), ((1, "ES"),), True),
-        (((1, "ES"),), ((1, "E"), (1, "S")), True),
-        (((1, "ES"),), ((1, "ES‡"),), False),
-        (((1, "ES‡"),), ((1, "E"), (1, "P")), False),
-    ]
 
-    assert list(
-        rx.core._unparse_reactions([(((1, "A"),), ((1, "B"),), True)]),
-    ) == [
-        "A -> B",
-    ]
-    assert list(
-        rx.core._unparse_reactions(
-            [
-                (((2, "A"),), ((3, "B"),), True),
-                (((1, "A"),), ((2, "C"),), True),
-                (((50, "A"),), ((1, "D"),), True),
-            ],
-        ),
-    ) == ["2 A -> 3 B", "A -> 2 C", "50 A -> D"]
-    assert list(
-        rx.core._unparse_reactions(
-            [
-                (((1, "E"), (1, "S")), ((1, "ES"),), True),
-                (((1, "ES"),), ((1, "E"), (1, "S")), True),
-                (((1, "ES"),), ((1, "ES‡"),), False),
-                (((1, "ES‡"),), ((1, "E"), (1, "P")), False),
-            ],
-        ),
-    ) == ["E + S -> ES", "ES -> E + S", "ES -> ES‡", "ES‡ -> E + P"]
+@pytest.mark.parametrize(
+    "text",
+    [
+        "A -> B\nA <=> B",  # half-equilibrium without its reverse
+        "A <=> A‡ <=> B",  # transition state in an equilibrium
+    ],
+)
+def test_parse_reactions_rejects_invalid_equilibria(text) -> None:
+    """Ensure ill-defined equilibria raise."""
+    with pytest.raises(ValueError, match="equilibri"):
+        rx.parse_reactions(text)
 
-    assert list(
-        rx.core._unparse_reactions(
-            rx.core._parse_reactions(
-                "1 A -> 2 B <- C <=> 40 D <- E\nA -> 2 B <=> C",
-            ),
-        ),
-    ) == [
-        "A -> 2 B",
-        "C -> 2 B",
-        "C -> 40 D",
-        "40 D -> C",
-        "E -> 40 D",
-        "A -> 2 B",
-        "2 B -> C",
-        "C -> 2 B",
-    ]
+
+@pytest.mark.parametrize(
+    ("changes", "match"),
+    [
+        ({"reactants": ((1,),)}, "shape"),
+        ({"reactants": ((-1,), (0,))}, "negative"),
+        ({"reactants": ((0,), (0,)), "products": ((0,), (0,))}, "neither"),
+        ({"transition_states": (2,)}, "transition state"),
+        ({"transition_states": (0,)}, "transition state"),
+        ({"is_half_equilibrium": (True,)}, "equilibri"),
+    ],
+)
+def test_scheme_rejects_invalid_fields(changes, match) -> None:
+    """Ensure Scheme cannot hold inconsistent fields."""
+    fields = {
+        "compounds": ("A", "B"),
+        "reactants": ((1,), (0,)),
+        "products": ((0,), (1,)),
+        "transition_states": (None,),
+        "is_half_equilibrium": (False,),
+    }
+    with pytest.raises(ValueError, match=match):
+        rx.Scheme(**(fields | changes))

@@ -724,7 +724,7 @@ def get_kappa(
 
     kappas = []
     for i, ts in enumerate(
-        rx.get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium),
+        scheme.transition_states,
     ):
         if ts is None:
             kappas.append(1.0)

@@ -208,12 +208,6 @@ class Report:
             raw_table.add_row(r)
         yield Panel(raw_table, expand=False)
 
-        transition_states = rx.core.get_transition_states(
-            scheme.A,
-            scheme.B,
-            scheme.is_half_equilibrium,
-        )
-
         parsed_table = Table(
             Column("no", justify="right"),
             Column("reactant(s)", justify="left"),
@@ -226,8 +220,8 @@ class Report:
         for i, reaction in enumerate(scheme.reactions):
             reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
             row = [f"{i:d}", reactants, None, products, "No"]
-            if transition_states[i] is not None:
-                row[2] = scheme.compounds[transition_states[i]]
+            if scheme.transition_states[i] is not None:
+                row[2] = scheme.compounds[scheme.transition_states[i]]
             elif scheme.is_half_equilibrium[i]:
                 row[4] = "Yes"
             parsed_table.add_row(*row)

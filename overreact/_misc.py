@@ -14,7 +14,6 @@ import numpy as np
 from numpy import arange, array, hstack, newaxis, prod
 from scipy.stats import cauchy, norm
 
-import overreact as rx
 from overreact import _constants as constants
 
 
@@ -872,8 +871,7 @@ def totuple(a):
     >>> totuple(array)
     ((2, 2), (2, -2))
     """
-    # we don't touch some types, and this includes namedtuples
-    if isinstance(a, int | float | str | rx.Scheme):
+    if isinstance(a, int | float | str):
         return a
 
     with contextlib.suppress(AttributeError):

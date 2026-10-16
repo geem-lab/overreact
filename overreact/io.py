@@ -68,10 +68,10 @@ def parse_model(path: str, force_compile: bool = False):
     >>> model = parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
-           reactions=('S -> S',),
-           is_half_equilibrium=(False,),
-           A=((0.0,), (0.0,)),
-           B=((-1.0,), (1.0,)))
+           reactants=((1,), (0,)),
+           products=((1,), (0,)),
+           transition_states=(1,),
+           is_half_equilibrium=(False,))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.7713697,
@@ -137,10 +137,10 @@ def _parse_model(file_or_path):
     >>> model = _parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
-           reactions=('S -> S',),
-           is_half_equilibrium=(False,),
-           A=((1.,), (0.,)),
-           B=((-1.,), (1.,)))
+           reactants=((1,), (0,)),
+           products=((1,), (0,)),
+           transition_states=(1,),
+           is_half_equilibrium=(False,))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.7713697,
@@ -203,12 +203,10 @@ def _parse_source(file_path_or_str):
     >>> model = _parse_source("data/ethane/B97-3c/model.k")
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
-           reactions=('S -> S',),
-           is_half_equilibrium=(False,),
-           A=((0.0,),
-              (0.0,)),
-           B=((-1.0,),
-              (1.0,)))
+           reactants=((1,), (0,)),
+           products=((1,), (0,)),
+           transition_states=(1,),
+           is_half_equilibrium=(False,))
     >>> print(_unparse_model(model))
     {"scheme":["S -> E‡ -> S"],"compounds":{"S":{"logfile":"da...,0.35746]]]}}}
 
@@ -311,10 +309,10 @@ def _unparse_source(model):
     >>> model = _parse_source(source)
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
-           reactions=('S -> S',),
-           is_half_equilibrium=(False,),
-           A=((1.,), (0.,)),
-           B=((-1.,), (1.,)))
+           reactants=((1,), (0,)),
+           products=((1,), (0,)),
+           transition_states=(1,),
+           is_half_equilibrium=(False,))
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.7713697,
