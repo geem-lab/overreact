@@ -559,9 +559,8 @@ def get_k(
             scheme.B,
             freeenergies,
         ) - temperature * rx.get_reaction_entropies(
-            scheme.B,
-            temperature=temperature,
-            pressure=pressure,
+            scheme.reactants,
+            scheme.activated,
         )
 
     if molecularity is None:

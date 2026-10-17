@@ -366,9 +366,8 @@ class Report:
         delta_enthalpies = rx.get_delta(scheme.A, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_entropies = rx.get_delta(scheme.A, entropies) + rx.get_reaction_entropies(
-            scheme.A,
-            temperature=self.temperature,
-            pressure=self.pressure,
+            scheme.reactants,
+            scheme.products,
         )
         delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
         assert np.allclose(
@@ -376,9 +375,8 @@ class Report:
             rx.get_delta(scheme.A, freeenergies)
             - self.temperature
             * rx.get_reaction_entropies(
-                scheme.A,
-                temperature=self.temperature,
-                pressure=self.pressure,
+                scheme.reactants,
+                scheme.products,
             ),
         ), (
             "reaction free energies do not match reaction enthalpies and reaction entropies"
@@ -393,9 +391,8 @@ class Report:
             scheme.B,
             entropies,
         ) + rx.get_reaction_entropies(
-            scheme.B,
-            temperature=self.temperature,
-            pressure=self.pressure,
+            scheme.reactants,
+            scheme.activated,
         )
         delta_activation_freeenergies = (
             delta_activation_enthalpies - self.temperature * delta_activation_entropies
@@ -405,9 +402,8 @@ class Report:
             rx.get_delta(scheme.B, freeenergies)
             - self.temperature
             * rx.get_reaction_entropies(
-                scheme.B,
-                temperature=self.temperature,
-                pressure=self.pressure,
+                scheme.reactants,
+                scheme.activated,
             ),
         ), (
             "activation free energies do not match activation enthalpies and activation entropies"

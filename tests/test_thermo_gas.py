@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 from scipy.special import factorial
 
 import overreact as rx
@@ -1276,78 +1278,15 @@ def test_head_gordon_damping() -> None:
     ) == pytest.approx([8.67594611e-5, 8.67594611e-5, 0.5, 1.0, 1.0, 1.0], 8e-2)
 
 
-def test_can_calculate_reaction_entropies() -> None:
-    """Ensure we can calculate reaction translational entropies.
-
-    This contribution is due to indistinguishability of some reactants or
-    products.
-    """
-    assert rx.thermo.get_reaction_entropies([-1, 1]) == pytest.approx(0.0)
-    assert rx.thermo.get_reaction_entropies([-2, 1]) == pytest.approx(
-        -constants.R * np.log(2),
+@given(st.data())
+def test_reaction_entropies_count_indistinguishable_molecules(data) -> None:
+    """Ensure each compound contributes R ln n! for its n molecules in each state."""
+    n = data.draw(st.integers(min_value=1, max_value=4))
+    coefficients = st.lists(
+        st.integers(min_value=0, max_value=5), min_size=n, max_size=n
     )
-    assert rx.thermo.get_reaction_entropies([-1, 2]) == pytest.approx(
-        constants.R * np.log(2),
-    )
-    assert rx.thermo.get_reaction_entropies([-3, 1]) == pytest.approx(
-        -constants.R * np.log(factorial(3)),
-    )
-    assert rx.thermo.get_reaction_entropies([-1, 3]) == pytest.approx(
-        constants.R * np.log(factorial(3)),
-    )
-
-    assert rx.thermo.get_reaction_entropies([-1, 0]) == pytest.approx(0.0)
-    assert rx.thermo.get_reaction_entropies([0, 1]) == pytest.approx(0.0)
-
-    assert rx.thermo.get_reaction_entropies([[-2, -1], [1, 3]]) == pytest.approx(
-        constants.R * np.array([-np.log(2), np.log(factorial(3))]),
-    )
-    assert rx.thermo.get_reaction_entropies([[-1, -2], [1, 3]]) == pytest.approx(
-        [0.0, constants.R * (np.log(factorial(3) / 2))],
-    )
-
-    scheme = rx.parse_reactions("A + B -> C")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(0.0)
-
-    scheme = rx.parse_reactions("C -> A + B")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(0.0)
-
-    scheme = rx.parse_reactions("A + B <=> C")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(0.0)
-
-    scheme = rx.parse_reactions("2A -> C")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(
-        -constants.R * np.log(2),
-    )
-
-    scheme = rx.parse_reactions("C -> 2A")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(
-        constants.R * np.log(2),
-    )
-
-    scheme = rx.parse_reactions("2A <=> C")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(
-        constants.R * np.log(2) * np.array([-1, 1]),
-    )
-
-    scheme = rx.parse_reactions("2A + 3B + 4C <=> 5D + 6E + 7F")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(
+    initial, final = data.draw(coefficients), data.draw(coefficients)
+    assert rx.thermo.get_reaction_entropies(initial, final) == pytest.approx(
         constants.R
-        * (
-            np.log(
-                factorial(5)
-                * factorial(6)
-                * factorial(7)
-                / (2 * factorial(3) * factorial(4)),
-            )
-        )
-        * np.array([1, -1]),
-    )
-
-    assert rx.thermo.get_reaction_entropies(
-        rx.parse_reactions("2A(g) + 3B(g) + 4C(g) <=> 5D(g) + 6E(g) + 7F(g").A,
-    ) == pytest.approx(
-        rx.thermo.get_reaction_entropies(
-            rx.parse_reactions("2A(w) + 3B(w) + 4C(w) <=> 5D(w) + 6E(w) + 7F(w").A,
-        ),
+        * (np.log(factorial(final)).sum() - np.log(factorial(initial)).sum()),
     )

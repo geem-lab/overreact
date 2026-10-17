@@ -8,7 +8,7 @@ __all__ = ["change_reference_state", "equilibrium_constant"]
 import logging
 
 import numpy as np
-from scipy.special import factorial
+from scipy.special import gammaln
 
 import overreact as rx
 from overreact import _constants as constants
@@ -807,12 +807,12 @@ def change_reference_state(
 
 
 # TODO(schneiderfelipe): we need a concrete example of this for testing.
-def get_reaction_entropies(transform, temperature=298.15, pressure=constants.atm):
+def get_reaction_entropies(initial, final):
     r"""Calculate entropy contributions from the overall reaction structure.
 
     This function currently implements the reaction translational entropy, a
-    result of the indistinguishability of reactants or products, i.e., a
-    difference in entropy of :math:`R ln 2!` for the reactions
+    result of the indistinguishability of molecules of each compound, i.e., a
+    difference in entropy of :math:`R \ln 2!` for the reactions
 
     .. math::
         \ce{A + B -> C}
@@ -824,11 +824,9 @@ def get_reaction_entropies(transform, temperature=298.15, pressure=constants.atm
 
     Parameters
     ----------
-    transform : array-like
-    temperature : array-like, optional
-        Absolute temperature in Kelvin.
-    pressure : array-like, optional
-        Reference gas pressure.
+    initial, final : array-like
+        Stoichiometric coefficients of the initial and final states, with one
+        row per compound and one column per transformation.
 
     Returns
     -------
@@ -839,35 +837,25 @@ def get_reaction_entropies(transform, temperature=298.15, pressure=constants.atm
     >>> import overreact as rx
 
     >>> scheme = rx.parse_reactions("A + B <=> C")
-    >>> get_reaction_entropies(scheme.A)
+    >>> get_reaction_entropies(scheme.reactants, scheme.products)
     array([0.0, 0.0])
     >>> scheme = rx.parse_reactions("2A <=> C")
-    >>> get_reaction_entropies(scheme.A)
-    array([-5.763, 5.763])
-    >>> get_reaction_entropies(scheme.A, temperature=400.0)
+    >>> get_reaction_entropies(scheme.reactants, scheme.products)
     array([-5.763, 5.763])
 
-    >>> scheme = rx.parse_reactions("A <=> B + C")
-    >>> get_reaction_entropies(scheme.A)
-    array([0.0, 0.0])
-    >>> scheme = rx.parse_reactions("A <=> 2B")
-    >>> get_reaction_entropies(scheme.A)
-    array([ 5.763, -5.763])
+    Molecules on both sides of a reaction count in each state:
 
-    >>> scheme = rx.parse_reactions("A + B -> E# -> C")
-    >>> get_reaction_entropies(scheme.A)
-    array([0.0])
-    >>> get_reaction_entropies(scheme.B)
-    array([0.0])
-    >>> scheme = rx.parse_reactions("2A -> E# -> C")
-    >>> get_reaction_entropies(scheme.A)
+    >>> scheme = rx.parse_reactions("2B -> B + C")
+    >>> get_reaction_entropies(scheme.reactants, scheme.products)
     array([-5.763])
-    >>> get_reaction_entropies(scheme.B)
+
+    Activation entropies use the activated state:
+
+    >>> scheme = rx.parse_reactions("2A -> E# -> C")
+    >>> get_reaction_entropies(scheme.reactants, scheme.activated)
     array([-5.763])
     """
-    sym = factorial(np.abs(np.asarray(transform)))
-    return np.sum(
-        np.sign(transform)
-        * change_reference_state(sym, 1, temperature=temperature, pressure=pressure),
-        axis=0,
+    return constants.R * (
+        gammaln(np.asarray(final) + 1).sum(axis=0)
+        - gammaln(np.asarray(initial) + 1).sum(axis=0)
     )
