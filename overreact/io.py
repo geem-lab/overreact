@@ -263,6 +263,7 @@ def _parse_source(file_path_or_str):
     return DotDict(sections)
 
 
+# TODO(schneiderfelipe): this function has no callers.
 def _unparse_source(model):
     """Unparse a source input file (also known as a `.k` file).
 
