@@ -54,7 +54,6 @@ def test_basic_example_for_solvation_equilibria() -> None:
     )
 
     for qrrho in [False, (False, True), True]:
-        # TODO(schneiderfelipe): log the contribution of reaction symmetry
         delta_freeenergies = (
             model.scheme.reaction_deltas(
                 rx.get_freeenergies(
