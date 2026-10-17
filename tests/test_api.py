@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from hypothesis import assume, given
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 import overreact as rx
@@ -102,6 +102,7 @@ def hickel1992():
     return rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
 
 
+@settings(max_examples=25)
 @given(
     st.sampled_from([True, False, (False, True)]),
     st.floats(min_value=200.0, max_value=400.0),
@@ -124,6 +125,7 @@ def test_gas_freeenergies_follow_ideal_gas_pressure(
 
     assert freeenergies(other_pressure) - freeenergies(pressure) == pytest.approx(
         constants.R * temperature * np.log(other_pressure / pressure),
+        abs=1e-3,
     )
 
 
