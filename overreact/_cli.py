@@ -360,7 +360,10 @@ class Report:
             )
         yield compounds_table
 
-        # TODO(schneiderfelipe): log the contribution of reaction symmetry
+        logger.info(
+            "reaction symmetry entropies: "
+            f"{', '.join([f'{v:7.3g}' for v in scheme.reaction_entropies])} J·mol⁻¹·K⁻¹",
+        )
         delta_mass = scheme.reaction_deltas(molecular_masses)
         delta_energies = scheme.reaction_deltas(energies)
         delta_internal_energies = scheme.reaction_deltas(internal_energies)
@@ -375,7 +378,10 @@ class Report:
             "reaction free energies do not match reaction enthalpies and reaction entropies"
         )
 
-        # TODO(schneiderfelipe): log the contribution of reaction symmetry
+        logger.info(
+            "activation symmetry entropies: "
+            f"{', '.join([f'{v:7.3g}' for v in scheme.activation_entropies])} J·mol⁻¹·K⁻¹",
+        )
         delta_activation_mass = scheme.activation_deltas(molecular_masses)
         delta_activation_energies = scheme.activation_deltas(energies)
         delta_activation_internal_energies = scheme.activation_deltas(internal_energies)
@@ -727,9 +733,13 @@ def _prepare_simulation(scheme, k, concentrations):
 
         d[name] = quantity
 
-    # TODO(schneiderfelipe): log stuff related to fixed concentrations
     scheme, factors = scheme.fix(fixed_y0)
     k = k * factors
+    logger.info(f"fixed concentrations: {fixed_y0}")
+    logger.info(
+        "reaction rate constant factors from fixed concentrations: "
+        f"{', '.join([f'{v:7.3g}' for v in factors])}",
+    )
 
     y0 = np.zeros(len(scheme.compounds))
     for compound in free_y0:

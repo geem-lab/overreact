@@ -554,7 +554,10 @@ def get_k(
             pressure=pressure,
         )
 
-        # TODO(schneiderfelipe): log the contribution of reaction symmetry
+        logger.info(
+            "activation symmetry entropies: "
+            f"{', '.join([f'{v:7.3g}' for v in scheme.activation_entropies])} J·mol⁻¹·K⁻¹",
+        )
         delta_freeenergies = (
             scheme.activation_deltas(freeenergies)
             - temperature * scheme.activation_entropies
