@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 import overreact as rx
 
@@ -51,38 +53,21 @@ def test_derivative_order() -> None:
         rx._misc._derivative(np.sin, x0=0, n=2, order=4)
 
 
-def test_first_derivative() -> None:
-    """Confirms the right value for the first derivative of a function."""
-    for order in [3, 5, 7, 9]:
-        first_derivative = rx._misc._derivative(np.sin, x0=np.pi / 2, n=1, order=order)
-        assert first_derivative == pytest.approx(np.cos(np.pi / 2))
-
-
-# TODO(mrauen): I couldn't find a case in overreact where we use the second (or higher) derivatives. Therefore, I think we can delete this piece of code...Or maybe just leave it here for the future implementations (who knows)
-def test_second_derivative() -> None:
-    """Confirms the right value for the second derivative of a function."""
-    for order in [3, 5, 7, 9]:
-        second_derivative = rx._misc._derivative(np.sin, x0=0, n=2, order=order)
-        assert second_derivative == pytest.approx(-np.sin(0))
-
-
-def test_high_order_derivative() -> None:
-    """Confirms the right value for the nth derivative of a function."""
-    first_derivative_high_order = rx._misc._derivative(
-        np.sin,
-        x0=np.pi / 2,
-        n=1,
-        order=11,
+@given(st.data())
+def test_derivative_is_exact_for_polynomials(data) -> None:
+    """Ensure central differences of order m are exact for polynomials of degree below m."""
+    order = data.draw(st.sampled_from([3, 5, 7, 9, 11]))
+    n = data.draw(st.integers(min_value=1, max_value=order - 1))
+    coefficients = data.draw(
+        st.lists(st.integers(min_value=-5, max_value=5), min_size=1, max_size=order),
     )
-    assert first_derivative_high_order == pytest.approx(np.cos(np.pi / 2), rel=1e-3)
-
-    second_derivative_high_order = rx._misc._derivative(
-        np.sin,
-        x0=np.pi / 2,
-        n=2,
-        order=11,
+    x0 = data.draw(st.floats(min_value=-2.0, max_value=2.0))
+    polynomial = np.polynomial.Polynomial(coefficients)
+    assert rx._misc._derivative(polynomial, x0=x0, n=n, order=order) == pytest.approx(
+        polynomial.deriv(n)(x0),
+        rel=1e-6,
+        abs=1e-6,
     )
-    assert second_derivative_high_order == pytest.approx(-np.sin(np.pi / 2), rel=1e-3)
 
 
 @rx._misc.copy_unhashable()
