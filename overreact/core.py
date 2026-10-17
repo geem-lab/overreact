@@ -81,6 +81,12 @@ class Scheme:
             ):
                 msg = f"invalid transition state index {ts}"
                 raise ValueError(msg)
+        for i, compound in enumerate(self.compounds):
+            if is_transition_state(compound) and (
+                self._reactants[i].any() or self._products[i].any()
+            ):
+                msg = f"transition state {compound} cannot be a reactant or product"
+                raise ValueError(msg)
 
         halves = [k for pair in self.equilibria for k in pair]
         for i, j in self.equilibria:
@@ -117,7 +123,8 @@ class Scheme:
         Raises
         ------
         ValueError
-            If an equilibrium involves a transition state.
+            If an equilibrium involves a transition state, or a transition state
+            does not link reactants to products.
 
         Notes
         -----
@@ -140,7 +147,8 @@ class Scheme:
         can be chained one after another and, if a single compound (with either a
         `‡` or a `#` at the end) appears alone on one side of a reaction, it's
         considered a transition state. Transition states have zero lifetime during
-        the simulation.
+        the simulation, so each one must link reactants to products and can never
+        be a reactant or product itself.
 
         Examples
         --------
@@ -278,26 +286,16 @@ class Scheme:
         >>> scheme.transition_states
         (1, None)
 
-        The following is correct behavior. In fact, the reactions are badly
-        defined: if more than one transition state are chained, the following
-        happens, which is correct since it's the most physically plausible model
-        that can be extracted. It can be seen as a feature that the product B is
-        ignored and not the reactant A, since the user would easily see the mistake
-        in graphs of concentration over time (the alternative would be no
-        reaction happening at all, which is rather cryptic to debug).
-
-        >>> scheme = Scheme.parse("A -> A‡ -> A'‡ -> B")
-        >>> scheme.compounds
-        ('A', 'A‡', "A'‡")
-        >>> scheme.reactions
-        ("A -> A'‡",)
-        >>> scheme.transition_states
-        (1,)
-
-        In any case, it's not clear how a reaction barrier be defined in such a
-        case. If you have a use case, don't hesitate to
+        Chained transition states are rejected, since a transition state would then
+        be produced and consumed, and it's not clear how a reaction barrier could
+        be defined. If you have a use case, don't hesitate to
         [open an issue](https://github.com/geem-lab/overreact/issues/), we'll be
         happy to hear from you.
+
+        >>> Scheme.parse("A -> A‡ -> A'‡ -> B")
+        Traceback (most recent call last):
+        ...
+        ValueError: transition state A'‡ does not link reactants to products
         """
 
         def _coefficients(terms) -> dict[str, int]:
@@ -349,6 +347,14 @@ class Scheme:
                 before_transitions[last_product].append(reactants)
             else:
                 _add(reactants, products, None)
+
+        linked = {record[2] for record in records.values()}
+        for transition in before_transitions.keys() | after_transitions.keys():
+            if transition not in linked:
+                msg = (
+                    f"transition state {transition} does not link reactants to products"
+                )
+                raise ValueError(msg)
 
         compounds: dict[str, int] = {}
         columns = []

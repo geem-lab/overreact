@@ -47,6 +47,13 @@ def test_parse_rejects_transition_states_in_equilibria() -> None:
         rx.Scheme.parse("A <=> A‡ <=> B")
 
 
+@pytest.mark.parametrize("text", ["A -> A‡", "A‡ -> B", "A -> A‡ -> A'‡ -> B"])
+def test_parse_rejects_incomplete_transition_states(text) -> None:
+    """Ensure every transition state links reactants to products."""
+    with pytest.raises(ValueError, match="transition state"):
+        rx.Scheme.parse(text)
+
+
 @pytest.mark.parametrize(
     "text",
     ["A -> B\nA <=> B", "B -> A\nA <=> B", "A <=> B\nA -> B", "A <=> B\nB -> A"],
@@ -64,6 +71,7 @@ def test_equilibria_absorb_plain_reactions(text) -> None:
         ({"reactants": ((0.5,), (0,))}, "integer"),
         ({"transition_states": (2,)}, "transition state"),
         ({"transition_states": (0,)}, "transition state"),
+        ({"compounds": ("A", "B‡")}, "transition state"),
         ({"equilibria": ((0, 1),)}, "equilibri"),
         ({"equilibria": ((0, 0),)}, "equilibri"),
     ],
