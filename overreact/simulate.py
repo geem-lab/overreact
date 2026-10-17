@@ -191,29 +191,16 @@ def get_y(
             atol,
         )
     else:
-        if first_step is None:
-            first_step = np.min([np.finfo(np.float64).eps, max_step / 2.0])
-        logger.warning(f"first step = {first_step} s")
-
-        jac = None
-        if hasattr(dydt, "jac"):
-            jac = dydt.jac
-
-        logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
-        res = solve_ivp(
+        y = _get_y_scipy(
             dydt,
-            t_span,
             y0,
-            method=method,
-            dense_output=True,
-            max_step=max_step,
-            first_step=first_step,
-            rtol=rtol,
-            atol=atol,
-            jac=jac,
+            t_span,
+            method,
+            max_step,
+            first_step,
+            rtol,
+            atol,
         )
-        logger.warning(res)
-        y = res.sol
 
     def r(t):
         # TODO(schneiderfelipe): this is probably not the best way to
@@ -224,6 +211,42 @@ def get_y(
             return dydt(t, y(t))
 
     return y, r
+
+
+def _get_y_scipy(
+    dydt,
+    y0,
+    t_span,
+    method="RK23",
+    max_step=np.inf,
+    first_step=None,
+    rtol=1e-3,
+    atol=1e-6,
+):
+    """Solve an initial value problem with a scipy's solve_ivp()."""
+    if first_step is None:
+        first_step = np.min([np.finfo(np.float64).eps, max_step / 2.0])
+    logger.warning(f"first step = {first_step} s")
+
+    jac = None
+    if hasattr(dydt, "jac"):
+        jac = dydt.jac
+
+    logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
+    res = solve_ivp(
+        dydt,
+        t_span,
+        y0,
+        method=method,
+        dense_output=True,
+        max_step=max_step,
+        first_step=first_step,
+        rtol=rtol,
+        atol=atol,
+        jac=jac,
+    )
+    logger.warning(res)
+    return res.sol
 
 
 def _get_y_diffrax(
