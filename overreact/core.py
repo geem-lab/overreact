@@ -48,20 +48,7 @@ class Scheme:
 
     def __post_init__(self) -> None:
         """Normalize fields to tuples and validate them."""
-        shape = (len(self.compounds), len(self.is_half_equilibrium))
         object.__setattr__(self, "compounds", tuple(self.compounds))
-        for name in ("reactants", "products"):
-            matrix = np.array(getattr(self, name), dtype=int)
-            if matrix.size == 0:
-                matrix = matrix.reshape(shape)
-            if matrix.shape != shape:
-                msg = f"{name} has shape {matrix.shape}, expected {shape}"
-                raise ValueError(msg)
-            if (matrix < 0).any():
-                msg = f"{name} has negative coefficients"
-                raise ValueError(msg)
-            object.__setattr__(self, name, rx._misc.totuple(matrix))
-            object.__setattr__(self, f"_{name}", _read_only(matrix))
         object.__setattr__(
             self,
             "transition_states",
@@ -72,6 +59,23 @@ class Scheme:
             "is_half_equilibrium",
             tuple(bool(x) for x in self.is_half_equilibrium),
         )
+        shape = (len(self.compounds), len(self.is_half_equilibrium))
+        for name in ("reactants", "products"):
+            given = np.asarray(getattr(self, name))
+            matrix = given.astype(int)
+            if matrix.size == 0:
+                matrix = matrix.reshape(shape)
+            if matrix.shape != shape:
+                msg = f"{name} has shape {matrix.shape}, expected {shape}"
+                raise ValueError(msg)
+            if not np.array_equal(given.reshape(shape), matrix):
+                msg = f"{name} has non-integer coefficients"
+                raise ValueError(msg)
+            if (matrix < 0).any():
+                msg = f"{name} has negative coefficients"
+                raise ValueError(msg)
+            object.__setattr__(self, name, rx._misc.totuple(matrix))
+            object.__setattr__(self, f"_{name}", _read_only(matrix))
 
         if len(self.transition_states) != shape[1]:
             msg = f"expected {shape[1]} transition states, got {len(self.transition_states)}"
@@ -84,9 +88,6 @@ class Scheme:
                 raise ValueError(msg)
 
         reactants, products = self._reactants, self._products
-        for j in np.flatnonzero(~(reactants.any(axis=0) | products.any(axis=0))):
-            msg = f"reaction {j} has neither reactants nor products"
-            raise ValueError(msg)
         for i, j in self.equilibria:
             if not (
                 j < shape[1]
@@ -501,9 +502,14 @@ class Scheme:
         array([3091.36])
         """
         fixed = np.isin(self.compounds, list(concentrations))
+        for ts in self.transition_states:
+            if ts is not None and fixed[ts]:
+                msg = f"cannot fix transition state {self.compounds[ts]}"
+                raise ValueError(msg)
         position = np.cumsum(~fixed) - 1
         values = np.array(
             [concentrations[c] for c in itertools.compress(self.compounds, fixed)],
+            dtype=float,
         )
         return (
             Scheme(

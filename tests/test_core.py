@@ -76,7 +76,7 @@ def test_parse_rejects_invalid_equilibria(text) -> None:
     [
         ({"reactants": ((1,),)}, "shape"),
         ({"reactants": ((-1,), (0,))}, "negative"),
-        ({"reactants": ((0,), (0,)), "products": ((0,), (0,))}, "neither"),
+        ({"reactants": ((0.5,), (0,))}, "integer"),
         ({"transition_states": (2,)}, "transition state"),
         ({"transition_states": (0,)}, "transition state"),
         ({"is_half_equilibrium": (True,)}, "equilibri"),
@@ -174,14 +174,16 @@ def test_activation_entropies_end_at_transition_states(reaction) -> None:
 
 @given(
     reactions(),
-    st.dictionaries(st.sampled_from(COMPOUNDS), st.floats(0.1, 10.0)),
+    st.dictionaries(
+        st.sampled_from(COMPOUNDS),
+        st.floats(0.1, 10.0) | st.integers(1, 10**10),
+    ),
 )
 def test_fix_removes_compounds_and_scales_rates(reaction, concentrations) -> None:
     """Ensure fixing drops compounds and scales rates by their concentrations."""
     reactants, products, transition, text = reaction
     free_reactants = {c: n for c, n in reactants.items() if c not in concentrations}
     free_products = {c: n for c, n in products.items() if c not in concentrations}
-    assume(free_reactants or free_products)
     scheme, factors = rx.Scheme.parse(text).fix(concentrations)
     assert _by_name(scheme) == (
         set(free_reactants) | set(free_products) | ({transition} - {None}),
@@ -190,3 +192,9 @@ def test_fix_removes_compounds_and_scales_rates(reaction, concentrations) -> Non
     assert factors == pytest.approx(
         [math.prod(concentrations.get(c, 1.0) ** n for c, n in reactants.items())],
     )
+
+
+def test_fix_rejects_transition_states() -> None:
+    """Ensure transition states cannot have fixed concentrations."""
+    with pytest.raises(ValueError, match="transition state"):
+        rx.Scheme.parse("A -> A‡ -> B").fix({"A‡": 1.0})
