@@ -5,9 +5,23 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import _constants as constants
+
+scales = st.sampled_from(
+    [
+        "cm3 mol-1 s-1",
+        "l mol-1 s-1",
+        "m3 mol-1 s-1",
+        "cm3 particle-1 s-1",
+        "mmHg-1 s-1",
+        "atm-1 s-1",
+    ],
+)
+temperatures = st.floats(min_value=100.0, max_value=1000.0)
 
 
 def test_sanity_for_chemical_kinetics() -> None:
@@ -253,42 +267,45 @@ def test_conversion_of_rate_constants_work() -> None:
     )
 
 
-def test_conversion_rates_know_about_reaction_order() -> None:
-    """Ensure calculated factors satisfy the reaction order requirements."""
-    assert rx.rates.convert_rate_constant(
-        1.0,
-        "cm3 particle-1 s-1",
-        "atm-1 s-1",
-    ) == pytest.approx(1.0)
-    assert (
-        rx.rates.convert_rate_constant(
-            1.0,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=3,
-        )
-        == rx.rates.convert_rate_constant(
-            1.0,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=2,
-        )
-        ** 2
+@given(scales, scales, temperatures, st.integers(min_value=1, max_value=5))
+def test_conversion_factors_scale_with_reaction_order(
+    new_scale, old_scale, temperature, molecularity
+) -> None:
+    """Ensure conversion factors are bimolecular factors to the order minus one."""
+    factor = rx.rates.convert_rate_constant(
+        1.0, new_scale, old_scale, molecularity=2, temperature=temperature
     )
-    assert (
-        rx.rates.convert_rate_constant(
-            1.0,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=4,
-        )
-        == rx.rates.convert_rate_constant(
-            1.0,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=2,
-        )
-        ** 3
+    assert rx.rates.convert_rate_constant(
+        1.0, new_scale, old_scale, molecularity=molecularity, temperature=temperature
+    ) == pytest.approx(factor ** (molecularity - 1))
+
+
+@given(scales, scales, temperatures, st.integers(min_value=1, max_value=5))
+def test_conversion_of_rate_constants_round_trips(
+    new_scale, old_scale, temperature, molecularity
+) -> None:
+    """Ensure converting back and forth gives the original rate constant."""
+    kwargs = {"molecularity": molecularity, "temperature": temperature}
+    k = rx.rates.convert_rate_constant(1.0, new_scale, old_scale, **kwargs)
+    assert rx.rates.convert_rate_constant(k, old_scale, new_scale, **kwargs) == (
+        pytest.approx(1.0)
+    )
+
+
+@given(
+    st.floats(min_value=0.0, max_value=100.0),
+    st.floats(min_value=-10.0, max_value=10.0),
+    temperatures,
+)
+def test_eyring_rates_grow_exponentially_with_lower_barriers(
+    barrier, decrease, temperature
+) -> None:
+    """Ensure lowering a barrier by x multiplies rates by exp(x / RT)."""
+    barrier, decrease = barrier * constants.kcal, decrease * constants.kcal
+    assert rx.rates.eyring(
+        barrier - decrease, temperature=temperature
+    ) / rx.rates.eyring(barrier, temperature=temperature) == pytest.approx(
+        np.exp(decrease / (constants.R * temperature))
     )
 
 

@@ -353,7 +353,7 @@ def eyring(
     It is well known that, at room temperature, if you "decrease" a reaction
     barrier by 1.4 kcal/mol, the reaction becomes around ten times faster:
 
-    >>> dG = np.random.uniform(1.0, 100.0) * constants.kcal
+    >>> dG = 20.0 * constants.kcal
     >>> eyring(dG - 1.4 * constants.kcal) / eyring(dG)
     array([10.])
 
