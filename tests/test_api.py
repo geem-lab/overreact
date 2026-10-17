@@ -4,23 +4,35 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import _constants as constants
 
 
-@given(st.floats(-50.0, 50.0), st.floats(-50.0, 50.0))
-def test_get_k_satisfies_detailed_balance(forward, reverse) -> None:
-    """Ensure equilibria rate constants have the ratio exp(-dG/RT), whatever the reverse."""
+@given(st.floats(-50.0, 50.0))
+def test_get_k_satisfies_detailed_balance(delta_freeenergy) -> None:
+    """Ensure equilibria rate constants have the ratio exp(-dG/RT)."""
+    delta_freeenergy *= constants.kcal
     k = rx.get_k(
         rx.Scheme.parse("A <=> B"),
-        delta_freeenergies=[forward * constants.kcal, reverse * constants.kcal],
+        delta_freeenergies=[delta_freeenergy, -delta_freeenergy],
     )
     assert k[0] == pytest.approx(
-        k[1] * np.exp(-forward * constants.kcal / (constants.R * 298.15)),
+        k[1] * np.exp(-delta_freeenergy / (constants.R * 298.15)),
     )
+
+
+@given(st.floats(-50.0, 50.0), st.floats(-50.0, 50.0))
+def test_get_k_rejects_inconsistent_equilibria(forward, reverse) -> None:
+    """Ensure the reverse half of an equilibrium must undo the forward half."""
+    assume(not np.isclose(forward, -reverse))
+    with pytest.raises(ValueError, match="reverse"):
+        rx.get_k(
+            rx.Scheme.parse("A <=> B"),
+            delta_freeenergies=[forward * constants.kcal, reverse * constants.kcal],
+        )
 
 
 def test_get_enthalpies() -> None:

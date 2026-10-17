@@ -454,7 +454,7 @@ def get_k(
         Reference gas pressure.
     delta_freeenergies : array-like, optional
         Use this instead of obtaining delta free energies from the compounds.
-        For equilibria, only the value of the forward half is used.
+        For equilibria, the reverse half must be minus the forward half.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
         If set, this is used to calculate `delta_moles` for
@@ -468,6 +468,11 @@ def get_k(
     Returns
     -------
     array-like
+
+    Raises
+    ------
+    ValueError
+        If the reverse half of an equilibrium does not undo its forward half.
 
     Notes
     -----
@@ -578,6 +583,9 @@ def get_k(
 
     # equilibria only fix ratios: make the smallest rate constant of each pair one
     for i, j in scheme.equilibria:
+        if not np.isclose(delta_freeenergies[j], -delta_freeenergies[i]):
+            msg = f"the reverse half of equilibrium '{scheme.reactions[i]}' must undo its forward half"
+            raise ValueError(msg)
         equilibrium_constant = np.squeeze(
             rx.thermo.equilibrium_constant(
                 delta_freeenergies[i],
