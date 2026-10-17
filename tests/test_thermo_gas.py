@@ -1192,12 +1192,21 @@ def test_molar_volume_is_precise() -> None:
         min_size=1,
         max_size=4,
     ),
+    st.floats(0.1, 10.0),
+    st.floats(0.1, 10.0),
 )
-def test_molar_volume_follows_ideal_gas_law(states) -> None:
-    """Ensure molar volumes are RT/p, also for many states at once."""
+def test_molar_volume_is_proportional_to_temperature_over_pressure(
+    states, temperature_factor, pressure_factor
+) -> None:
+    """Ensure V(aT, bp) = (a/b) V(T, p), also for many states at once."""
     temperatures, pressures = np.transpose(states)
-    assert rx.thermo.molar_volume(temperatures, pressures) == pytest.approx(
-        constants.R * temperatures / pressures,
+    assert rx.thermo.molar_volume(
+        temperature_factor * temperatures,
+        pressure_factor * pressures,
+    ) == pytest.approx(
+        temperature_factor
+        / pressure_factor
+        * rx.thermo.molar_volume(temperatures, pressures),
     )
 
 

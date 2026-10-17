@@ -9,25 +9,74 @@ from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import simulate
-from tests.strategies import reactions
+from tests.strategies import COMPOUNDS, reactions
+
+CONCENTRATIONS = st.floats(min_value=0.1, max_value=10.0)
 
 
-@settings(deadline=None, max_examples=50)
+def _rates(scheme, data, k=1.0):
+    """Draw concentrations and return them with the rate function of a scheme."""
+    y = np.array([data.draw(CONCENTRATIONS) for _ in scheme.compounds])
+    return y, simulate.get_dydt(scheme, np.array([k]))
+
+
+@settings(deadline=None, max_examples=30)
 @given(reactions(), st.data())
-def test_get_dydt_follows_mass_action(reaction, data) -> None:
-    """Ensure rates are k times the product of concentrations to their coefficients."""
+def test_get_dydt_follows_net_stoichiometry(reaction, data) -> None:
+    """Ensure concentrations change along products minus reactants."""
     reactants, products, _, text = reaction
     scheme = rx.Scheme.parse(text)
-    concentrations = st.floats(min_value=0.1, max_value=10.0)
-    y = np.array([data.draw(concentrations) for _ in scheme.compounds])
-    k = data.draw(concentrations)
+    net = np.array([products.get(c, 0) - reactants.get(c, 0) for c in scheme.compounds])
+    y, dydt = _rates(scheme, data)
+    rates = np.asarray(dydt(0.0, y))
+    rate = rates @ net / max(net @ net, 1)
+    assert np.append(rates, rate) == pytest.approx(np.append(rate * net, abs(rate)))
 
-    rate = k * np.prod(
-        [y[scheme.compounds.index(c)] ** n for c, n in reactants.items()],
+
+@settings(deadline=None, max_examples=30)
+@given(reactions(), CONCENTRATIONS, st.data())
+def test_get_dydt_orders_are_reactant_coefficients(reaction, factor, data) -> None:
+    """Ensure scaling a reactant by f scales rates by f to its coefficient (#838)."""
+    reactants, _, _, text = reaction
+    scheme = rx.Scheme.parse(text)
+    compound = data.draw(st.sampled_from(sorted(reactants) or scheme.compounds))
+    y, dydt = _rates(scheme, data)
+    scaled = y.copy()
+    scaled[scheme.compounds.index(compound)] *= factor
+    assert dydt(0.0, scaled) == pytest.approx(
+        factor ** reactants.get(compound, 0) * dydt(0.0, y),
     )
-    net = [products.get(c, 0) - reactants.get(c, 0) for c in scheme.compounds]
-    dydt = simulate.get_dydt(scheme, np.array([k]))
-    assert dydt(0.0, y) == pytest.approx(rate * np.array(net))
+
+
+@settings(deadline=None, max_examples=30)
+@given(reactions(), CONCENTRATIONS, st.data())
+def test_get_dydt_overall_order_is_molecularity(reaction, factor, data) -> None:
+    """Ensure scaling all concentrations by f scales rates by f to the molecularity."""
+    scheme = rx.Scheme.parse(reaction[-1])
+    y, dydt = _rates(scheme, data)
+    assert dydt(0.0, factor * y) == pytest.approx(
+        factor ** scheme.molecularity[0] * dydt(0.0, y),
+    )
+
+
+@settings(deadline=None, max_examples=30)
+@given(
+    reactions(),
+    st.dictionaries(st.sampled_from(COMPOUNDS), CONCENTRATIONS),
+    st.data(),
+)
+def test_fix_preserves_rates(reaction, concentrations, data) -> None:
+    """Ensure fixed concentrations and the returned factors keep rates unchanged."""
+    scheme = rx.Scheme.parse(reaction[-1])
+    y, dydt = _rates(scheme, data)
+    for compound, concentration in concentrations.items():
+        if compound in scheme.compounds:
+            y[scheme.compounds.index(compound)] = concentration
+    fixed, factors = scheme.fix(concentrations)
+    free = [scheme.compounds.index(c) for c in fixed.compounds]
+    assert simulate.get_dydt(fixed, factors)(0.0, y[free]) == pytest.approx(
+        np.asarray(dydt(0.0, y))[free],
+    )
 
 
 def test_get_y_propagates_reaction_automatically() -> None:

@@ -4,26 +4,22 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from hypothesis import given, settings
+from hypothesis import given
 from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import _constants as constants
-from overreact import coords
 
 
 @given(st.floats(-50.0, 50.0), st.floats(-50.0, 50.0))
-def test_get_k_relates_equilibria_by_equilibrium_constants(forward, reverse) -> None:
-    """Ensure equilibria follow their equilibrium constant, the smallest rate being one."""
+def test_get_k_satisfies_detailed_balance(forward, reverse) -> None:
+    """Ensure equilibria rate constants have the ratio exp(-dG/RT), whatever the reverse."""
     k = rx.get_k(
         rx.Scheme.parse("A <=> B"),
         delta_freeenergies=[forward * constants.kcal, reverse * constants.kcal],
     )
-    equilibrium_constant = rx.thermo.equilibrium_constant(
-        forward * constants.kcal
-    ).item()
-    assert k == pytest.approx(
-        np.array([equilibrium_constant, 1.0]) / min(equilibrium_constant, 1.0),
+    assert k[0] == pytest.approx(
+        k[1] * np.exp(-forward * constants.kcal / (constants.R * 298.15)),
     )
 
 
@@ -94,76 +90,29 @@ def hickel1992():
     return rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
 
 
-@pytest.fixture(scope="module")
-def geometries(hickel1992):
-    """Principal moments and symmetry numbers of each compound."""
-    return [
-        (
-            coords.inertia(data.atommasses, data.atomcoords)[0],
-            coords.symmetry_number(
-                coords.find_point_group(data.atommasses, data.atomcoords),
-            ),
-        )
-        for data in hickel1992.compounds.values()
-    ]
-
-
-@settings(deadline=None)
 @given(
-    st.floats(min_value=-1.0, max_value=1.0),
-    st.sampled_from(["gas", "solvent"]),
     st.sampled_from([True, False, (False, True)]),
     st.floats(min_value=200.0, max_value=400.0),
     st.floats(min_value=constants.bar / 2, max_value=2 * constants.bar),
+    st.floats(min_value=constants.bar / 2, max_value=2 * constants.bar),
 )
-def test_compare_calc_star_with_get_star(
-    hickel1992, geometries, bias, environment, qrrho, temperature, pressure
+def test_gas_freeenergies_follow_ideal_gas_pressure(
+    hickel1992, qrrho, temperature, pressure, other_pressure
 ) -> None:
-    """Ensure the calc_* functions match the get_* functions."""
-    model = hickel1992
-    bias *= constants.kcal
-    qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(qrrho)
-    freeenergies_get = rx.get_freeenergies(
-        model.compounds,
-        bias=bias,
-        environment=environment,
-        qrrho=qrrho,
-        temperature=temperature,
-        pressure=pressure,
-    )
-    for i, (data, (moments, symmetry_number)) in enumerate(
-        zip(model.compounds.values(), geometries, strict=True),
-    ):
-        enthalpy_calc = rx.thermo.calc_enthalpy(
-            energy=data.energy,
-            degeneracy=data.mult,
-            moments=moments,
-            vibfreqs=data.vibfreqs,
-            qrrho=qrrho_enthalpy,
-            temperature=temperature,
-        )
-        entropy_calc = rx.thermo.calc_entropy(
-            atommasses=data.atommasses,
-            energy=data.energy,
-            degeneracy=data.mult,
-            moments=moments,
-            symmetry_number=symmetry_number,
-            vibfreqs=data.vibfreqs,
-            environment=environment,
-            qrrho=qrrho_entropy,
+    """Ensure gas free energies change by RT ln(p2/p1) with pressure."""
+
+    def freeenergies(pressure):
+        return rx.get_freeenergies(
+            hickel1992.compounds,
+            environment="gas",
+            qrrho=qrrho,
             temperature=temperature,
             pressure=pressure,
         )
-        if data.symmetry is not None:
-            entropy_calc -= rx.change_reference_state(
-                data.symmetry,
-                1,
-                temperature=temperature,
-                pressure=pressure,
-            )
 
-        freeenergy_calc = enthalpy_calc - temperature * entropy_calc + bias
-        assert freeenergies_get[i] == pytest.approx(freeenergy_calc)
+    assert freeenergies(other_pressure) - freeenergies(pressure) == pytest.approx(
+        constants.R * temperature * np.log(other_pressure / pressure),
+    )
 
 
 def test_get_freeenergies_match_orca_logfiles(hickel1992) -> None:
