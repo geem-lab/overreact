@@ -72,6 +72,26 @@ def test_get_freeenergies() -> None:
     )
 
 
+@pytest.fixture(scope="module")
+def hickel1992():
+    """Model of NH3(w) + OH·(w) -> NH2·(w) + H2O(w)."""
+    return rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
+
+
+@pytest.fixture(scope="module")
+def geometries(hickel1992):
+    """Principal moments and symmetry numbers of each compound."""
+    return [
+        (
+            coords.inertia(data.atommasses, data.atomcoords)[0],
+            coords.symmetry_number(
+                coords.find_point_group(data.atommasses, data.atomcoords),
+            ),
+        )
+        for data in hickel1992.compounds.values()
+    ]
+
+
 @settings(deadline=None)
 @given(
     st.floats(min_value=-1.0, max_value=1.0),
@@ -81,10 +101,10 @@ def test_get_freeenergies() -> None:
     st.floats(min_value=constants.bar / 2, max_value=2 * constants.bar),
 )
 def test_compare_calc_star_with_get_star(
-    bias, environment, qrrho, temperature, pressure
+    hickel1992, geometries, bias, environment, qrrho, temperature, pressure
 ) -> None:
     """Ensure the calc_* functions match the get_* functions."""
-    model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
+    model = hickel1992
     bias *= constants.kcal
     qrrho_enthalpy, qrrho_entropy = rx.api._check_qrrho(qrrho)
     freeenergies_get = rx.get_freeenergies(
@@ -95,12 +115,9 @@ def test_compare_calc_star_with_get_star(
         temperature=temperature,
         pressure=pressure,
     )
-    for i, data in enumerate(model.compounds.values()):
-        moments, _, _ = coords.inertia(data.atommasses, data.atomcoords)
-        symmetry_number = coords.symmetry_number(
-            coords.find_point_group(data.atommasses, data.atomcoords),
-        )
-
+    for i, (data, (moments, symmetry_number)) in enumerate(
+        zip(model.compounds.values(), geometries, strict=True),
+    ):
         enthalpy_calc = rx.thermo.calc_enthalpy(
             energy=data.energy,
             degeneracy=data.mult,
@@ -133,9 +150,9 @@ def test_compare_calc_star_with_get_star(
         assert freeenergies_get[i] == pytest.approx(freeenergy_calc)
 
 
-def test_get_freeenergies_match_orca_logfiles() -> None:
+def test_get_freeenergies_match_orca_logfiles(hickel1992) -> None:
     """Ensure free energies match ORCA logfiles."""
-    model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
+    model = hickel1992
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
 
     freeenergies_ref = [

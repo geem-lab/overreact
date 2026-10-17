@@ -10,13 +10,7 @@ from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import _constants as constants
-from tests.strategies import (
-    COMPOUNDS,
-    reactions,
-    reactions_sides,
-    schemes_texts,
-    side_texts,
-)
+from tests.strategies import COMPOUNDS, equilibria, reactions, schemes_texts
 
 
 @given(reactions())
@@ -118,21 +112,9 @@ def _symmetry(side):
     return sum(math.lgamma(n + 1) for n in side.values())
 
 
-def _values(data, scheme):
+def _values(scheme):
     """Draw one value per compound of a scheme."""
-    return dict(
-        zip(
-            scheme.compounds,
-            data.draw(
-                st.lists(
-                    st.floats(-1e3, 1e3),
-                    min_size=len(scheme.compounds),
-                    max_size=len(scheme.compounds),
-                ),
-            ),
-            strict=True,
-        ),
-    )
+    return st.fixed_dictionaries({c: st.floats(-1e3, 1e3) for c in scheme.compounds})
 
 
 @given(reactions(), st.data())
@@ -140,8 +122,10 @@ def test_reaction_deltas_are_products_minus_reactants(reaction, data) -> None:
     """Ensure reaction deltas are product values minus reactant values."""
     reactants, products, _, text = reaction
     scheme = rx.Scheme.parse(text)
-    values = _values(data, scheme)
-    assert scheme.reaction_deltas(list(values.values())) == pytest.approx(
+    values = data.draw(_values(scheme))
+    assert scheme.reaction_deltas(
+        [values[c] for c in scheme.compounds]
+    ) == pytest.approx(
         [_total(products, values) - _total(reactants, values)],
     )
 
@@ -151,24 +135,20 @@ def test_activation_deltas_reach_transition_states(reaction, data) -> None:
     """Ensure activation deltas end at the transition state, if any."""
     reactants, products, transition, text = reaction
     scheme = rx.Scheme.parse(text)
-    values = _values(data, scheme)
+    values = data.draw(_values(scheme))
     final = _total(products, values) if transition is None else values[transition]
-    assert scheme.activation_deltas(list(values.values())) == pytest.approx(
+    assert scheme.activation_deltas(
+        [values[c] for c in scheme.compounds]
+    ) == pytest.approx(
         [final - _total(reactants, values)],
     )
 
 
-@given(
-    reactions_sides.filter(lambda pair: pair[0] != pair[1]).flatmap(
-        lambda pair: st.tuples(side_texts(pair[0]), side_texts(pair[1])),
-    ),
-    st.data(),
-)
-def test_reverse_half_equilibria_have_no_activation(sides, data) -> None:
+@given(equilibria(), st.data())
+def test_reverse_half_equilibria_have_no_activation(text, data) -> None:
     """Ensure only the forward half of an equilibrium has an activation delta."""
-    lhs, rhs = sides
-    scheme = rx.Scheme.parse(f"{lhs} <=> {rhs}")
-    values = list(_values(data, scheme).values())
+    scheme = rx.Scheme.parse(text)
+    values = [data.draw(_values(scheme))[c] for c in scheme.compounds]
     forward, reverse = scheme.activation_deltas(values)
     assert (forward, reverse) == pytest.approx((scheme.reaction_deltas(values)[0], 0.0))
 

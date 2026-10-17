@@ -21,13 +21,10 @@ def side_texts(draw, side: dict[str, int]) -> str:
     for compound, coefficient in side.items():
         while coefficient > 0:
             part = draw(st.integers(min_value=1, max_value=coefficient))
-            prefix = draw(st.sampled_from(["", f"{part} ", f"{part}"]))
-            if part > 1 and not prefix:
-                prefix = f"{part} "
-            terms.append(f"{prefix}{compound}")
+            spellings = [f"{part} ", f"{part}"] + ([""] if part == 1 else [])
+            terms.append(f"{draw(st.sampled_from(spellings))}{compound}")
             coefficient -= part
-    terms = draw(st.permutations(terms))
-    return " + ".join(terms)
+    return " + ".join(draw(st.permutations(terms)))
 
 
 @st.composite
@@ -35,25 +32,26 @@ def reactions(draw) -> tuple[dict[str, int], dict[str, int], str | None, str]:
     """Draw a non-equilibrium reaction as reactants, products, transition state and text."""
     reactants, products = draw(reactions_sides)
     transition = draw(st.sampled_from([None, "T‡", "T#"]))
-    lhs, rhs = draw(side_texts(reactants)), draw(side_texts(products))
-    middle = " -> " if transition is None else f" -> {transition} -> "
-    text = f"{lhs}{middle}{rhs}"
-    if draw(st.booleans()):
-        middle = " <- " if transition is None else f" <- {transition} <- "
-        text = f"{rhs}{middle}{lhs}"
-    return reactants, products, transition, text
+    arrow = draw(st.sampled_from(["->", "<-"]))
+    texts = [draw(side_texts(reactants)), draw(side_texts(products))]
+    if arrow == "<-":
+        texts.reverse()
+    middle = f" {arrow} " if transition is None else f" {arrow} {transition} {arrow} "
+    return reactants, products, transition, middle.join(texts)
+
+
+@st.composite
+def equilibria(draw) -> str:
+    """Draw an equilibrium between two different sides as text."""
+    reactants, products = draw(reactions_sides.filter(lambda pair: pair[0] != pair[1]))
+    return f"{draw(side_texts(reactants))} <=> {draw(side_texts(products))}"
 
 
 @st.composite
 def schemes_texts(draw) -> str:
     """Draw a model description with reactions, equilibria and transition states."""
-    lines = []
-    for _ in range(draw(st.integers(min_value=1, max_value=4))):
-        if draw(st.booleans()):
-            *_, text = draw(reactions())
-        else:
-            reactants, products = draw(reactions_sides)
-            lhs, rhs = draw(side_texts(reactants)), draw(side_texts(products))
-            text = f"{lhs} <=> {rhs}"
-        lines.append(text)
+    lines = [
+        draw(reactions())[-1] if draw(st.booleans()) else draw(equilibria())
+        for _ in range(draw(st.integers(min_value=1, max_value=4)))
+    ]
     return "\n".join(lines)
