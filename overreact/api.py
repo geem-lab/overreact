@@ -586,13 +586,11 @@ def get_k(
         if not np.isclose(delta_freeenergies[j], -delta_freeenergies[i]):
             msg = f"the reverse half of equilibrium '{scheme.reactions[i]}' must undo its forward half"
             raise ValueError(msg)
-        equilibrium_constant = np.squeeze(
-            rx.thermo.equilibrium_constant(
-                delta_freeenergies[i],
-                temperature=temperature,
-                pressure=pressure,
-                volume=volume,
-            ),
+        equilibrium_constant = rx.thermo.equilibrium_constant(
+            delta_freeenergies[i],
+            temperature=temperature,
+            pressure=pressure,
+            volume=volume,
         ).item()
         denom = min(equilibrium_constant, 1.0)
         if denom == 0.0:

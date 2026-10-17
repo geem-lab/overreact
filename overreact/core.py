@@ -15,14 +15,13 @@ from typing import TYPE_CHECKING
 import numpy as np
 from scipy.special import gammaln
 
-import overreact as rx
 from overreact import _constants as constants
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class Scheme:
     """
     A descriptor of a chemical reaction network.
@@ -35,17 +34,17 @@ class Scheme:
 
     compounds: tuple[str, ...]
     """Compound names."""
-    reactants: tuple[tuple[int, ...], ...]
-    """Stoichiometric coefficients of reactants."""
-    products: tuple[tuple[int, ...], ...]
-    """Stoichiometric coefficients of products."""
+    reactants: np.ndarray
+    """Stoichiometric coefficients of reactants (read-only)."""
+    products: np.ndarray
+    """Stoichiometric coefficients of products (read-only)."""
     transition_states: tuple[int | None, ...]
     """Index of the transition state compound of each reaction, if any."""
     equilibria: tuple[tuple[int, int], ...]
     """Indices of the forward and reverse halves of each equilibrium."""
 
     def __post_init__(self) -> None:
-        """Normalize fields to tuples and validate them."""
+        """Normalize fields and validate them."""
         object.__setattr__(self, "compounds", tuple(self.compounds))
         object.__setattr__(
             self,
@@ -72,8 +71,7 @@ class Scheme:
             if (matrix < 0).any():
                 msg = f"{name} has negative coefficients"
                 raise ValueError(msg)
-            object.__setattr__(self, name, rx._misc.totuple(matrix))
-            object.__setattr__(self, f"_{name}", _read_only(matrix))
+            object.__setattr__(self, name, _read_only(matrix))
 
         for ts in self.transition_states:
             if ts is not None and not (
@@ -83,7 +81,7 @@ class Scheme:
                 raise ValueError(msg)
         for i, compound in enumerate(self.compounds):
             if is_transition_state(compound) and (
-                self._reactants[i].any() or self._products[i].any()
+                self.reactants[i].any() or self.products[i].any()
             ):
                 msg = f"transition state {compound} cannot be a reactant or product"
                 raise ValueError(msg)
@@ -96,19 +94,38 @@ class Scheme:
                 and halves.count(i) == halves.count(j) == 1
                 and self.transition_states[i] is None
                 and self.transition_states[j] is None
-                and np.array_equal(self._reactants[:, i], self._products[:, j])
-                and np.array_equal(self._products[:, i], self._reactants[:, j])
+                and np.array_equal(self.reactants[:, i], self.products[:, j])
+                and np.array_equal(self.products[:, i], self.reactants[:, j])
             ):
                 msg = f"invalid equilibrium {(i, j)}: halves must be distinct mutually reverse reactions without transition states"
                 raise ValueError(msg)
+
+    def __eq__(self, other: object) -> bool:
+        """Compare all fields, including the order of compounds."""
+        if not isinstance(other, Scheme):
+            return NotImplemented
+        return self._key == other._key
+
+    def __hash__(self) -> int:
+        """Hash all fields."""
+        return hash(self._key)
+
+    @cached_property
+    def _key(self) -> tuple:
+        return (
+            self.compounds,
+            self.reactants.tobytes(),
+            self.products.tobytes(),
+            self.transition_states,
+            self.equilibria,
+        )
 
     @classmethod
     def parse(cls, text: str | Sequence[str]) -> Scheme:
         """
         Parse a kinetic model.
 
-        This is an essential part of the parsing process.
-        See `overreact.io.parse_model` other details.
+        See `overreact.io.parse_model` for parsing whole models.
 
         Parameters
         ----------
@@ -146,16 +163,11 @@ class Scheme:
         appearance in the resulting reactions. Furthermore, reactions
         can be chained one after another and, if a single compound (with either a
         `‡` or a `#` at the end) appears alone on one side of a reaction, it's
-        considered a transition state. Transition states have zero lifetime during
-        the simulation, so each one must link reactants to products and can never
-        be a reactant or product itself.
+        considered a transition state. A transition state must link reactants to
+        products and is never a reactant or product itself.
 
         Examples
         --------
-        What follows is a rather long tour over the parsing process and its
-        output in general. You can skip it if you are not interested in the
-        details.
-
         >>> scheme = Scheme.parse("A -> B  // a direct reaction")
 
         The reaction above is a direct one (observe that comments are ignored). The
@@ -164,8 +176,8 @@ class Scheme:
 
         >>> scheme
         Scheme(compounds=('A', 'B'),
-               reactants=((1,), (0,)),
-               products=((0,), (1,)),
+               reactants=array([[1], [0]]),
+               products=array([[0], [1]]),
                transition_states=(None,),
                equilibria=())
 
@@ -182,8 +194,8 @@ class Scheme:
 
         >>> Scheme.parse("B <- A  // reverse reaction of the above")
         Scheme(compounds=('A', 'B'),
-               reactants=((1,), (0,)),
-               products=((0,), (1,)),
+               reactants=array([[1], [0]]),
+               products=array([[0], [1]]),
                transition_states=(None,),
                equilibria=())
 
@@ -225,8 +237,8 @@ class Scheme:
         >>> scheme = Scheme.parse("A -> A‡ -> B")
         >>> scheme
         Scheme(compounds=('A', 'A‡', 'B'),
-               reactants=((1,), (0,), (0,)),
-               products=((0,), (0,), (1,)),
+               reactants=array([[1], [0], [0]]),
+               products=array([[0], [0], [1]]),
                transition_states=(1,),
                equilibria=())
         >>> scheme.reactions
@@ -259,7 +271,7 @@ class Scheme:
         As such, a column full of zeros in the $A$ matrix corresponds to a reaction
         with zero net change. As can be seen, overreact allows for very general
         models. An interesting feature is that a single transition state can link
-        many different compounds (whether it is useful is a matter of debate):
+        many different compounds:
 
         >>> scheme = Scheme.parse(\'\'\'
         ...     B  -> B‡  -> C  // chained reactions and transition states
@@ -286,11 +298,7 @@ class Scheme:
         >>> scheme.transition_states
         (1, None)
 
-        Chained transition states are rejected, since a transition state would then
-        be produced and consumed, and it's not clear how a reaction barrier could
-        be defined. If you have a use case, don't hesitate to
-        [open an issue](https://github.com/geem-lab/overreact/issues/), we'll be
-        happy to hear from you.
+        Chained transition states are rejected:
 
         >>> Scheme.parse("A -> A‡ -> A'‡ -> B")
         Traceback (most recent call last):
@@ -305,15 +313,15 @@ class Scheme:
                 coefficients[compound] = coefficients.get(compound, 0) + coefficient
             return coefficients
 
-        records: dict[tuple, tuple[dict, dict, str | None, bool]] = {}
+        # plain reactions keyed by (reactants, products, transition state) and
+        # equilibria keyed by the frozenset of their two sides
+        records: dict[tuple | frozenset, tuple[dict, dict, str | None]] = {}
 
         def _add(reactants, products, transition) -> None:
             sides = frozenset(reactants.items()), frozenset(products.items())
             if transition is None and frozenset(sides) in records:
                 return  # absorbed by an equilibrium
-            records.setdefault(
-                (*sides, transition), (reactants, products, transition, False)
-            )
+            records.setdefault((*sides, transition), (reactants, products, transition))
 
         after_transitions = collections.defaultdict(list)
         before_transitions = collections.defaultdict(list)
@@ -329,7 +337,7 @@ class Scheme:
                 sides = frozenset(reactants.items()), frozenset(products.items())
                 records.pop((*sides, None), None)
                 records.pop((*reversed(sides), None), None)
-                records.setdefault(frozenset(sides), (reactants, products, None, True))
+                records.setdefault(frozenset(sides), (reactants, products, None))
                 continue
 
             # it's assumed that if a transition shows up,
@@ -359,12 +367,12 @@ class Scheme:
         compounds: dict[str, int] = {}
         columns = []
         equilibria = []
-        for reactants, products, transition, is_equilibrium in records.values():
+        for key, (reactants, products, transition) in records.items():
             for compound in itertools.chain(
                 reactants, (transition,) if transition else (), products
             ):
                 compounds.setdefault(compound, len(compounds))
-            if is_equilibrium:
+            if isinstance(key, frozenset):
                 equilibria.append((len(columns), len(columns) + 1))
                 columns += [(reactants, products, None), (products, reactants, None)]
             else:
@@ -393,7 +401,7 @@ class Scheme:
         """Reactions as text, without transition states."""
         return tuple(
             f"{_unparse_side(self._side(r))} -> {_unparse_side(self._side(p))}".strip()
-            for r, p in zip(self._reactants.T, self._products.T, strict=True)
+            for r, p in zip(self.reactants.T, self.products.T, strict=True)
         )
 
     @cached_property
@@ -405,12 +413,12 @@ class Scheme:
     @cached_property
     def A(self) -> np.ndarray:  # noqa: N802
         """Net stoichiometric coefficients, from reactants to products."""
-        return _read_only(self._products - self._reactants)
+        return _read_only(self.products - self.reactants)
 
     @cached_property
     def molecularity(self) -> np.ndarray:
         """Number of reactant molecules of each reaction, zero for sources."""
-        return _read_only(self._reactants.sum(axis=0))
+        return _read_only(self.reactants.sum(axis=0))
 
     def reaction_deltas(self, values) -> np.ndarray:
         """Change of per-compound values from reactants to products.
@@ -456,7 +464,7 @@ class Scheme:
         array([-5.763])
         """
         return _read_only(
-            _symmetry_entropies(self._products) - _symmetry_entropies(self._reactants),
+            _symmetry_entropies(self.products) - _symmetry_entropies(self.reactants),
         )
 
     @cached_property
@@ -469,7 +477,7 @@ class Scheme:
         array([-5.763])
         """
         return _read_only(
-            _symmetry_entropies(self._activated) - _symmetry_entropies(self._reactants),
+            _symmetry_entropies(self._activated) - _symmetry_entropies(self.reactants),
         )
 
     def fix(self, concentrations) -> tuple[Scheme, np.ndarray]:
@@ -509,15 +517,15 @@ class Scheme:
         return (
             Scheme(
                 compounds=tuple(itertools.compress(self.compounds, ~fixed)),
-                reactants=self._reactants[~fixed],
-                products=self._products[~fixed],
+                reactants=self.reactants[~fixed],
+                products=self.products[~fixed],
                 transition_states=tuple(
                     None if ts is None else int(position[ts])
                     for ts in self.transition_states
                 ),
                 equilibria=self.equilibria,
             ),
-            np.prod(values[:, np.newaxis] ** self._reactants[fixed], axis=0),
+            np.prod(values[:, np.newaxis] ** self.reactants[fixed], axis=0),
         )
 
     def __str__(self) -> str:
@@ -576,7 +584,7 @@ class Scheme:
     @cached_property
     def _activated(self) -> np.ndarray:
         """Coefficients of the activated state of each reaction."""
-        activated = self._products.copy()
+        activated = self.products.copy()
         for i, ts in enumerate(self.transition_states):
             if ts is not None:
                 activated[:, i] = 0
@@ -586,7 +594,7 @@ class Scheme:
     @cached_property
     def _activation(self) -> np.ndarray:
         """Coefficients from reactants to the activated state."""
-        return _read_only(self._activated - self._reactants)
+        return _read_only(self._activated - self.reactants)
 
     def _side(self, coefficients) -> Iterator[tuple[int, str]]:
         return (
@@ -637,8 +645,8 @@ def _check_scheme(scheme_or_text: Scheme | str) -> Scheme:
     --------
     >>> _check_scheme("A -> B")
     Scheme(compounds=('A', 'B'),
-           reactants=((1,), (0,)),
-           products=((0,), (1,)),
+           reactants=array([[1], [0]]),
+           products=array([[0], [1]]),
            transition_states=(None,),
            equilibria=())
     >>> _check_scheme(_check_scheme("A -> B")) == _check_scheme("A -> B")

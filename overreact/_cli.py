@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import logging
 import os
-import re
 import shutil
 import sys
 
@@ -204,7 +203,7 @@ class Report:
             show_header=False,
         )
         raw_table.add_column(justify="left")
-        for r in str(scheme).split("\n"):
+        for r in str(scheme).splitlines():
             raw_table.add_row(r)
         yield Panel(raw_table, expand=False)
 
@@ -217,14 +216,24 @@ class Report:
             title="(parsed) reactions",
             box=self.box_style,
         )
-        for i, reaction in enumerate(scheme.reactions):
-            reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
-            row = [f"{i:d}", reactants, None, products, "No"]
-            if scheme.transition_states[i] is not None:
-                row[2] = scheme.compounds[scheme.transition_states[i]]
-            elif scheme.is_half_equilibrium[i]:
-                row[4] = "Yes"
-            parsed_table.add_row(*row)
+        for i, (reaction, transition_state, is_half_equilibrium) in enumerate(
+            zip(
+                scheme.reactions,
+                scheme.transition_states,
+                scheme.is_half_equilibrium,
+                strict=True,
+            ),
+        ):
+            reactants, _, products = reaction.partition("->")
+            parsed_table.add_row(
+                f"{i:d}",
+                reactants.strip(),
+                None
+                if transition_state is None
+                else scheme.compounds[transition_state],
+                products.strip(),
+                "Yes" if is_half_equilibrium else "No",
+            )
         yield parsed_table
 
     def _yield_compounds(self):
@@ -375,6 +384,26 @@ class Report:
             ],
         )
 
+        def _deltas(deltas, symmetry_entropies):
+            """Return deltas of quantities, with symmetry in entropies and free energies."""
+            mass, energies, internal_energies, enthalpies, entropies, freeenergies = (
+                deltas(quantities).T
+            )
+            entropies = entropies + symmetry_entropies
+            freeenergies = freeenergies - self.temperature * symmetry_entropies
+            assert np.allclose(
+                freeenergies,
+                enthalpies - self.temperature * entropies,
+            ), "free energies do not match enthalpies and entropies"
+            return (
+                mass,
+                energies,
+                internal_energies,
+                enthalpies,
+                entropies,
+                freeenergies,
+            )
+
         (
             delta_mass,
             delta_energies,
@@ -382,18 +411,7 @@ class Report:
             delta_enthalpies,
             delta_entropies,
             delta_freeenergies,
-        ) = scheme.reaction_deltas(quantities).T
-        delta_entropies = delta_entropies + scheme.reaction_entropies
-        delta_freeenergies = (
-            delta_freeenergies - self.temperature * scheme.reaction_entropies
-        )
-        assert np.allclose(
-            delta_freeenergies,
-            delta_enthalpies - self.temperature * delta_entropies,
-        ), (
-            "reaction free energies do not match reaction enthalpies and reaction entropies"
-        )
-
+        ) = _deltas(scheme.reaction_deltas, scheme.reaction_entropies)
         (
             delta_activation_mass,
             delta_activation_energies,
@@ -401,20 +419,7 @@ class Report:
             delta_activation_enthalpies,
             delta_activation_entropies,
             delta_activation_freeenergies,
-        ) = scheme.activation_deltas(quantities).T
-        delta_activation_entropies = (
-            delta_activation_entropies + scheme.activation_entropies
-        )
-        delta_activation_freeenergies = (
-            delta_activation_freeenergies
-            - self.temperature * scheme.activation_entropies
-        )
-        assert np.allclose(
-            delta_activation_freeenergies,
-            delta_activation_enthalpies - self.temperature * delta_activation_entropies,
-        ), (
-            "activation free energies do not match activation enthalpies and activation entropies"
-        )
+        ) = _deltas(scheme.activation_deltas, scheme.activation_entropies)
 
         circ_table = Table(
             Column("no", justify="right"),

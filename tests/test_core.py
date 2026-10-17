@@ -23,12 +23,12 @@ def test_parse_counts_coefficients(reaction) -> None:
     """Ensure parsed coefficients add up over repeated compounds on each side."""
     reactants, products, transition, text = reaction
     scheme = rx.Scheme.parse(text)
-    assert scheme.reactants == tuple(
-        (reactants.get(compound, 0),) for compound in scheme.compounds
-    )
-    assert scheme.products == tuple(
-        (products.get(compound, 0),) for compound in scheme.compounds
-    )
+    assert scheme.reactants.tolist() == [
+        [reactants.get(compound, 0)] for compound in scheme.compounds
+    ]
+    assert scheme.products.tolist() == [
+        [products.get(compound, 0)] for compound in scheme.compounds
+    ]
     assert scheme.transition_states == (
         (None,) if transition is None else (scheme.compounds.index(transition),)
     )

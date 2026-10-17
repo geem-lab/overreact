@@ -68,8 +68,8 @@ def parse_model(path: str, force_compile: bool = False):
     >>> model = parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
-           reactants=((1,), (0,)),
-           products=((1,), (0,)),
+           reactants=array([[1], [0]]),
+           products=array([[1], [0]]),
            transition_states=(1,),
            equilibria=())
     >>> model.compounds["S"]
@@ -137,8 +137,8 @@ def _parse_model(file_or_path):
     >>> model = _parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
-           reactants=((1,), (0,)),
-           products=((1,), (0,)),
+           reactants=array([[1], [0]]),
+           products=array([[1], [0]]),
            transition_states=(1,),
            equilibria=())
     >>> model.compounds["S"]
@@ -203,8 +203,8 @@ def _parse_source(file_path_or_str):
     >>> model = _parse_source("data/ethane/B97-3c/model.k")
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
-           reactants=((1,), (0,)),
-           products=((1,), (0,)),
+           reactants=array([[1], [0]]),
+           products=array([[1], [0]]),
            transition_states=(1,),
            equilibria=())
     >>> print(_unparse_model(model))
@@ -310,8 +310,8 @@ def _unparse_source(model):
     >>> model = _parse_source(source)
     >>> model.scheme
     Scheme(compounds=('S', 'E‡'),
-           reactants=((1,), (0,)),
-           products=((1,), (0,)),
+           reactants=array([[1], [0]]),
+           products=array([[1], [0]]),
            transition_states=(1,),
            equilibria=())
     >>> model.compounds["S"]
