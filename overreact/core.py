@@ -85,7 +85,7 @@ class Scheme:
         for j in np.flatnonzero(~(reactants.any(axis=0) | products.any(axis=0))):
             msg = f"reaction {j} has neither reactants nor products"
             raise ValueError(msg)
-        for i, j in self.equilibria():
+        for i, j in self.equilibria:
             if not (
                 j < shape[1]
                 and self.is_half_equilibrium[j]
@@ -184,8 +184,8 @@ class Scheme:
         >>> scheme = Scheme.parse("A <=> B  // an equilibrium")
         >>> scheme.reactions
         ('A -> B', 'B -> A')
-        >>> list(scheme.equilibria())
-        [(0, 1)]
+        >>> scheme.equilibria
+        ((0, 1),)
         >>> scheme.activation_deltas([0.0, 10.0])
         array([10.,  0.])
 
@@ -407,19 +407,16 @@ class Scheme:
             ),
         )
 
-    def equilibria(self) -> Iterator[tuple[int, int]]:
-        """Yield indices of the forward and reverse halves of each equilibrium.
+    @cached_property
+    def equilibria(self) -> tuple[tuple[int, int], ...]:
+        """Indices of the forward and reverse halves of each equilibrium.
 
         Examples
         --------
-        >>> list(Scheme.parse("A <=> B -> C <=> D").equilibria())
-        [(0, 1), (3, 4)]
+        >>> Scheme.parse("A <=> B -> C <=> D").equilibria
+        ((0, 1), (3, 4))
         """
-        flags = enumerate(self.is_half_equilibrium)
-        for i, is_half_equilibrium in flags:
-            if is_half_equilibrium:
-                next(flags, None)
-                yield i, i + 1
+        return tuple(_equilibrium_pairs(self.is_half_equilibrium))
 
     @cached_property
     def A(self) -> np.ndarray:  # noqa: N802
@@ -599,7 +596,7 @@ class Scheme:
     def _activated(self) -> np.ndarray:
         """Coefficients of the activated state of each reaction."""
         activated = self._products.copy()
-        for _, j in self.equilibria():
+        for _, j in self.equilibria:
             activated[:, j] = self._reactants[:, j]
         for i, ts in enumerate(self.transition_states):
             if ts is not None:
@@ -624,6 +621,15 @@ class Scheme:
             for coefficient, compound in zip(coefficients, self.compounds, strict=True)
             if coefficient
         )
+
+
+def _equilibrium_pairs(is_half_equilibrium) -> Iterator[tuple[int, int]]:
+    """Yield indices of consecutive pairs of half-equilibria."""
+    flags = enumerate(is_half_equilibrium)
+    for i, is_half in flags:
+        if is_half:
+            next(flags, None)
+            yield i, i + 1
 
 
 def _read_only(array: np.ndarray) -> np.ndarray:
