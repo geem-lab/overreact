@@ -37,9 +37,9 @@ def test_sanity_for_chemical_kinetics() -> None:
         [-98.582608, -454.557870, -553.110424, -98.001318, -455.149092],
     )
 
-    scheme = rx.parse_reactions("FH + Cl -> FHCl‡ -> F + HCl")
-    delta_freeenergies_h = rx.thermo.get_delta(scheme.B, freeenergies_h)[0]
-    delta_freeenergies_d = rx.thermo.get_delta(scheme.B, freeenergies_d)[0]
+    scheme = rx.Scheme.parse("FH + Cl -> FHCl‡ -> F + HCl")
+    delta_freeenergies_h = scheme.activation_deltas(freeenergies_h)[0]
+    delta_freeenergies_d = scheme.activation_deltas(freeenergies_d)[0]
     assert delta_freeenergies_h == pytest.approx(0.027509)
     assert delta_freeenergies_h * (constants.hartree * constants.N_A) / (
         constants.kcal

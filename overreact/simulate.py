@@ -7,7 +7,7 @@ the time simulations.
 # TODO(schneiderfelipe): type this module.
 from __future__ import annotations
 
-__all__ = ["get_dydt", "get_fixed_scheme", "get_y"]
+__all__ = ["get_dydt", "get_y"]
 
 
 import logging
@@ -112,7 +112,7 @@ def get_y(
 
     A toy simulation can be performed in just two lines:
 
-    >>> scheme = rx.parse_reactions("A <=> B")
+    >>> scheme = rx.Scheme.parse("A <=> B")
     >>> y, r = get_y(get_dydt(scheme, np.array([1, 1])), y0=[1, 0])
 
     The `y` object stores information about the simulation time, which can be
@@ -231,7 +231,7 @@ def get_dydt(scheme, k, ef=EF):
     >>> import numpy as np
     >>> import overreact as rx
 
-    >>> scheme = rx.parse_reactions("A <=> B")
+    >>> scheme = rx.Scheme.parse("A <=> B")
     >>> dydt = get_dydt(scheme, np.array([1, 1]))
     >>> dydt(0.0, np.array([1., 1.]))
     Array([0., 0.], ...)
@@ -306,7 +306,7 @@ def _adjust_k(scheme, k, ef=EF):
     --------
     >>> import overreact as rx
 
-    >>> scheme = rx.parse_reactions("A <=> B")
+    >>> scheme = rx.Scheme.parse("A <=> B")
     >>> _adjust_k(scheme, [1, 1])
     Array([1., 1.], ...)
 
@@ -357,139 +357,6 @@ def _adjust_k(scheme, k, ef=EF):
             k = k / k.min()
 
     return jnp.asarray(k)
-
-
-def get_fixed_scheme(scheme, k, fixed_y0):
-    """Generate an alternative scheme with some concentrations fixed.
-
-    This function returns data that allow the microkinetic simulation of a
-    reaction network under constraints, namely when some compounds have fixed
-    concentrations. This works by 1. removing all references to the fixed
-    compounds and by 2. properly multiplying the reaction rate constants by
-    the respective concentrations.
-
-    Parameters
-    ----------
-    scheme : Scheme
-        A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model input file.
-        See `overreact.io.parse_model`.
-    k : array-like
-        Reaction rate constant(s). Units match the concentration units given to
-        the returned function ``dydt``.
-    fixed_y0 : dict-like
-        Fixed initial state. Units match the concentration units given to
-        the returned function ``dydt``.
-
-    Returns
-    -------
-    scheme : Scheme
-        Associated reaction scheme with all references to fixed compounds
-        removed.
-    k : array-like
-        Associated (effective) reaction rate constants that model the fixed
-        concentrations.
-
-    Notes
-    -----
-    Keep in mind that when a compound get its concentration fixed, the
-    reaction scheme no longer conserves matter. You can think of it as
-    reacting close to an infinite source of the compound, but it accumulates
-    in the milleu at the given concentration.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> import overreact as rx
-
-    Equilibria under a specific pH can be easily modeled:
-
-    >>> pH = 7
-    >>> scheme = rx.parse_reactions("AH <=> A- + H+")
-    >>> k = np.array([1, 1])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme.reactions
-    ('AH -> A-', 'A- -> AH')
-    >>> k
-    array([1.e+00, 1.e-07])
-
-    It is also possible to model the fixed activity of a solvent, for
-    instance:
-
-    >>> scheme = rx.parse_reactions("A + 2H2O -> B")
-    >>> k = np.array([1.0])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H2O": 55.6})
-    >>> scheme.reactions
-    ('A -> B',)
-    >>> k
-    array([3091.36])
-
-    Multiple reactions work fine, see both examples below:
-
-    >>> pH = 12
-    >>> scheme = rx.parse_reactions("B <- AH <=> A- + H+")
-    >>> k = np.array([10.0, 1, 1])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme.reactions
-    ('AH -> B', 'AH -> A-', 'A- -> AH')
-    >>> k
-    array([1.e+01, 1.e+00, 1.e-12])
-
-    >>> pH = 2
-    >>> scheme = rx.parse_reactions(["AH <=> A- + H+", "B- + H+ <=> BH"])
-    >>> k = np.array([1, 1, 2, 2])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme.reactions
-    ('AH -> A-', 'A- -> AH', 'B- -> BH', 'BH -> B-')
-    >>> k
-    array([1. , 0.01, 0.02, 2. ])
-
-    Multiple fixed compounds also work fine:
-
-    >>> pH = 6
-    >>> scheme = rx.parse_reactions("A + H2O -> B <=> B- + H+")
-    >>> k = np.array([1.0, 100.0, 2.0])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH, "H2O": 55.6})
-    >>> scheme.reactions
-    ('A -> B', 'B -> B-', 'B- -> B')
-    >>> k
-    array([5.56e+01, 1.00e+02, 2.00e-06])
-
-    This function is a no-op if `fixed_y0` is empty, which is very important
-    for overall code consistency:
-
-    >>> scheme = rx.parse_reactions(["AH <=> A- + H+", "B- + H+ <=> BH"])
-    >>> k = np.array([1, 1, 2, 2])
-    >>> new_scheme, new_k = rx.get_fixed_scheme(scheme, k, {})
-    >>> new_scheme == scheme
-    True
-    >>> np.allclose(new_k, k)
-    True
-
-    """
-    keep = [
-        i for i, compound in enumerate(scheme.compounds) if compound not in fixed_y0
-    ]
-    fixed = [i for i, compound in enumerate(scheme.compounds) if compound in fixed_y0]
-    reactants = np.asarray(scheme.reactants)
-    concentrations = np.array([fixed_y0[scheme.compounds[i]] for i in fixed])
-    new_k = np.asarray(k, dtype=np.float64) * np.prod(
-        concentrations[:, np.newaxis] ** reactants[fixed],
-        axis=0,
-    )
-    return (
-        rx.core.Scheme(
-            compounds=tuple(scheme.compounds[i] for i in keep),
-            reactants=reactants[keep],
-            products=np.asarray(scheme.products)[keep],
-            transition_states=tuple(
-                None if ts is None else keep.index(ts)
-                for ts in scheme.transition_states
-            ),
-            is_half_equilibrium=scheme.is_half_equilibrium,
-        ),
-        new_k,
-    )
 
 
 # TODO(schneiderfelipe): this is probably not ready yet

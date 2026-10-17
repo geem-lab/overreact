@@ -555,12 +555,9 @@ def get_k(
         )
 
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_freeenergies = rx.get_delta(
-            scheme.B,
-            freeenergies,
-        ) - temperature * rx.get_reaction_entropies(
-            scheme.reactants,
-            scheme.activated,
+        delta_freeenergies = (
+            scheme.activation_deltas(freeenergies)
+            - temperature * scheme.activation_entropies
         )
 
     if molecularity is None:
@@ -576,29 +573,22 @@ def get_k(
     )
 
     # make reaction rate constants for equilibria as close as possible to one
-    i = 0
-    while i < len(scheme.is_half_equilibrium):
-        if scheme.is_half_equilibrium[i]:
-            pair = k[i : i + 2]
-            _K = pair[0] / pair[1]
+    for i, j in scheme.equilibria:
+        _K = k[i] / k[j]
 
-            denom = pair.min()
-            if denom == 0.0:
-                logger.warning(
-                    "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
-                )
-                denom = 1.0
-
-            k[i : i + 2] = pair / denom
-            assert np.isclose(_K, k[i] / k[i + 1]), (
-                f"reaction rate constants {k[i]} and {k[i + 1]} for "
-                "equilibria could not be made to match the expected "
-                f"equilibrium constant value {_K}"
+        denom = min(k[i], k[j])
+        if denom == 0.0:
+            logger.warning(
+                "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
             )
+            denom = 1.0
 
-            # loop over pairs of equilibria
-            i += 1
-        i += 1
+        k[[i, j]] /= denom
+        assert np.isclose(_K, k[i] / k[j]), (
+            f"reaction rate constants {k[i]} and {k[j]} for "
+            "equilibria could not be made to match the expected "
+            f"equilibrium constant value {_K}"
+        )
 
     logger.info(
         "(classical) reaction rate constants: "
@@ -715,11 +705,8 @@ def get_kappa(
         # NOTE(schneiderfelipe): We need electronic energies + ZPE here, so we
         # get smaller transmission coefficients.
         energies = get_enthalpies(compounds, qrrho=qrrho, temperature=0.0)
-        delta_forward = rx.get_delta(scheme.B, energies)  # B - A
-        delta_backward = delta_forward - rx.get_delta(
-            scheme.A,
-            energies,
-        )  # B - C == B - A - (C - A)
+        delta_forward = scheme.activation_deltas(energies)
+        delta_backward = delta_forward - scheme.reaction_deltas(energies)
 
     kappas = []
     for i, ts in enumerate(

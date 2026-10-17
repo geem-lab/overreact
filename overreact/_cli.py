@@ -204,7 +204,7 @@ class Report:
             show_header=False,
         )
         raw_table.add_column(justify="left")
-        for r in rx.core.unparse_reactions(scheme).split("\n"):
+        for r in str(scheme).split("\n"):
             raw_table.add_row(r)
         yield Panel(raw_table, expand=False)
 
@@ -360,51 +360,36 @@ class Report:
             )
         yield compounds_table
 
-        delta_mass = rx.get_delta(scheme.A, molecular_masses)
-        delta_energies = rx.get_delta(scheme.A, energies)
-        delta_internal_energies = rx.get_delta(scheme.A, internal_energies)
-        delta_enthalpies = rx.get_delta(scheme.A, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_entropies = rx.get_delta(scheme.A, entropies) + rx.get_reaction_entropies(
-            scheme.reactants,
-            scheme.products,
-        )
+        delta_mass = scheme.reaction_deltas(molecular_masses)
+        delta_energies = scheme.reaction_deltas(energies)
+        delta_internal_energies = scheme.reaction_deltas(internal_energies)
+        delta_enthalpies = scheme.reaction_deltas(enthalpies)
+        delta_entropies = scheme.reaction_deltas(entropies) + scheme.reaction_entropies
         delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
         assert np.allclose(
             delta_freeenergies,
-            rx.get_delta(scheme.A, freeenergies)
-            - self.temperature
-            * rx.get_reaction_entropies(
-                scheme.reactants,
-                scheme.products,
-            ),
+            scheme.reaction_deltas(freeenergies)
+            - self.temperature * scheme.reaction_entropies,
         ), (
             "reaction free energies do not match reaction enthalpies and reaction entropies"
         )
 
-        delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
-        delta_activation_energies = rx.get_delta(scheme.B, energies)
-        delta_activation_internal_energies = rx.get_delta(scheme.B, internal_energies)
-        delta_activation_enthalpies = rx.get_delta(scheme.B, enthalpies)
         # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_activation_entropies = rx.get_delta(
-            scheme.B,
-            entropies,
-        ) + rx.get_reaction_entropies(
-            scheme.reactants,
-            scheme.activated,
+        delta_activation_mass = scheme.activation_deltas(molecular_masses)
+        delta_activation_energies = scheme.activation_deltas(energies)
+        delta_activation_internal_energies = scheme.activation_deltas(internal_energies)
+        delta_activation_enthalpies = scheme.activation_deltas(enthalpies)
+        delta_activation_entropies = (
+            scheme.activation_deltas(entropies) + scheme.activation_entropies
         )
         delta_activation_freeenergies = (
             delta_activation_enthalpies - self.temperature * delta_activation_entropies
         )
         assert np.allclose(
             delta_activation_freeenergies,
-            rx.get_delta(scheme.B, freeenergies)
-            - self.temperature
-            * rx.get_reaction_entropies(
-                scheme.reactants,
-                scheme.activated,
-            ),
+            scheme.activation_deltas(freeenergies)
+            - self.temperature * scheme.activation_entropies,
         ), (
             "activation free energies do not match activation enthalpies and activation entropies"
         )
@@ -742,8 +727,9 @@ def _prepare_simulation(scheme, k, concentrations):
 
         d[name] = quantity
 
-    # TODO(schneiderfelipe): log stuff related to get_fixed_scheme
-    scheme, k = rx.get_fixed_scheme(scheme, k, fixed_y0)
+    # TODO(schneiderfelipe): log stuff related to fixed concentrations
+    scheme, factors = scheme.fix(fixed_y0)
+    k = k * factors
 
     y0 = np.zeros(len(scheme.compounds))
     for compound in free_y0:

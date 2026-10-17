@@ -8,7 +8,6 @@ __all__ = ["change_reference_state", "equilibrium_constant"]
 import logging
 
 import numpy as np
-from scipy.special import gammaln
 
 import overreact as rx
 from overreact import _constants as constants
@@ -530,49 +529,6 @@ def calc_heat_capacity(
     return heat_capacity
 
 
-def get_delta(transform, property):
-    """Calculate deltas according to reactions.
-
-    Delta properties are differences in a property between the final and
-    initial state of a chemical transformation. They are calculated from
-    matrices representing the transformation and the absolute properties.
-    Transformation matrices are expected to have column-wise transformation
-    defined.
-
-    Very useful for the calculation of reaction and activation free energies
-    from absolute free energies of compounds. Matrices ``A`` and ``B`` of a
-    `Scheme` represent the transformations associated with reaction and
-    activation free energies, respectively.
-
-    Parameters
-    ----------
-    transform : array-like
-    property : array-like
-
-    Returns
-    -------
-    delta_property : array-like
-
-    Examples
-    --------
-    >>> int(get_delta([-1, 1], [-10, 10]))
-    20
-
-    You must ensure the transformation is properly defined, as no test is made
-    to ensure, e.g., conservation of matter:
-
-    >>> int(get_delta([-1, 0], [-10, 20]))
-    10
-
-    Normally, transformations are given as columns in a matrix:
-
-    >>> get_delta([[-1, -2],
-    ...            [ 1,  3]], [-5, 12])
-    array([17, 46])
-    """
-    return np.asarray(transform).T @ np.asarray(property)
-
-
 def equilibrium_constant(
     delta_freeenergy: float | np.ndarray,
     delta_moles: int | np.ndarray | None = None,
@@ -804,58 +760,3 @@ def change_reference_state(
         old_reference = 1.0 / volume
 
     return sign * constants.R * np.log(new_reference / old_reference)
-
-
-# TODO(schneiderfelipe): we need a concrete example of this for testing.
-def get_reaction_entropies(initial, final):
-    r"""Calculate entropy contributions from the overall reaction structure.
-
-    This function currently implements the reaction translational entropy, a
-    result of the indistinguishability of molecules of each compound, i.e., a
-    difference in entropy of :math:`R \ln 2!` for the reactions
-
-    .. math::
-        \ce{A + B -> C}
-
-    and
-
-    .. math::
-        \ce{2A -> C}
-
-    Parameters
-    ----------
-    initial, final : array-like
-        Stoichiometric coefficients of the initial and final states, with one
-        row per compound and one column per transformation.
-
-    Returns
-    -------
-    delta_entropy : array-like
-
-    Examples
-    --------
-    >>> import overreact as rx
-
-    >>> scheme = rx.parse_reactions("A + B <=> C")
-    >>> get_reaction_entropies(scheme.reactants, scheme.products)
-    array([0.0, 0.0])
-    >>> scheme = rx.parse_reactions("2A <=> C")
-    >>> get_reaction_entropies(scheme.reactants, scheme.products)
-    array([-5.763, 5.763])
-
-    Molecules on both sides of a reaction count in each state:
-
-    >>> scheme = rx.parse_reactions("2B -> B + C")
-    >>> get_reaction_entropies(scheme.reactants, scheme.products)
-    array([-5.763])
-
-    Activation entropies use the activated state:
-
-    >>> scheme = rx.parse_reactions("2A -> E# -> C")
-    >>> get_reaction_entropies(scheme.reactants, scheme.activated)
-    array([-5.763])
-    """
-    return constants.R * (
-        gammaln(np.asarray(final) + 1).sum(axis=0)
-        - gammaln(np.asarray(initial) + 1).sum(axis=0)
-    )

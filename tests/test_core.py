@@ -2,18 +2,28 @@
 
 from __future__ import annotations
 
+import math
+
 import pytest
 from hypothesis import assume, given
+from hypothesis import strategies as st
 
 import overreact as rx
-from tests.strategies import reactions, schemes_texts
+from overreact import _constants as constants
+from tests.strategies import (
+    COMPOUNDS,
+    reactions,
+    reactions_sides,
+    schemes_texts,
+    side_texts,
+)
 
 
 @given(reactions())
-def test_parse_reactions_counts_coefficients(reaction) -> None:
+def test_parse_counts_coefficients(reaction) -> None:
     """Ensure parsed coefficients add up over repeated compounds on each side."""
     reactants, products, transition, text = reaction
-    scheme = rx.parse_reactions(text)
+    scheme = rx.Scheme.parse(text)
     assert scheme.reactants == tuple(
         (reactants.get(compound, 0),) for compound in scheme.compounds
     )
@@ -45,15 +55,13 @@ def _by_name(scheme):
 
 
 @given(schemes_texts())
-def test_unparse_reactions_is_inverse_of_parse_reactions(text) -> None:
+def test_str_is_inverse_of_parse(text) -> None:
     """Ensure unparsing and parsing again gives the same scheme."""
     try:
-        scheme = rx.parse_reactions(text)
+        scheme = rx.Scheme.parse(text)
     except ValueError:
         assume(False)
-    assert _by_name(rx.parse_reactions(rx.unparse_reactions(scheme))) == _by_name(
-        scheme
-    )
+    assert _by_name(rx.Scheme.parse(str(scheme))) == _by_name(scheme)
 
 
 @pytest.mark.parametrize(
@@ -63,10 +71,10 @@ def test_unparse_reactions_is_inverse_of_parse_reactions(text) -> None:
         "A <=> A‡ <=> B",  # transition state in an equilibrium
     ],
 )
-def test_parse_reactions_rejects_invalid_equilibria(text) -> None:
+def test_parse_rejects_invalid_equilibria(text) -> None:
     """Ensure ill-defined equilibria raise."""
     with pytest.raises(ValueError, match="equilibri"):
-        rx.parse_reactions(text)
+        rx.Scheme.parse(text)
 
 
 @pytest.mark.parametrize(
@@ -97,4 +105,108 @@ def test_scheme_rejects_invalid_fields(changes, match) -> None:
 def test_molecularity_counts_reactant_molecules(reaction) -> None:
     """Ensure molecularity is the sum of reactant coefficients."""
     reactants, _, _, text = reaction
-    assert rx.parse_reactions(text).molecularity.tolist() == [sum(reactants.values())]
+    assert rx.Scheme.parse(text).molecularity.tolist() == [sum(reactants.values())]
+
+
+def _total(side, values):
+    """Sum values over the molecules of a side."""
+    return sum(n * values[c] for c, n in side.items())
+
+
+def _symmetry(side):
+    """Sum ln n! over the compounds of a side."""
+    return sum(math.lgamma(n + 1) for n in side.values())
+
+
+def _values(data, scheme):
+    """Draw one value per compound of a scheme."""
+    return dict(
+        zip(
+            scheme.compounds,
+            data.draw(
+                st.lists(
+                    st.floats(-1e3, 1e3),
+                    min_size=len(scheme.compounds),
+                    max_size=len(scheme.compounds),
+                ),
+            ),
+            strict=True,
+        ),
+    )
+
+
+@given(reactions(), st.data())
+def test_reaction_deltas_are_products_minus_reactants(reaction, data) -> None:
+    """Ensure reaction deltas are product values minus reactant values."""
+    reactants, products, _, text = reaction
+    scheme = rx.Scheme.parse(text)
+    values = _values(data, scheme)
+    assert scheme.reaction_deltas(list(values.values())) == pytest.approx(
+        [_total(products, values) - _total(reactants, values)],
+    )
+
+
+@given(reactions(), st.data())
+def test_activation_deltas_reach_transition_states(reaction, data) -> None:
+    """Ensure activation deltas end at the transition state, if any."""
+    reactants, products, transition, text = reaction
+    scheme = rx.Scheme.parse(text)
+    values = _values(data, scheme)
+    final = _total(products, values) if transition is None else values[transition]
+    assert scheme.activation_deltas(list(values.values())) == pytest.approx(
+        [final - _total(reactants, values)],
+    )
+
+
+@given(
+    reactions_sides.filter(lambda pair: pair[0] != pair[1]).flatmap(
+        lambda pair: st.tuples(side_texts(pair[0]), side_texts(pair[1])),
+    ),
+    st.data(),
+)
+def test_reverse_half_equilibria_have_no_activation(sides, data) -> None:
+    """Ensure only the forward half of an equilibrium has an activation delta."""
+    lhs, rhs = sides
+    scheme = rx.Scheme.parse(f"{lhs} <=> {rhs}")
+    values = list(_values(data, scheme).values())
+    forward, reverse = scheme.activation_deltas(values)
+    assert (forward, reverse) == pytest.approx((scheme.reaction_deltas(values)[0], 0.0))
+
+
+@given(reactions())
+def test_reaction_entropies_count_indistinguishable_molecules(reaction) -> None:
+    """Ensure each compound contributes R ln n! for its n molecules on each side."""
+    reactants, products, _, text = reaction
+    assert rx.Scheme.parse(text).reaction_entropies == pytest.approx(
+        [constants.R * (_symmetry(products) - _symmetry(reactants))],
+    )
+
+
+@given(reactions())
+def test_activation_entropies_end_at_transition_states(reaction) -> None:
+    """Ensure activation entropies count a single transition state molecule."""
+    reactants, products, transition, text = reaction
+    final = _symmetry(products) if transition is None else 0.0
+    assert rx.Scheme.parse(text).activation_entropies == pytest.approx(
+        [constants.R * (final - _symmetry(reactants))],
+    )
+
+
+@given(
+    reactions(),
+    st.dictionaries(st.sampled_from(COMPOUNDS), st.floats(0.1, 10.0)),
+)
+def test_fix_removes_compounds_and_scales_rates(reaction, concentrations) -> None:
+    """Ensure fixing drops compounds and scales rates by their concentrations."""
+    reactants, products, transition, text = reaction
+    free_reactants = {c: n for c, n in reactants.items() if c not in concentrations}
+    free_products = {c: n for c, n in products.items() if c not in concentrations}
+    assume(free_reactants or free_products)
+    scheme, factors = rx.Scheme.parse(text).fix(concentrations)
+    assert _by_name(scheme) == (
+        set(free_reactants) | set(free_products) | ({transition} - {None}),
+        [(free_reactants, free_products, transition, False)],
+    )
+    assert factors == pytest.approx(
+        [math.prod(concentrations.get(c, 1.0) ** n for c, n in reactants.items())],
+    )

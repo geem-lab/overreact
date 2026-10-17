@@ -17,7 +17,7 @@ from tests.strategies import reactions
 def test_get_dydt_follows_mass_action(reaction, data) -> None:
     """Ensure rates are k times the product of concentrations to their coefficients."""
     reactants, products, _, text = reaction
-    scheme = rx.parse_reactions(text)
+    scheme = rx.Scheme.parse(text)
     concentrations = st.floats(min_value=0.1, max_value=10.0)
     y = np.array([data.draw(concentrations) for _ in scheme.compounds])
     k = data.draw(concentrations)
@@ -32,7 +32,7 @@ def test_get_dydt_follows_mass_action(reaction, data) -> None:
 
 def test_get_y_propagates_reaction_automatically() -> None:
     """Ensure get_y properly propagates reactions with automatic time span."""
-    scheme = rx.parse_reactions("A + 4 B <=> AB4")
+    scheme = rx.Scheme.parse("A + 4 B <=> AB4")
     y0 = [2.00, 2.00, 0.01]
 
     # with jitted dydt, we need to use np.ndarray
@@ -52,7 +52,7 @@ def test_get_y_propagates_reaction_automatically() -> None:
 
 def test_get_y_propagates_reaction_with_fixed_time() -> None:
     """Ensure get_y properly propagates reactions when given time span."""
-    scheme = rx.parse_reactions("A + 4 B <=> AB4")
+    scheme = rx.Scheme.parse("A + 4 B <=> AB4")
     y0 = [2.00, 2.00, 0.01]
     t_span = [0.0, 200.0]
 
@@ -77,7 +77,7 @@ def test_get_y_propagates_reaction_with_fixed_time() -> None:
 
 def test_get_y_conservation_in_equilibria() -> None:
     """Ensure get_y properly conserves matter in a toy equilibrium."""
-    scheme = rx.parse_reactions("A <=> B")
+    scheme = rx.Scheme.parse("A <=> B")
     y0 = [1, 0]
 
     # with jitted dydt, we need to use np.ndarray
@@ -121,7 +121,7 @@ def test_simple_michaelis_menten(
 
     See <https://en.wikipedia.org/wiki/Michaelis%E2%80%93Menten_kinetics#Model>.
     """
-    scheme = rx.parse_reactions(
+    scheme = rx.Scheme.parse(
         """
 C + S <=> CS        // Pre-equilibrium
 CS -> TS‡ -> C + P  // Catalyst is released
@@ -165,7 +165,7 @@ def test_consuming_michaelis_menten(
     method: str,
 ) -> None:
     """Test a faulty system as suggested by @bmounssefjr."""
-    scheme = rx.parse_reactions(
+    scheme = rx.Scheme.parse(
         """
 C + S <=> CS    // Pre-equilibrium
 CS -> TS‡ -> P  // Catalyst is consumed instead of being released

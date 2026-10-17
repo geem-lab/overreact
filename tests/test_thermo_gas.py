@@ -6,7 +6,6 @@ import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from scipy.special import factorial
 
 import overreact as rx
 from overreact import _constants as constants
@@ -37,9 +36,9 @@ def test_sanity_for_relative_thermochemistry() -> None:
     enthalpies = energies + enthalpy_corrections
     freeenergies = energies + freeenergy_corrections
 
-    scheme = rx.parse_reactions("C2H5 + H2 -> C2H6 + H")
-    delta_enthalpy = rx.thermo.get_delta(scheme.A, enthalpies)[0]
-    delta_freeenergy = rx.thermo.get_delta(scheme.A, freeenergies)[0]
+    scheme = rx.Scheme.parse("C2H5 + H2 -> C2H6 + H")
+    delta_enthalpy = scheme.reaction_deltas(enthalpies)[0]
+    delta_freeenergy = scheme.reaction_deltas(freeenergies)[0]
     assert delta_enthalpy == pytest.approx(0.012876, 8e-5)
     assert delta_enthalpy * (constants.hartree * constants.N_A) / (
         constants.kcal
@@ -1131,24 +1130,6 @@ def test_heat_capacity_ideal_gases() -> None:
     ) / constants.R == pytest.approx(3.03, 1e-3)
 
 
-@given(st.data())
-def test_get_delta_weights_property_by_coefficients(data) -> None:
-    """Ensure deltas are sums of properties weighted by coefficients."""
-    n, m = data.draw(st.integers(1, 4)), data.draw(st.integers(1, 4))
-    transform = data.draw(
-        st.lists(
-            st.lists(st.integers(-3, 3), min_size=m, max_size=m), min_size=n, max_size=n
-        ),
-    )
-    prop = data.draw(st.lists(st.floats(-1e3, 1e3), min_size=n, max_size=n))
-    assert rx.thermo.get_delta(transform, prop) == pytest.approx(
-        [
-            sum(row[j] * x for row, x in zip(transform, prop, strict=True))
-            for j in range(m)
-        ],
-    )
-
-
 def test_equilibrium_constant_works() -> None:
     """Ensure equilibrium_constant gives correct numbers."""
     assert rx.thermo.equilibrium_constant(0.0) == 1.0
@@ -1308,17 +1289,3 @@ def test_head_gordon_damping_increases_from_zero_to_one(vibfreq, increase) -> No
     """Ensure damping increases with frequency within (0, 1]."""
     damping = rx.thermo._gas._head_gordon_damping
     assert 0.0 < damping(vibfreq) <= damping(vibfreq + increase) <= 1.0
-
-
-@given(st.data())
-def test_reaction_entropies_count_indistinguishable_molecules(data) -> None:
-    """Ensure each compound contributes R ln n! for its n molecules in each state."""
-    n = data.draw(st.integers(min_value=1, max_value=4))
-    coefficients = st.lists(
-        st.integers(min_value=0, max_value=5), min_size=n, max_size=n
-    )
-    initial, final = data.draw(coefficients), data.draw(coefficients)
-    assert rx.thermo.get_reaction_entropies(initial, final) == pytest.approx(
-        constants.R
-        * (np.log(factorial(final)).sum() - np.log(factorial(initial)).sum()),
-    )

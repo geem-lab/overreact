@@ -14,8 +14,7 @@ from overreact import coords
 def test_get_enthalpies() -> None:
     """Ensure we can retrieve enthalpies."""
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
-    assert rx.get_delta(
-        model.scheme.B,
+    assert model.scheme.activation_deltas(
         rx.get_enthalpies(model.compounds, qrrho=False),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         -132.23510843 - (-56.51424787 + -75.72409969),
@@ -30,8 +29,7 @@ def test_get_entropies() -> None:
     calculations, but not for enthalpies.
     """
     model = rx.parse_model("data/ethane/B97-3c/model.k")
-    assert 298.15 * rx.get_delta(
-        model.scheme.B,
+    assert 298.15 * model.scheme.activation_deltas(
         rx.get_entropies(model.compounds, environment="gas"),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.02685478 - 0.00942732 + 0.00773558 - (0.02753672 - 0.00941496 + 0.00772322),
@@ -39,8 +37,7 @@ def test_get_entropies() -> None:
     )
 
     model = rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.k")
-    assert 298.15 * rx.get_delta(
-        model.scheme.B,
+    assert 298.15 * model.scheme.activation_deltas(
         rx.get_entropies(model.compounds, environment="gas"),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.03025523 - 0.01030794 + 0.00927065 - (0.02110620 + 0.00065446 + 0.01740262),
@@ -49,8 +46,7 @@ def test_get_entropies() -> None:
 
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
-    assert 298.15 * rx.get_delta(
-        model.scheme.B,
+    assert 298.15 * model.scheme.activation_deltas(
         rx.get_entropies(model.compounds, environment="gas"),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         0.03070499
@@ -66,8 +62,7 @@ def test_get_freeenergies() -> None:
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
 
     # TODO(schneiderfelipe): should qrrho=(False, True) be default?
-    assert rx.get_delta(
-        model.scheme.B,
+    assert model.scheme.activation_deltas(
         rx.get_freeenergies(model.compounds, environment="gas", qrrho=(False, True)),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
         -132.26581342
