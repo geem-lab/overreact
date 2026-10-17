@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 
 import pytest
-from hypothesis import assume, given
+from hypothesis import given
 from hypothesis import strategies as st
 
 import overreact as rx
@@ -29,46 +29,26 @@ def test_parse_counts_coefficients(reaction) -> None:
     )
 
 
-def _by_name(scheme):
-    """Describe a scheme independently of the order of its compounds."""
-
-    def side(matrix, j):
-        return {
-            c: row[j] for c, row in zip(scheme.compounds, matrix, strict=True) if row[j]
-        }
-
-    return set(scheme.compounds), [
-        (
-            side(scheme.reactants, j),
-            side(scheme.products, j),
-            None if ts is None else scheme.compounds[ts],
-            scheme.is_half_equilibrium[j],
-        )
-        for j, ts in enumerate(scheme.transition_states)
-    ]
-
-
 @given(schemes_texts())
 def test_str_is_inverse_of_parse(text) -> None:
     """Ensure unparsing and parsing again gives the same scheme."""
-    try:
-        scheme = rx.Scheme.parse(text)
-    except ValueError:
-        assume(False)
-    assert _by_name(rx.Scheme.parse(str(scheme))) == _by_name(scheme)
+    scheme = rx.Scheme.parse(text)
+    assert rx.Scheme.parse(str(scheme)) == scheme
+
+
+def test_parse_rejects_transition_states_in_equilibria() -> None:
+    """Ensure equilibria cannot go through transition states."""
+    with pytest.raises(ValueError, match="equilibri"):
+        rx.Scheme.parse("A <=> A‡ <=> B")
 
 
 @pytest.mark.parametrize(
     "text",
-    [
-        "A -> B\nA <=> B",  # half-equilibrium without its reverse
-        "A <=> A‡ <=> B",  # transition state in an equilibrium
-    ],
+    ["A -> B\nA <=> B", "B -> A\nA <=> B", "A <=> B\nA -> B", "A <=> B\nB -> A"],
 )
-def test_parse_rejects_invalid_equilibria(text) -> None:
-    """Ensure ill-defined equilibria raise."""
-    with pytest.raises(ValueError, match="equilibri"):
-        rx.Scheme.parse(text)
+def test_equilibria_absorb_plain_reactions(text) -> None:
+    """Ensure an equilibrium absorbs plain reactions between the same sides."""
+    assert rx.Scheme.parse(text) == rx.Scheme.parse("A <=> B")
 
 
 @pytest.mark.parametrize(
@@ -79,7 +59,8 @@ def test_parse_rejects_invalid_equilibria(text) -> None:
         ({"reactants": ((0.5,), (0,))}, "integer"),
         ({"transition_states": (2,)}, "transition state"),
         ({"transition_states": (0,)}, "transition state"),
-        ({"is_half_equilibrium": (True,)}, "equilibri"),
+        ({"equilibria": ((0, 1),)}, "equilibri"),
+        ({"equilibria": ((0, 0),)}, "equilibri"),
     ],
 )
 def test_scheme_rejects_invalid_fields(changes, match) -> None:
@@ -89,7 +70,7 @@ def test_scheme_rejects_invalid_fields(changes, match) -> None:
         "reactants": ((1,), (0,)),
         "products": ((0,), (1,)),
         "transition_states": (None,),
-        "is_half_equilibrium": (False,),
+        "equilibria": (),
     }
     with pytest.raises(ValueError, match=match):
         rx.Scheme(**(fields | changes))
@@ -182,12 +163,17 @@ def test_activation_entropies_end_at_transition_states(reaction) -> None:
 def test_fix_removes_compounds_and_scales_rates(reaction, concentrations) -> None:
     """Ensure fixing drops compounds and scales rates by their concentrations."""
     reactants, products, transition, text = reaction
-    free_reactants = {c: n for c, n in reactants.items() if c not in concentrations}
-    free_products = {c: n for c, n in products.items() if c not in concentrations}
-    scheme, factors = rx.Scheme.parse(text).fix(concentrations)
-    assert _by_name(scheme) == (
-        set(free_reactants) | set(free_products) | ({transition} - {None}),
-        [(free_reactants, free_products, transition, False)],
+    original = rx.Scheme.parse(text)
+    scheme, factors = original.fix(concentrations)
+    compounds = tuple(c for c in original.compounds if c not in concentrations)
+    assert scheme == rx.Scheme(
+        compounds=compounds,
+        reactants=tuple((reactants.get(c, 0),) for c in compounds),
+        products=tuple((products.get(c, 0),) for c in compounds),
+        transition_states=(
+            None if transition is None else compounds.index(transition),
+        ),
+        equilibria=(),
     )
     assert factors == pytest.approx(
         [math.prod(concentrations.get(c, 1.0) ** n for c, n in reactants.items())],
