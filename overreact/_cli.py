@@ -362,40 +362,56 @@ class Report:
 
         logger.info(
             "reaction symmetry entropies: "
-            f"{', '.join([f'{v:7.3g}' for v in scheme.reaction_entropies])} J·mol⁻¹·K⁻¹",
+            f"{rx._misc.format_numbers(scheme.reaction_entropies)} J·mol⁻¹·K⁻¹",
         )
-        delta_mass = scheme.reaction_deltas(molecular_masses)
-        delta_energies = scheme.reaction_deltas(energies)
-        delta_internal_energies = scheme.reaction_deltas(internal_energies)
-        delta_enthalpies = scheme.reaction_deltas(enthalpies)
-        delta_entropies = scheme.reaction_deltas(entropies) + scheme.reaction_entropies
-        delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
+        quantities = np.column_stack(
+            [
+                molecular_masses,
+                energies,
+                internal_energies,
+                enthalpies,
+                entropies,
+                freeenergies,
+            ],
+        )
+
+        (
+            delta_mass,
+            delta_energies,
+            delta_internal_energies,
+            delta_enthalpies,
+            delta_entropies,
+            delta_freeenergies,
+        ) = scheme.reaction_deltas(quantities).T
+        delta_entropies = delta_entropies + scheme.reaction_entropies
+        delta_freeenergies = (
+            delta_freeenergies - self.temperature * scheme.reaction_entropies
+        )
         assert np.allclose(
             delta_freeenergies,
-            scheme.reaction_deltas(freeenergies)
-            - self.temperature * scheme.reaction_entropies,
+            delta_enthalpies - self.temperature * delta_entropies,
         ), (
             "reaction free energies do not match reaction enthalpies and reaction entropies"
         )
 
-        logger.info(
-            "activation symmetry entropies: "
-            f"{', '.join([f'{v:7.3g}' for v in scheme.activation_entropies])} J·mol⁻¹·K⁻¹",
-        )
-        delta_activation_mass = scheme.activation_deltas(molecular_masses)
-        delta_activation_energies = scheme.activation_deltas(energies)
-        delta_activation_internal_energies = scheme.activation_deltas(internal_energies)
-        delta_activation_enthalpies = scheme.activation_deltas(enthalpies)
+        (
+            delta_activation_mass,
+            delta_activation_energies,
+            delta_activation_internal_energies,
+            delta_activation_enthalpies,
+            delta_activation_entropies,
+            delta_activation_freeenergies,
+        ) = scheme.activation_deltas(quantities).T
         delta_activation_entropies = (
-            scheme.activation_deltas(entropies) + scheme.activation_entropies
+            delta_activation_entropies + scheme.activation_entropies
         )
         delta_activation_freeenergies = (
-            delta_activation_enthalpies - self.temperature * delta_activation_entropies
+            delta_activation_freeenergies
+            - self.temperature * scheme.activation_entropies
         )
         assert np.allclose(
             delta_activation_freeenergies,
-            scheme.activation_deltas(freeenergies)
-            - self.temperature * scheme.activation_entropies,
+            delta_activation_enthalpies - self.temperature * delta_activation_entropies,
         ), (
             "activation free energies do not match activation enthalpies and activation entropies"
         )
@@ -738,7 +754,7 @@ def _prepare_simulation(scheme, k, concentrations):
     logger.info(f"fixed concentrations: {fixed_y0}")
     logger.info(
         "reaction rate constant factors from fixed concentrations: "
-        f"{', '.join([f'{v:7.3g}' for v in factors])}",
+        f"{rx._misc.format_numbers(factors)}",
     )
 
     y0 = np.zeros(len(scheme.compounds))

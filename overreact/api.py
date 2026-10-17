@@ -556,7 +556,7 @@ def get_k(
 
         logger.info(
             "activation symmetry entropies: "
-            f"{', '.join([f'{v:7.3g}' for v in scheme.activation_entropies])} J·mol⁻¹·K⁻¹",
+            f"{rx._misc.format_numbers(scheme.activation_entropies)} J·mol⁻¹·K⁻¹",
         )
         delta_freeenergies = (
             scheme.activation_deltas(freeenergies)
@@ -595,7 +595,7 @@ def get_k(
 
     logger.info(
         "(classical) reaction rate constants: "
-        f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
+        f"{rx._misc.format_numbers(k)} atm⁻ⁿ⁺¹·s⁻¹",
     )
     if tunneling not in {"none", None}:
         if compounds is not None:
@@ -615,7 +615,7 @@ def get_k(
             )
         logger.info(
             "(tunneling) reaction rate constants: "
-            f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
+            f"{rx._misc.format_numbers(k)} atm⁻ⁿ⁺¹·s⁻¹",
         )
 
     # TODO(schneiderfelipe): ensure diffusional limit for reactions in
@@ -750,8 +750,7 @@ def get_kappa(
     # somewhere else?
     vec_kappas = np.asarray(kappas).flatten()
     logger.info(
-        "(quantum) tunneling coefficients: "
-        f"{', '.join([f'{kappa:7.3g}' for kappa in vec_kappas])}",
+        f"(quantum) tunneling coefficients: {rx._misc.format_numbers(vec_kappas)}",
     )
     return vec_kappas
 

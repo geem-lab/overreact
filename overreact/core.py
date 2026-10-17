@@ -51,7 +51,7 @@ class Scheme:
         shape = (len(self.compounds), len(self.is_half_equilibrium))
         object.__setattr__(self, "compounds", tuple(self.compounds))
         for name in ("reactants", "products"):
-            matrix = np.asarray(getattr(self, name), dtype=int)
+            matrix = np.array(getattr(self, name), dtype=int)
             if matrix.size == 0:
                 matrix = matrix.reshape(shape)
             if matrix.shape != shape:
@@ -61,6 +61,7 @@ class Scheme:
                 msg = f"{name} has negative coefficients"
                 raise ValueError(msg)
             object.__setattr__(self, name, rx._misc.totuple(matrix))
+            object.__setattr__(self, f"_{name}", _read_only(matrix))
         object.__setattr__(
             self,
             "transition_states",
@@ -312,10 +313,6 @@ class Scheme:
             None,
         ] = {}
 
-        def _add_reaction(reactants, products, is_half_equilibrium, transition):
-            """Local helper function with side-effects."""
-            reactions.setdefault((reactants, products, is_half_equilibrium, transition))
-
         def _canonical(side):
             """Add up coefficients of repeated compounds, in order of compounds."""
             coefficients = collections.Counter()
@@ -326,10 +323,8 @@ class Scheme:
                 for compound in sorted(coefficients, key=compounds.__getitem__)
             )
 
-        after_transitions: dict[tuple[tuple[int, str], ...], list[tuple[int, str]]] = {}
-        before_transitions: dict[
-            tuple[tuple[int, str], ...], list[tuple[int, str]]
-        ] = {}
+        after_transitions = collections.defaultdict(list)
+        before_transitions = collections.defaultdict(list)
 
         for reactants, products, is_half_equilibrium in _parse_reactions(text):
             for _, compound in itertools.chain(reactants, products):
@@ -350,32 +345,21 @@ class Scheme:
             #   1. it's the only compound in its side of the reaction, and
             #   2. its coefficient equals one
             if reactants and is_transition_state(reactants[-1][-1]):
-                for before_reactants in before_transitions.get(reactants, []):
-                    _add_reaction(
-                        before_reactants,
-                        products,
-                        is_half_equilibrium,
-                        reactants,
+                for before_reactants in before_transitions[reactants]:
+                    reactions.setdefault(
+                        (before_reactants, products, is_half_equilibrium, reactants),
                     )
-
-                if reactants in after_transitions:
-                    after_transitions[reactants].append(products)
-                else:
-                    after_transitions[reactants] = [products]
+                after_transitions[reactants].append(products)
                 continue
             elif products and is_transition_state(products[-1][-1]):
-                for after_products in after_transitions.get(products, []):
-                    _add_reaction(
-                        reactants, after_products, is_half_equilibrium, products
+                for after_products in after_transitions[products]:
+                    reactions.setdefault(
+                        (reactants, after_products, is_half_equilibrium, products),
                     )
-
-                if products in before_transitions:
-                    before_transitions[products].append(reactants)
-                else:
-                    before_transitions[products] = [reactants]
+                before_transitions[products].append(reactants)
                 continue
 
-            _add_reaction(reactants, products, is_half_equilibrium, None)
+            reactions.setdefault((reactants, products, is_half_equilibrium, None))
 
         shape = (len(compounds), len(reactions))
         reactants_matrix, products_matrix = np.zeros(shape, int), np.zeros(shape, int)
@@ -399,13 +383,8 @@ class Scheme:
     def reactions(self) -> tuple[str, ...]:
         """Reactions as text, without transition states."""
         return tuple(
-            _unparse_reactions(
-                (
-                    self._side(self._reactants[:, i]),
-                    self._side(self._products[:, i]),
-                )
-                for i in range(len(self.is_half_equilibrium))
-            ),
+            f"{_unparse_side(self._side(r))} -> {_unparse_side(self._side(p))}".strip()
+            for r, p in zip(self._reactants.T, self._products.T, strict=True)
         )
 
     @cached_property
@@ -521,16 +500,18 @@ class Scheme:
         >>> factors
         array([3091.36])
         """
-        keep = [i for i, c in enumerate(self.compounds) if c not in concentrations]
-        fixed = [i for i, c in enumerate(self.compounds) if c in concentrations]
-        values = np.array([concentrations[self.compounds[i]] for i in fixed])
+        fixed = np.isin(self.compounds, list(concentrations))
+        position = np.cumsum(~fixed) - 1
+        values = np.array(
+            [concentrations[c] for c in itertools.compress(self.compounds, fixed)],
+        )
         return (
             Scheme(
-                compounds=tuple(self.compounds[i] for i in keep),
-                reactants=self._reactants[keep],
-                products=self._products[keep],
+                compounds=tuple(itertools.compress(self.compounds, ~fixed)),
+                reactants=self._reactants[~fixed],
+                products=self._products[~fixed],
                 transition_states=tuple(
-                    None if ts is None else keep.index(ts)
+                    None if ts is None else int(position[ts])
                     for ts in self.transition_states
                 ),
                 is_half_equilibrium=self.is_half_equilibrium,
@@ -575,28 +556,21 @@ class Scheme:
         '-> A\nA <=> 2 B\n2 B ->'
         """
         reverse = {j for _, j in self.equilibria}
-        return "\n".join(
-            reaction.replace(
-                "->",
-                "<=>"
-                if self.is_half_equilibrium[i]
-                else "->"
-                if transition_state is None
-                else f"-> {self.compounds[transition_state]} ->",
-            )
-            for i, (reaction, transition_state) in enumerate(
-                zip(self.reactions, self.transition_states, strict=True),
-            )
-            if i not in reverse
-        )
-
-    @cached_property
-    def _reactants(self) -> np.ndarray:
-        return _read_only(self._array(self.reactants))
-
-    @cached_property
-    def _products(self) -> np.ndarray:
-        return _read_only(self._array(self.products))
+        lines = []
+        for i, (reaction, transition_state) in enumerate(
+            zip(self.reactions, self.transition_states, strict=True),
+        ):
+            if i in reverse:
+                continue
+            if transition_state is not None:
+                reaction = reaction.replace(
+                    "->",
+                    f"-> {self.compounds[transition_state]} ->",
+                )
+            elif self.is_half_equilibrium[i]:
+                reaction = reaction.replace("->", "<=>")
+            lines.append(reaction)
+        return "\n".join(lines)
 
     @cached_property
     def _activated(self) -> np.ndarray:
@@ -614,12 +588,6 @@ class Scheme:
     def _activation(self) -> np.ndarray:
         """Coefficients from reactants to the activated state."""
         return _read_only(self._activated - self._reactants)
-
-    def _array(self, matrix) -> np.ndarray:
-        return np.reshape(
-            np.array(matrix, dtype=int),
-            (len(self.compounds), len(self.is_half_equilibrium)),
-        )
 
     def _side(self, coefficients) -> Iterator[tuple[int, str]]:
         return (
@@ -831,23 +799,6 @@ def _parse_reactions(text):
     ((1, 'ES'),) ((1, 'E'), (1, 'S')) True
     ((1, 'ES'),) ((1, 'ES‡'),) False
     ((1, 'ES‡'),) ((1, 'E'), (1, 'P')) False
-
-    `_parse_reactions` and `_unparse_reactions` are, in some sense, inverses of
-    each other:
-
-    >>> print('\n'.join(_unparse_reactions(_parse_reactions('''
-    ...     1 A -> 2 B <- C <=> 40 D <- E
-    ...     A -> 2 B <=> C
-    ... '''))))
-    A -> 2 B
-    C -> 2 B
-    C -> 40 D
-    40 D -> C
-    E -> 40 D
-    A -> 2 B
-    2 B -> C
-    C -> 2 B
-
     """
     try:
         lines = text.split("\n")
@@ -875,36 +826,6 @@ def _parse_reactions(text):
                 yield products, reactants, True
             else:
                 yield reactants, products, False
-
-
-def _unparse_reactions(reactions):
-    """Return string representations of reactions.
-
-    Parameters
-    ----------
-    reactions : sequence of tuple
-
-    Yields
-    ------
-    text : str
-        Line of model description.
-
-    Examples
-    --------
-    >>> for text in _unparse_reactions([(((1, 'E'), (1, 'S')), ((1, 'ES'),),
-    ...         True),
-    ...     (((1, 'ES'),), ((1, 'E'), (1, 'S')), True),
-    ...     (((1, 'ES'),), ((1, 'ES‡'),), False),
-    ...     (((1, 'ES‡'),), ((1, 'E'), (1, 'P')), False)]):
-    ...     print(text)
-    E + S -> ES
-    ES -> E + S
-    ES -> ES‡
-    ES‡ -> E + P
-
-    """
-    for reaction in reactions:
-        yield f"{_unparse_side(reaction[0])} -> {_unparse_side(reaction[1])}".strip()
 
 
 def _parse_side(side):
