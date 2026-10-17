@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import io
+import json
+
 import numpy as np
 import pytest
 
@@ -820,3 +823,13 @@ def test_read_logfile_from_orca_xtb() -> None:
             ],
         ),
     )
+
+
+def test_parse_model_orders_compounds_as_scheme() -> None:
+    """Ensure compiled models list compounds in the order of their scheme."""
+    model = rx.io._parse_model(
+        io.StringIO(
+            json.dumps({"scheme": ["B -> A"], "compounds": {"A": {}, "B": {}}}),
+        ),
+    )
+    assert tuple(model.compounds) == model.scheme.compounds

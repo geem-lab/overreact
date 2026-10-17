@@ -176,6 +176,10 @@ def _parse_model(file_or_path):
 
     if "scheme" in model:
         model["scheme"] = rx.Scheme.parse(model["scheme"])
+        if "compounds" in model:
+            model["compounds"] = {
+                name: model["compounds"][name] for name in model["scheme"].compounds
+            }
 
     return DotDict(model)
 
