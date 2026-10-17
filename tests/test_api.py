@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -9,6 +10,21 @@ from hypothesis import strategies as st
 import overreact as rx
 from overreact import _constants as constants
 from overreact import coords
+
+
+@given(st.floats(-50.0, 50.0), st.floats(-50.0, 50.0))
+def test_get_k_relates_equilibria_by_equilibrium_constants(forward, reverse) -> None:
+    """Ensure equilibria follow their equilibrium constant, the smallest rate being one."""
+    k = rx.get_k(
+        rx.Scheme.parse("A <=> B"),
+        delta_freeenergies=[forward * constants.kcal, reverse * constants.kcal],
+    )
+    equilibrium_constant = rx.thermo.equilibrium_constant(
+        forward * constants.kcal
+    ).item()
+    assert k == pytest.approx(
+        np.array([equilibrium_constant, 1.0]) / min(equilibrium_constant, 1.0),
+    )
 
 
 def test_get_enthalpies() -> None:

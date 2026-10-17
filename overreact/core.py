@@ -420,7 +420,7 @@ class Scheme:
         """Change of per-compound values from reactants to the activated state.
 
         The activated state is the transition state if any, and the products
-        otherwise. Reverse halves of equilibria have no activation.
+        otherwise.
 
         Examples
         --------
@@ -571,8 +571,6 @@ class Scheme:
     def _activated(self) -> np.ndarray:
         """Coefficients of the activated state of each reaction."""
         activated = self._products.copy()
-        for _, j in self.equilibria:
-            activated[:, j] = self._reactants[:, j]
         for i, ts in enumerate(self.transition_states):
             if ts is not None:
                 activated[:, i] = 0

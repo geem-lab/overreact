@@ -10,7 +10,7 @@ from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import _constants as constants
-from tests.strategies import COMPOUNDS, equilibria, reactions, schemes_texts
+from tests.strategies import COMPOUNDS, reactions, schemes_texts
 
 
 @given(reactions())
@@ -123,15 +123,6 @@ def test_activation_deltas_reach_transition_states(reaction, data) -> None:
     ) == pytest.approx(
         [final - _total(reactants, values)],
     )
-
-
-@given(equilibria(), st.data())
-def test_reverse_half_equilibria_have_no_activation(text, data) -> None:
-    """Ensure only the forward half of an equilibrium has an activation delta."""
-    scheme = rx.Scheme.parse(text)
-    values = [data.draw(_values(scheme))[c] for c in scheme.compounds]
-    forward, reverse = scheme.activation_deltas(values)
-    assert (forward, reverse) == pytest.approx((scheme.reaction_deltas(values)[0], 0.0))
 
 
 @given(reactions())

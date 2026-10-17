@@ -454,6 +454,7 @@ def get_k(
         Reference gas pressure.
     delta_freeenergies : array-like, optional
         Use this instead of obtaining delta free energies from the compounds.
+        For equilibria, only the value of the forward half is used.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
         If set, this is used to calculate `delta_moles` for
@@ -575,23 +576,23 @@ def get_k(
         volume=volume,
     )
 
-    # make reaction rate constants for equilibria as close as possible to one
+    # equilibria only fix ratios: make the smallest rate constant of each pair one
     for i, j in scheme.equilibria:
-        _K = k[i] / k[j]
-
-        denom = min(k[i], k[j])
+        equilibrium_constant = np.squeeze(
+            rx.thermo.equilibrium_constant(
+                delta_freeenergies[i],
+                temperature=temperature,
+                pressure=pressure,
+                volume=volume,
+            ),
+        ).item()
+        denom = min(equilibrium_constant, 1.0)
         if denom == 0.0:
             logger.warning(
                 "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
             )
             denom = 1.0
-
-        k[[i, j]] /= denom
-        assert np.isclose(_K, k[i] / k[j]), (
-            f"reaction rate constants {k[i]} and {k[j]} for "
-            "equilibria could not be made to match the expected "
-            f"equilibrium constant value {_K}"
-        )
+        k[i], k[j] = equilibrium_constant / denom, 1.0 / denom
 
     logger.info(
         "(classical) reaction rate constants: "
