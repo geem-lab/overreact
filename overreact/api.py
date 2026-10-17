@@ -583,7 +583,11 @@ def get_k(
 
     # equilibria only fix ratios: make the smallest rate constant of each pair one
     for i, j in scheme.equilibria:
-        if not np.isclose(delta_freeenergies[j], -delta_freeenergies[i]):
+        if not np.isclose(
+            delta_freeenergies[j],
+            -delta_freeenergies[i],
+            equal_nan=True,
+        ):
             msg = f"the reverse half of equilibrium '{scheme.reactions[i]}' must undo its forward half"
             raise ValueError(msg)
         equilibrium_constant = rx.thermo.equilibrium_constant(

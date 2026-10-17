@@ -27,7 +27,7 @@ def test_get_k_satisfies_detailed_balance(delta_freeenergy) -> None:
 @given(st.floats(-50.0, 50.0), st.floats(-50.0, 50.0))
 def test_get_k_rejects_inconsistent_equilibria(forward, reverse) -> None:
     """Ensure the reverse half of an equilibrium must undo the forward half."""
-    assume(not np.isclose(forward, -reverse))
+    assume(not np.isclose(reverse * constants.kcal, -forward * constants.kcal))
     with pytest.raises(ValueError, match="reverse"):
         rx.get_k(
             rx.Scheme.parse("A <=> B"),
