@@ -1131,11 +1131,21 @@ def test_heat_capacity_ideal_gases() -> None:
     ) / constants.R == pytest.approx(3.03, 1e-3)
 
 
-def test_get_delta_works() -> None:
-    """Ensure safe usage of get_delta."""
-    assert rx.thermo.get_delta([-1, 2], [-5.0, 5.0]) == pytest.approx(15.0)
-    assert rx.thermo.get_delta([[-1, -1], [2, 1]], [-5.0, 5.0]) == pytest.approx(
-        [15.0, 10.0],
+@given(st.data())
+def test_get_delta_weights_property_by_coefficients(data) -> None:
+    """Ensure deltas are sums of properties weighted by coefficients."""
+    n, m = data.draw(st.integers(1, 4)), data.draw(st.integers(1, 4))
+    transform = data.draw(
+        st.lists(
+            st.lists(st.integers(-3, 3), min_size=m, max_size=m), min_size=n, max_size=n
+        ),
+    )
+    prop = data.draw(st.lists(st.floats(-1e3, 1e3), min_size=n, max_size=n))
+    assert rx.thermo.get_delta(transform, prop) == pytest.approx(
+        [
+            sum(row[j] * x for row, x in zip(transform, prop, strict=True))
+            for j in range(m)
+        ],
     )
 
 
@@ -1195,20 +1205,34 @@ def test_molar_volume_is_precise() -> None:
     assert rx.thermo.molar_volume() == pytest.approx(0.024465, 1e-4)
 
 
-def test_molar_volume_works_with_sequences() -> None:
-    """Ensure molar volumes can be calculated for many temperatures at once."""
-    assert rx.thermo.molar_volume([273.15, 298.15], constants.bar) == pytest.approx(
-        [0.02271098038, 0.02478959842],
-        1e-5,
+@given(
+    st.lists(
+        st.tuples(st.floats(1.0, 1e4), st.floats(1.0, 1e7)),
+        min_size=1,
+        max_size=4,
+    ),
+)
+def test_molar_volume_follows_ideal_gas_law(states) -> None:
+    """Ensure molar volumes are RT/p, also for many states at once."""
+    temperatures, pressures = np.transpose(states)
+    assert rx.thermo.molar_volume(temperatures, pressures) == pytest.approx(
+        constants.R * temperatures / pressures,
     )
-    assert rx.thermo.molar_volume(
-        [273.15, 298.15],
-        [constants.atm, constants.bar],
-    ) == pytest.approx([0.022414, 0.02478959842], 1e-5)
-    assert rx.thermo.molar_volume(
-        273.15,
-        [constants.atm, constants.bar],
-    ) == pytest.approx([0.022414, 0.02271098038], 1e-5)
+
+
+@given(st.floats(-300.0, 300.0), st.floats(-300.0, 300.0), st.floats(1.0, 1e4))
+def test_equilibrium_constants_multiply_over_added_free_energies(
+    first, second, temperature
+) -> None:
+    """Ensure K(dG1 + dG2) = K(dG1) K(dG2), with free energies in units of RT."""
+
+    def k(delta_freeenergy):
+        return rx.thermo.equilibrium_constant(
+            delta_freeenergy * constants.R * temperature,
+            temperature=temperature,
+        )
+
+    assert k(first + second) == pytest.approx(k(first) * k(second))
 
 
 def test_change_reference_state_works_for_symmetry() -> None:
@@ -1244,12 +1268,6 @@ def test_head_gordon_damping() -> None:
     assert rx.thermo._gas._head_gordon_damping(-70.0) == pytest.approx(
         [],
     )
-    assert rx.thermo._gas._head_gordon_damping(-40.0) == pytest.approx(
-        rx.thermo._gas._head_gordon_damping(40.0),
-    )
-    assert rx.thermo._gas._head_gordon_damping(-10.0) == pytest.approx(
-        rx.thermo._gas._head_gordon_damping(10.0),
-    )
     assert rx.thermo._gas._head_gordon_damping(1.0) == pytest.approx(
         8.67669882e-9,
     )
@@ -1276,6 +1294,20 @@ def test_head_gordon_damping() -> None:
     assert rx.thermo._gas._head_gordon_damping(
         [-70.0, -10.0, 10.0, 100.0, 200.0, 300.0, 1000.0],
     ) == pytest.approx([8.67594611e-5, 8.67594611e-5, 0.5, 1.0, 1.0, 1.0], 8e-2)
+
+
+@given(st.floats(1.0, 50.0, exclude_max=True))
+def test_head_gordon_damping_is_even(vibfreq) -> None:
+    """Ensure damping is the same for small imaginary and real frequencies."""
+    damping = rx.thermo._gas._head_gordon_damping
+    assert damping(-vibfreq) == pytest.approx(damping(vibfreq))
+
+
+@given(st.floats(1.0, 1e4), st.floats(0.0, 1e4))
+def test_head_gordon_damping_increases_from_zero_to_one(vibfreq, increase) -> None:
+    """Ensure damping increases with frequency within (0, 1]."""
+    damping = rx.thermo._gas._head_gordon_damping
+    assert 0.0 < damping(vibfreq) <= damping(vibfreq + increase) <= 1.0
 
 
 @given(st.data())
