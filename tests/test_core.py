@@ -47,9 +47,18 @@ def test_parse_rejects_transition_states_in_equilibria() -> None:
         rx.Scheme.parse("A <=> A‡ <=> B")
 
 
-@pytest.mark.parametrize("text", ["A -> A‡", "A‡ -> B", "A -> A‡ -> A'‡ -> B"])
-def test_parse_rejects_incomplete_transition_states(text) -> None:
-    """Ensure every transition state links reactants to products."""
+@pytest.mark.parametrize(
+    "text",
+    [
+        "A -> A‡",
+        "A‡ -> B",
+        "A -> A‡ -> A'‡ -> B",
+        "A -> T‡ -> B\nC + T‡ -> D",
+        "A -> 2 T‡ -> B",
+    ],
+)
+def test_parse_rejects_misplaced_transition_states(text) -> None:
+    """Ensure every transition state stands alone between reactants and products."""
     with pytest.raises(ValueError, match="transition state"):
         rx.Scheme.parse(text)
 
@@ -72,6 +81,7 @@ def test_equilibria_absorb_plain_reactions(text) -> None:
         ({"transition_states": (2,)}, "transition state"),
         ({"transition_states": (0,)}, "transition state"),
         ({"compounds": ("A", "B‡")}, "transition state"),
+        ({"compounds": ("A", "A")}, "repeated"),
         ({"equilibria": ((0, 1),)}, "equilibri"),
         ({"equilibria": ((0, 0),)}, "equilibri"),
     ],
@@ -159,6 +169,9 @@ def test_fix_removes_compounds(reaction, concentrations) -> None:
     """Ensure fixing drops compounds and keeps reactions otherwise."""
     reactants, products, transition, text = reaction
     original = rx.Scheme.parse(text)
+    concentrations = {
+        c: v for c, v in concentrations.items() if c in original.compounds
+    }
     scheme, _ = original.fix(concentrations)
     compounds = tuple(c for c in original.compounds if c not in concentrations)
     assert scheme == rx.Scheme(
@@ -172,7 +185,19 @@ def test_fix_removes_compounds(reaction, concentrations) -> None:
     )
 
 
-def test_fix_rejects_transition_states() -> None:
-    """Ensure transition states cannot have fixed concentrations."""
-    with pytest.raises(ValueError, match="transition state"):
-        rx.Scheme.parse("A -> A‡ -> B").fix({"A‡": 1.0})
+@pytest.mark.parametrize(
+    ("text", "concentrations", "match"),
+    [
+        ("A -> A‡ -> B", {"A‡": 1.0}, "transition state"),
+        ("A -> B", {"C": 1.0}, "not a compound"),
+    ],
+)
+def test_fix_rejects_invalid_concentrations(text, concentrations, match) -> None:
+    """Ensure only compounds other than transition states can be fixed."""
+    with pytest.raises(ValueError, match=match):
+        rx.Scheme.parse(text).fix(concentrations)
+
+
+def test_parse_ignores_zero_coefficients() -> None:
+    """Ensure compounds with zero coefficients take no part in reactions."""
+    assert rx.Scheme.parse("0 A -> B\n-> B") == rx.Scheme.parse("-> B")

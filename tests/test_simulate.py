@@ -68,10 +68,10 @@ def test_get_dydt_overall_order_is_molecularity(reaction, factor, data) -> None:
 def test_fix_preserves_rates(reaction, concentrations, data) -> None:
     """Ensure fixed concentrations and the returned factors keep rates unchanged."""
     scheme = rx.Scheme.parse(reaction[-1])
+    concentrations = {c: v for c, v in concentrations.items() if c in scheme.compounds}
     y, dydt = _rates(scheme, data)
     for compound, concentration in concentrations.items():
-        if compound in scheme.compounds:
-            y[scheme.compounds.index(compound)] = concentration
+        y[scheme.compounds.index(compound)] = concentration
     fixed, factors = scheme.fix(concentrations)
     free = [scheme.compounds.index(c) for c in fixed.compounds]
     assert simulate.get_dydt(fixed, factors)(0.0, y[free]) == pytest.approx(

@@ -46,6 +46,9 @@ class Scheme:
     def __post_init__(self) -> None:
         """Normalize fields and validate them."""
         object.__setattr__(self, "compounds", tuple(self.compounds))
+        if len(set(self.compounds)) != len(self.compounds):
+            msg = f"repeated compound names in {self.compounds}"
+            raise ValueError(msg)
         object.__setattr__(
             self,
             "transition_states",
@@ -311,7 +314,7 @@ class Scheme:
             coefficients: dict[str, int] = {}
             for coefficient, compound in terms:
                 coefficients[compound] = coefficients.get(compound, 0) + coefficient
-            return coefficients
+            return {c: n for c, n in coefficients.items() if n}
 
         # plain reactions keyed by (reactants, products, transition state) and
         # equilibria keyed by the frozenset of their two sides
@@ -340,9 +343,13 @@ class Scheme:
                 records.setdefault(frozenset(sides), (reactants, products, None))
                 continue
 
-            # it's assumed that if a transition shows up,
-            #   1. it's the only compound in its side of the reaction, and
-            #   2. its coefficient equals one
+            if any(
+                is_transition_state(compound) and side != {compound: 1}
+                for side in (reactants, products)
+                for compound in side
+            ):
+                msg = "a transition state must stand alone on its side, once"
+                raise ValueError(msg)
             last_reactant = next(reversed(reactants), None)
             last_product = next(reversed(products), None)
             if last_reactant is not None and is_transition_state(last_reactant):
@@ -504,6 +511,10 @@ class Scheme:
         >>> factors
         array([3091.36])
         """
+        unknown = set(concentrations) - set(self.compounds)
+        if unknown:
+            msg = f"{', '.join(sorted(unknown))} not a compound of the scheme"
+            raise ValueError(msg)
         fixed = np.isin(self.compounds, list(concentrations))
         for ts in self.transition_states:
             if ts is not None and fixed[ts]:
