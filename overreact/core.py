@@ -7,6 +7,7 @@ __all__ = ["Scheme"]
 
 import collections
 import itertools
+import operator
 import re
 from dataclasses import dataclass
 from functools import cached_property
@@ -416,7 +417,15 @@ class Scheme:
         >>> Scheme.parse("A <=> B -> C <=> D").equilibria
         ((0, 1), (3, 4))
         """
-        return tuple(_equilibrium_pairs(self.is_half_equilibrium))
+        return tuple(
+            (i, i + 1)
+            for is_half, run in itertools.groupby(
+                enumerate(self.is_half_equilibrium),
+                key=operator.itemgetter(1),
+            )
+            if is_half
+            for i, _ in itertools.islice(run, 0, None, 2)
+        )
 
     @cached_property
     def A(self) -> np.ndarray:  # noqa: N802
@@ -565,24 +574,21 @@ class Scheme:
         >>> str(Scheme.parse("-> A <=> B + B ->"))
         '-> A\nA <=> 2 B\n2 B ->'
         """
-        return "\n".join(self._lines())
-
-    def _lines(self) -> Iterator[str]:
-        """Yield the model description line by line."""
-        reactions = enumerate(
-            zip(self.reactions, self.transition_states, strict=True),
+        reverse = {j for _, j in self.equilibria}
+        return "\n".join(
+            reaction.replace(
+                "->",
+                "<=>"
+                if self.is_half_equilibrium[i]
+                else "->"
+                if transition_state is None
+                else f"-> {self.compounds[transition_state]} ->",
+            )
+            for i, (reaction, transition_state) in enumerate(
+                zip(self.reactions, self.transition_states, strict=True),
+            )
+            if i not in reverse
         )
-        for i, (reaction, transition_state) in reactions:
-            if transition_state is not None:
-                yield reaction.replace(
-                    "->",
-                    f"-> {self.compounds[transition_state]} ->",
-                )
-            elif self.is_half_equilibrium[i]:
-                next(reactions, None)  # skip the reverse half-equilibrium
-                yield reaction.replace("->", "<=>")
-            else:
-                yield reaction
 
     @cached_property
     def _reactants(self) -> np.ndarray:
@@ -621,15 +627,6 @@ class Scheme:
             for coefficient, compound in zip(coefficients, self.compounds, strict=True)
             if coefficient
         )
-
-
-def _equilibrium_pairs(is_half_equilibrium) -> Iterator[tuple[int, int]]:
-    """Yield indices of consecutive pairs of half-equilibria."""
-    flags = enumerate(is_half_equilibrium)
-    for i, is_half in flags:
-        if is_half:
-            next(flags, None)
-            yield i, i + 1
 
 
 def _read_only(array: np.ndarray) -> np.ndarray:
