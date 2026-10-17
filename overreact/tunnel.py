@@ -198,6 +198,7 @@ def eckart(
     return kappa
 
 
+# TODO(schneiderfelipe): returns NaN for large alphas (roughly above 100), outside the validated range.
 @np.vectorize
 def _eckart(
     u: float,
