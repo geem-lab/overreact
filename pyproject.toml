@@ -53,8 +53,7 @@ dependencies = [
 [project.optional-dependencies]
 cli = ["rich>=13,<16"]
 fast = [
-    "jax>=0.4",
-    "jaxlib>=0.4",
+    "diffrax>=0.7,<0.8",
 ]
 solvents = ["thermo>=0.2"]
 

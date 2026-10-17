@@ -852,8 +852,11 @@ def main(arguments=None):
     )
     parser.add_argument(
         "--method",
-        help="integrator used in solving the ODE system of the microkinetic simulation",
-        choices=["RK23", "DOP853", "RK45", "LSODA", "BDF", "Radau"],
+        help=(
+            "integrator used in solving the ODE system of the microkinetic "
+            "simulation (Kvaerno methods require overreact[fast])"
+        ),
+        choices=rx.simulate.SUPPORTED_SOLVERS,
         default="RK23",
     )
     parser.add_argument(
