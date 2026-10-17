@@ -381,7 +381,7 @@ def _unparse_model(model):
     {"scheme":["NH3(w) + OH·(w) -> NH3·OH#(w...,"atomcoords":[[0.0,0.0,0.0]]}}}
     """
     # create a new mutable object to avoid side effects
-    model = dict(model.copy())
+    model = dict(model)
 
     if "scheme" in model:
         model["scheme"] = str(model["scheme"]).split("\n")

@@ -226,9 +226,6 @@ def copy_unhashable(maxsize=128, typed=False):
         @cache(maxsize=maxsize, typed=typed)
         @wraps(func)
         def cached_func(*hashable_args, **hashable_kwargs):
-            args = []
-            kwargs = {}
-
             def convert_back(arg):
                 if isinstance(arg, tuple) and len(arg) == 2:
                     shape, flat_data = arg
@@ -246,22 +243,17 @@ def copy_unhashable(maxsize=128, typed=False):
                             raise ValueError(msg)
                 return arg
 
-            args = [convert_back(arg) for arg in hashable_args]
-            for k, v in hashable_kwargs.items():
-                kwargs[k] = convert_back(v)
-            args = tuple(args)
-            return func(*args, **kwargs)
+            return func(
+                *(convert_back(arg) for arg in hashable_args),
+                **{k: convert_back(v) for k, v in hashable_kwargs.items()},
+            )
 
         def wrapper(*args, **kwargs):
-            wrapper_hashable_args = []
-            wrapper_hashable_kwargs = {}
-
-            wrapper_hashable_args = [make_hashable(arg) for arg in args]
-            for k, v in kwargs.items():
-                wrapper_hashable_kwargs[k] = make_hashable(v)
-            wrapper_hashable_args = tuple(wrapper_hashable_args)
             return deepcopy(
-                cached_func(*wrapper_hashable_args, **wrapper_hashable_kwargs),
+                cached_func(
+                    *(make_hashable(arg) for arg in args),
+                    **{k: make_hashable(v) for k, v in kwargs.items()},
+                ),
             )
 
         return wrapper

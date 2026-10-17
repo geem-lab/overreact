@@ -637,7 +637,7 @@ class Report:
                 rtol=0.01,
             )
             if self.plot == "all" or not np.any(active):
-                active = np.array([True for _ in scheme.compounds])
+                active = np.ones(len(scheme.compounds), dtype=bool)
 
             factor = y(y.t_max)[active].max()
             reference = y(y.t_max)[active] / factor
@@ -674,7 +674,7 @@ class Report:
 
             t.update(
                 np.geomspace(
-                    np.min([_t for _t in t if _t > 0.0]),
+                    min(_t for _t in t if _t > 0.0),
                     t_max,
                     num=num,
                 ),
