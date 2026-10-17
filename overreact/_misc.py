@@ -845,7 +845,6 @@ def broaden_spectrum(
     return s
 
 
-# https://stackoverflow.com/a/10016613
 def format_numbers(values) -> str:
     """Format numbers for logging.
 
@@ -857,6 +856,7 @@ def format_numbers(values) -> str:
     return ", ".join(f"{v:7.3g}" for v in values)
 
 
+# https://stackoverflow.com/a/10016613
 def totuple(a):
     """Convert a numpy.array into nested tuples.
 
