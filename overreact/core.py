@@ -9,6 +9,7 @@ import collections
 import itertools
 import re
 from dataclasses import dataclass
+from functools import cached_property
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -18,7 +19,7 @@ import overreact as rx
 from overreact import _constants as constants
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterator, Sequence
 
 
 @dataclass(frozen=True)
@@ -80,11 +81,11 @@ class Scheme:
                 msg = f"invalid transition state index {ts}"
                 raise ValueError(msg)
 
-        reactants, products = self._array(self.reactants), self._array(self.products)
+        reactants, products = self._reactants, self._products
         for j in np.flatnonzero(~(reactants.any(axis=0) | products.any(axis=0))):
             msg = f"reaction {j} has neither reactants nor products"
             raise ValueError(msg)
-        for i, j in self.equilibria:
+        for i, j in self.equilibria():
             if not (
                 j < shape[1]
                 and self.is_half_equilibrium[j]
@@ -183,8 +184,8 @@ class Scheme:
         >>> scheme = Scheme.parse("A <=> B  // an equilibrium")
         >>> scheme.reactions
         ('A -> B', 'B -> A')
-        >>> scheme.equilibria
-        ((0, 1),)
+        >>> list(scheme.equilibria())
+        [(0, 1)]
         >>> scheme.activation_deltas([0.0, 10.0])
         array([10.,  0.])
 
@@ -393,38 +394,42 @@ class Scheme:
             is_half_equilibrium=tuple(reaction[2] for reaction in reactions),
         )
 
-    @property
+    @cached_property
     def reactions(self) -> tuple[str, ...]:
         """Reactions as text, without transition states."""
-        reactants, products = self._array(self.reactants), self._array(self.products)
         return tuple(
             _unparse_reactions(
-                (self._side(reactants[:, i]), self._side(products[:, i]))
+                (
+                    self._side(self._reactants[:, i]),
+                    self._side(self._products[:, i]),
+                )
                 for i in range(len(self.is_half_equilibrium))
             ),
         )
 
-    @property
-    def equilibria(self) -> tuple[tuple[int, int], ...]:
-        """Indices of the forward and reverse halves of each equilibrium."""
-        pairs = []
-        i = 0
-        while i < len(self.is_half_equilibrium):
-            if self.is_half_equilibrium[i]:
-                pairs.append((i, i + 1))
-                i += 1
-            i += 1
-        return tuple(pairs)
+    def equilibria(self) -> Iterator[tuple[int, int]]:
+        """Yield indices of the forward and reverse halves of each equilibrium.
 
-    @property
+        Examples
+        --------
+        >>> list(Scheme.parse("A <=> B -> C <=> D").equilibria())
+        [(0, 1), (3, 4)]
+        """
+        flags = enumerate(self.is_half_equilibrium)
+        for i, is_half_equilibrium in flags:
+            if is_half_equilibrium:
+                next(flags, None)
+                yield i, i + 1
+
+    @cached_property
     def A(self) -> np.ndarray:  # noqa: N802
         """Net stoichiometric coefficients, from reactants to products."""
-        return self._array(self.products) - self._array(self.reactants)
+        return _read_only(self._products - self._reactants)
 
-    @property
+    @cached_property
     def molecularity(self) -> np.ndarray:
         """Number of reactant molecules of each reaction."""
-        return self._array(self.reactants).sum(axis=0)
+        return _read_only(self._reactants.sum(axis=0))
 
     def reaction_deltas(self, values) -> np.ndarray:
         """Change of per-compound values from reactants to products.
@@ -447,9 +452,9 @@ class Scheme:
         >>> Scheme.parse("2 A -> A‡ -> B").activation_deltas([1.0, 5.0, 0.0])
         array([3.])
         """
-        return (self._activated - self._array(self.reactants)).T @ np.asarray(values)
+        return self._activation.T @ np.asarray(values)
 
-    @property
+    @cached_property
     def reaction_entropies(self) -> np.ndarray:
         r"""Reaction symmetry entropies.
 
@@ -469,11 +474,11 @@ class Scheme:
         >>> Scheme.parse("2B -> B + C").reaction_entropies
         array([-5.763])
         """
-        return _symmetry_entropies(self._array(self.products)) - _symmetry_entropies(
-            self._array(self.reactants),
+        return _read_only(
+            _symmetry_entropies(self._products) - _symmetry_entropies(self._reactants),
         )
 
-    @property
+    @cached_property
     def activation_entropies(self) -> np.ndarray:
         """Activation symmetry entropies, analogous to `reaction_entropies`.
 
@@ -482,8 +487,8 @@ class Scheme:
         >>> Scheme.parse("2A -> E# -> C").activation_entropies
         array([-5.763])
         """
-        return _symmetry_entropies(self._activated) - _symmetry_entropies(
-            self._array(self.reactants),
+        return _read_only(
+            _symmetry_entropies(self._activated) - _symmetry_entropies(self._reactants),
         )
 
     def fix(self, concentrations) -> tuple[Scheme, np.ndarray]:
@@ -512,20 +517,19 @@ class Scheme:
         """
         keep = [i for i, c in enumerate(self.compounds) if c not in concentrations]
         fixed = [i for i, c in enumerate(self.compounds) if c in concentrations]
-        reactants = self._array(self.reactants)
         values = np.array([concentrations[self.compounds[i]] for i in fixed])
         return (
             Scheme(
                 compounds=tuple(self.compounds[i] for i in keep),
-                reactants=reactants[keep],
-                products=self._array(self.products)[keep],
+                reactants=self._reactants[keep],
+                products=self._products[keep],
                 transition_states=tuple(
                     None if ts is None else keep.index(ts)
                     for ts in self.transition_states
                 ),
                 is_half_equilibrium=self.is_half_equilibrium,
             ),
-            np.prod(values[:, np.newaxis] ** reactants[fixed], axis=0),
+            np.prod(values[:, np.newaxis] ** self._reactants[fixed], axis=0),
         )
 
     def __str__(self) -> str:
@@ -564,34 +568,49 @@ class Scheme:
         >>> str(Scheme.parse("-> A <=> B + B ->"))
         '-> A\nA <=> 2 B\n2 B ->'
         """
-        reverse = {j for _, j in self.equilibria}
-        lines = []
-        for i, (reaction, transition_state) in enumerate(
+        return "\n".join(self._lines())
+
+    def _lines(self) -> Iterator[str]:
+        """Yield the model description line by line."""
+        reactions = enumerate(
             zip(self.reactions, self.transition_states, strict=True),
-        ):
+        )
+        for i, (reaction, transition_state) in reactions:
             if transition_state is not None:
-                reaction = reaction.replace(
+                yield reaction.replace(
                     "->",
                     f"-> {self.compounds[transition_state]} ->",
                 )
             elif self.is_half_equilibrium[i]:
-                reaction = reaction.replace("->", "<=>")
-            if i not in reverse:
-                lines.append(reaction)
-        return "\n".join(lines)
+                next(reactions, None)  # skip the reverse half-equilibrium
+                yield reaction.replace("->", "<=>")
+            else:
+                yield reaction
 
-    @property
+    @cached_property
+    def _reactants(self) -> np.ndarray:
+        return _read_only(self._array(self.reactants))
+
+    @cached_property
+    def _products(self) -> np.ndarray:
+        return _read_only(self._array(self.products))
+
+    @cached_property
     def _activated(self) -> np.ndarray:
         """Coefficients of the activated state of each reaction."""
-        reactants = self._array(self.reactants)
-        activated = self._array(self.products)
-        reverse = [j for _, j in self.equilibria]
-        activated[:, reverse] = reactants[:, reverse]
+        activated = self._products.copy()
+        for _, j in self.equilibria():
+            activated[:, j] = self._reactants[:, j]
         for i, ts in enumerate(self.transition_states):
             if ts is not None:
                 activated[:, i] = 0
                 activated[ts, i] = 1
-        return activated
+        return _read_only(activated)
+
+    @cached_property
+    def _activation(self) -> np.ndarray:
+        """Coefficients from reactants to the activated state."""
+        return _read_only(self._activated - self._reactants)
 
     def _array(self, matrix) -> np.ndarray:
         return np.reshape(
@@ -599,12 +618,18 @@ class Scheme:
             (len(self.compounds), len(self.is_half_equilibrium)),
         )
 
-    def _side(self, coefficients) -> tuple[tuple[int, str], ...]:
-        return tuple(
+    def _side(self, coefficients) -> Iterator[tuple[int, str]]:
+        return (
             (int(coefficient), compound)
             for coefficient, compound in zip(coefficients, self.compounds, strict=True)
             if coefficient
         )
+
+
+def _read_only(array: np.ndarray) -> np.ndarray:
+    """Return an array after making it read-only."""
+    array.setflags(write=False)
+    return array
 
 
 def _symmetry_entropies(coefficients) -> np.ndarray:

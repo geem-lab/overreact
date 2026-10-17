@@ -576,7 +576,7 @@ def get_k(
     )
 
     # make reaction rate constants for equilibria as close as possible to one
-    for i, j in scheme.equilibria:
+    for i, j in scheme.equilibria():
         _K = k[i] / k[j]
 
         denom = min(k[i], k[j])
