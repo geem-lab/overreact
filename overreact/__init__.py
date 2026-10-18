@@ -14,10 +14,7 @@ from overreact.api import (
     get_k,
     get_kappa,
 )
-from overreact.core import (
-    Scheme,
-    is_transition_state,
-)
+from overreact.core import Scheme
 from overreact.io import parse_compounds, parse_model
 from overreact.simulate import get_bias, get_dydt, get_y
 from overreact.thermo import change_reference_state
@@ -34,7 +31,6 @@ __all__ = [
     "get_k",
     "get_kappa",
     "get_y",
-    "is_transition_state",
     "parse_compounds",
     "parse_model",
 ]

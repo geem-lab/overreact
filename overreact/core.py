@@ -50,12 +50,12 @@ class Scheme:
             msg = f"repeated compound names in {self.compounds}"
             raise ValueError(msg)
         for compound in self.compounds:
-            if is_transition_state(compound):
+            if _is_transition_state(compound):
                 msg = f"transition state {compound} cannot be a compound"
                 raise ValueError(msg)
         object.__setattr__(self, "transition_states", tuple(self.transition_states))
         for ts in self.transition_states:
-            if ts is not None and not is_transition_state(ts):
+            if ts is not None and not _is_transition_state(ts):
                 msg = f"{ts} is not a transition state"
                 raise ValueError(msg)
         object.__setattr__(
@@ -322,7 +322,7 @@ class Scheme:
                 _coefficients(terms_after),
             )
             if is_equilibrium:
-                if any(map(is_transition_state, itertools.chain(reactants, products))):
+                if any(map(_is_transition_state, itertools.chain(reactants, products))):
                     msg = "transition states cannot take part in equilibria"
                     raise ValueError(msg)
                 sides = frozenset(reactants.items()), frozenset(products.items())
@@ -332,7 +332,7 @@ class Scheme:
                 continue
 
             if any(
-                is_transition_state(compound) and side != {compound: 1}
+                _is_transition_state(compound) and side != {compound: 1}
                 for side in (reactants, products)
                 for compound in side
             ):
@@ -340,11 +340,11 @@ class Scheme:
                 raise ValueError(msg)
             last_reactant = next(reversed(reactants), None)
             last_product = next(reversed(products), None)
-            if last_reactant is not None and is_transition_state(last_reactant):
+            if last_reactant is not None and _is_transition_state(last_reactant):
                 for before in before_transitions[last_reactant]:
                     _add(before, products, last_reactant)
                 after_transitions[last_reactant].append(products)
-            elif last_product is not None and is_transition_state(last_product):
+            elif last_product is not None and _is_transition_state(last_product):
                 for after in after_transitions[last_product]:
                     _add(reactants, after, last_product)
                 before_transitions[last_product].append(reactants)
@@ -764,7 +764,7 @@ def _get_environment(name):
     return environment
 
 
-def is_transition_state(name):
+def _is_transition_state(name):
     """Check whether a name specifies a transition state.
 
     Parameters
@@ -777,40 +777,40 @@ def is_transition_state(name):
 
     Examples
     --------
-    >>> is_transition_state("A#")
+    >>> _is_transition_state("A#")
     True
-    >>> is_transition_state("A‡")
+    >>> _is_transition_state("A‡")
     True
-    >>> is_transition_state("pyrrole#")
+    >>> _is_transition_state("pyrrole#")
     True
-    >>> is_transition_state("pyrrole‡")
+    >>> _is_transition_state("pyrrole‡")
     True
-    >>> is_transition_state("A")
+    >>> _is_transition_state("A")
     False
-    >>> is_transition_state("A~")
+    >>> _is_transition_state("A~")
     False
-    >>> is_transition_state("pyrrole")
+    >>> _is_transition_state("pyrrole")
     False
-    >>> is_transition_state("pyrrole~")
+    >>> _is_transition_state("pyrrole~")
     False
 
     This function also works for names that specify environment:
 
-    >>> is_transition_state("A#(w)")
+    >>> _is_transition_state("A#(w)")
     True
-    >>> is_transition_state("A‡(w)")
+    >>> _is_transition_state("A‡(w)")
     True
-    >>> is_transition_state("TS#(w)")
+    >>> _is_transition_state("TS#(w)")
     True
-    >>> is_transition_state("TS‡(w)")
+    >>> _is_transition_state("TS‡(w)")
     True
-    >>> is_transition_state("A(w)")
+    >>> _is_transition_state("A(w)")
     False
-    >>> is_transition_state("A~(w)")
+    >>> _is_transition_state("A~(w)")
     False
-    >>> is_transition_state("TS(w)")
+    >>> _is_transition_state("TS(w)")
     False
-    >>> is_transition_state("TS~(w)")
+    >>> _is_transition_state("TS~(w)")
     False
     """
     return any(marker in name for marker in {"‡", "#"})
