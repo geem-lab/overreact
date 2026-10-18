@@ -125,7 +125,7 @@ def test_gas_freeenergies_follow_ideal_gas_pressure(
 
     assert freeenergies(other_pressure) - freeenergies(pressure) == pytest.approx(
         constants.R * temperature * np.log(other_pressure / pressure),
-        abs=1e-3,
+        abs=1e-7,
     )
 
 

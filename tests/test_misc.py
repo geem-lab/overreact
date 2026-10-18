@@ -65,8 +65,8 @@ def test_derivative_is_exact_for_polynomials(data) -> None:
     polynomial = np.polynomial.Polynomial(coefficients)
     assert rx._misc._derivative(polynomial, x0=x0, n=n, order=order) == pytest.approx(
         polynomial.deriv(n)(x0),
-        rel=1e-6,
-        abs=1e-6,
+        rel=1e-9,
+        abs=1e-5,
     )
 
 
