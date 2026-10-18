@@ -506,6 +506,7 @@ class Report:
             data = np.genfromtxt(self.bias, names=True, delimiter=",")
             data = {name: data[name] for name in data.dtype.names}
 
+            # TODO(schneiderfelipe): get_bias ignores the rate constant factors of fixed concentrations.
             scheme, _, y0 = _prepare_simulation(
                 self.model.scheme,
                 rx.get_k(
