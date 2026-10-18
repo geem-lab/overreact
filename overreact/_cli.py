@@ -767,8 +767,11 @@ def _prepare_simulation(scheme, k, concentrations):
     )
 
     y0 = np.zeros(len(scheme.compounds))
-    for compound in free_y0:
-        y0[scheme.compounds.index(compound)] = free_y0[compound]
+    for compound, quantity in free_y0.items():
+        if compound not in scheme.compounds:
+            msg = f"{compound} not a compound of the scheme"
+            raise ValueError(msg)
+        y0[scheme.compounds.index(compound)] = quantity
 
     return scheme, k, y0
 
