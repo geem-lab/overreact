@@ -425,6 +425,7 @@ class Scheme:
         >>> Scheme.parse("2 A -> B").reaction_deltas([1.0, 5.0])
         array([3.])
         """
+        # TODO(schneiderfelipe): maybe also accept values for compounds only, since transition states are ignored here.
         return self._reaction.T @ np.asarray(values)
 
     def activation_deltas(self, values) -> np.ndarray:
