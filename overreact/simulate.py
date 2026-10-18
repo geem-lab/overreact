@@ -270,9 +270,11 @@ def get_dydt(scheme, k, ef=EF):
         # NOTE(schneiderfelipe): the following function is defined
         # such that _jac(t, y)[i, j] == d f_i / d y_j,
         # with shape of (n_compounds, n_compounds).
+        jacobian = jit(jacfwd(_dydt, argnums=1))
+
         def _jac(t, y):
             logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")
-            return jacfwd(lambda _y: _dydt(t, _y))(y)
+            return jacobian(t, y)
 
         _dydt.jac = _jac
 
