@@ -425,7 +425,7 @@ class Scheme:
         >>> Scheme.parse("2 A -> B").reaction_deltas([1.0, 5.0])
         array([3.])
         """
-        return self._padded(self.A).T @ np.asarray(values)
+        return self._reaction.T @ np.asarray(values)
 
     def activation_deltas(self, values) -> np.ndarray:
         """Change of values, one per name, from reactants to the activated state.
@@ -526,10 +526,7 @@ class Scheme:
         >>> factors
         array([3091.36])
         """
-        unknown = set(concentrations) - set(self.compounds)
-        if unknown:
-            msg = f"{', '.join(sorted(unknown))} not a compound of the scheme"
-            raise ValueError(msg)
+        self._check_compounds(concentrations)
         fixed = np.isin(self.compounds, list(concentrations))
         values = np.array(
             [concentrations[c] for c in itertools.compress(self.compounds, fixed)],
@@ -598,6 +595,11 @@ class Scheme:
         return "\n".join(lines)
 
     @cached_property
+    def _reaction(self) -> np.ndarray:
+        """Coefficients from reactants to products, one row per name."""
+        return _read_only(self._padded(self.A))
+
+    @cached_property
     def _activated(self) -> np.ndarray:
         """Coefficients of the activated state of each reaction, one row per name."""
         activated = self._padded(self.products)
@@ -617,6 +619,13 @@ class Scheme:
         return np.pad(
             coefficients, ((0, len(self.names) - len(self.compounds)), (0, 0))
         )
+
+    def _check_compounds(self, names) -> None:
+        """Raise unless all names are compounds of the scheme."""
+        unknown = set(names) - set(self.compounds)
+        if unknown:
+            msg = f"{', '.join(sorted(unknown))} not a compound of the scheme"
+            raise ValueError(msg)
 
     def _side(self, coefficients) -> Iterator[tuple[int, str]]:
         return (

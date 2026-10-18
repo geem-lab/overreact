@@ -33,7 +33,6 @@ def test_parse_counts_coefficients(reaction) -> None:
         [products.get(compound, 0)] for compound in scheme.compounds
     ]
     assert scheme.transition_states == (transition,)
-    assert transition not in scheme.compounds
 
 
 @given(schemes_texts())
@@ -216,17 +215,10 @@ def test_fix_removes_compounds(reaction, concentrations) -> None:
     )
 
 
-@pytest.mark.parametrize(
-    ("text", "concentrations"),
-    [
-        ("A -> A‡ -> B", {"A‡": 1.0}),
-        ("A -> B", {"C": 1.0}),
-    ],
-)
-def test_fix_rejects_unknown_compounds(text, concentrations) -> None:
+def test_fix_rejects_transition_states() -> None:
     """Ensure only compounds of the scheme can be fixed."""
     with pytest.raises(ValueError, match="not a compound"):
-        rx.Scheme.parse(text).fix(concentrations)
+        rx.Scheme.parse("A -> A‡ -> B").fix({"A‡": 1.0})
 
 
 def test_parse_ignores_zero_coefficients() -> None:

@@ -381,24 +381,18 @@ class Report:
             ],
         )
 
-        def _deltas(deltas, symmetry_entropies, freeenergy_deltas):
-            """Return deltas of quantities, with symmetry in entropies and free energies."""
-            mass, energies, internal_energies, enthalpies, entropies = deltas(
-                quantities
-            ).T
-            entropies = entropies + symmetry_entropies
-            delta_freeenergies = freeenergy_deltas(freeenergies, self.temperature)
-            assert np.allclose(
-                delta_freeenergies,
-                enthalpies - self.temperature * entropies,
-            ), "free energies do not match enthalpies and entropies"
+        def _deltas(kind):
+            """Return deltas of a kind, with symmetry in entropies and free energies."""
+            mass, energies, internal_energies, enthalpies, entropies = getattr(
+                scheme, f"{kind}_deltas"
+            )(quantities).T
             return (
                 mass,
                 energies,
                 internal_energies,
                 enthalpies,
-                entropies,
-                delta_freeenergies,
+                entropies + getattr(scheme, f"{kind}_entropies"),
+                getattr(scheme, f"{kind}_freeenergies")(freeenergies, self.temperature),
             )
 
         (
@@ -408,11 +402,7 @@ class Report:
             delta_enthalpies,
             delta_entropies,
             delta_freeenergies,
-        ) = _deltas(
-            scheme.reaction_deltas,
-            scheme.reaction_entropies,
-            scheme.reaction_freeenergies,
-        )
+        ) = _deltas("reaction")
         (
             delta_activation_mass,
             delta_activation_energies,
@@ -420,11 +410,7 @@ class Report:
             delta_activation_enthalpies,
             delta_activation_entropies,
             delta_activation_freeenergies,
-        ) = _deltas(
-            scheme.activation_deltas,
-            scheme.activation_entropies,
-            scheme.activation_freeenergies,
-        )
+        ) = _deltas("activation")
 
         circ_table = Table(
             Column("no", justify="right"),

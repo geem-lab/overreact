@@ -400,17 +400,6 @@ def get_bias(
         Absolute temperature in Kelvin.
     pressure : array-like, optional
         Reference gas pressure.
-    delta_freeenergies : array-like, optional
-        Use this instead of obtaining delta free energies from the compounds.
-    molecularity : array-like, optional
-        Reaction order, i.e., number of molecules that come together to react.
-        If set, this is used to calculate `delta_moles` for
-        `equilibrium_constant`, which effectively calculates a solution
-        equilibrium constant between reactants and the transition state for
-        gas phase data. You should set this to `None` if your free energies
-        were already adjusted for solution Gibbs free energies.
-    volume : float, optional
-        Molar volume.
 
     Returns
     -------

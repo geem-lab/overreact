@@ -604,15 +604,13 @@ def get_k(
         pressure=pressure,
         volume=volume,
     )
-    if (equilibrium_constants == 0.0).any():
+    denom = np.minimum(equilibrium_constants, 1.0)
+    zero = denom == 0.0
+    if zero.any():
         logger.warning(
             "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
         )
-    denom = np.where(
-        equilibrium_constants == 0.0,
-        1.0,
-        np.minimum(equilibrium_constants, 1.0),
-    )
+    denom[zero] = 1.0
     k[forward], k[reverse] = equilibrium_constants / denom, 1.0 / denom
 
     logger.info(
