@@ -280,7 +280,7 @@ def convert_rate_constant(
         msg = f"new unit not recognized: {new_scale}"
         raise ValueError(msg)
 
-    factor **= molecularity - 1
+    factor = factor ** (molecularity - 1)
     logger.info(
         f"conversion factor ({old_scale} to {new_scale}) = {factor}",
     )
