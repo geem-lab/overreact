@@ -852,7 +852,12 @@ def format_numbers(values) -> str:
     --------
     >>> format_numbers([1, 2.5e-10])
     '      1, 2.5e-10'
+    >>> format_numbers([[1, 2], [3, 4]])
+    '      1,       2;       3,       4'
     """
+    values = np.asarray(values)
+    if values.ndim > 1:
+        return "; ".join(map(format_numbers, values))
     return ", ".join(f"{v:7.3g}" for v in values)
 
 
