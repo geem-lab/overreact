@@ -37,10 +37,15 @@ def test_cli_accepts_gaussian_logfiles(monkeypatch) -> None:
     cli.main()
 
 
-@pytest.mark.parametrize("concentrations", [["A‡:1.0"], ["C:1.0"], ["C:!1.0"]])
-def test_prepare_simulation_rejects_unknown_compounds(concentrations) -> None:
-    """Ensure concentrations are given only for compounds of the scheme."""
-    with pytest.raises(ValueError, match="not a compound"):
+@pytest.mark.parametrize(
+    ("concentrations", "match"),
+    [(["A‡:1.0"], "not a compound"), (["A:1.0", "A:!1.0"], "both")],
+)
+def test_prepare_simulation_rejects_invalid_concentrations(
+    concentrations, match
+) -> None:
+    """Ensure each compound of the scheme gets one free or fixed concentration."""
+    with pytest.raises(ValueError, match=match):
         cli._prepare_simulation(
             rx.Scheme.parse("A -> A‡ -> B"),
             np.ones(1),

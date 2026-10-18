@@ -694,6 +694,7 @@ class Report:
             if self.plot not in {"none", None}:
                 if self.plot not in {"all", "active"}:
                     name = self.plot
+                    scheme._check_compounds([name])
                     plt.plot(t, y(t)[scheme.compounds.index(name)], label=name, lw=3)
                 else:
                     for i, name in enumerate(scheme.compounds):
@@ -744,6 +745,11 @@ def _prepare_simulation(scheme, k, concentrations):
 
         d[name] = quantity
 
+    scheme._check_compounds(free_y0)
+    both = free_y0.keys() & fixed_y0.keys()
+    if both:
+        msg = f"{', '.join(sorted(both))} given both free and fixed concentrations"
+        raise ValueError(msg)
     scheme, factors = scheme.fix(fixed_y0)
     k = k * factors
     logger.info(f"fixed concentrations: {fixed_y0}")
@@ -754,9 +760,6 @@ def _prepare_simulation(scheme, k, concentrations):
 
     y0 = np.zeros(len(scheme.compounds))
     for compound, quantity in free_y0.items():
-        if compound not in scheme.compounds:
-            msg = f"{compound} not a compound of the scheme"
-            raise ValueError(msg)
         y0[scheme.compounds.index(compound)] = quantity
 
     return scheme, k, y0
