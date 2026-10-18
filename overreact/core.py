@@ -175,14 +175,10 @@ class Scheme:
                transition_states=(None,),
                equilibria=())
 
-        The text of each reaction and the matrix $A$ of net coefficients are
-        derived from those:
+        The text of each reaction is derived from those:
 
         >>> scheme.reactions
         ('A -> B',)
-        >>> scheme.A
-        array([[-1],
-               [ 1]])
 
         The same reaction can be specified in reverse order:
 
@@ -219,9 +215,9 @@ class Scheme:
         >>> scheme = Scheme.parse("B + B -> B + C")
         >>> scheme.reactions
         ('2 B -> B + C',)
-        >>> scheme.A
-        array([[-1],
-               [ 1]])
+        >>> scheme.reactants
+        array([[2],
+               [0]])
 
         Transition states are specified with a special symbol at the end (either
         `‡` or `#`). They are kept apart from compounds, and values for them
@@ -254,13 +250,12 @@ class Scheme:
         >>> scheme = Scheme.parse("S -> E‡ -> S")
         >>> scheme.reactions
         ('S -> S',)
-        >>> scheme.A
-        array([[0]])
+        >>> scheme.reaction_deltas([0.0, 3.0])
+        array([0.])
         >>> scheme.activation_deltas([0.0, 3.0])
         array([3.])
 
-        As such, a column full of zeros in the $A$ matrix corresponds to a reaction
-        with zero net change. As can be seen, overreact allows for very general
+        As such, the reaction has zero net change. As can be seen, overreact allows for very general
         models. An interesting feature is that a single transition state can link
         many different compounds:
 
@@ -408,7 +403,7 @@ class Scheme:
         return tuple(j in halves for j in range(len(self.transition_states)))
 
     @cached_property
-    def A(self) -> np.ndarray:  # noqa: N802
+    def _A(self) -> np.ndarray:  # noqa: N802
         """Net stoichiometric coefficients, from reactants to products."""
         return _read_only(self.products - self.reactants)
 
@@ -598,7 +593,7 @@ class Scheme:
     @cached_property
     def _reaction(self) -> np.ndarray:
         """Coefficients from reactants to products, one row per name."""
-        return _read_only(self._padded(self.A))
+        return _read_only(self._padded(self._A))
 
     @cached_property
     def _activated(self) -> np.ndarray:

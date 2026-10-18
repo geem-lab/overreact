@@ -255,7 +255,7 @@ def get_dydt(scheme, k, ef=EF):
 
     """
     scheme = rx.core._check_scheme(scheme)
-    A = jnp.asarray(scheme.A)
+    A = jnp.asarray(scheme._A)
     M = jnp.asarray(scheme.reactants).T
     k_adj = _adjust_k(scheme, k, ef=ef)
 
