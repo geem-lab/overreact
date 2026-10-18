@@ -3,6 +3,21 @@ Module containing the high-level application programming interface.
 
 If you intend to use **overreact** as a library in a project, you should
 probably start here.
+
+Values per compound or per reaction lie along the last axis of arrays.
+Conditions such as `temperature` and `pressure` broadcast against them, so a
+scalar applies everywhere, an array of shape `(n,)` gives one value per
+compound or reaction, and an array of shape `(m, 1)` adds a leading axis of
+`m` conditions:
+
+>>> import numpy as np
+>>> import overreact as rx
+>>> scheme = rx.Scheme.parse("A -> B")
+>>> get_k(scheme, delta_freeenergies=[1e4], temperature=[[300.0], [400.0]])
+array([[1.13e+11],
+       [4.12e+11]])
+
+Both halves of an equilibrium share the same conditions.
 """
 
 from __future__ import annotations
@@ -19,6 +34,7 @@ __all__ = [
 
 import logging
 import warnings
+from functools import partial
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -70,8 +86,11 @@ def get_internal_energies(
 
     """
     compounds = rx.io._check_compounds(compounds)
-    internal_energies = []
-    for name in compounds:
+    temperatures = np.broadcast_to(
+        temperature, np.broadcast_shapes(np.shape(temperature), (len(compounds),))
+    )
+    internal_energies = np.empty(temperatures.shape)
+    for i, name in enumerate(compounds):
         logger.info(f"calculate internal energy: {name}")
 
         moments, _, _ = coords.inertia(
@@ -79,16 +98,18 @@ def get_internal_energies(
             compounds[name].atomcoords,
         )
 
-        internal_energy = rx.thermo.calc_internal_energy(
-            energy=compounds[name].energy,
-            degeneracy=compounds[name].mult,
-            moments=moments,
-            vibfreqs=compounds[name].vibfreqs,
-            qrrho=qrrho,
-            temperature=temperature,
-        )
-        internal_energies.append(internal_energy)
-    return np.array(internal_energies)
+        internal_energies[..., i] = np.vectorize(
+            partial(
+                rx.thermo.calc_internal_energy,
+                energy=compounds[name].energy,
+                degeneracy=compounds[name].mult,
+                moments=moments,
+                vibfreqs=compounds[name].vibfreqs,
+                qrrho=qrrho,
+            ),
+            otypes=[float],
+        )(temperature=temperatures[..., i])
+    return internal_energies
 
 
 def get_enthalpies(
@@ -135,8 +156,11 @@ def get_enthalpies(
     array([2.78, 2.50])
     """
     compounds = rx.io._check_compounds(compounds)
-    enthalpies = []
-    for name in compounds:
+    temperatures = np.broadcast_to(
+        temperature, np.broadcast_shapes(np.shape(temperature), (len(compounds),))
+    )
+    enthalpies = np.empty(temperatures.shape)
+    for i, name in enumerate(compounds):
         logger.info(f"calculate enthalpy: {name}")
 
         moments, _, _ = coords.inertia(
@@ -144,16 +168,18 @@ def get_enthalpies(
             compounds[name].atomcoords,
         )
 
-        enthalpy = rx.thermo.calc_enthalpy(
-            energy=compounds[name].energy,
-            degeneracy=compounds[name].mult,
-            moments=moments,
-            vibfreqs=compounds[name].vibfreqs,
-            qrrho=qrrho,
-            temperature=temperature,
-        )
-        enthalpies.append(enthalpy)
-    return np.array(enthalpies)
+        enthalpies[..., i] = np.vectorize(
+            partial(
+                rx.thermo.calc_enthalpy,
+                energy=compounds[name].energy,
+                degeneracy=compounds[name].mult,
+                moments=moments,
+                vibfreqs=compounds[name].vibfreqs,
+                qrrho=qrrho,
+            ),
+            otypes=[float],
+        )(temperature=temperatures[..., i])
+    return enthalpies
 
 
 def get_entropies(
@@ -218,8 +244,13 @@ def get_entropies(
     array([-6.35360874, -6.35360874])
     """
     compounds = rx.io._check_compounds(compounds)
-    entropies = []
-    for name in compounds:
+    shape = np.broadcast_shapes(
+        np.shape(temperature), np.shape(pressure), (len(compounds),)
+    )
+    temperatures = np.broadcast_to(temperature, shape)
+    pressures = np.broadcast_to(pressure, shape)
+    entropies = np.empty(shape)
+    for i, name in enumerate(compounds):
         logger.info(f"calculate entropy: {name}")
 
         if "point_group" in compounds[name]:
@@ -238,33 +269,33 @@ def get_entropies(
 
         if environment is None:
             environment = rx.core._get_environment(name)
-        entropy = rx.thermo.calc_entropy(
-            atommasses=compounds[name].atommasses,
-            atomcoords=compounds[name].atomcoords,
-            energy=compounds[name].energy,
-            degeneracy=compounds[name].mult,
-            moments=moments,
-            symmetry_number=symmetry_number,
-            vibfreqs=compounds[name].vibfreqs,
-            environment=environment,
-            method=method,
-            qrrho=qrrho,
-            temperature=temperature,
-            pressure=pressure,
-        )
+        entropies[..., i] = np.vectorize(
+            partial(
+                rx.thermo.calc_entropy,
+                atommasses=compounds[name].atommasses,
+                atomcoords=compounds[name].atomcoords,
+                energy=compounds[name].energy,
+                degeneracy=compounds[name].mult,
+                moments=moments,
+                symmetry_number=symmetry_number,
+                vibfreqs=compounds[name].vibfreqs,
+                environment=environment,
+                method=method,
+                qrrho=qrrho,
+            ),
+            otypes=[float],
+        )(temperature=temperatures[..., i], pressure=pressures[..., i])
 
         if compounds[name].symmetry is not None:
             # The negative sign here seems correct. See equations (9) and (10)
             # of doi:10.1002/qua.25686.
-            entropy -= rx.change_reference_state(
+            entropies[..., i] -= rx.change_reference_state(
                 compounds[name].symmetry,
                 1,
-                temperature=temperature,
-                pressure=pressure,
+                temperature=temperatures[..., i],
+                pressure=pressures[..., i],
             )
-
-        entropies.append(entropy)
-    return np.array(entropies)
+    return entropies
 
 
 def _check_qrrho(
@@ -449,7 +480,8 @@ def get_k(
         "l mol-1 s-1", "m3 mol-1 s-1", "cm3 particle-1 s-1", "mmHg-1 s-1" and
         "atm-1 s-1".
     temperature : array-like, optional
-        Absolute temperature in Kelvin.
+        Absolute temperature in Kelvin, the same for all compounds if computed
+        from them.
     pressure : array-like, optional
         Reference gas pressure.
     delta_freeenergies : array-like, optional
@@ -473,8 +505,10 @@ def get_k(
     Raises
     ------
     ValueError
-        If the reverse half of an equilibrium does not undo its forward half, or
-        if there is not one delta free energy per reaction.
+        If there is not one delta free energy per reaction along the last
+        axis, if temperatures differ between compounds or between the halves
+        of an equilibrium, or if the reverse half of an equilibrium does not
+        undo its forward half.
 
     Notes
     -----
@@ -551,6 +585,9 @@ def get_k(
         compounds = {name: compounds[name] for name in scheme.names}
     if delta_freeenergies is None:
         assert compounds is not None, "compounds could not be inferred"
+        if np.shape(temperature)[-1:] not in {(), (1,)}:
+            msg = "temperature must be the same for all compounds, e.g. of shape (m, 1)"
+            raise ValueError(msg)
         freeenergies = get_freeenergies(
             compounds,
             bias=bias,
@@ -575,38 +612,48 @@ def get_k(
     if molecularity is None:
         molecularity = scheme.molecularity
 
-    delta_freeenergies = np.array(delta_freeenergies, dtype=float, ndmin=1)
-    if len(delta_freeenergies) != len(scheme.reactions):
-        msg = f"expected {len(scheme.reactions)} delta free energies, one per reaction, got {len(delta_freeenergies)}"
-        raise ValueError(msg)
-    temperatures = np.broadcast_to(temperature, delta_freeenergies.shape)
-    forward, reverse = np.array(scheme.equilibria, dtype=int).reshape(-1, 2).T
-    inconsistent = ~np.isclose(
-        delta_freeenergies[reverse],
-        -delta_freeenergies[forward],
-        rtol=0.0,
-        atol=1e-5,
-        equal_nan=True,
+    delta_freeenergies, temperatures = np.broadcast_arrays(
+        np.array(delta_freeenergies, dtype=float, ndmin=1), temperature
     )
-    if inconsistent.any():
-        msg = f"the reverse half of equilibrium '{scheme.reactions[forward[inconsistent][0]]}' must undo its forward half"
+    if delta_freeenergies.shape[-1] != len(scheme.reactions):
+        msg = f"expected {len(scheme.reactions)} delta free energies, one per reaction, along the last axis, got shape {delta_freeenergies.shape}"
         raise ValueError(msg)
+    forward, reverse = np.array(scheme.equilibria, dtype=int).reshape(-1, 2).T
+    for problem, mismatch in [
+        (
+            "both halves must have the same temperature",
+            temperatures[..., forward] != temperatures[..., reverse],
+        ),
+        (
+            "the reverse half must undo its forward half",
+            ~np.isclose(
+                delta_freeenergies[..., reverse],
+                -delta_freeenergies[..., forward],
+                rtol=0.0,
+                atol=1e-5,
+                equal_nan=True,
+            ),
+        ),
+    ]:
+        if mismatch.any():
+            msg = f"in equilibrium '{scheme.reactions[forward[np.nonzero(mismatch)[-1][0]]]}', {problem}"
+            raise ValueError(msg)
 
-    k = np.empty_like(delta_freeenergies)
+    k = np.empty(delta_freeenergies.shape)
     plain = ~np.array(scheme._is_half_equilibrium, dtype=bool)
     # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
-    k[plain] = rates.eyring(
-        delta_freeenergies[plain],
-        temperature=temperatures[plain],
+    k[..., plain] = rates.eyring(
+        delta_freeenergies[..., plain],
+        temperature=temperatures[..., plain],
         pressure=pressure,
         volume=volume,
     )
 
     # equilibria only fix ratios: make the smallest rate constant of each pair one
     equilibrium_constants = rx.thermo.equilibrium_constant(
-        delta_freeenergies[forward],
-        temperature=temperatures[forward],
+        delta_freeenergies[..., forward],
+        temperature=temperatures[..., forward],
         pressure=pressure,
         volume=volume,
     )
@@ -617,7 +664,7 @@ def get_k(
             "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
         )
     denom[zero] = 1.0
-    k[forward], k[reverse] = equilibrium_constants / denom, 1.0 / denom
+    k[..., forward], k[..., reverse] = equilibrium_constants / denom, 1.0 / denom
 
     logger.info(
         "(classical) reaction rate constants: "
@@ -738,47 +785,51 @@ def get_kappa(
         delta_forward = scheme.activation_deltas(energies)
         delta_backward = delta_forward - scheme.reaction_deltas(energies)
 
-    kappas = []
-    for i, ts in enumerate(
-        scheme.transition_states,
-    ):
-        if ts is None:
-            kappas.append(1.0)
-        else:
-            vibfreq = compounds[ts].vibfreqs[0]
+    def eckart(vibfreq, delta_forward, delta_backward, temperature):
+        """Return the Eckart coefficient, or the Wigner one where Eckart fails."""
+        with warnings.catch_warnings():
+            warnings.filterwarnings("error")
+            try:
+                return tunnel.eckart(
+                    vibfreq,
+                    delta_forward,
+                    delta_backward,
+                    temperature=temperature,
+                )
+            except RuntimeWarning as e:
+                logger.warning(
+                    f"using Wigner tunneling correction: {e}",
+                )
+                return tunnel.wigner(vibfreq, temperature=temperature)
 
-            if method == "eckart":
-                with warnings.catch_warnings():
-                    warnings.filterwarnings("error")
-                    try:
-                        kappa = tunnel.eckart(
-                            vibfreq,
-                            delta_forward[i],
-                            delta_backward[i],
-                            temperature=temperature,
-                        )
-                    except RuntimeWarning as e:
-                        logger.warning(
-                            f"using Wigner tunneling correction: {e}",
-                        )
-                        kappa = tunnel.wigner(vibfreq, temperature=temperature)
-            elif method == "wigner":
-                kappa = tunnel.wigner(vibfreq, temperature=temperature)
-            elif method in {"none", None}:
-                kappa = 1.0
-            else:
-                msg = f"unavailable method: '{method}'"
-                raise ValueError(msg)
-
-            kappas.append(kappa)
-
-    # TODO(schneiderfelipe): is this correct? shouldn't we correct shapes
-    # somewhere else?
-    vec_kappas = np.asarray(kappas).flatten()
-    logger.info(
-        f"(quantum) tunneling coefficients: {rx._misc.format_numbers(vec_kappas)}",
+    temperatures = np.broadcast_to(
+        temperature,
+        np.broadcast_shapes(np.shape(temperature), (len(scheme.reactions),)),
     )
-    return vec_kappas
+    kappas = np.ones(temperatures.shape)
+    for i, ts in enumerate(scheme.transition_states):
+        if ts is None:
+            continue
+        vibfreq = compounds[ts].vibfreqs[0]
+
+        if method == "eckart":
+            kappas[..., i] = np.reshape(
+                [
+                    eckart(vibfreq, delta_forward[i], delta_backward[i], t)
+                    for t in temperatures[..., i].flat
+                ],
+                temperatures.shape[:-1],
+            )
+        elif method == "wigner":
+            kappas[..., i] = tunnel.wigner(vibfreq, temperature=temperatures[..., i])
+        elif method not in {"none", None}:
+            msg = f"unavailable method: '{method}'"
+            raise ValueError(msg)
+
+    logger.info(
+        f"(quantum) tunneling coefficients: {rx._misc.format_numbers(kappas)}",
+    )
+    return kappas
 
 
 def get_drc(

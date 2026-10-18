@@ -162,6 +162,61 @@ def test_gas_freeenergies_follow_ideal_gas_pressure(
     )
 
 
+def test_get_freeenergies_broadcast_over_conditions(hickel1992) -> None:
+    """Ensure free energies of a batch of conditions are those of each condition."""
+    temperatures = [250.0, 350.0]
+    pressures = [constants.bar, 2 * constants.bar]
+    assert rx.get_freeenergies(
+        hickel1992.compounds,
+        temperature=np.array(temperatures)[:, np.newaxis],
+        pressure=np.array(pressures)[:, np.newaxis],
+    ) == pytest.approx(
+        np.array(
+            [
+                rx.get_freeenergies(hickel1992.compounds, temperature=t, pressure=p)
+                for t, p in zip(temperatures, pressures, strict=True)
+            ],
+        ),
+    )
+
+
+@pytest.mark.parametrize("scale", ["l mol-1 s-1", "mmHg-1 s-1"])
+def test_get_k_broadcasts_over_temperatures(hickel1992, scale) -> None:
+    """Ensure rate constants of a batch of temperatures are those of each temperature."""
+    temperatures = [250.0, 350.0]
+    assert rx.get_k(
+        hickel1992.scheme,
+        hickel1992.compounds,
+        scale=scale,
+        temperature=np.array(temperatures)[:, np.newaxis],
+    ) == pytest.approx(
+        np.array(
+            [
+                rx.get_k(
+                    hickel1992.scheme, hickel1992.compounds, scale=scale, temperature=t
+                )
+                for t in temperatures
+            ],
+        ),
+    )
+
+
+def test_get_k_rejects_temperatures_per_compound(hickel1992) -> None:
+    """Ensure compounds share a temperature when computing rate constants."""
+    with pytest.raises(ValueError, match="same for all compounds"):
+        rx.get_k(hickel1992.scheme, hickel1992.compounds, temperature=[300.0] * 3)
+
+
+def test_get_k_rejects_equilibria_at_two_temperatures() -> None:
+    """Ensure both halves of an equilibrium share a temperature."""
+    with pytest.raises(ValueError, match="temperature"):
+        rx.get_k(
+            rx.Scheme.parse("A <=> B"),
+            delta_freeenergies=[1.0, -1.0],
+            temperature=[300.0, 310.0],
+        )
+
+
 @pytest.mark.parametrize("tunneling", ["eckart", None])
 def test_get_k_matches_compounds_by_name(hickel1992, tunneling) -> None:
     """Ensure rate constants don't depend on the order of compounds."""
