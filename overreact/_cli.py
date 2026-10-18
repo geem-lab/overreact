@@ -228,9 +228,7 @@ class Report:
             parsed_table.add_row(
                 f"{i:d}",
                 reactants.strip(),
-                None
-                if transition_state is None
-                else scheme.compounds[transition_state],
+                transition_state,
                 products.strip(),
                 "Yes" if is_half_equilibrium else "No",
             )
@@ -688,17 +686,16 @@ class Report:
 
             num = 100
             t = set(np.linspace(y.t_min, t_max, num=num))
-            for i, name in enumerate(scheme.compounds):
-                if not rx.is_transition_state(name):
-                    res = minimize_scalar(
-                        lambda t: -r(t)[i],
-                        bounds=(y.t_min, (t_max + y.t_max) / 2),
-                        method="bounded",
-                    )
-                    if y.t_min < res.x < t_max:
-                        t.update(np.linspace(y.t_min, res.x, num=num // 2))
-                        t.update(np.linspace(res.x, t_max, num=num // 2))
-                        active[i] = True
+            for i in range(len(scheme.compounds)):
+                res = minimize_scalar(
+                    lambda t: -r(t)[i],
+                    bounds=(y.t_min, (t_max + y.t_max) / 2),
+                    method="bounded",
+                )
+                if y.t_min < res.x < t_max:
+                    t.update(np.linspace(y.t_min, res.x, num=num // 2))
+                    t.update(np.linspace(res.x, t_max, num=num // 2))
+                    active[i] = True
 
             t.update(
                 np.geomspace(
@@ -714,7 +711,7 @@ class Report:
                     plt.plot(t, y(t)[scheme.compounds.index(name)], label=name, lw=3)
                 else:
                     for i, name in enumerate(scheme.compounds):
-                        if active[i] and not rx.is_transition_state(name):
+                        if active[i]:
                             plt.plot(t, y(t)[i], label=name, lw=3)
 
                 plt.legend()

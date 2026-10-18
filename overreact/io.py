@@ -67,10 +67,10 @@ def parse_model(path: str, force_compile: bool = False):
 
     >>> model = parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
-    Scheme(compounds=('S', 'E‡'),
-           reactants=array([[1], [0]]),
-           products=array([[1], [0]]),
-           transition_states=(1,),
+    Scheme(compounds=('S',),
+           reactants=array([[1]]),
+           products=array([[1]]),
+           transition_states=('E‡',),
            equilibria=())
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
@@ -136,10 +136,10 @@ def _parse_model(file_or_path):
     --------
     >>> model = _parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
-    Scheme(compounds=('S', 'E‡'),
-           reactants=array([[1], [0]]),
-           products=array([[1], [0]]),
-           transition_states=(1,),
+    Scheme(compounds=('S',),
+           reactants=array([[1]]),
+           products=array([[1]]),
+           transition_states=('E‡',),
            equilibria=())
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
@@ -178,7 +178,7 @@ def _parse_model(file_or_path):
         model["scheme"] = rx.Scheme.parse(model["scheme"])
         if "compounds" in model:
             model["compounds"] = {
-                name: model["compounds"][name] for name in model["scheme"].compounds
+                name: model["compounds"][name] for name in model["scheme"].names
             }
 
     return DotDict(model)
@@ -206,29 +206,29 @@ def _parse_source(file_path_or_str):
     --------
     >>> model = _parse_source("data/ethane/B97-3c/model.k")
     >>> model.scheme
-    Scheme(compounds=('S', 'E‡'),
-           reactants=array([[1], [0]]),
-           products=array([[1], [0]]),
-           transition_states=(1,),
+    Scheme(compounds=('S',),
+           reactants=array([[1]]),
+           products=array([[1]]),
+           transition_states=('E‡',),
            equilibria=())
     >>> print(_unparse_model(model))
     {"scheme":["S -> E‡ -> S"],"compounds":{"S":{"logfile":"da...,0.35746]]]}}}
 
-    It is guaranteed that both the list of compounds in the scheme and in the
-    keys of compounds match. This implementation detail is crucial for the
-    proper internal behavior of overreact:
+    It is guaranteed that the names in the scheme (compounds, then transition
+    states) and the keys of compounds match. This implementation detail is
+    crucial for the proper internal behavior of overreact:
 
     >>> model = parse_model("data/perez-soto2020/RI/B3LYP-D3BJ/cc-pVTZ/model.k",
     ...                     force_compile=True)
-    >>> model.scheme.compounds
+    >>> model.scheme.names
     ('Benzaldehyde(dcm)', 'NButylamine(dcm)', 'A_N(dcm)', 'A_N_N(dcm)',
-     'Water(dcm)', 'A_N_W(dcm)', 'A_N_N_W(dcm)', 'A_N_W_W(dcm)', 'TS1_#(dcm)',
-     'Hemiaminal(dcm)', 'TS2_#(dcm)', 'I_W(dcm)', 'TS1N_#(dcm)', 'Int_N(dcm)',
-     'TS2N_#(dcm)', 'I_N_W(dcm)', 'TS1W_#(dcm)', 'Int_W(dcm)', 'TS2W_#(dcm)',
-     'I_W_W(dcm)', 'TS1NW_#(dcm)', 'Int_N_W(dcm)', 'TS2NW_#(dcm)',
-     'I_N_W_W(dcm)', 'TS1WW_#(dcm)', 'Int_W_W(dcm)', 'TS2WW_#(dcm)',
-     'I_W_W_W(dcm)', 'Imine(dcm)')
-    >>> tuple(model.compounds) == model.scheme.compounds
+     'Water(dcm)', 'A_N_W(dcm)', 'A_N_N_W(dcm)', 'A_N_W_W(dcm)',
+     'Hemiaminal(dcm)', 'I_W(dcm)', 'Int_N(dcm)', 'I_N_W(dcm)', 'Int_W(dcm)',
+     'I_W_W(dcm)', 'Int_N_W(dcm)', 'I_N_W_W(dcm)', 'Int_W_W(dcm)',
+     'I_W_W_W(dcm)', 'Imine(dcm)', 'TS1_#(dcm)', 'TS2_#(dcm)', 'TS1N_#(dcm)',
+     'TS2N_#(dcm)', 'TS1W_#(dcm)', 'TS2W_#(dcm)', 'TS1NW_#(dcm)',
+     'TS2NW_#(dcm)', 'TS1WW_#(dcm)', 'TS2WW_#(dcm)')
+    >>> tuple(model.compounds) == model.scheme.names
     True
     """
     name = None
@@ -262,7 +262,7 @@ def _parse_source(file_path_or_str):
         sections["compounds"] = parse_compounds(
             sections["compounds"],
             path=path,
-            select=sections["scheme"].compounds,
+            select=sections["scheme"].names,
         )
     return DotDict(sections)
 
@@ -313,10 +313,10 @@ def _unparse_source(model):
 
     >>> model = _parse_source(source)
     >>> model.scheme
-    Scheme(compounds=('S', 'E‡'),
-           reactants=array([[1], [0]]),
-           products=array([[1], [0]]),
-           transition_states=(1,),
+    Scheme(compounds=('S',),
+           reactants=array([[1]]),
+           products=array([[1]]),
+           transition_states=('E‡',),
            equilibria=())
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
@@ -383,7 +383,7 @@ def _unparse_model(model):
     --------
     >>> model = _parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.jk")
     >>> print(_unparse_model(model))
-    {"scheme":["NH3(w) + OH·(w) -> NH3·OH#(w...,"atomcoords":[[0.0,0.0,0.0]]}}}
+    {"scheme":["NH3(w) + OH·(w) -> NH3·OH#(w...,"symmetry":3}}}
     """
     # create a new mutable object to avoid side effects
     model = dict(model)

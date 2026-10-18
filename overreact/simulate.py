@@ -425,7 +425,6 @@ def get_bias(
     >>> y0 = [4.8120675684099e-5,
     ...       2.8206357713029e-5,
     ...       0.0,
-    ...       0.0,
     ...       2.7426565371219e-5]
     >>> data = {"t": [1.276472128376942246e-6,
     ...               1.446535794555581743e-4,
@@ -433,9 +432,11 @@ def get_bias(
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> float(get_bias(model.scheme, model.compounds, data, y0) / constants.kcal)
+    >>> float(get_bias(model.scheme, model.compounds, data, y0, atol=1e-10)
+    ...       / constants.kcal)
     -1.4
     """
+    scheme = rx.core._check_scheme(scheme)
     max_time = np.max(data["t"])
 
     def f(bias):
@@ -464,7 +465,7 @@ def get_bias(
         return np.sum(
             [
                 (yhat[i] - data[name]) ** 2
-                for (i, name) in enumerate(compounds)
+                for (i, name) in enumerate(scheme.compounds)
                 if name in data
             ],
         )

@@ -539,7 +539,7 @@ def get_k(
     ...       temperature=300.0, scale="cm3 particle-1 s-1")
     array([5.14e-13])
     >>> get_k(model.scheme, model.compounds,
-    ...       bias=np.array([0.0, 0.0, -1.4, 0.0, 0.0]) * constants.kcal,
+    ...       bias=np.array([0.0, 0.0, 0.0, 0.0, -1.4]) * constants.kcal,
     ...       temperature=300.0, scale="cm3 particle-1 s-1")
     array([1.1e-12])
     """
@@ -740,8 +740,7 @@ def get_kappa(
         if ts is None:
             kappas.append(1.0)
         else:
-            transition_state = scheme.compounds[ts]
-            vibfreq = compounds[transition_state].vibfreqs[0]
+            vibfreq = compounds[ts].vibfreqs[0]
 
             if method == "eckart":
                 with warnings.catch_warnings():
@@ -806,7 +805,7 @@ def get_drc(
     """
     temperature = np.asarray(temperature)
 
-    x0 = np.zeros(len(scheme.compounds))
+    x0 = np.zeros(len(scheme.names))
 
     def func(t, x=0.0, i=-1):
         bias = np.asarray(x0).copy()

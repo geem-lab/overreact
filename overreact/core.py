@@ -33,13 +33,13 @@ class Scheme:
     """
 
     compounds: tuple[str, ...]
-    """Compound names."""
+    """Compound names, without transition states."""
     reactants: np.ndarray
     """Stoichiometric coefficients of reactants (read-only)."""
     products: np.ndarray
     """Stoichiometric coefficients of products (read-only)."""
-    transition_states: tuple[int | None, ...]
-    """Index of the transition state compound of each reaction, if any."""
+    transition_states: tuple[str | None, ...]
+    """Transition state of each reaction, if any."""
     equilibria: tuple[tuple[int, int], ...]
     """Indices of the forward and reverse halves of each equilibrium."""
 
@@ -49,11 +49,15 @@ class Scheme:
         if len(set(self.compounds)) != len(self.compounds):
             msg = f"repeated compound names in {self.compounds}"
             raise ValueError(msg)
-        object.__setattr__(
-            self,
-            "transition_states",
-            tuple(None if ts is None else int(ts) for ts in self.transition_states),
-        )
+        for compound in self.compounds:
+            if is_transition_state(compound):
+                msg = f"transition state {compound} cannot be a compound"
+                raise ValueError(msg)
+        object.__setattr__(self, "transition_states", tuple(self.transition_states))
+        for ts in self.transition_states:
+            if ts is not None and not is_transition_state(ts):
+                msg = f"{ts} is not a transition state"
+                raise ValueError(msg)
         object.__setattr__(
             self,
             "equilibria",
@@ -75,19 +79,6 @@ class Scheme:
                 msg = f"{name} has negative coefficients"
                 raise ValueError(msg)
             object.__setattr__(self, name, _read_only(matrix))
-
-        for ts in self.transition_states:
-            if ts is not None and not (
-                0 <= ts < shape[0] and is_transition_state(self.compounds[ts])
-            ):
-                msg = f"invalid transition state index {ts}"
-                raise ValueError(msg)
-        for i, compound in enumerate(self.compounds):
-            if is_transition_state(compound) and (
-                self.reactants[i].any() or self.products[i].any()
-            ):
-                msg = f"transition state {compound} cannot be a reactant or product"
-                raise ValueError(msg)
 
         halves = [k for pair in self.equilibria for k in pair]
         for i, j in self.equilibria:
@@ -233,24 +224,22 @@ class Scheme:
                [ 1]])
 
         Transition states are specified with a special symbol at the end (either
-        `‡` or `#`). They are shown among compounds, but the matrix $A$ ensures
-        they'll never have a non-zero rate of formation/consumption. On the other
-        hand, activation deltas go through them:
+        `‡` or `#`). They are kept apart from compounds, and values for them
+        follow those for compounds, as in `names`. Activation deltas go through
+        them:
 
         >>> scheme = Scheme.parse("A -> A‡ -> B")
         >>> scheme
-        Scheme(compounds=('A', 'A‡', 'B'),
-               reactants=array([[1], [0], [0]]),
-               products=array([[0], [0], [1]]),
-               transition_states=(1,),
+        Scheme(compounds=('A', 'B'),
+               reactants=array([[1], [0]]),
+               products=array([[0], [1]]),
+               transition_states=('A‡',),
                equilibria=())
         >>> scheme.reactions
         ('A -> B',)
-        >>> scheme.A
-        array([[-1],
-               [ 0],
-               [ 1]])
-        >>> scheme.activation_deltas([0.0, 25.0, -10.0])
+        >>> scheme.names
+        ('A', 'B', 'A‡')
+        >>> scheme.activation_deltas([0.0, -10.0, 25.0])
         array([25.])
 
         This gives the same result as above:
@@ -266,8 +255,7 @@ class Scheme:
         >>> scheme.reactions
         ('S -> S',)
         >>> scheme.A
-        array([[0],
-               [0]])
+        array([[0]])
         >>> scheme.activation_deltas([0.0, 3.0])
         array([3.])
 
@@ -283,11 +271,11 @@ class Scheme:
         ...     A  -> B‡
         ... \'\'\')
         >>> scheme.compounds
-        ('B', 'B‡', 'C', 'D', "B'‡", 'E', 'A')
+        ('B', 'C', 'D', 'E', 'A')
         >>> scheme.reactions
         ('B -> C', 'B -> D', 'B -> E', 'A -> C', 'A -> D')
         >>> scheme.transition_states
-        (1, 1, 4, 1, 1)
+        ('B‡', 'B‡', "B'‡", 'B‡', 'B‡')
 
         The following is a borderline case but both reactions should be considered
         different since they define different processes:
@@ -299,7 +287,7 @@ class Scheme:
         >>> scheme.reactions
         ('A -> B', 'A -> B')
         >>> scheme.transition_states
-        (1, None)
+        ('A‡', None)
 
         Chained transition states are rejected:
 
@@ -375,9 +363,7 @@ class Scheme:
         columns = []
         equilibria = []
         for key, (reactants, products, transition) in records.items():
-            for compound in itertools.chain(
-                reactants, (transition,) if transition else (), products
-            ):
+            for compound in itertools.chain(reactants, products):
                 compounds.setdefault(compound, len(compounds))
             if isinstance(key, frozenset):
                 equilibria.append((len(columns), len(columns) + 1))
@@ -396,10 +382,7 @@ class Scheme:
             compounds=tuple(compounds),
             reactants=reactants_matrix,
             products=products_matrix,
-            transition_states=tuple(
-                None if transition is None else compounds[transition]
-                for _, _, transition in columns
-            ),
+            transition_states=tuple(transition for _, _, transition in columns),
             equilibria=tuple(equilibria),
         )
 
@@ -409,6 +392,13 @@ class Scheme:
         return tuple(
             f"{_unparse_side(self._side(r))} -> {_unparse_side(self._side(p))}".strip()
             for r, p in zip(self.reactants.T, self.products.T, strict=True)
+        )
+
+    @cached_property
+    def names(self) -> tuple[str, ...]:
+        """Compounds followed by transition states, one per value in deltas."""
+        return self.compounds + tuple(
+            dict.fromkeys(ts for ts in self.transition_states if ts is not None),
         )
 
     @cached_property
@@ -428,24 +418,24 @@ class Scheme:
         return _read_only(self.reactants.sum(axis=0))
 
     def reaction_deltas(self, values) -> np.ndarray:
-        """Change of per-compound values from reactants to products.
+        """Change of values, one per name, from reactants to products.
 
         Examples
         --------
         >>> Scheme.parse("2 A -> B").reaction_deltas([1.0, 5.0])
         array([3.])
         """
-        return self.A.T @ np.asarray(values)
+        return self._padded(self.A).T @ np.asarray(values)
 
     def activation_deltas(self, values) -> np.ndarray:
-        """Change of per-compound values from reactants to the activated state.
+        """Change of values, one per name, from reactants to the activated state.
 
         The activated state is the transition state if any, and the products
         otherwise.
 
         Examples
         --------
-        >>> Scheme.parse("2 A -> A‡ -> B").activation_deltas([1.0, 5.0, 0.0])
+        >>> Scheme.parse("2 A -> A‡ -> B").activation_deltas([1.0, 0.0, 5.0])
         array([3.])
         """
         return self._activation.T @ np.asarray(values)
@@ -541,11 +531,6 @@ class Scheme:
             msg = f"{', '.join(sorted(unknown))} not a compound of the scheme"
             raise ValueError(msg)
         fixed = np.isin(self.compounds, list(concentrations))
-        for ts in self.transition_states:
-            if ts is not None and fixed[ts]:
-                msg = f"cannot fix transition state {self.compounds[ts]}"
-                raise ValueError(msg)
-        position = np.cumsum(~fixed) - 1
         values = np.array(
             [concentrations[c] for c in itertools.compress(self.compounds, fixed)],
             dtype=float,
@@ -555,10 +540,7 @@ class Scheme:
                 compounds=tuple(itertools.compress(self.compounds, ~fixed)),
                 reactants=self.reactants[~fixed],
                 products=self.products[~fixed],
-                transition_states=tuple(
-                    None if ts is None else int(position[ts])
-                    for ts in self.transition_states
-                ),
+                transition_states=self.transition_states,
                 equilibria=self.equilibria,
             ),
             np.prod(values[:, np.newaxis] ** self.reactants[fixed], axis=0),
@@ -569,16 +551,14 @@ class Scheme:
 
         Examples
         --------
-        >>> str(Scheme(compounds=('A', 'A‡', 'B', 'C'),
+        >>> str(Scheme(compounds=('A', 'B', 'C'),
         ...            reactants=((1, 0, 0),
-        ...                       (0, 0, 0),
         ...                       (0, 0, 2),
         ...                       (0, 2, 0)),
         ...            products=((0, 0, 0),
-        ...                      (0, 0, 0),
         ...                      (1, 2, 0),
         ...                      (0, 0, 2)),
-        ...            transition_states=(1, None, None),
+        ...            transition_states=('A‡', None, None),
         ...            equilibria=((1, 2),)))
         'A -> A‡ -> B\n2 C <=> 2 B'
 
@@ -610,7 +590,7 @@ class Scheme:
             if transition_state is not None:
                 reaction = reaction.replace(
                     "->",
-                    f"-> {self.compounds[transition_state]} ->",
+                    f"-> {transition_state} ->",
                 )
             elif self.is_half_equilibrium[i]:
                 reaction = reaction.replace("->", "<=>")
@@ -619,18 +599,24 @@ class Scheme:
 
     @cached_property
     def _activated(self) -> np.ndarray:
-        """Coefficients of the activated state of each reaction."""
-        activated = self.products.copy()
+        """Coefficients of the activated state of each reaction, one row per name."""
+        activated = self._padded(self.products)
         for i, ts in enumerate(self.transition_states):
             if ts is not None:
                 activated[:, i] = 0
-                activated[ts, i] = 1
+                activated[self.names.index(ts), i] = 1
         return _read_only(activated)
 
     @cached_property
     def _activation(self) -> np.ndarray:
         """Coefficients from reactants to the activated state."""
-        return _read_only(self._activated - self.reactants)
+        return _read_only(self._activated - self._padded(self.reactants))
+
+    def _padded(self, coefficients) -> np.ndarray:
+        """Return coefficients of compounds with zero rows for transition states."""
+        return np.pad(
+            coefficients, ((0, len(self.names) - len(self.compounds)), (0, 0))
+        )
 
     def _side(self, coefficients) -> Iterator[tuple[int, str]]:
         return (

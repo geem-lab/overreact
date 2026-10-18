@@ -192,7 +192,7 @@ C + S <=> CS        // Pre-equilibrium
 CS -> TS‡ -> C + P  // Catalyst is released
 """,
     )
-    y0 = np.array([cat0, sub0, 0.0, 0.0, 0.0])
+    y0 = np.array([cat0, sub0, 0.0, 0.0])
 
     # with jitted dydt, we need to use np.ndarray
     k = np.array([keq, 1.0, kcat])
@@ -208,7 +208,7 @@ CS -> TS‡ -> C + P  // Catalyst is released
 
     # catalyst is completely regenerated in the end
     # the substrate is completely consumed in the end
-    assert np.allclose(y(y.t_max), [cat0, 0.0, 0.0, 0.0, sub0], atol=2e-5)
+    assert np.allclose(y(y.t_max), [cat0, 0.0, 0.0, sub0], atol=2e-5)
 
 
 @pytest.mark.parametrize(
@@ -236,7 +236,7 @@ C + S <=> CS    // Pre-equilibrium
 CS -> TS‡ -> P  // Catalyst is consumed instead of being released
 """,
     )
-    y0 = np.array([cat0, sub0, 0.0, 0.0, 0.0])
+    y0 = np.array([cat0, sub0, 0.0, 0.0])
 
     # with jitted dydt, we need to use np.ndarray
     k = np.array([keq, 1.0, kcat])
@@ -252,4 +252,4 @@ CS -> TS‡ -> P  // Catalyst is consumed instead of being released
 
     # catalyst is completely consumed in the end
     # the substrate is completely consumed in the end
-    assert np.allclose(y(y.t_max), [cat0 - sub0, 0.0, 0.0, 0.0, sub0], atol=2e-5)
+    assert np.allclose(y(y.t_max), [cat0 - sub0, 0.0, 0.0, sub0], atol=2e-5)

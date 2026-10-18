@@ -32,9 +32,8 @@ def test_parse_counts_coefficients(reaction) -> None:
     assert scheme.products.tolist() == [
         [products.get(compound, 0)] for compound in scheme.compounds
     ]
-    assert scheme.transition_states == (
-        (None,) if transition is None else (scheme.compounds.index(transition),)
-    )
+    assert scheme.transition_states == (transition,)
+    assert transition not in scheme.compounds
 
 
 @given(schemes_texts())
@@ -81,8 +80,7 @@ def test_equilibria_absorb_plain_reactions(text) -> None:
         ({"reactants": ((1,),)}, "shape"),
         ({"reactants": ((-1,), (0,))}, "negative"),
         ({"reactants": ((0.5,), (0,))}, "integer"),
-        ({"transition_states": (2,)}, "transition state"),
-        ({"transition_states": (0,)}, "transition state"),
+        ({"transition_states": ("B",)}, "transition state"),
         ({"compounds": ("A", "B‡")}, "transition state"),
         ({"compounds": ("A", "A")}, "repeated"),
         ({"equilibria": ((0, 1),)}, "equilibri"),
@@ -109,7 +107,7 @@ VALUES = st.fixed_dictionaries(
 
 def _quantities(scheme, values, kind):
     """Return deltas of values and symmetry entropies of a kind of transformation."""
-    deltas = getattr(scheme, f"{kind}_deltas")([values[c] for c in scheme.compounds])
+    deltas = getattr(scheme, f"{kind}_deltas")([values[c] for c in scheme.names])
     return np.concatenate([deltas, getattr(scheme, f"{kind}_entropies")])
 
 
@@ -176,7 +174,7 @@ def test_free_energies_count_indistinguishable_molecules(
     def freeenergies(lhs, rhs):
         scheme = rx.Scheme.parse(f"{lhs} -> T‡ -> {rhs}")
         method = getattr(scheme, f"{kind}_freeenergies")
-        return method([value] * len(scheme.compounds), temperature=temperature)
+        return method([value] * len(scheme.names), temperature=temperature)
 
     identical = freeenergies(f"{reactants} A", f"{products} B")
     distinct = freeenergies(
@@ -213,23 +211,21 @@ def test_fix_removes_compounds(reaction, concentrations) -> None:
         compounds=compounds,
         reactants=tuple((reactants.get(c, 0),) for c in compounds),
         products=tuple((products.get(c, 0),) for c in compounds),
-        transition_states=(
-            None if transition is None else compounds.index(transition),
-        ),
+        transition_states=(transition,),
         equilibria=(),
     )
 
 
 @pytest.mark.parametrize(
-    ("text", "concentrations", "match"),
+    ("text", "concentrations"),
     [
-        ("A -> A‡ -> B", {"A‡": 1.0}, "transition state"),
-        ("A -> B", {"C": 1.0}, "not a compound"),
+        ("A -> A‡ -> B", {"A‡": 1.0}),
+        ("A -> B", {"C": 1.0}),
     ],
 )
-def test_fix_rejects_invalid_concentrations(text, concentrations, match) -> None:
-    """Ensure only compounds other than transition states can be fixed."""
-    with pytest.raises(ValueError, match=match):
+def test_fix_rejects_unknown_compounds(text, concentrations) -> None:
+    """Ensure only compounds of the scheme can be fixed."""
+    with pytest.raises(ValueError, match="not a compound"):
         rx.Scheme.parse(text).fix(concentrations)
 
 

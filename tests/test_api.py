@@ -137,32 +137,42 @@ def test_get_freeenergies_match_orca_logfiles(hickel1992) -> None:
     model = hickel1992
     sym_correction = 298.15 * rx.change_reference_state(3, 1)
 
-    freeenergies_ref = [
-        -56.53713205
+    freeenergies_ref = {
+        "NH3(w)": -56.53713205
         + 0.00647387
         - 0.00543658,  # NH3(w) + correct rot. entropy (ORCA didn't get C3v)
-        -75.74432719,
-        -132.26581342 + sym_correction / (constants.hartree * constants.N_A),
-        -55.87195207
+        "OH·(w)": -75.74432719,
+        "NH3·OH#(w)": -132.26581342
+        + sym_correction / (constants.hartree * constants.N_A),
+        "NH2·(w)": -55.87195207
         + 0.00580418
         - 0.00514973,  # NH2·(w) + correct rot. entropy (ORCA didn't get C2v)
-        -76.43172074
+        "H2O(w)": -76.43172074
         + 0.00562807
         - 0.00497361,  # H2O(w) + correct rot. entropy (ORCA didn't get C2v)
-        -56.98250956
+        "NH4+(w)": -56.98250956
         + 0.00696968
         - 0.00462348,  # NH4+(w) + correct rot. entropy (ORCA didn't get C2v)
-    ]  # ORCA logfiles, Eh
+    }  # ORCA logfiles, Eh
 
-    freeenergies = rx.get_freeenergies(
-        model.compounds,
-        environment="gas",
-        qrrho=(False, True),
-        temperature=298.15,
-        pressure=constants.atm,
+    freeenergies = dict(
+        zip(
+            model.compounds,
+            rx.get_freeenergies(
+                model.compounds,
+                environment="gas",
+                qrrho=(False, True),
+                temperature=298.15,
+                pressure=constants.atm,
+            ),
+            strict=True,
+        ),
     )
     # TODO(schneiderfelipe): do a test for H+(w)
-    assert freeenergies[:-1] / (constants.hartree * constants.N_A) == pytest.approx(
-        freeenergies_ref,
+    assert [
+        freeenergies[name] / (constants.hartree * constants.N_A)
+        for name in freeenergies_ref
+    ] == pytest.approx(
+        list(freeenergies_ref.values()),
         7e-7,
     )
