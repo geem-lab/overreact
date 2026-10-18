@@ -381,18 +381,18 @@ class Report:
             ],
         )
 
-        def _deltas(kind):
-            """Return deltas of a kind, with symmetry in entropies and free energies."""
-            mass, energies, internal_energies, enthalpies, entropies = getattr(
-                scheme, f"{kind}_deltas"
-            )(quantities).T
+        def _deltas(deltas, symmetry_entropies, freeenergy_deltas):
+            """Return deltas of quantities, with symmetry in entropies and free energies."""
+            mass, energies, internal_energies, enthalpies, entropies = deltas(
+                quantities
+            ).T
             return (
                 mass,
                 energies,
                 internal_energies,
                 enthalpies,
-                entropies + getattr(scheme, f"{kind}_entropies"),
-                getattr(scheme, f"{kind}_freeenergies")(freeenergies, self.temperature),
+                entropies + symmetry_entropies,
+                freeenergy_deltas(freeenergies, self.temperature),
             )
 
         (
@@ -402,7 +402,11 @@ class Report:
             delta_enthalpies,
             delta_entropies,
             delta_freeenergies,
-        ) = _deltas("reaction")
+        ) = _deltas(
+            scheme.reaction_deltas,
+            scheme.reaction_entropies,
+            scheme.reaction_freeenergies,
+        )
         (
             delta_activation_mass,
             delta_activation_energies,
@@ -410,7 +414,11 @@ class Report:
             delta_activation_enthalpies,
             delta_activation_entropies,
             delta_activation_freeenergies,
-        ) = _deltas("activation")
+        ) = _deltas(
+            scheme.activation_deltas,
+            scheme.activation_entropies,
+            scheme.activation_freeenergies,
+        )
 
         circ_table = Table(
             Column("no", justify="right"),
@@ -608,6 +616,8 @@ class Report:
                 k["M⁻ⁿ⁺¹·s⁻¹"],
                 self.concentrations,
             )
+            if self.plot not in {"none", "all", "active", None}:
+                scheme._check_compounds([self.plot])
 
             # TODO(schneiderfelipe): encapsulate everything in a function that depends
             # on the freeenergies as first parameter
@@ -694,7 +704,6 @@ class Report:
             if self.plot not in {"none", None}:
                 if self.plot not in {"all", "active"}:
                     name = self.plot
-                    scheme._check_compounds([name])
                     plt.plot(t, y(t)[scheme.compounds.index(name)], label=name, lw=3)
                 else:
                     for i, name in enumerate(scheme.compounds):
@@ -728,8 +737,7 @@ def _prepare_simulation(scheme, k, concentrations):
     free_y0 = {}
     fixed_y0 = {}
     for spec in concentrations:
-        fields = spec.split(":", 1)
-        name, quantity = fields[0].strip(), fields[1].strip()
+        name, _, quantity = (field.strip() for field in spec.partition(":"))
 
         if quantity.startswith("!"):
             d = fixed_y0
@@ -739,7 +747,7 @@ def _prepare_simulation(scheme, k, concentrations):
 
         try:
             quantity = float(quantity)
-        except (IndexError, ValueError) as err:
+        except ValueError as err:
             msg = f"badly formatted concentrations: '{' '.join(concentrations)}'"
             raise ValueError(msg) from err
 
