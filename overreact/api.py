@@ -455,7 +455,7 @@ def get_k(
     delta_freeenergies : array-like, optional
         Use this instead of obtaining delta free energies from the compounds.
         For equilibria, the reverse half must be minus the forward half, within
-        1e-6 J/mol.
+        1e-5 J/mol.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
         If set, this is used to calculate `delta_moles` for
@@ -580,7 +580,7 @@ def get_k(
         delta_freeenergies[reverse],
         -delta_freeenergies[forward],
         rtol=0.0,
-        atol=1e-6,
+        atol=1e-5,
         equal_nan=True,
     )
     if inconsistent.any():

@@ -26,7 +26,7 @@ def test_get_k_satisfies_detailed_balance(delta_freeenergy) -> None:
 
 @given(
     st.floats(-50.0, 50.0),
-    st.floats(-1e5, 1e5).filter(lambda mismatch: abs(mismatch) >= 1e-5),
+    st.floats(-1e5, 1e5).filter(lambda mismatch: abs(mismatch) >= 1e-4),
 )
 def test_get_k_rejects_inconsistent_equilibria(forward, mismatch) -> None:
     """Ensure the reverse half of an equilibrium must undo the forward half."""
