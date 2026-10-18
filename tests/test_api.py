@@ -132,6 +132,17 @@ def test_gas_freeenergies_follow_ideal_gas_pressure(
     )
 
 
+@pytest.mark.parametrize("tunneling", ["eckart", None])
+def test_get_k_matches_compounds_by_name(hickel1992, tunneling) -> None:
+    """Ensure rate constants don't depend on the order of compounds."""
+    reversed_compounds = dict(reversed(hickel1992.compounds.items()))
+    assert rx.get_k(
+        hickel1992.scheme, reversed_compounds, tunneling=tunneling
+    ) == pytest.approx(
+        rx.get_k(hickel1992.scheme, hickel1992.compounds, tunneling=tunneling)
+    )
+
+
 def test_get_freeenergies_match_orca_logfiles(hickel1992) -> None:
     """Ensure free energies match ORCA logfiles."""
     model = hickel1992

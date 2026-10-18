@@ -547,6 +547,7 @@ def get_k(
     scheme = rx.core._check_scheme(scheme)
     if compounds is not None:
         compounds = rx.io._check_compounds(compounds)
+        compounds = {name: compounds[name] for name in scheme.names}
     if delta_freeenergies is None:
         assert compounds is not None, "compounds could not be inferred"
         freeenergies = get_freeenergies(
@@ -723,6 +724,7 @@ def get_kappa(
     """
     scheme = rx.core._check_scheme(scheme)
     compounds = rx.io._check_compounds(compounds)
+    compounds = {name: compounds[name] for name in scheme.names}
 
     if method == "eckart":
         # NOTE(schneiderfelipe): We need electronic energies + ZPE here, so we
