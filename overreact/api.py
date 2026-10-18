@@ -454,7 +454,8 @@ def get_k(
         Reference gas pressure.
     delta_freeenergies : array-like, optional
         Use this instead of obtaining delta free energies from the compounds.
-        For equilibria, the reverse half must be minus the forward half.
+        For equilibria, the reverse half must be minus the forward half, within
+        1e-6 J/mol.
     molecularity : array-like, optional
         Reaction order, i.e., number of molecules that come together to react.
         If set, this is used to calculate `delta_moles` for
@@ -572,37 +573,47 @@ def get_k(
     if molecularity is None:
         molecularity = scheme.molecularity
 
+    delta_freeenergies = np.array(delta_freeenergies, dtype=float, ndmin=1)
+    forward, reverse = np.array(scheme.equilibria, dtype=int).reshape(-1, 2).T
+    inconsistent = ~np.isclose(
+        delta_freeenergies[reverse],
+        -delta_freeenergies[forward],
+        rtol=0.0,
+        atol=1e-6,
+        equal_nan=True,
+    )
+    if inconsistent.any():
+        msg = f"the reverse half of equilibrium '{scheme.reactions[forward[inconsistent][0]]}' must undo its forward half"
+        raise ValueError(msg)
+
+    k = np.empty_like(delta_freeenergies)
+    plain = ~np.array(scheme.is_half_equilibrium, dtype=bool)
     # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
-    k = rates.eyring(
-        delta_freeenergies,
+    k[plain] = rates.eyring(
+        delta_freeenergies[plain],
         temperature=temperature,
         pressure=pressure,
         volume=volume,
     )
 
     # equilibria only fix ratios: make the smallest rate constant of each pair one
-    for i, j in scheme.equilibria:
-        if not np.isclose(
-            delta_freeenergies[j],
-            -delta_freeenergies[i],
-            equal_nan=True,
-        ):
-            msg = f"the reverse half of equilibrium '{scheme.reactions[i]}' must undo its forward half"
-            raise ValueError(msg)
-        equilibrium_constant = rx.thermo.equilibrium_constant(
-            delta_freeenergies[i],
-            temperature=temperature,
-            pressure=pressure,
-            volume=volume,
-        ).item()
-        denom = min(equilibrium_constant, 1.0)
-        if denom == 0.0:
-            logger.warning(
-                "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
-            )
-            denom = 1.0
-        k[i], k[j] = equilibrium_constant / denom, 1.0 / denom
+    equilibrium_constants = rx.thermo.equilibrium_constant(
+        delta_freeenergies[forward],
+        temperature=temperature,
+        pressure=pressure,
+        volume=volume,
+    )
+    if (equilibrium_constants == 0.0).any():
+        logger.warning(
+            "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
+        )
+    denom = np.where(
+        equilibrium_constants == 0.0,
+        1.0,
+        np.minimum(equilibrium_constants, 1.0),
+    )
+    k[forward], k[reverse] = equilibrium_constants / denom, 1.0 / denom
 
     logger.info(
         "(classical) reaction rate constants: "

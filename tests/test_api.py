@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from hypothesis import assume, given, settings
+from hypothesis import given, settings
 from hypothesis import strategies as st
 
 import overreact as rx
@@ -24,14 +24,17 @@ def test_get_k_satisfies_detailed_balance(delta_freeenergy) -> None:
     )
 
 
-@given(st.floats(-50.0, 50.0), st.floats(-50.0, 50.0))
-def test_get_k_rejects_inconsistent_equilibria(forward, reverse) -> None:
+@given(
+    st.floats(-50.0, 50.0),
+    st.floats(-1e5, 1e5).filter(lambda mismatch: abs(mismatch) >= 1e-5),
+)
+def test_get_k_rejects_inconsistent_equilibria(forward, mismatch) -> None:
     """Ensure the reverse half of an equilibrium must undo the forward half."""
-    assume(not np.isclose(reverse * constants.kcal, -forward * constants.kcal))
+    forward *= constants.kcal
     with pytest.raises(ValueError, match="reverse"):
         rx.get_k(
             rx.Scheme.parse("A <=> B"),
-            delta_freeenergies=[forward * constants.kcal, reverse * constants.kcal],
+            delta_freeenergies=[forward, mismatch - forward],
         )
 
 
