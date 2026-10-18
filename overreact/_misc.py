@@ -981,10 +981,15 @@ def _first_primes(size):
     >>> _first_primes(10)
     [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
     """
+
+    def _is_prime(num):
+        """Check if num is prime."""
+        return all(num % i != 0 for i in range(2, int(np.sqrt(num)) + 1))
+
     primes = [2]
     p = 3
     while len(primes) < size:
-        if all(p % i != 0 for i in range(2, int(np.sqrt(p)) + 1)):
+        if _is_prime(p):
             primes.append(p)
         p += 2
     return primes
