@@ -487,6 +487,31 @@ class Scheme:
             _symmetry_entropies(self._activated) - _symmetry_entropies(self.reactants),
         )
 
+    def reaction_freeenergies(self, freeenergies, temperature=298.15) -> np.ndarray:
+        """Reaction free energies, including reaction symmetry entropies.
+
+        Examples
+        --------
+        >>> Scheme.parse("2 A -> B").reaction_freeenergies([0.0, 0.0])
+        array([1718.3])
+        """
+        return (
+            self.reaction_deltas(freeenergies) - temperature * self.reaction_entropies
+        )
+
+    def activation_freeenergies(self, freeenergies, temperature=298.15) -> np.ndarray:
+        """Activation free energies, including activation symmetry entropies.
+
+        Examples
+        --------
+        >>> Scheme.parse("2 A -> A‡ -> B").activation_freeenergies([0.0, 0.0, 0.0])
+        array([1718.3])
+        """
+        return (
+            self.activation_deltas(freeenergies)
+            - temperature * self.activation_entropies
+        )
+
     def fix(self, concentrations) -> tuple[Scheme, np.ndarray]:
         """Remove compounds held at fixed concentrations.
 

@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import math
+
 import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
 import overreact as rx
+from overreact import _constants as constants
 from tests.strategies import (
     COMPOUNDS,
     equilibria,
@@ -155,6 +158,38 @@ def test_activation_without_transition_states_is_reaction(sides, values, data) -
     scheme = rx.Scheme.parse(text)
     assert _quantities(scheme, values, "activation") == pytest.approx(
         _quantities(scheme, values, "reaction"),
+    )
+
+
+@given(
+    st.integers(1, 4),
+    st.integers(1, 4),
+    st.floats(-1e3, 1e3),
+    st.floats(100.0, 1000.0),
+    st.sampled_from(["reaction", "activation"]),
+)
+def test_free_energies_count_indistinguishable_molecules(
+    reactants, products, value, temperature, kind
+) -> None:
+    """Ensure n identical molecules weigh as n! distinct ones, on either side."""
+
+    def freeenergies(lhs, rhs):
+        scheme = rx.Scheme.parse(f"{lhs} -> T‡ -> {rhs}")
+        method = getattr(scheme, f"{kind}_freeenergies")
+        return method([value] * len(scheme.compounds), temperature=temperature)
+
+    identical = freeenergies(f"{reactants} A", f"{products} B")
+    distinct = freeenergies(
+        " + ".join(f"A{i}" for i in range(reactants)),
+        " + ".join(f"B{i}" for i in range(products)),
+    )
+    ratio = math.factorial(reactants)
+    if kind == "reaction":
+        ratio /= math.factorial(products)
+    assert np.exp(
+        (identical - distinct) / (constants.R * temperature)
+    ) == pytest.approx(
+        [ratio],
     )
 
 

@@ -565,9 +565,9 @@ def get_k(
             "activation symmetry entropies: "
             f"{rx._misc.format_numbers(scheme.activation_entropies)} J·mol⁻¹·K⁻¹",
         )
-        delta_freeenergies = (
-            scheme.activation_deltas(freeenergies)
-            - temperature * scheme.activation_entropies
+        delta_freeenergies = scheme.activation_freeenergies(
+            freeenergies,
+            temperature=temperature,
         )
 
     if molecularity is None:

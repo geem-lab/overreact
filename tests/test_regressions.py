@@ -54,13 +54,9 @@ def test_basic_example_for_solvation_equilibria() -> None:
     )
 
     for qrrho in [False, (False, True), True]:
-        delta_freeenergies = (
-            model.scheme.reaction_deltas(
-                rx.get_freeenergies(
-                    model.compounds, temperature=temperature, qrrho=qrrho
-                ),
-            )
-            - temperature * model.scheme.reaction_entropies
+        delta_freeenergies = model.scheme.reaction_freeenergies(
+            rx.get_freeenergies(model.compounds, temperature=temperature, qrrho=qrrho),
+            temperature=temperature,
         )
         assert delta_freeenergies / constants.kcal == pytest.approx(
             delta_freeenergies_ref,
@@ -436,9 +432,9 @@ def test_delta_energies_for_hickel1992() -> None:
             temperature=temperature,
             qrrho=(False, True),
         )
-        delta_freeenergy = (
-            model.scheme.activation_deltas(freeenergies)
-            - temperature * model.scheme.activation_entropies
+        delta_freeenergy = model.scheme.activation_freeenergies(
+            freeenergies,
+            temperature=temperature,
         )[0]
 
         delta_freeenergies.append(delta_freeenergy)
@@ -482,9 +478,9 @@ def test_delta_energies_for_tanaka1996() -> None:
     delta_freeenergies = []
     for temperature in temperatures:
         freeenergies = rx.get_freeenergies(model.compounds, temperature=temperature)
-        delta_freeenergy = (
-            model.scheme.activation_deltas(freeenergies)
-            - temperature * model.scheme.activation_entropies[0]
+        delta_freeenergy = model.scheme.activation_freeenergies(
+            freeenergies,
+            temperature=temperature,
         )[0]
 
         delta_freeenergies.append(delta_freeenergy)
@@ -509,9 +505,9 @@ def test_delta_energies_for_tanaka1996() -> None:
     delta_freeenergies = []
     for temperature in temperatures:
         freeenergies = rx.get_freeenergies(model.compounds, temperature=temperature)
-        delta_freeenergy = (
-            model.scheme.activation_deltas(freeenergies)
-            - temperature * model.scheme.activation_entropies[0]
+        delta_freeenergy = model.scheme.activation_freeenergies(
+            freeenergies,
+            temperature=temperature,
         )[0]
 
         delta_freeenergies.append(delta_freeenergy)
