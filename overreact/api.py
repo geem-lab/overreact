@@ -588,7 +588,7 @@ def get_k(
         raise ValueError(msg)
 
     k = np.empty_like(delta_freeenergies)
-    plain = ~np.array(scheme.is_half_equilibrium, dtype=bool)
+    plain = ~np.array(scheme._is_half_equilibrium, dtype=bool)
     # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
     k[plain] = rates.eyring(

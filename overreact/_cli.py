@@ -220,7 +220,7 @@ class Report:
             zip(
                 scheme.reactions,
                 scheme.transition_states,
-                scheme.is_half_equilibrium,
+                scheme._is_half_equilibrium,
                 strict=True,
             ),
         ):
@@ -445,7 +445,7 @@ class Report:
             box=self.box_style,
         )
         for i, reaction in enumerate(scheme.reactions):
-            if scheme.is_half_equilibrium[i]:
+            if scheme._is_half_equilibrium[i]:
                 circ_row = [
                     f"{i:d}",
                     reaction,
@@ -597,7 +597,7 @@ class Report:
                 + [f"{k[scale][i]:.3g}" for scale in k]
                 + [f"{kappa[i]:.3g}"]
             )
-            if self.model.scheme.is_half_equilibrium[i]:
+            if self.model.scheme._is_half_equilibrium[i]:
                 row[2] = "Yes"
                 row[-1] = None  # hide transmission coefficient
 

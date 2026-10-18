@@ -402,7 +402,7 @@ class Scheme:
         )
 
     @cached_property
-    def is_half_equilibrium(self) -> tuple[bool, ...]:
+    def _is_half_equilibrium(self) -> tuple[bool, ...]:
         """An indicator of whether a reaction is half of an equilibrium."""
         halves = {k for pair in self.equilibria for k in pair}
         return tuple(j in halves for j in range(len(self.transition_states)))
@@ -590,7 +590,7 @@ class Scheme:
                     "->",
                     f"-> {transition_state} ->",
                 )
-            elif self.is_half_equilibrium[i]:
+            elif self._is_half_equilibrium[i]:
                 reaction = reaction.replace("->", "<=>")
             lines.append(reaction)
         return "\n".join(lines)

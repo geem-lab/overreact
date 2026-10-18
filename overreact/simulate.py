@@ -332,7 +332,7 @@ def _adjust_k(scheme, k, ef=EF):
 
     """
     scheme = rx.core._check_scheme(scheme)
-    is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
+    is_half_equilibrium = np.asarray(scheme._is_half_equilibrium)
     k = np.asarray(k, dtype=np.float64).copy()
 
     if np.any(is_half_equilibrium):
