@@ -949,7 +949,7 @@ Parsing and calculating (this may take a while)…
         stream=sys.stdout,
     )
     for handler in logging.root.handlers:
-        handler.setFormatter(rx.io.InterfaceFormatter("%(message)s"))
+        handler.setFormatter(rx.io._InterfaceFormatter("%(message)s"))
 
     model = rx.io.parse_model(args.path, force_compile=args.compile)
     report = Report(

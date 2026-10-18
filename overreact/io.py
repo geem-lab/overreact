@@ -1023,7 +1023,7 @@ class _LazyDict(MutableMapping):
         return len(self._dict)
 
 
-class InterfaceFormatter(logging.Formatter):
+class _InterfaceFormatter(logging.Formatter):
     """Simple logging interface."""
 
     def __init__(
