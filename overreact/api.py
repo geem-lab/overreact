@@ -473,7 +473,8 @@ def get_k(
     Raises
     ------
     ValueError
-        If the reverse half of an equilibrium does not undo its forward half.
+        If the reverse half of an equilibrium does not undo its forward half, or
+        if there is not one delta free energy per reaction.
 
     Notes
     -----
@@ -575,6 +576,10 @@ def get_k(
         molecularity = scheme.molecularity
 
     delta_freeenergies = np.array(delta_freeenergies, dtype=float, ndmin=1)
+    if len(delta_freeenergies) != len(scheme.reactions):
+        msg = f"expected {len(scheme.reactions)} delta free energies, one per reaction, got {len(delta_freeenergies)}"
+        raise ValueError(msg)
+    temperatures = np.broadcast_to(temperature, delta_freeenergies.shape)
     forward, reverse = np.array(scheme.equilibria, dtype=int).reshape(-1, 2).T
     inconsistent = ~np.isclose(
         delta_freeenergies[reverse],
@@ -593,7 +598,7 @@ def get_k(
     # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
     k[plain] = rates.eyring(
         delta_freeenergies[plain],
-        temperature=temperature,
+        temperature=temperatures[plain],
         pressure=pressure,
         volume=volume,
     )
@@ -601,7 +606,7 @@ def get_k(
     # equilibria only fix ratios: make the smallest rate constant of each pair one
     equilibrium_constants = rx.thermo.equilibrium_constant(
         delta_freeenergies[forward],
-        temperature=temperature,
+        temperature=temperatures[forward],
         pressure=pressure,
         volume=volume,
     )

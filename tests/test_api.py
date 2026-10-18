@@ -38,6 +38,36 @@ def test_get_k_rejects_inconsistent_equilibria(forward, mismatch) -> None:
         )
 
 
+@given(
+    st.floats(-50.0, 50.0),
+    st.floats(0.0, 50.0),
+    st.floats(100.0, 1000.0),
+    st.floats(100.0, 1000.0),
+)
+def test_get_k_takes_temperatures_per_reaction(
+    equilibrium, barrier, equilibrium_temperature, temperature
+) -> None:
+    """Ensure each rate constant only depends on its own reaction temperature."""
+    scheme = rx.Scheme.parse("A <=> B\nB -> C")
+    delta_freeenergies = np.array([equilibrium, -equilibrium, barrier]) * constants.kcal
+    temperatures = [equilibrium_temperature, equilibrium_temperature, temperature]
+    k = rx.get_k(
+        scheme, delta_freeenergies=delta_freeenergies, temperature=temperatures
+    )
+    assert k == pytest.approx(
+        [
+            rx.get_k(scheme, delta_freeenergies=delta_freeenergies, temperature=t)[i]
+            for i, t in enumerate(temperatures)
+        ],
+    )
+
+
+def test_get_k_rejects_wrong_number_of_delta_freeenergies() -> None:
+    """Ensure there is one delta free energy per reaction."""
+    with pytest.raises(ValueError, match="one per reaction"):
+        rx.get_k(rx.Scheme.parse("A -> B\nB -> C"), delta_freeenergies=[1.0, 2.0, 3.0])
+
+
 def test_get_enthalpies() -> None:
     """Ensure we can retrieve enthalpies."""
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
