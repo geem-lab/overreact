@@ -79,6 +79,22 @@ def test_fix_preserves_rates(reaction, concentrations, data) -> None:
     )
 
 
+@settings(deadline=None, max_examples=30)
+@given(reactions(), st.data())
+def test_get_dydt_jacobian_is_directional_derivative(reaction, data) -> None:
+    """Ensure the Jacobian maps a direction to the derivative of rates along it."""
+    scheme = rx.Scheme.parse(reaction[-1])
+    y, dydt = _rates(scheme, data)
+    direction = np.array(
+        [data.draw(st.floats(min_value=-0.01, max_value=0.01)) for _ in y],
+    )
+    # rates are polynomials of degree at most 9, where 11-point differences are exact
+    assert dydt.jac(0.0, y) @ direction == pytest.approx(
+        rx._misc._derivative(lambda h: dydt(0.0, y + h * direction), x0=0.0, order=11),
+        abs=2e-15 * np.abs(dydt(0.0, y)).max(),
+    )
+
+
 def test_get_y_propagates_reaction_automatically() -> None:
     """Ensure get_y properly propagates reactions with automatic time span."""
     scheme = rx.Scheme.parse("A + 4 B <=> AB4")
