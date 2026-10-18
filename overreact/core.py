@@ -30,6 +30,9 @@ class Scheme:
     `overreact.io.parse_model`).
 
     Coefficient matrices have one row per compound and one column per reaction.
+
+    Values per name or per reaction lie along the last axis of arrays, and
+    leading axes, such as one per temperature, are broadcast.
     """
 
     compounds: tuple[str, ...]
@@ -419,9 +422,12 @@ class Scheme:
         --------
         >>> Scheme.parse("2 A -> B").reaction_deltas([1.0, 5.0])
         array([3.])
+        >>> Scheme.parse("2 A -> B").reaction_deltas([[1.0, 5.0], [2.0, 3.0]])
+        array([[ 3.],
+               [-1.]])
         """
         # TODO(schneiderfelipe): maybe also accept values for compounds only, since transition states are ignored here.
-        return self._reaction.T @ np.asarray(values)
+        return np.asarray(values) @ self._reaction
 
     def activation_deltas(self, values) -> np.ndarray:
         """Change of values, one per name, from reactants to the activated state.
@@ -434,7 +440,7 @@ class Scheme:
         >>> Scheme.parse("2 A -> A‡ -> B").activation_deltas([1.0, 0.0, 5.0])
         array([3.])
         """
-        return self._activation.T @ np.asarray(values)
+        return np.asarray(values) @ self._activation
 
     @cached_property
     def reaction_entropies(self) -> np.ndarray:

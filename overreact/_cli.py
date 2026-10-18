@@ -371,7 +371,7 @@ class Report:
             "reaction symmetry entropies: "
             f"{rx._misc.format_numbers(scheme.reaction_entropies)} J·mol⁻¹·K⁻¹",
         )
-        quantities = np.column_stack(
+        quantities = np.stack(
             [
                 molecular_masses,
                 energies,
@@ -385,7 +385,7 @@ class Report:
             """Return deltas of quantities, with symmetry in entropies and free energies."""
             mass, energies, internal_energies, enthalpies, entropies = deltas(
                 quantities
-            ).T
+            )
             return (
                 mass,
                 energies,

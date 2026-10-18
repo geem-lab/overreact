@@ -159,6 +159,38 @@ def test_activation_without_transition_states_is_reaction(sides, values, data) -
 
 
 @given(
+    schemes_texts(),
+    st.lists(st.floats(100.0, 1000.0), min_size=1, max_size=3),
+    st.sampled_from(["reaction", "activation"]),
+    st.data(),
+)
+def test_free_energies_broadcast_over_leading_axes(
+    text, temperatures, kind, data
+) -> None:
+    """Ensure free energies of a batch of conditions are those of each condition."""
+    scheme = rx.Scheme.parse(text)
+    method = getattr(scheme, f"{kind}_freeenergies")
+    size = len(scheme.names)
+    values = data.draw(
+        st.lists(
+            st.lists(st.floats(-1e3, 1e3), min_size=size, max_size=size),
+            min_size=len(temperatures),
+            max_size=len(temperatures),
+        ),
+    )
+    assert method(values, temperature=np.array(temperatures)[:, np.newaxis]) == (
+        pytest.approx(
+            np.array(
+                [
+                    method(v, temperature=t)
+                    for v, t in zip(values, temperatures, strict=True)
+                ],
+            ),
+        )
+    )
+
+
+@given(
     st.integers(1, 4),
     st.integers(1, 4),
     st.floats(-1e3, 1e3),
