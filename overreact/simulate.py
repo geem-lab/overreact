@@ -167,6 +167,7 @@ def get_y(
     if hasattr(dydt, "jac"):
         jac = dydt.jac  # noqa: F841
 
+    # TODO(schneiderfelipe): consider vectorized=True for Radau and BDF in #817, which only paid off for large schemes without a Jacobian.
     logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
     res = solve_ivp(
         dydt,
