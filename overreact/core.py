@@ -406,11 +406,6 @@ class Scheme:
         return tuple(j in halves for j in range(len(self.transition_states)))
 
     @cached_property
-    def _A(self) -> np.ndarray:  # noqa: N802
-        """Net stoichiometric coefficients, from reactants to products."""
-        return _read_only(self.products - self.reactants)
-
-    @cached_property
     def molecularity(self) -> np.ndarray:
         """Number of reactant molecules of each reaction, zero for sources."""
         return _read_only(self.reactants.sum(axis=0))
@@ -599,7 +594,7 @@ class Scheme:
     @cached_property
     def _reaction(self) -> np.ndarray:
         """Coefficients from reactants to products, one row per name."""
-        return _read_only(self._padded(self._A))
+        return _read_only(self._padded(self.products - self.reactants))
 
     @cached_property
     def _activated(self) -> np.ndarray:
