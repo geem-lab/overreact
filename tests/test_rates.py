@@ -282,6 +282,21 @@ def test_conversion_factors_scale_with_reaction_order(
     ) == pytest.approx(factor ** (molecularity - 1))
 
 
+@given(temperatures)
+def test_conversion_between_pressure_units_is_their_ratio(temperature) -> None:
+    """Ensure 1 atm-1 s-1 is 1/760 mmHg-1 s-1 at any temperature."""
+    assert rx.rates.convert_rate_constant(
+        1.0, "mmHg-1 s-1", "atm-1 s-1", molecularity=2, temperature=temperature
+    ) == pytest.approx(constants.torr / constants.atm)
+
+
+@pytest.mark.parametrize("molecularity", [1, 2])
+def test_conversion_rejects_unknown_units(molecularity) -> None:
+    """Ensure unknown units raise, even when no conversion is needed."""
+    with pytest.raises(ValueError, match="not recognized"):
+        rx.rates.convert_rate_constant(1.0, "furlong-1 s-1", molecularity=molecularity)
+
+
 @given(scales, scales, temperatures, st.integers(min_value=1, max_value=5))
 def test_conversion_of_rate_constants_round_trips(
     new_scale, old_scale, temperature, molecularity

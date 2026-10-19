@@ -716,7 +716,6 @@ def get_k(
         old_scale="l mol-1 s-1",
         molecularity=molecularity,
         temperature=temperature,
-        pressure=pressure,
     )
 
 

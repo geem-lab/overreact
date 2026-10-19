@@ -152,7 +152,6 @@ def convert_rate_constant(
     old_scale="l mol-1 s-1",
     molecularity=1,
     temperature=298.15,
-    pressure=constants.atm,
 ):
     r"""Convert a reaction rate constant between common units.
 
@@ -171,8 +170,6 @@ def convert_rate_constant(
         Reaction order, i.e., number of molecules that come together to react.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
-        Reference gas pressure.
 
     Returns
     -------
@@ -215,10 +212,10 @@ def convert_rate_constant(
     If `old_scale` is the same as `new_scale`, or if the molecularity is one,
     the received value is returned:
 
-    >>> convert_rate_constant(12345, "atm-1 s-1", "atm-1 s-1", molecularity=2)
-    12345
-    >>> convert_rate_constant(67890, "l mol-1 s-1", "atm-1 s-1", molecularity=1)
-    67890
+    >>> float(convert_rate_constant(12345, "atm-1 s-1", "atm-1 s-1", molecularity=2))
+    12345.0
+    >>> float(convert_rate_constant(67890, "l mol-1 s-1", "atm-1 s-1", molecularity=1))
+    67890.0
 
     Below are some examples regarding some accepted alternative symbols:
 
@@ -235,52 +232,26 @@ def convert_rate_constant(
     for alt, ref in [("M-1", "l mol-1"), ("ml", "cm3"), ("torr-1", "mmHg-1")]:
         new_scale, old_scale = new_scale.replace(alt, ref), old_scale.replace(alt, ref)
 
-    # no need to convert if same units or if molecularity is one
-    if old_scale == new_scale or np.all(molecularity == 1):
-        return val
+    # volume per amount of each scale's unit of concentration, in L/mol
+    gas_volume = (
+        constants.R * np.asarray(temperature) / constants.liter
+    )  # times pressure
+    liters_per_mole = {
+        "cm3 mol-1 s-1": constants.centi**3 / constants.liter,
+        "l mol-1 s-1": 1.0,
+        "m3 mol-1 s-1": 1.0 / constants.liter,
+        "cm3 particle-1 s-1": constants.N_A * constants.centi**3 / constants.liter,
+        "mmHg-1 s-1": gas_volume / constants.torr,
+        "atm-1 s-1": gas_volume / constants.atm,
+    }
+    for which, scale in [("old", old_scale), ("new", new_scale)]:
+        if scale not in liters_per_mole:
+            msg = f"{which} unit not recognized: {scale}"
+            raise ValueError(msg)
 
-    # we first convert to l mol-1 s-1
-    if old_scale == "cm3 mol-1 s-1":
-        factor = 1.0 / constants.kilo
-    elif old_scale == "l mol-1 s-1":
-        factor = 1.0
-    elif old_scale == "m3 mol-1 s-1":
-        factor = constants.kilo
-    elif old_scale == "cm3 particle-1 s-1":
-        factor = constants.N_A / constants.kilo
-    elif old_scale == "mmHg-1 s-1":
-        factor = (
-            rx.thermo.molar_volume(temperature, pressure)
-            * pressure
-            * constants.kilo
-            / constants.torr
-        )
-    elif old_scale == "atm-1 s-1":
-        factor = rx.thermo.molar_volume(temperature, pressure) * constants.kilo
-    else:
-        msg = f"old unit not recognized: {old_scale}"
-        raise ValueError(msg)
-
-    # now we convert l mol-1 s-1 to what we need
-    if new_scale == "cm3 mol-1 s-1":
-        factor *= constants.kilo
-    elif new_scale == "l mol-1 s-1":
-        factor *= 1.0
-    elif new_scale == "m3 mol-1 s-1":
-        factor *= 1.0 / constants.kilo
-    elif new_scale == "cm3 particle-1 s-1":
-        factor *= constants.kilo / constants.N_A
-    elif new_scale == "mmHg-1 s-1":
-        factor *= constants.torr / (
-            rx.thermo.molar_volume(temperature, pressure) * pressure * constants.kilo
-        )
-    elif new_scale == "atm-1 s-1":
-        factor *= 1.0 / (rx.thermo.molar_volume(temperature, pressure) * constants.kilo)
-    else:
-        msg = f"new unit not recognized: {new_scale}"
-        raise ValueError(msg)
-
-    factor = factor ** (molecularity - 1)
+    factor = (liters_per_mole[old_scale] / liters_per_mole[new_scale]) ** (
+        molecularity - 1
+    )
     logger.info(
         f"conversion factor ({old_scale} to {new_scale}) = {factor}",
     )
