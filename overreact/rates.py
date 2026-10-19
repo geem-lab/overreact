@@ -339,24 +339,24 @@ def eyring(
     [Thermochemistry in Gaussian](https://gaussian.com/thermo/), in which the
     kinetic isotope effect of a bimolecular reaction is analyzed:
 
-    >>> eyring(17.26 * constants.kcal)
-    array([1.38])
-    >>> eyring(18.86 * constants.kcal)
-    array([0.093])
+    >>> float(eyring(17.26 * constants.kcal))
+    1.38
+    >>> float(eyring(18.86 * constants.kcal))
+    0.093
 
     It is well known that, at room temperature, if you "decrease" a reaction
     barrier by 1.4 kcal/mol, the reaction becomes around ten times faster:
 
     >>> dG = 20.0 * constants.kcal
-    >>> eyring(dG - 1.4 * constants.kcal) / eyring(dG)
-    array([10.])
+    >>> float(eyring(dG - 1.4 * constants.kcal) / eyring(dG))
+    10.
 
     A similar relationship is found for a twofold increase in speed and a
     0.4 kcal/mol decrease in the reaction barrier (again, at room
     temperature):
 
-    >>> eyring(dG - 0.4 * constants.kcal) / eyring(dG)
-    array([2.0])
+    >>> float(eyring(dG - 0.4 * constants.kcal) / eyring(dG))
+    2.0
 
     """
     temperature = np.asarray(temperature)

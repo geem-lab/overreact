@@ -595,22 +595,22 @@ def equilibrium_constant(
 
     >>> temperature = 298.15
     >>> dG = -constants.R * temperature * np.log(Kc)
-    >>> equilibrium_constant(dG)
-    array([24.5])
+    >>> float(equilibrium_constant(dG))
+    24.5
 
     Gas-phase free energies, at 1 atm, follow from changing the reference
     state of each compound, and give the corresponding :math:`K_p`:
 
     >>> dG_gas = dG + temperature * change_reference_state()
-    >>> equilibrium_constant(dG_gas)
-    array([1.002])
+    >>> float(equilibrium_constant(dG_gas))
+    1.002
 
     (As expected, it makes sense for gases to favor the most entropic side of
     the equilibrium.) Giving the change in moles of gas (in this case,
     :math:`2 - 2 - 1 = -1`) takes gas-phase free energies back to :math:`K_c`:
 
-    >>> equilibrium_constant(dG_gas, delta_moles=-1)
-    array([24.5])
+    >>> float(equilibrium_constant(dG_gas, delta_moles=-1))
+    24.5
 
     The following example is from
     [Wikipedia](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
@@ -619,11 +619,11 @@ def equilibrium_constant(
     solution standard Gibbs reaction free energy that is given:
 
     >>> dG1 = -37.4e3
-    >>> np.log10(equilibrium_constant(dG1))
-    array([6.55])
+    >>> float(np.log10(equilibrium_constant(dG1)))
+    6.55
     >>> dG2 = -60.67e3
-    >>> np.log10(equilibrium_constant(dG2))
-    array([10.62])
+    >>> float(np.log10(equilibrium_constant(dG2)))
+    10.62
 
     You can easily check that the above values match the values given
     [here](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
@@ -631,7 +631,7 @@ def equilibrium_constant(
     temperature = np.asarray(temperature)
 
     equilibrium_constant = np.exp(
-        -np.atleast_1d(delta_freeenergy) / (constants.R * temperature),
+        -np.asarray(delta_freeenergy) / (constants.R * temperature),
     )
 
     if delta_moles is not None:

@@ -136,8 +136,8 @@ def eckart(
 
     Examples
     --------
-    >>> eckart(1218, 13672.624, 24527.729644, temperature=300)
-    array(3.9)
+    >>> float(eckart(1218, 13672.624, 24527.729644, temperature=300))
+    3.9
     >>> eckart(1218, 13672.624, 24527.729644, temperature=[200, 298.15])
     array([17.1, 4.0])
     >>> eckart([1218, 200], 13672.624, 24527.729644, temperature=400)
@@ -145,12 +145,12 @@ def eckart(
 
     If no backward barrier is given, a symmetric Eckart potential is assumed:
 
-    >>> eckart(414.45, 394.54)
-    array(1.16)
-    >>> eckart(414.45, 789.08)
-    array(1.3)
-    >>> eckart(3315.6, 3156.31)
-    array(3.3)
+    >>> float(eckart(414.45, 394.54))
+    1.16
+    >>> float(eckart(414.45, 789.08))
+    1.3
+    >>> float(eckart(3315.6, 3156.31))
+    3.3
 
     And if either the forward or backward barrier is non-positive, we fall back
     to the Wigner correction, but a warning is issued:
@@ -193,7 +193,7 @@ def eckart(
 
     kappa = np.where(positive, _eckart(u, alpha1, alpha2), wigner(vibfreq, temperature))
     logger.info(f"Eckart tunneling coefficient: {kappa}")
-    return kappa
+    return kappa[()]
 
 
 # TODO(schneiderfelipe): returns NaN for large alphas (roughly above 100), outside the validated range.

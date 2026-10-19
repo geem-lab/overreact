@@ -1024,3 +1024,19 @@ def test_third_order_conversion_rates_match_literature() -> None:
             temperature=temperature,
         ) == pytest.approx(1.0)
 
+
+@pytest.mark.parametrize(
+    "function",
+    [
+        lambda: rx.rates.eyring(1e4),
+        lambda: rx.rates.eyring(1e4, molecularity=2),
+        lambda: rx.thermo.equilibrium_constant(1e4),
+        lambda: rx.thermo.change_reference_state(),
+        lambda: rx.tunnel.eckart(1000.0, 1e4),
+        lambda: rx.tunnel.eckart(1000.0, -1e4),
+        lambda: rx.tunnel.wigner(1000.0),
+    ],
+)
+def test_scalar_inputs_give_scalars(function) -> None:
+    """Ensure scalar inputs give floats, as in NumPy."""
+    assert isinstance(function(), float)
