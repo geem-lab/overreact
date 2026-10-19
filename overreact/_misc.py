@@ -822,20 +822,13 @@ def broaden_spectrum(
     elif distribution in {"lorentzian", "cauchy"}:
         distribution = cauchy
 
-    s = np.sum(
-        [
-            yp
-            * distribution.pdf(
-                x,
-                xp,
-                scale=scale,
-                *args,
-                **kwargs,
-            )
-            for xp, yp in zip(x0, y0, strict=False)
-        ],
-        axis=0,
-    )
+    s = distribution.pdf(
+        np.asarray(x)[..., np.newaxis],
+        x0,
+        *args,
+        scale=scale,
+        **kwargs,
+    ) @ np.asarray(y0)
 
     if fit_points:
         s_max = np.max(s)
