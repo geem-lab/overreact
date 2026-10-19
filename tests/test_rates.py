@@ -52,10 +52,12 @@ def test_sanity_for_chemical_kinetics() -> None:
     k_h = rx.get_k(
         scheme,
         delta_freeenergies=delta_freeenergies_h * constants.hartree * constants.N_A,
+        scale="atm-1 s-1",
     )
     k_d = rx.get_k(
         scheme,
         delta_freeenergies=delta_freeenergies_d * constants.hartree * constants.N_A,
+        scale="atm-1 s-1",
     )
     assert k_h == pytest.approx(1.38, 4e-4)
     assert k_d == pytest.approx(0.0928, 5e-3)
@@ -1021,3 +1023,4 @@ def test_third_order_conversion_rates_match_literature() -> None:
             molecularity=3,
             temperature=temperature,
         ) == pytest.approx(1.0)
+
