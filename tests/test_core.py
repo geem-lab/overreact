@@ -248,6 +248,16 @@ def test_fix_removes_compounds(reaction, concentrations) -> None:
 
 
 @given(schemes_texts(), st.data())
+def test_fix_broadcasts_over_leading_axes(text, data) -> None:
+    """Ensure factors of a batch of concentrations are those of each one."""
+    scheme = rx.Scheme.parse(text)
+    names = data.draw(st.sets(st.sampled_from(scheme.compounds), min_size=1))
+    batch = [{name: data.draw(st.floats(0.1, 10.0)) for name in names} for _ in "ab"]
+    _, factors = scheme.fix({name: [c[name] for c in batch] for name in names})
+    assert factors == pytest.approx(np.array([scheme.fix(c)[1] for c in batch]))
+
+
+@given(schemes_texts(), st.data())
 def test_concentrations_place_values_by_name(text, data) -> None:
     """Ensure concentrations go to their compounds, and others are zero."""
     scheme = rx.Scheme.parse(text)

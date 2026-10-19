@@ -538,12 +538,8 @@ class Scheme:
         >>> factors
         array([3091.36])
         """
-        self._check_compounds(concentrations)
         fixed = np.isin(self.compounds, list(concentrations))
-        values = np.array(
-            [concentrations[c] for c in itertools.compress(self.compounds, fixed)],
-            dtype=float,
-        )
+        values = self.concentrations(concentrations)[..., fixed]
         return (
             Scheme(
                 compounds=tuple(itertools.compress(self.compounds, ~fixed)),
@@ -552,7 +548,7 @@ class Scheme:
                 transition_states=self.transition_states,
                 equilibria=self.equilibria,
             ),
-            np.prod(values[:, np.newaxis] ** self.reactants[fixed], axis=0),
+            np.prod(values[..., np.newaxis] ** self.reactants[fixed], axis=-2),
         )
 
     def __str__(self) -> str:
