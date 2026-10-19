@@ -61,9 +61,9 @@ def calc_trans_entropy(
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
         Leave this as "standard" for now.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
+    pressure : float, optional
         Reference gas pressure.
 
     Returns
@@ -166,7 +166,7 @@ def calc_internal_energy(
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -236,7 +236,7 @@ def calc_enthalpy(
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -340,9 +340,9 @@ def calc_entropy(
         S. Grimme (see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
+    pressure : float, optional
         Reference gas pressure.
 
     Notes
@@ -480,7 +480,7 @@ def calc_heat_capacity(
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
     dx : float, optional
         Spacing.
