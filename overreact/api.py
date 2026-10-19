@@ -469,7 +469,8 @@ def get_k(
         Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     bias : array-like, optional
-        Energy to be added to free energies.
+        Energy added to the free energy of every name, or of each name if one
+        per name, also when `delta_freeenergies` are given.
     tunneling : str or None, optional
         Either "eckart", "wigner", or None for no tunneling correction.
     qrrho : bool or tuple-like, optional
@@ -609,7 +610,6 @@ def get_k(
         return scheme.activation_freeenergies(
             get_freeenergies(
                 compounds,
-                bias=bias,
                 qrrho=(qrrho_enthalpy, qrrho_entropy),
                 temperature=temperature,
                 pressure=pressure,
@@ -669,9 +669,12 @@ def get_k(
             msg = f"in equilibrium '{scheme.reactions[forward[np.nonzero(mismatch)[-1][0]]]}', {problem}"
             raise ValueError(msg)
 
-    # take gas-phase free energies from the standard state at `pressure` to 1 M
+    # add biases, and take gas-phase free energies from `pressure` to 1 M
     delta_freeenergies = (
         delta_freeenergies
+        + scheme.activation_deltas(
+            np.broadcast_to(bias, (*np.shape(bias)[:-1], len(scheme.names)))
+        )
         + temperatures
         * thermo.change_reference_state(
             temperature=temperatures, pressure=pressure, volume=volume

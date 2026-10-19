@@ -219,15 +219,24 @@ def test_get_k_broadcasts_over_temperatures(hickel1992, scale) -> None:
         "data/hickel1992/UM06-2X/6-311++G(d,p)/model.k",
     ],
 )
-def test_get_k_from_compounds_is_from_their_free_energies(path) -> None:
+@pytest.mark.parametrize("bias", ["none", "scalar", "per name"])
+def test_get_k_from_compounds_is_from_their_free_energies(path, bias) -> None:
     """Ensure rate constants from compounds are those from get_freeenergies."""
     model = rx.parse_model(path)
-    assert rx.get_k(model.scheme, model.compounds, tunneling=None) == pytest.approx(
+    bias = {
+        "none": 0.0,
+        "scalar": constants.kcal,
+        "per name": np.linspace(-1.0, 1.0, len(model.scheme.names)) * constants.kcal,
+    }[bias]
+    assert rx.get_k(
+        model.scheme, model.compounds, bias=bias, tunneling=None
+    ) == pytest.approx(
         rx.get_k(
             model.scheme,
             delta_freeenergies=model.scheme.activation_freeenergies(
                 rx.get_freeenergies(model.compounds),
             ),
+            bias=bias,
             tunneling=None,
         ),
     )
