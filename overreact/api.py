@@ -85,31 +85,12 @@ def get_internal_energies(
     array([0. , 2.20053981])
 
     """
-    compounds = rx.io._check_compounds(compounds)
-    temperatures = np.broadcast_to(
-        temperature, np.broadcast_shapes(np.shape(temperature), (len(compounds),))
-    )
-    internal_energies = np.empty(temperatures.shape)
-    for i, name in enumerate(compounds):
+
+    def internal_energy(name, compound):
         logger.info(f"calculate internal energy: {name}")
+        return partial(thermo.calc_internal_energy, **_rrho(compound), qrrho=qrrho)
 
-        moments, _, _ = coords.inertia(
-            compounds[name].atommasses,
-            compounds[name].atomcoords,
-        )
-
-        internal_energies[..., i] = np.vectorize(
-            partial(
-                thermo.calc_internal_energy,
-                energy=compounds[name].energy,
-                degeneracy=compounds[name].mult,
-                moments=moments,
-                vibfreqs=compounds[name].vibfreqs,
-                qrrho=qrrho,
-            ),
-            otypes=[float],
-        )(temperature=temperatures[..., i])
-    return internal_energies
+    return _per_compound(compounds, internal_energy, temperature=temperature)
 
 
 def get_enthalpies(
@@ -155,31 +136,12 @@ def get_enthalpies(
     >>> (enthalpies - zero_enthalpies) / constants.kcal
     array([2.78, 2.50])
     """
-    compounds = rx.io._check_compounds(compounds)
-    temperatures = np.broadcast_to(
-        temperature, np.broadcast_shapes(np.shape(temperature), (len(compounds),))
-    )
-    enthalpies = np.empty(temperatures.shape)
-    for i, name in enumerate(compounds):
+
+    def enthalpy(name, compound):
         logger.info(f"calculate enthalpy: {name}")
+        return partial(thermo.calc_enthalpy, **_rrho(compound), qrrho=qrrho)
 
-        moments, _, _ = coords.inertia(
-            compounds[name].atommasses,
-            compounds[name].atomcoords,
-        )
-
-        enthalpies[..., i] = np.vectorize(
-            partial(
-                thermo.calc_enthalpy,
-                energy=compounds[name].energy,
-                degeneracy=compounds[name].mult,
-                moments=moments,
-                vibfreqs=compounds[name].vibfreqs,
-                qrrho=qrrho,
-            ),
-            otypes=[float],
-        )(temperature=temperatures[..., i])
-    return enthalpies
+    return _per_compound(compounds, enthalpy, temperature=temperature)
 
 
 def get_entropies(
@@ -246,57 +208,68 @@ def get_entropies(
     >>> (sol_entropies - entropies) / constants.calorie
     array([-6.35360874, -6.35360874])
     """
-    compounds = rx.io._check_compounds(compounds)
-    shape = np.broadcast_shapes(
-        np.shape(temperature), np.shape(pressure), (len(compounds),)
-    )
-    temperatures = np.broadcast_to(temperature, shape)
-    pressures = np.broadcast_to(pressure, shape)
-    entropies = np.empty(shape)
-    for i, name in enumerate(compounds):
-        logger.info(f"calculate entropy: {name}")
 
-        if "point_group" in compounds[name]:
-            point_group = compounds[name].point_group
+    def entropy(name, compound):
+        logger.info(f"calculate entropy: {name}")
+        if "point_group" in compound:
+            point_group = compound.point_group
         else:
             point_group = coords.find_point_group(
-                compounds[name].atommasses,
-                compounds[name].atomcoords,
+                compound.atommasses, compound.atomcoords
             )
-        symmetry_number = coords.symmetry_number(point_group)
-
-        moments, _, _ = coords.inertia(
-            compounds[name].atommasses,
-            compounds[name].atomcoords,
+        calc = partial(
+            thermo.calc_entropy,
+            **_rrho(compound),
+            atommasses=compound.atommasses,
+            atomcoords=compound.atomcoords,
+            symmetry_number=coords.symmetry_number(point_group),
+            environment=environment or rx.core._get_environment(name),
+            method=method,
+            qrrho=qrrho,
         )
+        if compound.symmetry is None:
+            return calc
 
-        entropies[..., i] = np.vectorize(
-            partial(
-                thermo.calc_entropy,
-                atommasses=compounds[name].atommasses,
-                atomcoords=compounds[name].atomcoords,
-                energy=compounds[name].energy,
-                degeneracy=compounds[name].mult,
-                moments=moments,
-                symmetry_number=symmetry_number,
-                vibfreqs=compounds[name].vibfreqs,
-                environment=environment or rx.core._get_environment(name),
-                method=method,
-                qrrho=qrrho,
-            ),
-            otypes=[float],
-        )(temperature=temperatures[..., i], pressure=pressures[..., i])
-
-        if compounds[name].symmetry is not None:
+        def symmetric(temperature, pressure):
             # The negative sign here seems correct. See equations (9) and (10)
             # of doi:10.1002/qua.25686.
-            entropies[..., i] -= thermo.change_reference_state(
-                compounds[name].symmetry,
-                1,
-                temperature=temperatures[..., i],
-                pressure=pressures[..., i],
+            return calc(
+                temperature=temperature, pressure=pressure
+            ) - thermo.change_reference_state(
+                compound.symmetry, 1, temperature=temperature, pressure=pressure
             )
-    return entropies
+
+        return symmetric
+
+    return _per_compound(compounds, entropy, temperature=temperature, pressure=pressure)
+
+
+def _per_compound(compounds, quantity, **conditions):
+    """Evaluate a quantity of each compound along the last axis, broadcasting conditions.
+
+    ``quantity(name, compound)`` returns the quantity as a function of conditions.
+    """
+    compounds = rx.io._check_compounds(compounds)
+    shape = np.broadcast_shapes(*map(np.shape, conditions.values()), (len(compounds),))
+    values = np.empty(shape)
+    for i, (name, compound) in enumerate(compounds.items()):
+        values[..., i] = np.vectorize(quantity(name, compound), otypes=[float])(
+            **{
+                key: np.broadcast_to(value, shape)[..., i]
+                for key, value in conditions.items()
+            }
+        )
+    return values
+
+
+def _rrho(compound):
+    """Return the rigid rotor harmonic oscillator arguments of a compound."""
+    return {
+        "energy": compound.energy,
+        "degeneracy": compound.mult,
+        "moments": coords.inertia(compound.atommasses, compound.atomcoords)[0],
+        "vibfreqs": compound.vibfreqs,
+    }
 
 
 def _check_qrrho(
