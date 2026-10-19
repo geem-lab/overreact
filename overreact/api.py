@@ -192,6 +192,9 @@ def get_entropies(
 ):
     """Obtain entropies for compounds at a given temperature and pressure.
 
+    Each compound is in the standard state of its environment: 1 M in
+    solution, and `pressure` in the gas phase.
+
     Parameters
     ----------
     compounds : dict-like
@@ -352,6 +355,9 @@ def get_freeenergies(
     pressure: float = constants.atm,
 ):
     """Obtain free energies for compounds at a given temperature and pressure.
+
+    Each compound is in the standard state of its environment: 1 M in
+    solution, and `pressure` in the gas phase.
 
     Parameters
     ----------
