@@ -184,12 +184,7 @@ def get_y(
     y = res.sol
 
     def r(t):
-        # TODO(schneiderfelipe): this is probably not the best way to
-        # vectorize a function!
-        try:
-            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T, strict=False)]).T
-        except TypeError:
-            return dydt(t, y(t))
+        return np.asarray(dydt(t, y(t)))
 
     return y, r
 
@@ -214,7 +209,9 @@ def get_dydt(scheme, k, ef=EF):
     Returns
     -------
     dydt : callable
-        Reaction rate function. The actual reaction rate constants employed
+        Reaction rate function. As in `scipy.integrate.solve_ivp`, its
+        concentrations have one row per compound, and columns, if any, are
+        separate states. The actual reaction rate constants employed
         are stored in the attribute `k` of the returned function. If JAX is
         available, the attribute `jac` will hold the Jacobian function of
         `dydt`.
@@ -235,6 +232,9 @@ def get_dydt(scheme, k, ef=EF):
     >>> dydt = get_dydt(scheme, np.array([1, 1]))
     >>> dydt(0.0, np.array([1., 1.]))
     Array([0., 0.], ...)
+    >>> dydt(0.0, np.array([[1., 2.], [1., 0.]]))
+    Array([[ 0., -2.],
+           [ 0.,  2.]], ...)
 
     If available, JAX is used for JIT compilation. This will make `dydt`
     complain if given lists instead of numpy arrays. So stick to the safer,
@@ -255,13 +255,14 @@ def get_dydt(scheme, k, ef=EF):
 
     """
     scheme = rx.core._check_scheme(scheme)
-    A = jnp.asarray(scheme._A)
+    A = jnp.asarray(scheme.products - scheme.reactants)
     M = jnp.asarray(scheme.reactants).T
     k_adj = _adjust_k(scheme, k, ef=ef)
 
     def _dydt(_t, y):
-        r = k_adj * jnp.prod(jnp.power(y, M), axis=1)
-        return jnp.dot(A, r)
+        y = jnp.moveaxis(jnp.asarray(y), 0, -1)
+        r = k_adj * jnp.prod(jnp.power(y[..., jnp.newaxis, :], M), axis=-1)
+        return jnp.moveaxis(r @ A.T, -1, 0)
 
     if _found_jax:
         # Using JAX for JIT compilation is much faster.

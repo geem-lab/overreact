@@ -34,6 +34,18 @@ def test_get_dydt_follows_net_stoichiometry(reaction, data) -> None:
 
 
 @settings(deadline=None, max_examples=30)
+@given(reactions(), st.data())
+def test_get_dydt_broadcasts_over_columns(reaction, data) -> None:
+    """Ensure rates of states given as columns are those of each state."""
+    scheme = rx.Scheme.parse(reaction[-1])
+    states = np.column_stack([_rates(scheme, data)[0] for _ in range(3)])
+    dydt = simulate.get_dydt(scheme, np.array([1.0]))
+    assert np.asarray(dydt(0.0, states)) == pytest.approx(
+        np.column_stack([dydt(0.0, state) for state in states.T]),
+    )
+
+
+@settings(deadline=None, max_examples=30)
 @given(reactions(), CONCENTRATIONS, st.data())
 def test_get_dydt_orders_are_reactant_coefficients(reaction, factor, data) -> None:
     """Ensure scaling a reactant by f scales rates by f to its coefficient (#838)."""
