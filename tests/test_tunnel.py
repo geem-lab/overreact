@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
@@ -58,6 +59,17 @@ def test_eckart_is_symmetric(u, alpha1, alpha2) -> None:
     """
     assert rx.tunnel._eckart(u, alpha1, alpha2) == pytest.approx(
         rx.tunnel._eckart(u, alpha2, alpha1),
+    )
+
+
+@given(
+    st.lists(st.tuples(st.floats(2.0, 16.0), alphas, alphas), min_size=1, max_size=3)
+)
+def test_eckart_broadcasts(arguments) -> None:
+    """Ensure Eckart of arrays is Eckart of each element."""
+    u, alpha1, alpha2 = np.array(arguments).T
+    assert rx.tunnel._eckart(u, alpha1, alpha2) == pytest.approx(
+        [float(rx.tunnel._eckart(*args)) for args in arguments],
     )
 
 

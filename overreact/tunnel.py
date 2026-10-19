@@ -8,8 +8,7 @@ __all__ = ["eckart", "wigner"]
 import logging
 
 import numpy as np
-from scipy.integrate import fixed_quad
-from scipy.special import roots_laguerre
+from scipy.special import roots_laguerre, roots_legendre
 
 from overreact import _constants as constants
 
@@ -199,7 +198,6 @@ def eckart(
 
 
 # TODO(schneiderfelipe): returns NaN for large alphas (roughly above 100), outside the validated range.
-@np.vectorize
 def _eckart(
     u: float,
     alpha1: float,
@@ -237,14 +235,14 @@ def _eckart(
     --------
     Symmetrical barrier:
 
-    >>> _eckart(10, 20)
+    >>> float(_eckart(10, 20))
     1150.
 
     Unsymmetrical barrier:
 
-    >>> _eckart(2, 0.5, 1.0)
+    >>> float(_eckart(2, 0.5, 1.0))
     1.125
-    >>> _eckart(2, 1.0, 0.5)
+    >>> float(_eckart(2, 1.0, 0.5))
     1.125
 
     """
@@ -256,12 +254,15 @@ def _eckart(
     if alpha2 is None:
         alpha2 = alpha1
 
+    # quadrature points go along a new last axis
+    u, alpha1, alpha2 = (np.asarray(x)[..., np.newaxis] for x in (u, alpha1, alpha2))
+
     two_pi = 2.0 * np.pi
     v1 = alpha1 * u / (two_pi)
     v2 = alpha2 * u / (two_pi)
 
     d = 4.0 * alpha1 * alpha2 - np.pi**2
-    D = np.cosh(np.sqrt(d)) if d > 0 else np.cos(np.sqrt(np.abs(d)))
+    D = np.where(d > 0, np.cosh(np.sqrt(np.abs(d))), np.cos(np.sqrt(np.abs(d))))
 
     sqrt_alpha1 = np.sqrt(alpha1)
     sqrt_alpha2 = np.sqrt(alpha2)
@@ -286,10 +287,12 @@ def _eckart(
         return p
 
     # integral from -min(v1, v2) to zero using Gauss quadrature
-    integ1 = fixed_quad(f, -min(v1, v2), 0, n=gauss_n)[0]
+    lower = -np.minimum(v1, v2)
+    x, w = roots_legendre(gauss_n)
+    integ1 = np.sum(-lower / 2.0 * w * f(lower * (1.0 - x) / 2.0), axis=-1)
 
     # integral from 0 to infinity using Laguerre quadrature
     x, w = roots_laguerre(n=laguerre_n)
-    integ2 = w @ f(x, with_exp=False)
+    integ2 = np.sum(w * f(x, with_exp=False), axis=-1)
 
-    return integ1 + integ2
+    return np.asarray(integ1 + integ2)
