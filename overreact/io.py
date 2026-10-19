@@ -908,9 +908,7 @@ def _read_orca_logfile(path, minimal=True):
 
     if atommasses is None:
         logger.warning("using atomic masses from periodic table")
-        atommasses = []
-        for n in atomnos:
-            atommasses.append(rx._misc.atomic_mass[n])
+        atommasses = [rx._misc.atomic_mass[n] for n in atomnos]
     data.update({"atommasses": rx._misc.totuple(atommasses)})
 
     if vibfreqs is not None:
