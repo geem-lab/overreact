@@ -63,6 +63,24 @@ def test_eckart_is_symmetric(u, alpha1, alpha2) -> None:
 
 
 @given(
+    st.lists(
+        st.tuples(
+            st.floats(-1e4, 1e5).filter(lambda x: abs(x) >= 1.0),
+            st.floats(-1e4, 1e5).filter(lambda x: abs(x) >= 1.0),
+        ),
+        min_size=1,
+        max_size=3,
+    ),
+)
+def test_eckart_broadcasts_over_barriers(barriers) -> None:
+    """Ensure Eckart of arrays of barriers is Eckart of each, with Wigner fallbacks."""
+    forward, backward = np.array(barriers).T
+    assert rx.tunnel.eckart(1000.0, forward, backward) == pytest.approx(
+        [float(rx.tunnel.eckart(1000.0, *pair)) for pair in barriers],
+    )
+
+
+@given(
     st.lists(st.tuples(st.floats(2.0, 16.0), alphas, alphas), min_size=1, max_size=3)
 )
 def test_eckart_broadcasts(arguments) -> None:

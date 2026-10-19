@@ -168,31 +168,34 @@ def eckart(
     nu = _check_nu(vibfreq)
     u = constants.h * nu / (constants.k * temperature)
 
+    delta_forward = np.asarray(delta_forward)
     if delta_backward is None:
         delta_backward = delta_forward
+    delta_backward = np.asarray(delta_backward)
 
     logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
     logger.debug(f"backward potential barrier: {delta_backward} J/mol")
 
-    if delta_forward <= 0 or delta_backward <= 0:
+    positive = (delta_forward > 0) & (delta_backward > 0)
+    if not positive.all():
         logger.warning(
             "forward or backward barrier is non-positive, falling back to Wigner correction",
         )
-        return wigner(vibfreq, temperature)
 
-    assert np.all(delta_forward > 0), "forward barrier should be positive"
-    assert np.all(delta_backward > 0), "backward barrier should be positive"
-
-    # convert energies in joules per mole to joules
-    delta_forward = delta_forward / constants.N_A
-    delta_backward = delta_backward / constants.N_A
-
-    assert delta_backward is not None, "delta_backward should be given"
+    # convert energies in joules per mole to joules, with placeholders where Wigner is used
     two_pi = 2.0 * np.pi
-    alpha1 = two_pi * delta_forward / (constants.h * nu)
-    alpha2 = two_pi * delta_backward / (constants.h * nu)
+    alpha1 = (
+        two_pi
+        * np.where(positive, delta_forward, 1.0)
+        / (constants.N_A * constants.h * nu)
+    )
+    alpha2 = (
+        two_pi
+        * np.where(positive, delta_backward, 1.0)
+        / (constants.N_A * constants.h * nu)
+    )
 
-    kappa = _eckart(u, alpha1, alpha2)
+    kappa = np.where(positive, _eckart(u, alpha1, alpha2), wigner(vibfreq, temperature))
     logger.info(f"Eckart tunneling coefficient: {kappa}")
     return kappa
 
