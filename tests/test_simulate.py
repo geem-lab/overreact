@@ -265,3 +265,40 @@ CS -> TS‡ -> P  // Catalyst is consumed instead of being released
     # catalyst is completely consumed in the end
     # the substrate is completely consumed in the end
     assert np.allclose(y(y.t_max), [cat0 - sub0, 0.0, 0.0, sub0], atol=2e-5)
+
+
+@pytest.fixture(scope="module")
+def tanaka1996():
+    """Model of CH4 + Cl· -> CH3· + HCl."""
+    return rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.jk")
+
+
+def test_get_bias_recovers_the_bias_of_simulated_data(tanaka1996) -> None:
+    """Ensure the bias that generated concentrations is the one estimated from them."""
+    scheme, compounds = tanaka1996.scheme, tanaka1996.compounds
+    bias = -1.0 * rx._constants.kcal
+    y0 = {"CH4": 5e-5, "Cl·": 3e-5}
+    y, _ = rx.get_y(
+        rx.get_dydt(scheme, rx.get_k(scheme, compounds, bias=bias)),
+        scheme.concentrations(y0),
+        rtol=1e-8,
+        atol=1e-12,
+    )
+    t = np.geomspace(1e-6, y.t_max, 5)
+    data = {"t": t, "CH3·": y(t)[scheme.compounds.index("CH3·")]}
+    assert rx.get_bias(scheme, compounds, data, y0, atol=1e-12) == pytest.approx(
+        bias, rel=5e-4
+    )
+
+
+@pytest.mark.parametrize("condition", ["temperature", "pressure"])
+def test_get_bias_rejects_arrays_of_conditions(tanaka1996, condition) -> None:
+    """Ensure a single bias is estimated at a single temperature and pressure."""
+    with pytest.raises(ValueError, match="single"):
+        rx.get_bias(
+            tanaka1996.scheme,
+            tanaka1996.compounds,
+            {"t": [1.0], "CH3·": [1e-6]},
+            {"CH4": 5e-5, "Cl·": 3e-5},
+            **{condition: [[300.0], [310.0]]},
+        )

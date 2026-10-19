@@ -390,7 +390,9 @@ def get_bias(
         Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     data : dict-like of array-like
-    y0: array-like
+        Times, under "t", and concentrations at those times, by compound name.
+    y0 : dict-like
+        Initial concentrations by compound name, and zero for others.
     tunneling : str or None, optional
         Either "eckart", "wigner", or None for no tunneling correction.
     qrrho : bool or tuple-like, optional
@@ -398,14 +400,19 @@ def get_bias(
         approximations of M. Head-Gordon and others (enthalpy correction, see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) and S. Grimme (entropy correction, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
+    pressure : float, optional
         Reference gas pressure.
 
     Returns
     -------
-    array-like
+    float
+
+    Raises
+    ------
+    ValueError
+        If `temperature` or `pressure` are arrays.
 
     Examples
     --------
@@ -413,10 +420,9 @@ def get_bias(
 
     The following are some estimates on actual atmospheric concentrations:
 
-    >>> y0 = [4.8120675684099e-5,
-    ...       2.8206357713029e-5,
-    ...       0.0,
-    ...       2.7426565371219e-5]
+    >>> y0 = {"CH4": 4.8120675684099e-5,
+    ...       "Cl·": 2.8206357713029e-5,
+    ...       "HCl": 2.7426565371219e-5}
     >>> data = {"t": [1.276472128376942246e-6,
     ...               1.446535794555581743e-4,
     ...               1.717069678525567564e-2],
@@ -427,7 +433,11 @@ def get_bias(
     ...       / constants.kcal)
     -1.4
     """
+    if np.ndim(temperature) or np.ndim(pressure):
+        msg = "get_bias takes a single temperature and pressure"
+        raise ValueError(msg)
     scheme = rx.core._check_scheme(scheme)
+    y0 = scheme.concentrations(y0)
     max_time = np.max(data["t"])
 
     def f(bias):

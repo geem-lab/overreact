@@ -626,7 +626,7 @@ class Report:
 
             y, r = rx.get_y(
                 dydt,
-                y0=y0,
+                y0=scheme.concentrations(y0),
                 method=self.method,
                 rtol=self.rtol,
                 atol=self.atol,
@@ -766,7 +766,8 @@ def _prepare_simulation(scheme, k, concentrations):
         f"{rx._misc.format_numbers(factors)}",
     )
 
-    return scheme, k, scheme.concentrations(free_y0)
+    scheme._check_compounds(free_y0)
+    return scheme, k, free_y0
 
 
 def main(arguments=None):
