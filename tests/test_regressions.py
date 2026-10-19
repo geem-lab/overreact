@@ -40,18 +40,20 @@ def test_basic_example_for_solvation_equilibria() -> None:
         + -228.292486796947
         - (-228.47794098 - -228.500117698893 + -228.169992151890)
     ) * (constants.hartree * constants.N_A / constants.kcal)
+    # gases are at 1 atm, solutes at 1 M
+    gas_to_solution = (
+        temperature
+        * rx.change_reference_state(temperature=temperature)
+        / constants.kcal
+    )
     delta_freeenergies_ref = [
         acid_energy,
         -acid_energy,
-        solv_energy,
-        -solv_energy,
-        charged_solv_energy,
-        -charged_solv_energy,
+        solv_energy + gas_to_solution,
+        -solv_energy - gas_to_solution,
+        charged_solv_energy + gas_to_solution,
+        -charged_solv_energy - gas_to_solution,
     ]
-
-    concentration_correction = -temperature * rx.change_reference_state(
-        temperature=temperature,
-    )
 
     for qrrho in [False, (False, True), True]:
         delta_freeenergies = model.scheme.reaction_freeenergies(
@@ -64,10 +66,7 @@ def test_basic_example_for_solvation_equilibria() -> None:
         )
 
         # the following tests the solvation free energy from doi:10.1021/jp810292n
-        assert delta_freeenergies[2] / constants.kcal == pytest.approx(
-            -6.70 + concentration_correction / constants.kcal,
-            1.5e-1,
-        )
+        assert delta_freeenergies[2] / constants.kcal == pytest.approx(-6.70, 2e-1)
 
         # the following tests the reaction free energy from doi:10.1063/1.1416902
         assert delta_freeenergies[0] == pytest.approx(27.147 * constants.kilo, 7e-3)

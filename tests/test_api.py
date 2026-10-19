@@ -113,6 +113,17 @@ def test_get_entropies() -> None:
     )
 
 
+def test_get_entropies_take_each_environment_from_its_name(hickel1992) -> None:
+    """Ensure gas and solvated compounds keep their own environments together."""
+    gas = rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.k").compounds
+    both = {**gas, **hickel1992.compounds}
+    assert rx.get_entropies(both) == pytest.approx(
+        np.concatenate(
+            [rx.get_entropies(gas), rx.get_entropies(hickel1992.compounds)],
+        ),
+    )
+
+
 def test_get_freeenergies() -> None:
     """Ensure we can retrieve free energies."""
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")

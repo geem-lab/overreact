@@ -267,9 +267,6 @@ def get_entropies(
             compounds[name].atomcoords,
         )
 
-        # BUG(schneiderfelipe): when not given, the environment of the first compound is used for all others.
-        if environment is None:
-            environment = rx.core._get_environment(name)
         entropies[..., i] = np.vectorize(
             partial(
                 rx.thermo.calc_entropy,
@@ -280,7 +277,7 @@ def get_entropies(
                 moments=moments,
                 symmetry_number=symmetry_number,
                 vibfreqs=compounds[name].vibfreqs,
-                environment=environment,
+                environment=environment or rx.core._get_environment(name),
                 method=method,
                 qrrho=qrrho,
             ),
