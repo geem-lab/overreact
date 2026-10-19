@@ -483,18 +483,15 @@ def get_k(
     pressure : array-like, optional
         Reference gas pressure.
     delta_freeenergies : array-like, optional
-        Use this instead of obtaining delta free energies from the compounds.
+        Activation free energies, used instead of computing them from
+        `compounds`, in the standard states of `get_freeenergies` (see notes).
         For equilibria, the reverse half must be minus the forward half, within
         1e-5 J/mol.
     molecularity : array-like, optional
-        Reaction order, i.e., number of molecules that come together to react.
-        If set, this is used to calculate `delta_moles` for
-        `overreact.thermo.equilibrium_constant`, which effectively calculates a solution
-        equilibrium constant between reactants and the transition state for
-        gas phase data. You should set this to `None` if your free energies
-        were already adjusted for solution Gibbs free energies.
+        Number of reactant molecules of each reaction, used to convert units
+        to `scale`. Defaults to `Scheme.molecularity`.
     volume : float, optional
-        Molar volume.
+        Molar volume of gases in m³/mol, :math:`\frac{R T}{p}` by default.
 
     Returns
     -------
@@ -502,6 +499,8 @@ def get_k(
 
     Raises
     ------
+    TypeError
+        If neither `compounds` nor `delta_freeenergies` are given.
     ValueError
         If there is not one delta free energy per reaction along the last
         axis, if temperatures differ between compounds or between the halves
@@ -510,6 +509,20 @@ def get_k(
 
     Notes
     -----
+    Free energies are in the standard state of each compound's environment,
+    which its name gives (see `get_freeenergies`): 1 M in solution, and
+    `pressure` in the gas phase. Gas-phase free energies are converted to
+    1 M, so rate constants are molar before conversion to `scale`, and both
+    ways of giving free energies agree:
+
+    >>> model = rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.jk")
+    >>> freeenergies = get_freeenergies(model.compounds)
+    >>> get_k(model.scheme, model.compounds, tunneling=None)
+    array([1.54e+07])
+    >>> get_k(model.scheme, tunneling=None,
+    ...       delta_freeenergies=model.scheme.activation_freeenergies(freeenergies))
+    array([1.54e+07])
+
     Some symbols are accepted as alternatives in "scale": "M-1", "ml" and
     "torr-1" are understood as "l mol-1", "cm3" and "mmHg-1", respectively.
 
@@ -581,34 +594,53 @@ def get_k(
     if compounds is not None:
         compounds = rx.io._check_compounds(compounds)
         compounds = {name: compounds[name] for name in scheme.names}
-    if delta_freeenergies is None:
-        assert compounds is not None, "compounds could not be inferred"
+    if molecularity is None:
+        molecularity = scheme.molecularity
+
+    def activation_freeenergies():
+        """Return activation free energies computed from compounds."""
         if np.shape(temperature)[-1:] not in {(), (1,)}:
             msg = "temperature must be the same for all compounds, e.g. of shape (m, 1)"
             raise ValueError(msg)
-        freeenergies = get_freeenergies(
-            compounds,
-            bias=bias,
-            qrrho=(qrrho_enthalpy, qrrho_entropy),
-            # NOTE(schneiderfelipe): ensure we get rate constants in M-1 s-1.
-            # TODO(schneiderfelipe): this strategy will have to change
-            # somewhat when we improve solvation entropy models.
-            environment="solvent",
-            temperature=temperature,
-            pressure=pressure,
-        )
-
         logger.info(
             "activation symmetry entropies: "
             f"{rx._misc.format_numbers(scheme.activation_entropies)} J·mol⁻¹·K⁻¹",
         )
-        delta_freeenergies = scheme.activation_freeenergies(
-            freeenergies,
+        return scheme.activation_freeenergies(
+            get_freeenergies(
+                compounds,
+                bias=bias,
+                qrrho=(qrrho_enthalpy, qrrho_entropy),
+                temperature=temperature,
+                pressure=pressure,
+            ),
             temperature=temperature,
         )
 
-    if molecularity is None:
-        molecularity = scheme.molecularity
+    def tunneling_coefficients():
+        """Return tunneling coefficients, or ones if they can't be computed."""
+        if tunneling in {"none", None}:
+            return 1.0
+        if compounds is None:
+            # TODO(schneiderfelipe): when get_kappa accept deltas, this will
+            # be probably unnecessary.
+            logger.warning(
+                "assuming unitary tunneling coefficients due to incomplete compound data",
+            )
+            return 1.0
+        return get_kappa(
+            scheme,
+            compounds,
+            method=tunneling,
+            qrrho=qrrho_enthalpy,
+            temperature=temperature,
+        )
+
+    if delta_freeenergies is None:
+        if compounds is None:
+            msg = "either compounds or delta_freeenergies must be given"
+            raise TypeError(msg)
+        delta_freeenergies = activation_freeenergies()
 
     delta_freeenergies, temperatures = np.broadcast_arrays(
         np.array(delta_freeenergies, dtype=float, ndmin=1), temperature
@@ -637,23 +669,27 @@ def get_k(
             msg = f"in equilibrium '{scheme.reactions[forward[np.nonzero(mismatch)[-1][0]]]}', {problem}"
             raise ValueError(msg)
 
+    # take gas-phase free energies from the standard state at `pressure` to 1 M
+    delta_freeenergies = (
+        delta_freeenergies
+        + temperatures
+        * rx.thermo.change_reference_state(
+            temperature=temperatures, pressure=pressure, volume=volume
+        )
+        * scheme.activation_deltas(
+            [rx.core._get_environment(name) == "gas" for name in scheme.names]
+        )
+    )
+
     k = np.empty(delta_freeenergies.shape)
     plain = ~np.array(scheme._is_half_equilibrium, dtype=bool)
-    # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
-    # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
     k[..., plain] = rates.eyring(
-        delta_freeenergies[..., plain],
-        temperature=temperatures[..., plain],
-        pressure=pressure,
-        volume=volume,
+        delta_freeenergies[..., plain], temperature=temperatures[..., plain]
     )
 
     # equilibria only fix ratios: make the smallest rate constant of each pair one
     equilibrium_constants = rx.thermo.equilibrium_constant(
-        delta_freeenergies[..., forward],
-        temperature=temperatures[..., forward],
-        pressure=pressure,
-        volume=volume,
+        delta_freeenergies[..., forward], temperature=temperatures[..., forward]
     )
     denom = np.minimum(equilibrium_constants, 1.0)
     zero = denom == 0.0
@@ -663,39 +699,20 @@ def get_k(
         )
     denom[zero] = 1.0
     k[..., forward], k[..., reverse] = equilibrium_constants / denom, 1.0 / denom
-
     logger.info(
-        "(classical) reaction rate constants: "
-        f"{rx._misc.format_numbers(k)} atm⁻ⁿ⁺¹·s⁻¹",
+        f"(classical) reaction rate constants: {rx._misc.format_numbers(k)} M⁻ⁿ⁺¹·s⁻¹",
     )
-    if tunneling not in {"none", None}:
-        if compounds is not None:
-            kappa = get_kappa(
-                scheme,
-                compounds,
-                method=tunneling,
-                qrrho=qrrho_enthalpy,
-                temperature=temperature,
-            )
-            k *= kappa
-        else:
-            # TODO(schneiderfelipe): when get_kappa accept deltas, this will
-            # be probably unnecessary.
-            logger.warning(
-                "assuming unitary tunneling coefficients due to incomplete compound data",
-            )
-        logger.info(
-            "(tunneling) reaction rate constants: "
-            f"{rx._misc.format_numbers(k)} atm⁻ⁿ⁺¹·s⁻¹",
-        )
+
+    k = k * tunneling_coefficients()
+    logger.info(
+        f"(tunneling) reaction rate constants: {rx._misc.format_numbers(k)} M⁻ⁿ⁺¹·s⁻¹",
+    )
 
     # TODO(schneiderfelipe): ensure diffusional limit for reactions in
     # solvation using Collins-Kimball theory. This includes half-equilibria.
     return rates.convert_rate_constant(
         k,
         new_scale=scale,
-        # NOTE(schneiderfelipe): all the code above should always generate
-        # rate constants in M-1 s-1, so that we convert them here.
         old_scale="l mol-1 s-1",
         molecularity=molecularity,
         temperature=temperature,

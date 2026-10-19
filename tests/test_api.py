@@ -212,6 +212,46 @@ def test_get_k_broadcasts_over_temperatures(hickel1992, scale) -> None:
     )
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "data/tanaka1996/UMP2/cc-pVTZ/model.k",
+        "data/hickel1992/UM06-2X/6-311++G(d,p)/model.k",
+    ],
+)
+def test_get_k_from_compounds_is_from_their_free_energies(path) -> None:
+    """Ensure rate constants from compounds are those from get_freeenergies."""
+    model = rx.parse_model(path)
+    assert rx.get_k(model.scheme, model.compounds, tunneling=None) == pytest.approx(
+        rx.get_k(
+            model.scheme,
+            delta_freeenergies=model.scheme.activation_freeenergies(
+                rx.get_freeenergies(model.compounds),
+            ),
+            tunneling=None,
+        ),
+    )
+
+
+@pytest.mark.parametrize(
+    ("text", "volume", "liters_per_mole"),
+    [
+        ("A + B -> C", None, constants.R * 298.15 / constants.atm / constants.liter),
+        ("A + B -> C", 2.0 * constants.liter, 2.0),
+        ("A(w) + B(w) -> C(w)", None, 1.0),
+    ],
+)
+def test_get_k_takes_gas_phase_free_energies_to_molar_rate_constants(
+    text, volume, liters_per_mole
+) -> None:
+    """Ensure k = (k T / h) (V / 1 L) at zero barrier for gases, k T / h in solution."""
+    assert rx.get_k(
+        rx.Scheme.parse(text), delta_freeenergies=[0.0], volume=volume
+    ) == pytest.approx(
+        constants.k * 298.15 / constants.h * liters_per_mole,
+    )
+
+
 def test_get_k_rejects_temperatures_per_compound(hickel1992) -> None:
     """Ensure compounds share a temperature when computing rate constants."""
     with pytest.raises(ValueError, match="same for all compounds"):
