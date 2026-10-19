@@ -62,32 +62,21 @@ def test_eckart_is_symmetric(u, alpha1, alpha2) -> None:
     )
 
 
+barriers = st.floats(-1e4, 1e5).filter(lambda x: abs(x) >= 1.0)
+
+
 @given(
     st.lists(
-        st.tuples(
-            st.floats(-1e4, 1e5).filter(lambda x: abs(x) >= 1.0),
-            st.floats(-1e4, 1e5).filter(lambda x: abs(x) >= 1.0),
-        ),
-        min_size=1,
-        max_size=3,
+        st.tuples(st.floats(100.0, 1000.0), barriers, barriers), min_size=1, max_size=3
     ),
 )
-def test_eckart_broadcasts_over_barriers(barriers) -> None:
-    """Ensure Eckart of arrays of barriers is Eckart of each, with Wigner fallbacks."""
-    forward, backward = np.array(barriers).T
-    assert rx.tunnel.eckart(1000.0, forward, backward) == pytest.approx(
-        [float(rx.tunnel.eckart(1000.0, *pair)) for pair in barriers],
-    )
-
-
-@given(
-    st.lists(st.tuples(st.floats(2.0, 16.0), alphas, alphas), min_size=1, max_size=3)
-)
 def test_eckart_broadcasts(arguments) -> None:
-    """Ensure Eckart of arrays is Eckart of each element."""
-    u, alpha1, alpha2 = np.array(arguments).T
-    assert rx.tunnel._eckart(u, alpha1, alpha2) == pytest.approx(
-        [float(rx.tunnel._eckart(*args)) for args in arguments],
+    """Ensure Eckart of arrays is Eckart of each element, with Wigner fallbacks."""
+    temperature, forward, backward = np.array(arguments).T
+    assert rx.tunnel.eckart(
+        1000.0, forward, backward, temperature=temperature
+    ) == pytest.approx(
+        [float(rx.tunnel.eckart(1000.0, f, b, temperature=t)) for t, f, b in arguments],
     )
 
 
