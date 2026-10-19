@@ -309,6 +309,31 @@ def test_eyring_rates_grow_exponentially_with_lower_barriers(
     )
 
 
+@given(
+    st.floats(0.0, 30.0),
+    st.integers(1, 3),
+    temperatures,
+    st.one_of(st.none(), st.floats(1e-3, 1.0)),
+)
+def test_eyring_takes_gas_phase_barriers_to_molar_rate_constants(
+    barrier, molecularity, temperature, volume
+) -> None:
+    """Ensure gas-phase barriers give k_c = (k T / h) exp(-dG / RT) (V / 1 L)^(n - 1)."""
+    barrier *= constants.kcal
+    molar_volume = (
+        constants.R * temperature / constants.atm if volume is None else volume
+    )
+    assert rx.rates.eyring(
+        barrier, molecularity=molecularity, temperature=temperature, volume=volume
+    ) == pytest.approx(
+        constants.k
+        * temperature
+        / constants.h
+        * np.exp(-barrier / (constants.R * temperature))
+        * (molar_volume / constants.liter) ** (molecularity - 1),
+    )
+
+
 def test_second_order_conversion_rate_example() -> None:
     """Test a simple example from a set of lecture notes.
 

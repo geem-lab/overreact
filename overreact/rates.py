@@ -311,28 +311,22 @@ def eyring(
     Parameters
     ----------
     delta_freeenergy : array-like
-        Delta Gibbs activation free energies. **This assumes values were already
-        corrected for a one molar reference state (if applicable).**
+        Delta Gibbs activation free energies, at the 1 M standard state, or at
+        `pressure` for gas-phase reactants if `molecularity` is given.
     molecularity : array-like, optional
-        Reaction order, i.e., number of molecules that come together to react.
-        If set, this is used to calculate `delta_moles` for
-        `equilibrium_constant`, which effectively calculates a solution
-        equilibrium constant between reactants and the transition state for
-        gas phase data. **You should set this to `None` if your free energies
-        were already adjusted for solution Gibbs free energies.**
+        Number of gas-phase reactant molecules.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
         Reference gas pressure.
     volume : float, optional
-        Molar volume. This is passed on to `equilibrium_constant`.
+        Molar volume of gases in m³/mol, :math:`\frac{R T}{p}` by default.
 
     Returns
     -------
     k : array-like
-        Reaction rate constant(s). By giving energies in one molar reference
-        state, returned units are then accordingly given, e.g. "l mol-1 s-1"
-        if second-order, etc.
+        Reaction rate constant(s), in units of molar concentration and
+        seconds, e.g. "l mol-1 s-1" if second-order.
 
     Notes
     -----

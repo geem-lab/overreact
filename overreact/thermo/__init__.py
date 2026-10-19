@@ -545,42 +545,31 @@ def equilibrium_constant(
     .. math::
         K(T) = \exp\left(-\frac{\Delta_\text{r} G^\circ}{R T}\right)
 
-    If `delta_moles` is given, the above will be multiplied by a term
-    :math:`\left( \frac{R T}{p} \right)^{-\Delta n}`, which effectively
-    transforms a :math:`K_p` equilibrium constant into a :math:`K_c`
-    (see below).
+    Free energies are taken at the 1 M standard state. If `delta_moles` is
+    given, they are taken as gas-phase data at `pressure` instead, and the
+    above is multiplied by
+    :math:`\left( \frac{V}{\text{1 L/mol}} \right)^{-\Delta n}`, which
+    transforms a :math:`K_p` equilibrium constant into a :math:`K_c`, where
+    :math:`V = \frac{R T}{p}` is the molar volume of gases (see below).
 
     Parameters
     ----------
     delta_freeenergy : array-like
-        Delta Gibbs reaction free energies. **This assumes values were already
-        corrected for a one molar reference state.**
+        Delta Gibbs reaction free energies.
     delta_moles : array-like, optional
-        Difference in moles between products and reactants. If set, this
-        multiplies the end result by
-        :math:`\left( \frac{R T}{p} \right)^{-\Delta n}`, which effectively
-        calculates a solution equilibrium constant for gas phase data. You
-        should set this to `None` if your free energies were already adjusted
-        for solution Gibbs free energies.
+        Change in moles of gas :math:`\Delta n`, from reactants to products,
+        for gas-phase free energies.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
         Reference gas pressure.
     volume : float, optional
-        Molar volume. This substitutes :math:`\frac{R T}{p}` if given. See
-        `delta_moles`.
+        Molar volume of gases in m³/mol, :math:`\frac{R T}{p}` by default.
 
     Returns
     -------
     K : array-like
         Equilibrium constant.
-
-    Notes
-    -----
-    If you want to calculate a solution equilibrium constant from gas phase data, set
-    `delta_moles` to the difference in moles between products and reactants.
-    Alternatively, convert your energies to solution Gibbs free energies and
-    set `delta_moles` to `None`.
 
     Examples
     --------
@@ -608,27 +597,18 @@ def equilibrium_constant(
     >>> equilibrium_constant(dG)
     array([24.5])
 
-    By giving a `delta_moles` value (in this case, :math:`2 - 2 - 1 = -1`),
-    we can calculate the corresponding `K_p`:
+    Gas-phase free energies, at 1 atm, follow from changing the reference
+    state of each compound, and give the corresponding :math:`K_p`:
 
-    >>> equilibrium_constant(dG, delta_moles=-1)
+    >>> dG_gas = dG + temperature * change_reference_state()
+    >>> equilibrium_constant(dG_gas)
     array([1.002])
 
     (As expected, it makes sense for gases to favor the most entropic side of
-    the equilibrium.) The example above clearly used "solution-based" data
-    (our :math:`K_c` was calculated using molar quantities, which means
-    reference volumes of one liter). You could convert it to gas phase data
-    to get the same result, by changing the reference state (in this case,
-    from one molar to one atmosphere using `change_reference_state`):
+    the equilibrium.) Giving the change in moles of gas (in this case,
+    :math:`2 - 2 - 1 = -1`) takes gas-phase free energies back to :math:`K_c`:
 
-    >>> dG += temperature * rx.change_reference_state()
-    >>> equilibrium_constant(dG)
-    array([1.002])
-
-    Having gas phase information, the inverse path can be taken just by
-    inverting the sign of `delta_moles`:
-
-    >>> equilibrium_constant(dG, delta_moles=1)
+    >>> equilibrium_constant(dG_gas, delta_moles=-1)
     array([24.5])
 
     The following example is from
@@ -644,16 +624,6 @@ def equilibrium_constant(
     >>> np.log10(equilibrium_constant(dG2))
     array([10.62])
 
-    The above are thus :math:`\log_{10}(K_c)`. Since we are talking about a
-    mono- and a bidendate ligands, the `delta_moles` are -4 and -2,
-    respectively, and we could obtain the :math:`\log_{10}(K_p)` the following
-    way:
-
-    >>> np.log10(equilibrium_constant(dG1, delta_moles=-4))
-    array([0.998])
-    >>> np.log10(equilibrium_constant(dG2, delta_moles=-2))
-    array([7.85])
-
     You can easily check that the above values match the values given
     [here](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
     """
@@ -664,10 +634,13 @@ def equilibrium_constant(
     )
 
     if delta_moles is not None:
-        if volume is None:
-            volume = molar_volume(temperature, pressure) * constants.kilo
-
-        equilibrium_constant *= volume**delta_moles
+        equilibrium_constant *= np.exp(
+            -np.asarray(delta_moles)
+            * change_reference_state(
+                temperature=temperature, pressure=pressure, volume=volume
+            )
+            / constants.R
+        )
 
     logger.info(f"equilibrium constant = {equilibrium_constant}")
     return equilibrium_constant
