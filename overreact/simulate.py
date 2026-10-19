@@ -52,6 +52,7 @@ else:
 
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
+# TODO(schneiderfelipe): default get_y, get_bias and the CLI to an implicit solver in #817, since kinetics is often stiff.
 def get_y(
     dydt,
     y0,
