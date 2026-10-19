@@ -200,8 +200,8 @@ def get_dydt(scheme, k, ef=EF):
         Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     k : array-like
-        Reaction rate constant(s). Units match the concentration units given to
-        the returned function ``dydt``.
+        Reaction rate constants, one per reaction. Units match the
+        concentration units given to the returned function ``dydt``.
     ef : float, optional
         Equilibrium factor. This is a parameter that can be used to scale the
         reaction rates associated to half-equilibrium reactions such that they
@@ -216,6 +216,11 @@ def get_dydt(scheme, k, ef=EF):
         are stored in the attribute `k` of the returned function. If JAX is
         available, the attribute `jac` will hold the Jacobian function of
         `dydt`.
+
+    Raises
+    ------
+    ValueError
+        If `k` does not have one value per reaction.
 
     Notes
     -----
@@ -258,6 +263,9 @@ def get_dydt(scheme, k, ef=EF):
     scheme = rx.core._check_scheme(scheme)
     A = jnp.asarray(scheme.products - scheme.reactants)
     M = jnp.asarray(scheme.reactants).T
+    if np.shape(k) != (len(scheme.reactions),):
+        msg = f"expected {len(scheme.reactions)} rate constants, one per reaction, got shape {np.shape(k)}"
+        raise ValueError(msg)
     k_adj = _adjust_k(scheme, k, ef=ef)
 
     def _dydt(_t, y):

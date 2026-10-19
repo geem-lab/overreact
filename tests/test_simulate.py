@@ -302,3 +302,10 @@ def test_get_bias_rejects_arrays_of_conditions(tanaka1996, condition) -> None:
             {"CH4": 5e-5, "Cl·": 3e-5},
             **{condition: [[300.0], [310.0]]},
         )
+
+
+@pytest.mark.parametrize("shape", [(2,), (2, 1), ()])
+def test_get_dydt_rejects_other_than_one_rate_constant_per_reaction(shape) -> None:
+    """Ensure rate constants for simulation come one per reaction."""
+    with pytest.raises(ValueError, match="one per reaction"):
+        rx.get_dydt(rx.Scheme.parse("A -> B"), np.ones(shape))
