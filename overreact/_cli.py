@@ -754,7 +754,6 @@ def _prepare_simulation(scheme, k, concentrations):
 
         d[name] = quantity
 
-    scheme._check_compounds(free_y0)
     both = free_y0.keys() & fixed_y0.keys()
     if both:
         msg = f"{', '.join(sorted(both))} given both free and fixed concentrations"
@@ -767,11 +766,7 @@ def _prepare_simulation(scheme, k, concentrations):
         f"{rx._misc.format_numbers(factors)}",
     )
 
-    y0 = np.zeros(len(scheme.compounds))
-    for compound, quantity in free_y0.items():
-        y0[scheme.compounds.index(compound)] = quantity
-
-    return scheme, k, y0
+    return scheme, k, scheme.concentrations(free_y0)
 
 
 def main(arguments=None):

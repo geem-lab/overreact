@@ -499,6 +499,21 @@ class Scheme:
             - temperature * self.activation_entropies
         )
 
+    def concentrations(self, values) -> np.ndarray:
+        """Concentrations of compounds, given by name, and zero otherwise.
+
+        Examples
+        --------
+        >>> Scheme.parse("A -> B").concentrations({"B": 2.0})
+        array([0., 2.])
+        """
+        self._check_compounds(values)
+        shape = np.broadcast_shapes(*map(np.shape, values.values()))
+        concentrations = np.zeros((*shape, len(self.compounds)))
+        for name, value in values.items():
+            concentrations[..., self.compounds.index(name)] = value
+        return concentrations
+
     def fix(self, concentrations) -> tuple[Scheme, np.ndarray]:
         """Remove compounds held at fixed concentrations.
 

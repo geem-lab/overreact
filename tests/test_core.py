@@ -247,10 +247,22 @@ def test_fix_removes_compounds(reaction, concentrations) -> None:
     )
 
 
-def test_fix_rejects_transition_states() -> None:
-    """Ensure only compounds of the scheme can be fixed."""
+@given(schemes_texts(), st.data())
+def test_concentrations_place_values_by_name(text, data) -> None:
+    """Ensure concentrations go to their compounds, and others are zero."""
+    scheme = rx.Scheme.parse(text)
+    given_names = data.draw(st.sets(st.sampled_from(scheme.compounds)))
+    values = {name: data.draw(st.floats(0.1, 10.0)) for name in given_names}
+    assert dict(
+        zip(scheme.compounds, scheme.concentrations(values), strict=True),
+    ) == {name: values.get(name, 0.0) for name in scheme.compounds}
+
+
+@pytest.mark.parametrize("method", ["fix", "concentrations"])
+def test_concentrations_reject_transition_states(method) -> None:
+    """Ensure concentrations are only given to compounds of the scheme."""
     with pytest.raises(ValueError, match="not a compound"):
-        rx.Scheme.parse("A -> A‡ -> B").fix({"A‡": 1.0})
+        getattr(rx.Scheme.parse("A -> A‡ -> B"), method)({"A‡": 1.0})
 
 
 def test_parse_ignores_zero_coefficients() -> None:
