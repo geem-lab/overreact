@@ -9,10 +9,10 @@ import logging
 
 import numpy as np
 
-import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _derivative as derivative
 from overreact.thermo._gas import (
+    _sackur_tetrode,
     calc_elec_energy,
     calc_elec_entropy,
     calc_rot_energy,
@@ -22,6 +22,7 @@ from overreact.thermo._gas import (
     calc_vib_entropy,
     molar_volume,
 )
+from overreact.thermo._solv import calc_cav_entropy, molar_free_volume
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +118,7 @@ def calc_trans_entropy(
     else:
         assert atomnos is not None, "atomnos must be provided"
         assert atomcoords is not None, "atomcoords must be provided"
-        volume = rx.thermo._solv.molar_free_volume(
+        volume = molar_free_volume(
             atomnos=atomnos,
             atomcoords=atomcoords,
             environment=environment,
@@ -126,7 +127,7 @@ def calc_trans_entropy(
             pressure=pressure,
         )
 
-    translational_entropy = rx.thermo._gas._sackur_tetrode(
+    translational_entropy = _sackur_tetrode(
         atommasses,
         volume,
         temperature=temperature,
@@ -440,7 +441,7 @@ def calc_entropy(
             assert atomcoords is not None, "atomcoords must be provided"
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
-            entropy = entropy + rx.thermo._solv.calc_cav_entropy(
+            entropy = entropy + calc_cav_entropy(
                 atomnos=atomnos,
                 atomcoords=atomcoords,
                 environment=environment,
@@ -707,21 +708,21 @@ def change_reference_state(
     By default, the correction returns a change in concentration from the gas
     phase standard concentration to the solvated-state standard concentration:
 
-    >>> float(-rx.change_reference_state() / constants.calorie)
+    >>> float(-change_reference_state() / constants.calorie)
     -6.4
-    >>> float(298.15 * rx.change_reference_state() / constants.kcal)
+    >>> float(298.15 * change_reference_state() / constants.kcal)
     1.89
-    >>> float(273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal)
+    >>> float(273.15 * change_reference_state(temperature=273.15) / constants.kcal)
     1.69
 
     But this function can also be used to adjust symmetry effects from C1
     calculations (symmetry number equals to one). For D7h, for instance, the
     symmetry number is 14:
 
-    >>> float(-298.15 * rx.change_reference_state(14, 1) / constants.kcal)
+    >>> float(-298.15 * change_reference_state(14, 1) / constants.kcal)
     -1.56
 
-    >>> bool(rx.change_reference_state(sign=-1) == -rx.change_reference_state())
+    >>> bool(change_reference_state(sign=-1) == -change_reference_state())
     True
 
     """

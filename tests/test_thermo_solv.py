@@ -2,12 +2,28 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
+
 import pytest
 
 import overreact as rx
 from overreact import _constants as constants
 from overreact import _datasets as datasets
 from overreact import coords
+
+
+def test_solvation_methods_work_right_after_import() -> None:
+    """Ensure solvation models need no import besides overreact itself."""
+    subprocess.run(  # noqa: S603
+        [
+            sys.executable,
+            "-c",
+            "import overreact as rx; rx.thermo.calc_entropy("
+            "35.45, [17], [[0, 0, 0]], environment='water', method='izato')",
+        ],
+        check=True,
+    )
 
 
 def test_entropy_liquid_phase() -> None:
