@@ -268,6 +268,14 @@ def test_get_k_rejects_equilibria_at_two_temperatures() -> None:
         )
 
 
+@pytest.mark.parametrize("function", [rx.get_k, rx.get_kappa])
+@pytest.mark.parametrize("tunneling", ["none", "None", False, "bell"])
+def test_tunneling_is_turned_off_only_by_none(hickel1992, function, tunneling) -> None:
+    """Ensure unknown tunneling corrections, including spellings of None, raise."""
+    with pytest.raises(ValueError, match="tunneling"):
+        function(hickel1992.scheme, hickel1992.compounds, tunneling=tunneling)
+
+
 @pytest.mark.parametrize("tunneling", ["eckart", None])
 def test_get_k_matches_compounds_by_name(hickel1992, tunneling) -> None:
     """Ensure rate constants don't depend on the order of compounds."""

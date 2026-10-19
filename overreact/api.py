@@ -471,7 +471,7 @@ def get_k(
     bias : array-like, optional
         Energy to be added to free energies.
     tunneling : str or None, optional
-        Choose between "eckart", "wigner" or None (or "none").
+        Either "eckart", "wigner", or None for no tunneling correction.
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordonand others (enthalpy correction, see
@@ -579,12 +579,6 @@ def get_k(
     ... == get_k(model.scheme, model.compounds, scale="l mol-1 s-1")
     array([ True])
 
-    You can also turn the tunneling correction off by using the string "none":
-
-    >>> get_k(model.scheme, model.compounds, tunneling="none") \
-    ... == get_k(model.scheme, model.compounds, tunneling=None)
-    array([ True])
-
     You can set a simple energy bias, either as a constant or compound-wise:
 
     >>> get_k(model.scheme, model.compounds, bias=1.0 * constants.kcal,
@@ -625,7 +619,7 @@ def get_k(
 
     def tunneling_coefficients():
         """Return tunneling coefficients, or ones if they can't be computed."""
-        if tunneling in {"none", None}:
+        if tunneling is None:
             return 1.0
         if compounds is None:
             # TODO(schneiderfelipe): when get_kappa accept deltas, this will
@@ -637,7 +631,7 @@ def get_k(
         return get_kappa(
             scheme,
             compounds,
-            method=tunneling,
+            tunneling=tunneling,
             qrrho=qrrho_enthalpy,
             temperature=temperature,
         )
@@ -730,7 +724,7 @@ def get_k(
 def get_kappa(
     scheme: Scheme,
     compounds: dict,
-    method: str = "eckart",
+    tunneling: str | None = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
 ):
@@ -750,8 +744,8 @@ def get_kappa(
         A descriptor of the compounds.
         Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
-    method : str or None, optional
-        Choose between "eckart", "wigner" or None (or "none").
+    tunneling : str or None, optional
+        Either "eckart", "wigner", or None for no tunneling correction.
     qrrho : bool, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see
@@ -769,7 +763,7 @@ def get_kappa(
     Raises
     ------
     ValueError
-        If `method` is not supported.
+        If `tunneling` is not supported.
 
     Examples
     --------
@@ -782,11 +776,8 @@ def get_kappa(
     >>> kappa = get_kappa(model.scheme, model.compounds)
     >>> kappa
     array([1.110])
-    >>> get_kappa(model.scheme, model.compounds, method="none")
+    >>> get_kappa(model.scheme, model.compounds, tunneling=None)
     array([1.0])
-    >>> get_kappa(model.scheme, model.compounds, method="none") \
-    ... == get_kappa(model.scheme, model.compounds, method=None)
-    array([ True])
 
     You can calculate each piece of the reaction rate constant by hand,
     if you want. Just make sure that you don't calculate the tunneling
@@ -795,11 +786,14 @@ def get_kappa(
     >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
     array([8.e+10])
     """
+    if tunneling not in {"eckart", "wigner", None}:
+        msg = f"unavailable tunneling correction: {tunneling!r}"
+        raise ValueError(msg)
     scheme = rx.core._check_scheme(scheme)
     compounds = rx.io._check_compounds(compounds)
     compounds = {name: compounds[name] for name in scheme.names}
 
-    if method == "eckart":
+    if tunneling == "eckart":
         # NOTE(schneiderfelipe): We need electronic energies + ZPE here, so we
         # get smaller transmission coefficients.
         energies = get_enthalpies(compounds, qrrho=qrrho, temperature=0.0)
@@ -833,18 +827,15 @@ def get_kappa(
             continue
         vibfreq = compounds[ts].vibfreqs[0]
 
-        if method == "eckart":
+        if tunneling == "eckart":
             # np.vectorize reports floating-point flags that eckart already handled
             with np.errstate(invalid="ignore"):
                 kappas[..., i] = np.vectorize(
                     partial(eckart, vibfreq, delta_forward[i], delta_backward[i]),
                     otypes=[float],
                 )(temperatures[..., i])
-        elif method == "wigner":
+        elif tunneling == "wigner":
             kappas[..., i] = tunnel.wigner(vibfreq, temperature=temperatures[..., i])
-        elif method not in {"none", None}:
-            msg = f"unavailable method: '{method}'"
-            raise ValueError(msg)
 
     logger.info(
         f"(quantum) tunneling coefficients: {rx._misc.format_numbers(kappas)}",

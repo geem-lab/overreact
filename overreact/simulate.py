@@ -392,7 +392,7 @@ def get_bias(
     data : dict-like of array-like
     y0: array-like
     tunneling : str or None, optional
-        Choose between "eckart", "wigner" or None (or "none").
+        Either "eckart", "wigner", or None for no tunneling correction.
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see

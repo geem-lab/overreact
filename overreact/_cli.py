@@ -573,7 +573,7 @@ class Report:
         kappa = rx.get_kappa(
             self.model.scheme,
             self.model.compounds,
-            method=self.tunneling,
+            tunneling=self.tunneling,
             qrrho=self.qrrho,
             temperature=self.temperature,
         )
@@ -956,7 +956,7 @@ Parsing and calculating (this may take a while)…
         temperature=args.temperature,
         pressure=args.pressure,
         bias=args.bias,
-        tunneling=args.tunneling,
+        tunneling=None if args.tunneling == "none" else args.tunneling,
         method=args.method,
         max_time=args.max_time,
         rtol=args.rtol,
