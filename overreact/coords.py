@@ -1978,13 +1978,10 @@ def eckart_transform(atommasses, atomcoords):
     D_trans = np.block(
         [x.reshape(1, dof).T, y.reshape(1, dof).T, z.reshape(1, dof).T],
     )
-    D_rot = np.array(
-        [
-            np.cross((atomcoords @ axes)[i], axes[:, j]) / np.sqrt(atommasses[i])
-            for i in range(natom)
-            for j in range(3)
-        ],
-    )
+    D_rot = (
+        np.cross((atomcoords @ axes)[:, np.newaxis, :], axes.T)
+        / np.sqrt(atommasses)[:, np.newaxis, np.newaxis]
+    ).reshape(dof, 3)
     D = np.block([D_trans, D_rot])
     return np.linalg.qr(D, mode="complete")[0]
 
