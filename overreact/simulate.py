@@ -32,7 +32,7 @@ from overreact._misc import _found_jax
 # using the standard ODE parameters (rtol=1e-3, atol=1e-6).**
 #
 # TODO(schneiderfelipe): this should probably be exposed to the user and use the actual simulation temperature.
-EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
+_EQUILIBRIUM_FACTOR = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 
 
 logger = logging.getLogger(__name__)
@@ -190,7 +190,7 @@ def get_y(
     return y, r
 
 
-def get_dydt(scheme, k, ef=EF):
+def get_dydt(scheme, k, equilibrium_factor=_EQUILIBRIUM_FACTOR):
     """Generate a rate function that models a reaction scheme.
 
     Parameters
@@ -202,10 +202,9 @@ def get_dydt(scheme, k, ef=EF):
     k : array-like
         Reaction rate constants, one per reaction. Units match the
         concentration units given to the returned function ``dydt``.
-    ef : float, optional
-        Equilibrium factor. This is a parameter that can be used to scale the
-        reaction rates associated to half-equilibrium reactions such that they
-        are faster than the other reactions.
+    equilibrium_factor : float, optional
+        How much faster than the fastest other reaction half-equilibria are
+        made.
 
     Returns
     -------
@@ -266,7 +265,7 @@ def get_dydt(scheme, k, ef=EF):
     if np.shape(k) != (len(scheme.reactions),):
         msg = f"expected {len(scheme.reactions)} rate constants, one per reaction, got shape {np.shape(k)}"
         raise ValueError(msg)
-    k_adj = _adjust_k(scheme, k, ef=ef)
+    k_adj = _adjust_k(scheme, k, equilibrium_factor=equilibrium_factor)
 
     def _dydt(_t, y):
         y = jnp.moveaxis(jnp.asarray(y), 0, -1)
@@ -292,7 +291,7 @@ def get_dydt(scheme, k, ef=EF):
     return _dydt
 
 
-def _adjust_k(scheme, k, ef=EF):
+def _adjust_k(scheme, k, equilibrium_factor=_EQUILIBRIUM_FACTOR):
     """Adjust reaction rate constants so that equilibria are equilibria.
 
     Parameters
@@ -304,10 +303,9 @@ def _adjust_k(scheme, k, ef=EF):
     k : array-like
         Reaction rate constant(s). Units match the concentration units given to
         the returned function ``dydt``.
-    ef : float, optional
-        Equilibrium factor. This is a parameter that can be used to scale the
-        reaction rates associated to half-equilibrium reactions such that they
-        are faster than the other reactions.
+    equilibrium_factor : float, optional
+        How much faster than the fastest other reaction half-equilibria are
+        made.
 
     Returns
     -------
@@ -352,7 +350,7 @@ def _adjust_k(scheme, k, ef=EF):
 
             k_slowest_equil = k[is_half_equilibrium].min()
             k_fastest_react = k[~is_half_equilibrium].max()
-            adjustment = ef * (k_fastest_react / k_slowest_equil)
+            adjustment = equilibrium_factor * (k_fastest_react / k_slowest_equil)
 
             k[is_half_equilibrium] *= adjustment
             logger.warning(f"equilibria adjustment = {adjustment}")
