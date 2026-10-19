@@ -17,11 +17,9 @@ from overreact.api import (
 from overreact.core import Scheme
 from overreact.io import parse_compounds, parse_model
 from overreact.simulate import get_bias, get_dydt, get_y
-from overreact.thermo import change_reference_state
 
 __all__ = [
     "Scheme",
-    "change_reference_state",
     "get_bias",
     "get_dydt",
     "get_enthalpies",

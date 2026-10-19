@@ -102,7 +102,7 @@ def test_get_entropies() -> None:
     )
 
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
-    sym_correction = 298.15 * rx.change_reference_state(3, 1)
+    sym_correction = 298.15 * rx.thermo.change_reference_state(3, 1)
     assert 298.15 * model.scheme.activation_deltas(
         rx.get_entropies(model.compounds, environment="gas"),
     )[0] / (constants.hartree * constants.N_A) == pytest.approx(
@@ -127,7 +127,7 @@ def test_get_entropies_take_each_environment_from_its_name(hickel1992) -> None:
 def test_get_freeenergies() -> None:
     """Ensure we can retrieve free energies."""
     model = rx.parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.k")
-    sym_correction = 298.15 * rx.change_reference_state(3, 1)
+    sym_correction = 298.15 * rx.thermo.change_reference_state(3, 1)
 
     # TODO(schneiderfelipe): should qrrho=(False, True) be default?
     assert model.scheme.activation_deltas(
@@ -290,7 +290,7 @@ def test_get_k_matches_compounds_by_name(hickel1992, tunneling) -> None:
 def test_get_freeenergies_match_orca_logfiles(hickel1992) -> None:
     """Ensure free energies match ORCA logfiles."""
     model = hickel1992
-    sym_correction = 298.15 * rx.change_reference_state(3, 1)
+    sym_correction = 298.15 * rx.thermo.change_reference_state(3, 1)
 
     freeenergies_ref = {
         "NH3(w)": -56.53713205

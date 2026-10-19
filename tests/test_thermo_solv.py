@@ -1103,28 +1103,31 @@ def test_sackur_tetrode_given_free_volumes() -> None:
 def test_change_reference_state_works_for_gas_to_liquid_standard_states() -> None:
     """Ensure change_reference_state works for gas to solv. state change."""
     # different reference temperatures
-    assert 200.0 * rx.change_reference_state(temperature=200.0) / (
+    assert 200.0 * rx.thermo.change_reference_state(temperature=200.0) / (
         constants.kcal
     ) == pytest.approx(1.10, 5e-2)
-    assert 298.15 * rx.change_reference_state() / constants.kcal == pytest.approx(
-        1.85,
-        5e-2,
+    assert (
+        298.15 * rx.thermo.change_reference_state() / constants.kcal
+        == pytest.approx(
+            1.85,
+            5e-2,
+        )
     )
-    assert 300.0 * rx.change_reference_state(temperature=300.0) / (
+    assert 300.0 * rx.thermo.change_reference_state(temperature=300.0) / (
         constants.kcal
     ) == pytest.approx(1.90, 1e-2)
-    assert 400.0 * rx.change_reference_state(temperature=400.0) / (
+    assert 400.0 * rx.thermo.change_reference_state(temperature=400.0) / (
         constants.kcal
     ) == pytest.approx(2.70, 5e-2)
 
     # different reference pressures
     temperature = 298.15
-    assert temperature * rx.change_reference_state(
+    assert temperature * rx.thermo.change_reference_state(
         1.0 / constants.liter,
         1.0 / rx.thermo.molar_volume(temperature, constants.atm),
         temperature=temperature,
     ) / constants.kcal == pytest.approx(1.89, 1e-2)
-    assert temperature * rx.change_reference_state(
+    assert temperature * rx.thermo.change_reference_state(
         1.0 / constants.liter,
         1.0 / rx.thermo.molar_volume(temperature, constants.bar),
         temperature=temperature,
@@ -1132,7 +1135,7 @@ def test_change_reference_state_works_for_gas_to_liquid_standard_states() -> Non
 
     # volumes instead of concentrations
     temperature = 298.15
-    assert -temperature * rx.change_reference_state(
+    assert -temperature * rx.thermo.change_reference_state(
         constants.liter,
         rx.thermo.molar_volume(temperature, constants.atm),
         temperature=temperature,

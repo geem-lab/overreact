@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__all__ = ["parse_model"]
+__all__ = ["parse_compounds", "parse_model"]
 
 
 import contextlib

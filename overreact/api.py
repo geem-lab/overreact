@@ -41,7 +41,7 @@ import numpy as np
 
 import overreact as rx
 from overreact import _constants as constants
-from overreact import coords, rates, tunnel
+from overreact import coords, rates, thermo, tunnel
 from overreact._misc import _derivative as derivative
 
 if TYPE_CHECKING:
@@ -100,7 +100,7 @@ def get_internal_energies(
 
         internal_energies[..., i] = np.vectorize(
             partial(
-                rx.thermo.calc_internal_energy,
+                thermo.calc_internal_energy,
                 energy=compounds[name].energy,
                 degeneracy=compounds[name].mult,
                 moments=moments,
@@ -170,7 +170,7 @@ def get_enthalpies(
 
         enthalpies[..., i] = np.vectorize(
             partial(
-                rx.thermo.calc_enthalpy,
+                thermo.calc_enthalpy,
                 energy=compounds[name].energy,
                 degeneracy=compounds[name].mult,
                 moments=moments,
@@ -272,7 +272,7 @@ def get_entropies(
 
         entropies[..., i] = np.vectorize(
             partial(
-                rx.thermo.calc_entropy,
+                thermo.calc_entropy,
                 atommasses=compounds[name].atommasses,
                 atomcoords=compounds[name].atomcoords,
                 energy=compounds[name].energy,
@@ -290,7 +290,7 @@ def get_entropies(
         if compounds[name].symmetry is not None:
             # The negative sign here seems correct. See equations (9) and (10)
             # of doi:10.1002/qua.25686.
-            entropies[..., i] -= rx.change_reference_state(
+            entropies[..., i] -= thermo.change_reference_state(
                 compounds[name].symmetry,
                 1,
                 temperature=temperatures[..., i],
@@ -673,7 +673,7 @@ def get_k(
     delta_freeenergies = (
         delta_freeenergies
         + temperatures
-        * rx.thermo.change_reference_state(
+        * thermo.change_reference_state(
             temperature=temperatures, pressure=pressure, volume=volume
         )
         * scheme.activation_deltas(
@@ -688,7 +688,7 @@ def get_k(
     )
 
     # equilibria only fix ratios: make the smallest rate constant of each pair one
-    equilibrium_constants = rx.thermo.equilibrium_constant(
+    equilibrium_constants = thermo.equilibrium_constant(
         delta_freeenergies[..., forward], temperature=temperatures[..., forward]
     )
     denom = np.minimum(equilibrium_constants, 1.0)

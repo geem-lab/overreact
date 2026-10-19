@@ -43,7 +43,7 @@ def test_basic_example_for_solvation_equilibria() -> None:
     # gases are at 1 atm, solutes at 1 M
     gas_to_solution = (
         temperature
-        * rx.change_reference_state(temperature=temperature)
+        * rx.thermo.change_reference_state(temperature=temperature)
         / constants.kcal
     )
     delta_freeenergies_ref = [
@@ -96,7 +96,7 @@ def test_basic_example_for_solvation_phase_kinetics() -> None:
     # 3-fold symmetry TS
     sym_correction = (
         -temperatures
-        * rx.change_reference_state(3, 1, temperature=temperatures)
+        * rx.thermo.change_reference_state(3, 1, temperature=temperatures)
         / constants.kcal
     )
     assert delta_freeenergies + sym_correction == pytest.approx(
@@ -106,7 +106,7 @@ def test_basic_example_for_solvation_phase_kinetics() -> None:
 
     delta_freeenergies -= (
         temperatures
-        * rx.change_reference_state(temperature=temperatures)
+        * rx.thermo.change_reference_state(temperature=temperatures)
         / constants.kcal
     )  # 1 atm to 1 M
     assert delta_freeenergies == pytest.approx(
@@ -164,7 +164,7 @@ def test_basic_example_for_gas_phase_kinetics() -> None:
     # 4-fold symmetry TS
     sym_correction = (
         -temperatures
-        * rx.change_reference_state(4, 1, temperature=temperatures)
+        * rx.thermo.change_reference_state(4, 1, temperature=temperatures)
         / constants.kcal
     )
     assert delta_freeenergies + sym_correction == pytest.approx(
@@ -174,7 +174,7 @@ def test_basic_example_for_gas_phase_kinetics() -> None:
 
     delta_freeenergies -= (
         temperatures
-        * rx.change_reference_state(temperature=temperatures)
+        * rx.thermo.change_reference_state(temperature=temperatures)
         / constants.kcal
     )  # 1 atm to 1 M
     assert delta_freeenergies == pytest.approx([6.9, 8.4, 8.4, 9.9], 8e-3)
@@ -442,7 +442,7 @@ def test_delta_energies_for_hickel1992() -> None:
     assert delta_freeenergies / constants.kcal == pytest.approx(
         delta_freeenergies_ref
         - temperatures
-        * rx.change_reference_state(temperature=temperatures)
+        * rx.thermo.change_reference_state(temperature=temperatures)
         / constants.kcal,
         2e-2,
     )  # M06-2X/6-311++G(d,p) from doi:10.1002/qua.25686

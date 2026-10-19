@@ -1227,22 +1227,22 @@ def test_equilibrium_constants_multiply_over_added_free_energies(
 
 def test_change_reference_state_works_for_symmetry() -> None:
     """Ensure that change_reference_state works for symmetry contributions."""
-    assert -200.0 * rx.change_reference_state(4, 1, temperature=200.0) / (
+    assert -200.0 * rx.thermo.change_reference_state(4, 1, temperature=200.0) / (
         constants.kcal
     ) == pytest.approx(-0.60, 9e-2)
-    assert -298.15 * rx.change_reference_state(4, 1) / (
+    assert -298.15 * rx.thermo.change_reference_state(4, 1) / (
         constants.kcal
     ) == pytest.approx(-0.85, 9e-2)
-    assert -300.0 * rx.change_reference_state(4, 1, temperature=300.0) / (
+    assert -300.0 * rx.thermo.change_reference_state(4, 1, temperature=300.0) / (
         constants.kcal
     ) == pytest.approx(-0.80, 9e-2)
-    assert -400.0 * rx.change_reference_state(4, 1, temperature=400.0) / (
+    assert -400.0 * rx.thermo.change_reference_state(4, 1, temperature=400.0) / (
         constants.kcal
     ) == pytest.approx(-1.10, 1e-2)
 
     # calculating many symmetry corrections at once
     temperatures = np.array([0, 200, 298.15, 300, 400])
-    assert temperatures * rx.change_reference_state(
+    assert temperatures * rx.thermo.change_reference_state(
         6,
         12,
         temperature=temperatures,
