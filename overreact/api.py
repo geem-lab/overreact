@@ -3,6 +3,21 @@ Module containing the high-level application programming interface.
 
 If you intend to use **overreact** as a library in a project, you should
 probably start here.
+
+Values per compound or per reaction lie along the last axis of arrays.
+Conditions such as `temperature` and `pressure` broadcast against them, so a
+scalar applies everywhere, an array of shape `(n,)` gives one value per
+compound or reaction, and an array of shape `(m, 1)` adds a leading axis of
+`m` conditions:
+
+>>> import numpy as np
+>>> import overreact as rx
+>>> scheme = rx.Scheme.parse("A -> B")
+>>> get_k(scheme, delta_freeenergies=[1e4], temperature=[[300.0], [400.0]])
+array([[1.13e+11],
+       [4.12e+11]])
+
+Both halves of an equilibrium share the same conditions.
 """
 
 from __future__ import annotations
@@ -19,13 +34,14 @@ __all__ = [
 
 import logging
 import warnings
+from functools import partial
 from typing import TYPE_CHECKING
 
 import numpy as np
 
 import overreact as rx
 from overreact import _constants as constants
-from overreact import coords, rates, tunnel
+from overreact import coords, rates, thermo, tunnel
 from overreact._misc import _derivative as derivative
 
 if TYPE_CHECKING:
@@ -69,26 +85,12 @@ def get_internal_energies(
     array([0. , 2.20053981])
 
     """
-    compounds = rx.io._check_compounds(compounds)
-    internal_energies = []
-    for name in compounds:
+
+    def internal_energy(name, compound):
         logger.info(f"calculate internal energy: {name}")
+        return partial(thermo.calc_internal_energy, **_rrho(compound), qrrho=qrrho)
 
-        moments, _, _ = coords.inertia(
-            compounds[name].atommasses,
-            compounds[name].atomcoords,
-        )
-
-        internal_energy = rx.thermo.calc_internal_energy(
-            energy=compounds[name].energy,
-            degeneracy=compounds[name].mult,
-            moments=moments,
-            vibfreqs=compounds[name].vibfreqs,
-            qrrho=qrrho,
-            temperature=temperature,
-        )
-        internal_energies.append(internal_energy)
-    return np.array(internal_energies)
+    return _per_compound(compounds, internal_energy, temperature=temperature)
 
 
 def get_enthalpies(
@@ -134,26 +136,12 @@ def get_enthalpies(
     >>> (enthalpies - zero_enthalpies) / constants.kcal
     array([2.78, 2.50])
     """
-    compounds = rx.io._check_compounds(compounds)
-    enthalpies = []
-    for name in compounds:
+
+    def enthalpy(name, compound):
         logger.info(f"calculate enthalpy: {name}")
+        return partial(thermo.calc_enthalpy, **_rrho(compound), qrrho=qrrho)
 
-        moments, _, _ = coords.inertia(
-            compounds[name].atommasses,
-            compounds[name].atomcoords,
-        )
-
-        enthalpy = rx.thermo.calc_enthalpy(
-            energy=compounds[name].energy,
-            degeneracy=compounds[name].mult,
-            moments=moments,
-            vibfreqs=compounds[name].vibfreqs,
-            qrrho=qrrho,
-            temperature=temperature,
-        )
-        enthalpies.append(enthalpy)
-    return np.array(enthalpies)
+    return _per_compound(compounds, enthalpy, temperature=temperature)
 
 
 def get_entropies(
@@ -165,6 +153,9 @@ def get_entropies(
     pressure: float = constants.atm,
 ):
     """Obtain entropies for compounds at a given temperature and pressure.
+
+    Each compound is in the standard state of its environment: 1 M in
+    solution, and `pressure` in the gas phase.
 
     Parameters
     ----------
@@ -217,54 +208,68 @@ def get_entropies(
     >>> (sol_entropies - entropies) / constants.calorie
     array([-6.35360874, -6.35360874])
     """
-    compounds = rx.io._check_compounds(compounds)
-    entropies = []
-    for name in compounds:
-        logger.info(f"calculate entropy: {name}")
 
-        if "point_group" in compounds[name]:
-            point_group = compounds[name].point_group
+    def entropy(name, compound):
+        logger.info(f"calculate entropy: {name}")
+        if "point_group" in compound:
+            point_group = compound.point_group
         else:
             point_group = coords.find_point_group(
-                compounds[name].atommasses,
-                compounds[name].atomcoords,
+                compound.atommasses, compound.atomcoords
             )
-        symmetry_number = coords.symmetry_number(point_group)
-
-        moments, _, _ = coords.inertia(
-            compounds[name].atommasses,
-            compounds[name].atomcoords,
-        )
-
-        if environment is None:
-            environment = rx.core._get_environment(name)
-        entropy = rx.thermo.calc_entropy(
-            atommasses=compounds[name].atommasses,
-            atomcoords=compounds[name].atomcoords,
-            energy=compounds[name].energy,
-            degeneracy=compounds[name].mult,
-            moments=moments,
-            symmetry_number=symmetry_number,
-            vibfreqs=compounds[name].vibfreqs,
-            environment=environment,
+        calc = partial(
+            thermo.calc_entropy,
+            **_rrho(compound),
+            atommasses=compound.atommasses,
+            atomcoords=compound.atomcoords,
+            symmetry_number=coords.symmetry_number(point_group),
+            environment=environment or rx.core._get_environment(name),
             method=method,
             qrrho=qrrho,
-            temperature=temperature,
-            pressure=pressure,
         )
+        if compound.symmetry is None:
+            return calc
 
-        if compounds[name].symmetry is not None:
+        def symmetric(temperature, pressure):
             # The negative sign here seems correct. See equations (9) and (10)
             # of doi:10.1002/qua.25686.
-            entropy -= rx.change_reference_state(
-                compounds[name].symmetry,
-                1,
-                temperature=temperature,
-                pressure=pressure,
+            return calc(
+                temperature=temperature, pressure=pressure
+            ) - thermo.change_reference_state(
+                compound.symmetry, 1, temperature=temperature, pressure=pressure
             )
 
-        entropies.append(entropy)
-    return np.array(entropies)
+        return symmetric
+
+    return _per_compound(compounds, entropy, temperature=temperature, pressure=pressure)
+
+
+def _per_compound(compounds, quantity, **conditions):
+    """Evaluate a quantity of each compound along the last axis, broadcasting conditions.
+
+    ``quantity(name, compound)`` returns the quantity as a function of conditions.
+    """
+    compounds = rx.io._check_compounds(compounds)
+    shape = np.broadcast_shapes(*map(np.shape, conditions.values()), (len(compounds),))
+    values = np.empty(shape)
+    for i, (name, compound) in enumerate(compounds.items()):
+        values[..., i] = np.vectorize(quantity(name, compound), otypes=[float])(
+            **{
+                key: np.broadcast_to(value, shape)[..., i]
+                for key, value in conditions.items()
+            }
+        )
+    return values
+
+
+def _rrho(compound):
+    """Return the rigid rotor harmonic oscillator arguments of a compound."""
+    return {
+        "energy": compound.energy,
+        "degeneracy": compound.mult,
+        "moments": coords.inertia(compound.atommasses, compound.atomcoords)[0],
+        "vibfreqs": compound.vibfreqs,
+    }
 
 
 def _check_qrrho(
@@ -323,6 +328,9 @@ def get_freeenergies(
     pressure: float = constants.atm,
 ):
     """Obtain free energies for compounds at a given temperature and pressure.
+
+    Each compound is in the standard state of its environment: 1 M in
+    solution, and `pressure` in the gas phase.
 
     Parameters
     ----------
@@ -434,9 +442,10 @@ def get_k(
         Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
     bias : array-like, optional
-        Energy to be added to free energies.
+        Energy added to the free energy of every name, or of each name if one
+        per name, also when `delta_freeenergies` are given.
     tunneling : str or None, optional
-        Choose between "eckart", "wigner" or None (or "none").
+        Either "eckart", "wigner", or None for no tunneling correction.
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordonand others (enthalpy correction, see
@@ -449,27 +458,51 @@ def get_k(
         "l mol-1 s-1", "m3 mol-1 s-1", "cm3 particle-1 s-1", "mmHg-1 s-1" and
         "atm-1 s-1".
     temperature : array-like, optional
-        Absolute temperature in Kelvin.
+        Absolute temperature in Kelvin, the same for all compounds if computed
+        from them.
     pressure : array-like, optional
         Reference gas pressure.
     delta_freeenergies : array-like, optional
-        Use this instead of obtaining delta free energies from the compounds.
+        Activation free energies, used instead of computing them from
+        `compounds`, in the standard states of `get_freeenergies` (see notes).
+        For equilibria, the reverse half must be minus the forward half, within
+        1e-5 J/mol.
     molecularity : array-like, optional
-        Reaction order, i.e., number of molecules that come together to react.
-        If set, this is used to calculate `delta_moles` for
-        `overreact.thermo.equilibrium_constant`, which effectively calculates a solution
-        equilibrium constant between reactants and the transition state for
-        gas phase data. You should set this to `None` if your free energies
-        were already adjusted for solution Gibbs free energies.
+        Number of reactant molecules of each reaction, used to convert units
+        to `scale`. Defaults to `Scheme.molecularity`.
     volume : float, optional
-        Molar volume.
+        Molar volume of gases in m³/mol, :math:`\frac{R T}{p}` by default.
 
     Returns
     -------
     array-like
 
+    Raises
+    ------
+    TypeError
+        If neither `compounds` nor `delta_freeenergies` are given.
+    ValueError
+        If there is not one delta free energy per reaction along the last
+        axis, if temperatures differ between compounds or between the halves
+        of an equilibrium, or if the reverse half of an equilibrium does not
+        undo its forward half.
+
     Notes
     -----
+    Free energies are in the standard state of each compound's environment,
+    which its name gives (see `get_freeenergies`): 1 M in solution, and
+    `pressure` in the gas phase. Gas-phase free energies are converted to
+    1 M, so rate constants are molar before conversion to `scale`, and both
+    ways of giving free energies agree:
+
+    >>> model = rx.parse_model("data/tanaka1996/UMP2/cc-pVTZ/model.jk")
+    >>> freeenergies = get_freeenergies(model.compounds)
+    >>> get_k(model.scheme, model.compounds, tunneling=None)
+    array([1.54e+07])
+    >>> get_k(model.scheme, tunneling=None,
+    ...       delta_freeenergies=model.scheme.activation_freeenergies(freeenergies))
+    array([1.54e+07])
+
     Some symbols are accepted as alternatives in "scale": "M-1", "ml" and
     "torr-1" are understood as "l mol-1", "cm3" and "mmHg-1", respectively.
 
@@ -520,19 +553,13 @@ def get_k(
     ... == get_k(model.scheme, model.compounds, scale="l mol-1 s-1")
     array([ True])
 
-    You can also turn the tunneling correction off by using the string "none":
-
-    >>> get_k(model.scheme, model.compounds, tunneling="none") \
-    ... == get_k(model.scheme, model.compounds, tunneling=None)
-    array([ True])
-
     You can set a simple energy bias, either as a constant or compound-wise:
 
     >>> get_k(model.scheme, model.compounds, bias=1.0 * constants.kcal,
     ...       temperature=300.0, scale="cm3 particle-1 s-1")
     array([5.14e-13])
     >>> get_k(model.scheme, model.compounds,
-    ...       bias=np.array([0.0, 0.0, -1.4, 0.0, 0.0]) * constants.kcal,
+    ...       bias=np.array([0.0, 0.0, 0.0, 0.0, -1.4]) * constants.kcal,
     ...       temperature=300.0, scale="cm3 particle-1 s-1")
     array([1.1e-12])
     """
@@ -540,103 +567,131 @@ def get_k(
     scheme = rx.core._check_scheme(scheme)
     if compounds is not None:
         compounds = rx.io._check_compounds(compounds)
-    if delta_freeenergies is None:
-        assert compounds is not None, "compounds could not be inferred"
-        freeenergies = get_freeenergies(
-            compounds,
-            bias=bias,
-            qrrho=(qrrho_enthalpy, qrrho_entropy),
-            # NOTE(schneiderfelipe): ensure we get rate constants in M-1 s-1.
-            # TODO(schneiderfelipe): this strategy will have to change
-            # somewhat when we improve solvation entropy models.
-            environment="solvent",
-            temperature=temperature,
-            pressure=pressure,
-        )
-
-        # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_freeenergies = rx.get_delta(
-            scheme.B,
-            freeenergies,
-        ) - temperature * rx.get_reaction_entropies(
-            scheme.B,
-            temperature=temperature,
-            pressure=pressure,
-        )
-
+        compounds = {name: compounds[name] for name in scheme.names}
     if molecularity is None:
-        molecularity = rx.thermo.get_molecularity(scheme.A)
+        molecularity = scheme.molecularity
 
-    # NOTE(schneiderfelipe): passing molecularity here to rates.eyring messes up
-    # rate constant units (by a factor of M-1 s-1 to atm-1 s-1), so we leave it as is.
-    k = rates.eyring(
-        delta_freeenergies,
-        temperature=temperature,
-        pressure=pressure,
-        volume=volume,
-    )
-
-    # make reaction rate constants for equilibria as close as possible to one
-    i = 0
-    while i < len(scheme.is_half_equilibrium):
-        if scheme.is_half_equilibrium[i]:
-            pair = k[i : i + 2]
-            _K = pair[0] / pair[1]
-
-            denom = pair.min()
-            if denom == 0.0:
-                logger.warning(
-                    "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
-                )
-                denom = 1.0
-
-            k[i : i + 2] = pair / denom
-            assert np.isclose(_K, k[i] / k[i + 1]), (
-                f"reaction rate constants {k[i]} and {k[i + 1]} for "
-                "equilibria could not be made to match the expected "
-                f"equilibrium constant value {_K}"
-            )
-
-            # loop over pairs of equilibria
-            i += 1
-        i += 1
-
-    logger.info(
-        "(classical) reaction rate constants: "
-        f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
-    )
-    if tunneling not in {"none", None}:
-        if compounds is not None:
-            kappa = get_kappa(
-                scheme,
+    def activation_freeenergies():
+        """Return activation free energies computed from compounds."""
+        if np.shape(temperature)[-1:] not in {(), (1,)}:
+            msg = "temperature must be the same for all compounds, e.g. of shape (m, 1)"
+            raise ValueError(msg)
+        logger.info(
+            "activation symmetry entropies: "
+            f"{rx._misc.format_numbers(scheme.activation_entropies)} J·mol⁻¹·K⁻¹",
+        )
+        return scheme.activation_freeenergies(
+            get_freeenergies(
                 compounds,
-                method=tunneling,
-                qrrho=qrrho_enthalpy,
+                qrrho=(qrrho_enthalpy, qrrho_entropy),
                 temperature=temperature,
-            )
-            k *= kappa
-        else:
+                pressure=pressure,
+            ),
+            temperature=temperature,
+        )
+
+    def tunneling_coefficients():
+        """Return tunneling coefficients, or ones if they can't be computed."""
+        if tunneling is None:
+            return 1.0
+        if compounds is None:
             # TODO(schneiderfelipe): when get_kappa accept deltas, this will
             # be probably unnecessary.
             logger.warning(
                 "assuming unitary tunneling coefficients due to incomplete compound data",
             )
-        logger.info(
-            "(tunneling) reaction rate constants: "
-            f"{', '.join([f'{v:7.3g}' for v in k])} atm⁻ⁿ⁺¹·s⁻¹",
+            return 1.0
+        return get_kappa(
+            scheme,
+            compounds,
+            tunneling=tunneling,
+            qrrho=qrrho_enthalpy,
+            temperature=temperature,
         )
+
+    if delta_freeenergies is None:
+        if compounds is None:
+            msg = "either compounds or delta_freeenergies must be given"
+            raise TypeError(msg)
+        delta_freeenergies = activation_freeenergies()
+
+    delta_freeenergies, temperatures = np.broadcast_arrays(
+        np.array(delta_freeenergies, dtype=float, ndmin=1), temperature
+    )
+    if delta_freeenergies.shape[-1] != len(scheme.reactions):
+        msg = f"expected {len(scheme.reactions)} delta free energies, one per reaction, along the last axis, got shape {delta_freeenergies.shape}"
+        raise ValueError(msg)
+    forward, reverse = np.array(scheme.equilibria, dtype=int).reshape(-1, 2).T
+    for problem, mismatch in [
+        (
+            "both halves must have the same temperature",
+            temperatures[..., forward] != temperatures[..., reverse],
+        ),
+        (
+            "the reverse half must undo its forward half",
+            ~np.isclose(
+                delta_freeenergies[..., reverse],
+                -delta_freeenergies[..., forward],
+                rtol=0.0,
+                atol=1e-5,
+                equal_nan=True,
+            ),
+        ),
+    ]:
+        if mismatch.any():
+            msg = f"in equilibrium '{scheme.reactions[forward[np.nonzero(mismatch)[-1][0]]]}', {problem}"
+            raise ValueError(msg)
+
+    # add biases, and take gas-phase free energies from `pressure` to 1 M
+    delta_freeenergies = (
+        delta_freeenergies
+        + scheme.activation_deltas(
+            np.broadcast_to(bias, (*np.shape(bias)[:-1], len(scheme.names)))
+        )
+        + temperatures
+        * thermo.change_reference_state(
+            temperature=temperatures, pressure=pressure, volume=volume
+        )
+        * scheme.activation_deltas(
+            [rx.core._get_environment(name) == "gas" for name in scheme.names]
+        )
+    )
+
+    k = np.empty(delta_freeenergies.shape)
+    plain = ~np.array(scheme._is_half_equilibrium, dtype=bool)
+    k[..., plain] = rates.eyring(
+        delta_freeenergies[..., plain], temperature=temperatures[..., plain]
+    )
+
+    # equilibria only fix ratios: make the smallest rate constant of each pair one
+    equilibrium_constants = thermo.equilibrium_constant(
+        delta_freeenergies[..., forward], temperature=temperatures[..., forward]
+    )
+    denom = np.minimum(equilibrium_constants, 1.0)
+    zero = denom == 0.0
+    if zero.any():
+        logger.warning(
+            "found half-equilibrium reaction with zero rate constant: skipping equilibrium normalization",
+        )
+    denom[zero] = 1.0
+    k[..., forward], k[..., reverse] = equilibrium_constants / denom, 1.0 / denom
+    logger.info(
+        f"(classical) reaction rate constants: {rx._misc.format_numbers(k)} M⁻ⁿ⁺¹·s⁻¹",
+    )
+
+    k = k * tunneling_coefficients()
+    logger.info(
+        f"(tunneling) reaction rate constants: {rx._misc.format_numbers(k)} M⁻ⁿ⁺¹·s⁻¹",
+    )
 
     # TODO(schneiderfelipe): ensure diffusional limit for reactions in
     # solvation using Collins-Kimball theory. This includes half-equilibria.
     return rates.convert_rate_constant(
         k,
         new_scale=scale,
-        # NOTE(schneiderfelipe): all the code above should always generate
-        # rate constants in M-1 s-1, so that we convert them here.
         old_scale="l mol-1 s-1",
         molecularity=molecularity,
         temperature=temperature,
-        pressure=pressure,
     )
 
 
@@ -644,7 +699,7 @@ def get_k(
 def get_kappa(
     scheme: Scheme,
     compounds: dict,
-    method: str = "eckart",
+    tunneling: str | None = "eckart",
     qrrho: bool = True,
     temperature: float = 298.15,
 ):
@@ -664,8 +719,8 @@ def get_kappa(
         A descriptor of the compounds.
         Mostly likely, this comes from a parsed input file.
         See `overreact.io.parse_model`.
-    method : str or None, optional
-        Choose between "eckart", "wigner" or None (or "none").
+    tunneling : str or None, optional
+        Either "eckart", "wigner", or None for no tunneling correction.
     qrrho : bool, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see
@@ -683,7 +738,7 @@ def get_kappa(
     Raises
     ------
     ValueError
-        If `method` is not supported.
+        If `tunneling` is not supported.
 
     Examples
     --------
@@ -696,11 +751,8 @@ def get_kappa(
     >>> kappa = get_kappa(model.scheme, model.compounds)
     >>> kappa
     array([1.110])
-    >>> get_kappa(model.scheme, model.compounds, method="none")
+    >>> get_kappa(model.scheme, model.compounds, tunneling=None)
     array([1.0])
-    >>> get_kappa(model.scheme, model.compounds, method="none") \
-    ... == get_kappa(model.scheme, model.compounds, method=None)
-    array([ True])
 
     You can calculate each piece of the reaction rate constant by hand,
     if you want. Just make sure that you don't calculate the tunneling
@@ -709,62 +761,61 @@ def get_kappa(
     >>> kappa * get_k(model.scheme, model.compounds, tunneling=None)
     array([8.e+10])
     """
+    if tunneling not in {"eckart", "wigner", None}:
+        msg = f"unavailable tunneling correction: {tunneling!r}"
+        raise ValueError(msg)
     scheme = rx.core._check_scheme(scheme)
     compounds = rx.io._check_compounds(compounds)
+    compounds = {name: compounds[name] for name in scheme.names}
 
-    if method == "eckart":
+    if tunneling == "eckart":
         # NOTE(schneiderfelipe): We need electronic energies + ZPE here, so we
         # get smaller transmission coefficients.
         energies = get_enthalpies(compounds, qrrho=qrrho, temperature=0.0)
-        delta_forward = rx.get_delta(scheme.B, energies)  # B - A
-        delta_backward = delta_forward - rx.get_delta(
-            scheme.A,
-            energies,
-        )  # B - C == B - A - (C - A)
+        delta_forward = scheme.activation_deltas(energies)
+        delta_backward = delta_forward - scheme.reaction_deltas(energies)
 
-    kappas = []
-    for i, ts in enumerate(
-        rx.get_transition_states(scheme.A, scheme.B, scheme.is_half_equilibrium),
-    ):
-        if ts is None:
-            kappas.append(1.0)
-        else:
-            transition_state = scheme.compounds[ts]
-            vibfreq = compounds[transition_state].vibfreqs[0]
+    def eckart(vibfreq, delta_forward, delta_backward, temperature):
+        """Return the Eckart coefficient, or the Wigner one where Eckart fails."""
+        with warnings.catch_warnings(), np.errstate(invalid="warn"):
+            warnings.filterwarnings("error")
+            try:
+                return tunnel.eckart(
+                    vibfreq,
+                    delta_forward,
+                    delta_backward,
+                    temperature=temperature,
+                )
+            except RuntimeWarning as e:
+                logger.warning(
+                    f"using Wigner tunneling correction: {e}",
+                )
+                return tunnel.wigner(vibfreq, temperature=temperature)
 
-            if method == "eckart":
-                with warnings.catch_warnings():
-                    warnings.filterwarnings("error")
-                    try:
-                        kappa = tunnel.eckart(
-                            vibfreq,
-                            delta_forward[i],
-                            delta_backward[i],
-                            temperature=temperature,
-                        )
-                    except RuntimeWarning as e:
-                        logger.warning(
-                            f"using Wigner tunneling correction: {e}",
-                        )
-                        kappa = tunnel.wigner(vibfreq, temperature=temperature)
-            elif method == "wigner":
-                kappa = tunnel.wigner(vibfreq, temperature=temperature)
-            elif method in {"none", None}:
-                kappa = 1.0
-            else:
-                msg = f"unavailable method: '{method}'"
-                raise ValueError(msg)
-
-            kappas.append(kappa)
-
-    # TODO(schneiderfelipe): is this correct? shouldn't we correct shapes
-    # somewhere else?
-    vec_kappas = np.asarray(kappas).flatten()
-    logger.info(
-        "(quantum) tunneling coefficients: "
-        f"{', '.join([f'{kappa:7.3g}' for kappa in vec_kappas])}",
+    temperatures = np.broadcast_to(
+        temperature,
+        np.broadcast_shapes(np.shape(temperature), (len(scheme.reactions),)),
     )
-    return vec_kappas
+    kappas = np.ones(temperatures.shape)
+    for i, ts in enumerate(scheme.transition_states):
+        if ts is None:
+            continue
+        vibfreq = compounds[ts].vibfreqs[0]
+
+        if tunneling == "eckart":
+            # np.vectorize reports floating-point flags that eckart already handled
+            with np.errstate(invalid="ignore"):
+                kappas[..., i] = np.vectorize(
+                    partial(eckart, vibfreq, delta_forward[i], delta_backward[i]),
+                    otypes=[float],
+                )(temperatures[..., i])
+        elif tunneling == "wigner":
+            kappas[..., i] = tunnel.wigner(vibfreq, temperature=temperatures[..., i])
+
+    logger.info(
+        f"(quantum) tunneling coefficients: {rx._misc.format_numbers(kappas)}",
+    )
+    return kappas
 
 
 def get_drc(
@@ -796,7 +847,7 @@ def get_drc(
     """
     temperature = np.asarray(temperature)
 
-    x0 = np.zeros(len(scheme.compounds))
+    x0 = np.zeros(len(scheme.names))
 
     def func(t, x=0.0, i=-1):
         bias = np.asarray(x0).copy()

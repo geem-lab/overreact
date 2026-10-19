@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import numpy as np
+import pytest
+
+import overreact as rx
 from overreact import _cli as cli
 
 
@@ -31,3 +35,23 @@ def test_cli_accepts_gaussian_logfiles(monkeypatch) -> None:
     params = ["overreact", "data/acetate/Gaussian09/wB97XD/6-311++G**/model.k"]
     monkeypatch.setattr("sys.argv", params)
     cli.main()
+
+
+@pytest.mark.parametrize(
+    ("concentrations", "match"),
+    [
+        (["A‡:1.0"], "not a compound"),
+        (["A:1.0", "A:!1.0"], "both"),
+        (["A1.0"], "badly formatted"),
+    ],
+)
+def test_prepare_simulation_rejects_invalid_concentrations(
+    concentrations, match
+) -> None:
+    """Ensure each compound of the scheme gets one free or fixed concentration."""
+    with pytest.raises(ValueError, match=match):
+        cli._prepare_simulation(
+            rx.Scheme.parse("A -> A‡ -> B"),
+            np.ones(1),
+            concentrations,
+        )

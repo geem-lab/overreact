@@ -7,7 +7,7 @@ the time simulations.
 # TODO(schneiderfelipe): type this module.
 from __future__ import annotations
 
-__all__ = ["get_dydt", "get_fixed_scheme", "get_y"]
+__all__ = ["get_dydt", "get_y"]
 
 
 import logging
@@ -32,7 +32,7 @@ from overreact._misc import _found_jax
 # using the standard ODE parameters (rtol=1e-3, atol=1e-6).**
 #
 # TODO(schneiderfelipe): this should probably be exposed to the user and use the actual simulation temperature.
-EF = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
+_EQUILIBRIUM_FACTOR = np.exp(1.25 * constants.kcal / (constants.R * 298.15))
 
 
 logger = logging.getLogger(__name__)
@@ -52,6 +52,7 @@ else:
 
 
 # TODO(schneiderfelipe): allow y0 to be a dict-like object.
+# TODO(schneiderfelipe): default get_y, get_bias and the CLI to an implicit solver in #817, since kinetics is often stiff.
 def get_y(
     dydt,
     y0,
@@ -112,7 +113,7 @@ def get_y(
 
     A toy simulation can be performed in just two lines:
 
-    >>> scheme = rx.parse_reactions("A <=> B")
+    >>> scheme = rx.Scheme.parse("A <=> B")
     >>> y, r = get_y(get_dydt(scheme, np.array([1, 1])), y0=[1, 0])
 
     The `y` object stores information about the simulation time, which can be
@@ -167,6 +168,7 @@ def get_y(
     if hasattr(dydt, "jac"):
         jac = dydt.jac  # noqa: F841
 
+    # TODO(schneiderfelipe): consider vectorized=True for Radau and BDF in #817, which only paid off for large schemes without a Jacobian.
     logger.warning(f"@t = \x1b[94m{0:10.3f} \x1b[ms\x1b[K")
     res = solve_ivp(
         dydt,
@@ -184,17 +186,12 @@ def get_y(
     y = res.sol
 
     def r(t):
-        # TODO(schneiderfelipe): this is probably not the best way to
-        # vectorize a function!
-        try:
-            return np.array([dydt(_t, _y) for _t, _y in zip(t, y(t).T, strict=False)]).T
-        except TypeError:
-            return dydt(t, y(t))
+        return np.asarray(dydt(t, y(t)))
 
     return y, r
 
 
-def get_dydt(scheme, k, ef=EF):
+def get_dydt(scheme, k, equilibrium_factor=_EQUILIBRIUM_FACTOR):
     """Generate a rate function that models a reaction scheme.
 
     Parameters
@@ -204,20 +201,26 @@ def get_dydt(scheme, k, ef=EF):
         Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     k : array-like
-        Reaction rate constant(s). Units match the concentration units given to
-        the returned function ``dydt``.
-    ef : float, optional
-        Equilibrium factor. This is a parameter that can be used to scale the
-        reaction rates associated to half-equilibrium reactions such that they
-        are faster than the other reactions.
+        Reaction rate constants, one per reaction. Units match the
+        concentration units given to the returned function ``dydt``.
+    equilibrium_factor : float, optional
+        How much faster than the fastest other reaction half-equilibria are
+        made.
 
     Returns
     -------
     dydt : callable
-        Reaction rate function. The actual reaction rate constants employed
+        Reaction rate function. As in `scipy.integrate.solve_ivp`, its
+        concentrations have one row per compound, and columns, if any, are
+        separate states. The actual reaction rate constants employed
         are stored in the attribute `k` of the returned function. If JAX is
         available, the attribute `jac` will hold the Jacobian function of
         `dydt`.
+
+    Raises
+    ------
+    ValueError
+        If `k` does not have one value per reaction.
 
     Notes
     -----
@@ -231,10 +234,13 @@ def get_dydt(scheme, k, ef=EF):
     >>> import numpy as np
     >>> import overreact as rx
 
-    >>> scheme = rx.parse_reactions("A <=> B")
+    >>> scheme = rx.Scheme.parse("A <=> B")
     >>> dydt = get_dydt(scheme, np.array([1, 1]))
     >>> dydt(0.0, np.array([1., 1.]))
     Array([0., 0.], ...)
+    >>> dydt(0.0, np.array([[1., 2.], [1., 0.]]))
+    Array([[ 0., -2.],
+           [ 0.,  2.]], ...)
 
     If available, JAX is used for JIT compilation. This will make `dydt`
     complain if given lists instead of numpy arrays. So stick to the safer,
@@ -255,13 +261,17 @@ def get_dydt(scheme, k, ef=EF):
 
     """
     scheme = rx.core._check_scheme(scheme)
-    A = jnp.asarray(scheme.A)
-    M = jnp.where(A > 0, 0, -A).T
-    k_adj = _adjust_k(scheme, k, ef=ef)
+    A = jnp.asarray(scheme.products - scheme.reactants)
+    M = jnp.asarray(scheme.reactants).T
+    if np.shape(k) != (len(scheme.reactions),):
+        msg = f"expected {len(scheme.reactions)} rate constants, one per reaction, got shape {np.shape(k)}"
+        raise ValueError(msg)
+    k_adj = _adjust_k(scheme, k, equilibrium_factor=equilibrium_factor)
 
     def _dydt(_t, y):
-        r = k_adj * jnp.prod(jnp.power(y, M), axis=1)
-        return jnp.dot(A, r)
+        y = jnp.moveaxis(jnp.asarray(y), 0, -1)
+        r = k_adj * jnp.prod(jnp.power(y[..., jnp.newaxis, :], M), axis=-1)
+        return jnp.moveaxis(r @ A.T, -1, 0)
 
     if _found_jax:
         # Using JAX for JIT compilation is much faster.
@@ -270,9 +280,11 @@ def get_dydt(scheme, k, ef=EF):
         # NOTE(schneiderfelipe): the following function is defined
         # such that _jac(t, y)[i, j] == d f_i / d y_j,
         # with shape of (n_compounds, n_compounds).
+        jacobian = jit(jacfwd(_dydt, argnums=1))
+
         def _jac(t, y):
             logger.warning(f"\x1b[A@t = \x1b[94m{t:10.3f} \x1b[ms\x1b[K")
-            return jacfwd(lambda _y: _dydt(t, _y))(y)
+            return jacobian(t, y)
 
         _dydt.jac = _jac
 
@@ -280,7 +292,7 @@ def get_dydt(scheme, k, ef=EF):
     return _dydt
 
 
-def _adjust_k(scheme, k, ef=EF):
+def _adjust_k(scheme, k, equilibrium_factor=_EQUILIBRIUM_FACTOR):
     """Adjust reaction rate constants so that equilibria are equilibria.
 
     Parameters
@@ -292,10 +304,9 @@ def _adjust_k(scheme, k, ef=EF):
     k : array-like
         Reaction rate constant(s). Units match the concentration units given to
         the returned function ``dydt``.
-    ef : float, optional
-        Equilibrium factor. This is a parameter that can be used to scale the
-        reaction rates associated to half-equilibrium reactions such that they
-        are faster than the other reactions.
+    equilibrium_factor : float, optional
+        How much faster than the fastest other reaction half-equilibria are
+        made.
 
     Returns
     -------
@@ -306,7 +317,7 @@ def _adjust_k(scheme, k, ef=EF):
     --------
     >>> import overreact as rx
 
-    >>> scheme = rx.parse_reactions("A <=> B")
+    >>> scheme = rx.Scheme.parse("A <=> B")
     >>> _adjust_k(scheme, [1, 1])
     Array([1., 1.], ...)
 
@@ -330,7 +341,7 @@ def _adjust_k(scheme, k, ef=EF):
 
     """
     scheme = rx.core._check_scheme(scheme)
-    is_half_equilibrium = np.asarray(scheme.is_half_equilibrium)
+    is_half_equilibrium = np.asarray(scheme._is_half_equilibrium)
     k = np.asarray(k, dtype=np.float64).copy()
 
     if np.any(is_half_equilibrium):
@@ -340,7 +351,7 @@ def _adjust_k(scheme, k, ef=EF):
 
             k_slowest_equil = k[is_half_equilibrium].min()
             k_fastest_react = k[~is_half_equilibrium].max()
-            adjustment = ef * (k_fastest_react / k_slowest_equil)
+            adjustment = equilibrium_factor * (k_fastest_react / k_slowest_equil)
 
             k[is_half_equilibrium] *= adjustment
             logger.warning(f"equilibria adjustment = {adjustment}")
@@ -357,219 +368,6 @@ def _adjust_k(scheme, k, ef=EF):
             k = k / k.min()
 
     return jnp.asarray(k)
-
-
-def get_fixed_scheme(scheme, k, fixed_y0):
-    """Generate an alternative scheme with some concentrations fixed.
-
-    This function returns data that allow the microkinetic simulation of a
-    reaction network under constraints, namely when some compounds have fixed
-    concentrations. This works by 1. removing all references to the fixed
-    compounds and by 2. properly multiplying the reaction rate constants by
-    the respective concentrations.
-
-    Parameters
-    ----------
-    scheme : Scheme
-        A descriptor of the reaction scheme.
-        Mostly likely, this comes from a parsed model input file.
-        See `overreact.io.parse_model`.
-    k : array-like
-        Reaction rate constant(s). Units match the concentration units given to
-        the returned function ``dydt``.
-    fixed_y0 : dict-like
-        Fixed initial state. Units match the concentration units given to
-        the returned function ``dydt``.
-
-    Returns
-    -------
-    scheme : Scheme
-        Associated reaction scheme with all references to fixed compounds
-        removed.
-    k : array-like
-        Associated (effective) reaction rate constants that model the fixed
-        concentrations.
-
-    Notes
-    -----
-    Keep in mind that when a compound get its concentration fixed, the
-    reaction scheme no longer conserves matter. You can think of it as
-    reacting close to an infinite source of the compound, but it accumulates
-    in the milleu at the given concentration.
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> import overreact as rx
-
-    Equilibria under a specific pH can be easily modeled:
-
-    >>> pH = 7
-    >>> scheme = rx.parse_reactions("AH <=> A- + H+")
-    >>> k = np.array([1, 1])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme
-    Scheme(compounds=('AH', 'A-'),
-           reactions=('AH -> A-',
-                      'A- -> AH'),
-           is_half_equilibrium=(True, True),
-           A=((-1.0, 1.0),
-              (1.0, -1.0)),
-           B=((-1.0, 0.0),
-              (1.0, 0.0)))
-    >>> k
-    array([1.e+00, 1.e-07])
-
-    It is also possible to model the fixed activity of a solvent, for
-    instance:
-
-    >>> scheme = rx.parse_reactions("A + 2H2O -> B")
-    >>> k = np.array([1.0])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H2O": 55.6})
-    >>> scheme
-    Scheme(compounds=('A', 'B'),
-           reactions=('A -> B',),
-           is_half_equilibrium=(False,),
-           A=((-1.0,),
-              (1.0,)),
-           B=((-1.0,),
-              (1.0,)))
-    >>> k
-    array([3091.36])
-
-    Multiple reactions work fine, see both examples below:
-
-    >>> pH = 12
-    >>> scheme = rx.parse_reactions("B <- AH <=> A- + H+")
-    >>> k = np.array([10.0, 1, 1])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme
-    Scheme(compounds=('AH', 'B', 'A-'),
-           reactions=('AH -> B',
-                      'AH -> A-',
-                      'A- -> AH'),
-           is_half_equilibrium=(False, True, True),
-           A=((-1.0, -1.0, 1.0),
-              (1.0, 0.0, 0.0),
-              (0.0, 1.0, -1.0)),
-           B=((-1.0, -1.0, 0.0),
-              (1.0, 0.0, 0.0),
-              (0.0, 1.0, 0.0)))
-    >>> k
-    array([1.e+01, 1.e+00, 1.e-12])
-
-    >>> pH = 2
-    >>> scheme = rx.parse_reactions(["AH <=> A- + H+", "B- + H+ <=> BH"])
-    >>> k = np.array([1, 1, 2, 2])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH})
-    >>> scheme
-    Scheme(compounds=('AH', 'A-', 'B-', 'BH'),
-           reactions=('AH -> A-',
-                      'A- -> AH',
-                      'B- -> BH',
-                      'BH -> B-'),
-           is_half_equilibrium=(True, True, True, True),
-           A=((-1.0, 1.0, 0.0, 0.0),
-              (1.0, -1.0, 0.0, 0.0),
-              (0.0, 0.0, -1.0, 1.0),
-              (0.0, 0.0, 1.0, -1.0)),
-           B=((-1.0, 0.0, 0.0, 0.0),
-              (1.0, 0.0, 0.0, 0.0),
-              (0.0, 0.0, -1.0, 0.0),
-              (0.0, 0.0, 1.0, 0.0)))
-    >>> k
-    array([1. , 0.01, 0.02, 2. ])
-
-    Multiple fixed compounds also work fine:
-
-    >>> pH = 6
-    >>> scheme = rx.parse_reactions("A + H2O -> B <=> B- + H+")
-    >>> k = np.array([1.0, 100.0, 2.0])
-    >>> scheme, k = rx.get_fixed_scheme(scheme, k, {"H+": 10**-pH, "H2O": 55.6})
-    >>> scheme
-    Scheme(compounds=('A', 'B', 'B-'),
-           reactions=('A -> B',
-                      'B -> B-',
-                      'B- -> B'),
-           is_half_equilibrium=(False, True, True),
-           A=((-1.0, 0.0, 0.0),
-              (1.0, -1.0, 1.0),
-              (0.0, 1.0, -1.0)),
-           B=((-1.0, 0.0, 0.0),
-              (1.0, -1.0, 0.0),
-              (0.0, 1.0, 0.0)))
-    >>> k
-    array([5.56e+01, 1.00e+02, 2.00e-06])
-
-    This function is a no-op if `fixed_y0` is empty, which is very important
-    for overall code consistency:
-
-    >>> scheme = rx.parse_reactions(["AH <=> A- + H+", "B- + H+ <=> BH"])
-    >>> k = np.array([1, 1, 2, 2])
-    >>> new_scheme, new_k = rx.get_fixed_scheme(scheme, k, {})
-    >>> new_scheme == scheme
-    True
-    >>> np.allclose(new_k, k)
-    True
-
-    """
-    new_k = np.asarray(k, dtype=np.float64).copy()
-    new_reactions = []
-    for i, (reaction, is_half_equilibrium) in enumerate(
-        zip(scheme.reactions, scheme.is_half_equilibrium, strict=False),
-    ):
-        for reactants, products, _ in rx.core._parse_reactions(
-            reaction,
-        ):
-            new_reactants = tuple(
-                (coeff, compound)
-                for (coeff, compound) in reactants
-                if compound not in fixed_y0
-            )
-            new_products = tuple(
-                (coeff, compound)
-                for (coeff, compound) in products
-                if compound not in fixed_y0
-            )
-
-            for fixed_compound in fixed_y0:
-                for coeff, compound in reactants:
-                    if fixed_compound == compound:
-                        new_k[i] *= fixed_y0[fixed_compound] ** coeff
-
-            new_reactions.append((new_reactants, new_products, is_half_equilibrium))
-
-    new_reactions = tuple(r for r in rx.core._unparse_reactions(new_reactions))
-    new_is_half_equilibrium = scheme.is_half_equilibrium
-
-    new_A = []
-    new_B = []
-    new_compounds = []
-    for compound, row_A, row_B in zip(
-        scheme.compounds,
-        scheme.A,
-        scheme.B,
-        strict=False,
-    ):
-        if compound not in fixed_y0:
-            new_compounds.append(compound)
-            new_A.append(row_A)
-            new_B.append(row_B)
-
-    new_compounds = tuple(new_compounds)
-    new_A = tuple(new_A)
-    new_B = tuple(new_B)
-
-    return (
-        rx.core.Scheme(
-            compounds=new_compounds,
-            reactions=new_reactions,
-            is_half_equilibrium=new_is_half_equilibrium,
-            A=new_A,
-            B=new_B,
-        ),
-        new_k,
-    )
 
 
 # TODO(schneiderfelipe): this is probably not ready yet
@@ -599,33 +397,29 @@ def get_bias(
         Mostly likely, this comes from a parsed model input file.
         See `overreact.io.parse_model`.
     data : dict-like of array-like
-    y0: array-like
+        Times, under "t", and concentrations at those times, by compound name.
+    y0 : dict-like
+        Initial concentrations by compound name, and zero for others.
     tunneling : str or None, optional
-        Choose between "eckart", "wigner" or None (or "none").
+        Either "eckart", "wigner", or None for no tunneling correction.
     qrrho : bool or tuple-like, optional
         Apply both the quasi-rigid rotor harmonic oscillator (QRRHO)
         approximations of M. Head-Gordon and others (enthalpy correction, see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) and S. Grimme (entropy correction, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
+    pressure : float, optional
         Reference gas pressure.
-    delta_freeenergies : array-like, optional
-        Use this instead of obtaining delta free energies from the compounds.
-    molecularity : array-like, optional
-        Reaction order, i.e., number of molecules that come together to react.
-        If set, this is used to calculate `delta_moles` for
-        `equilibrium_constant`, which effectively calculates a solution
-        equilibrium constant between reactants and the transition state for
-        gas phase data. You should set this to `None` if your free energies
-        were already adjusted for solution Gibbs free energies.
-    volume : float, optional
-        Molar volume.
 
     Returns
     -------
-    array-like
+    float
+
+    Raises
+    ------
+    ValueError
+        If `temperature` or `pressure` are arrays.
 
     Examples
     --------
@@ -633,20 +427,24 @@ def get_bias(
 
     The following are some estimates on actual atmospheric concentrations:
 
-    >>> y0 = [4.8120675684099e-5,
-    ...       2.8206357713029e-5,
-    ...       0.0,
-    ...       0.0,
-    ...       2.7426565371219e-5]
+    >>> y0 = {"CH4": 4.8120675684099e-5,
+    ...       "Cl·": 2.8206357713029e-5,
+    ...       "HCl": 2.7426565371219e-5}
     >>> data = {"t": [1.276472128376942246e-6,
     ...               1.446535794555581743e-4,
     ...               1.717069678525567564e-2],
     ...         "CH3·": [9.694916853338366211e-9,
     ...                  1.066033349343709026e-6,
     ...                  2.632179124780495175e-5]}
-    >>> float(get_bias(model.scheme, model.compounds, data, y0) / constants.kcal)
+    >>> float(get_bias(model.scheme, model.compounds, data, y0, atol=1e-10)
+    ...       / constants.kcal)
     -1.4
     """
+    if np.ndim(temperature) or np.ndim(pressure):
+        msg = "get_bias takes a single temperature and pressure"
+        raise ValueError(msg)
+    scheme = rx.core._check_scheme(scheme)
+    y0 = scheme.concentrations(y0)
     max_time = np.max(data["t"])
 
     def f(bias):
@@ -675,7 +473,7 @@ def get_bias(
         return np.sum(
             [
                 (yhat[i] - data[name]) ** 2
-                for (i, name) in enumerate(compounds)
+                for (i, name) in enumerate(scheme.compounds)
                 if name in data
             ],
         )

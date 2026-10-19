@@ -172,18 +172,6 @@ _vdw_radius_crc = [
 ]
 
 
-@np.vectorize
-def _vdw_radius(atomno):
-    """Select reasonable estimates for the van der Waals radii.
-
-    This is a helper for `vdw_radius`.
-    """
-    radius = _vdw_radius_crc[atomno - 1]
-    if radius is None:
-        return 2.0
-    return radius * centi
-
-
 def vdw_radius(atomno):
     """Select reasonable estimates for the van der Waals radii.
 
@@ -222,5 +210,8 @@ def vdw_radius(atomno):
     array([1.1 , 1.4 , 1.82, 1.53, 1.92, 1.7 , 1.55, 1.52, 1.47, 1.54])
     >>> vdw_radius(range(21, 31))  # Sc, Ti, V, ..., Ni, Cu, Zn
     array([2.15, 2.11, 2.07, 2.06, 2.05, 2.04, 2.  , 1.97, 1.96, 2.01])
+    >>> vdw_radius(104)  # Rf
+    array(2.)
     """
-    return _vdw_radius(atomno)
+    radii = np.array(_vdw_radius_crc, dtype=float)[np.asarray(atomno) - 1]
+    return np.where(np.isnan(radii), 2.0, radii * centi)

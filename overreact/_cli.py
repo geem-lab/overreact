@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import logging
 import os
-import re
 import shutil
 import sys
 
@@ -204,15 +203,9 @@ class Report:
             show_header=False,
         )
         raw_table.add_column(justify="left")
-        for r in rx.core.unparse_reactions(scheme).split("\n"):
+        for r in str(scheme).splitlines():
             raw_table.add_row(r)
         yield Panel(raw_table, expand=False)
-
-        transition_states = rx.core.get_transition_states(
-            scheme.A,
-            scheme.B,
-            scheme.is_half_equilibrium,
-        )
 
         parsed_table = Table(
             Column("no", justify="right"),
@@ -223,14 +216,22 @@ class Report:
             title="(parsed) reactions",
             box=self.box_style,
         )
-        for i, reaction in enumerate(scheme.reactions):
-            reactants, _, products = re.split(r"\s*(->|<=>|<-)\s*", reaction)
-            row = [f"{i:d}", reactants, None, products, "No"]
-            if transition_states[i] is not None:
-                row[2] = scheme.compounds[transition_states[i]]
-            elif scheme.is_half_equilibrium[i]:
-                row[4] = "Yes"
-            parsed_table.add_row(*row)
+        for i, (reaction, transition_state, is_half_equilibrium) in enumerate(
+            zip(
+                scheme.reactions,
+                scheme.transition_states,
+                scheme._is_half_equilibrium,
+                strict=True,
+            ),
+        ):
+            reactants, _, products = reaction.partition("->")
+            parsed_table.add_row(
+                f"{i:d}",
+                reactants.strip(),
+                transition_state,
+                products.strip(),
+                "Yes" if is_half_equilibrium else "No",
+            )
         yield parsed_table
 
     def _yield_compounds(self):
@@ -366,57 +367,57 @@ class Report:
             )
         yield compounds_table
 
-        delta_mass = rx.get_delta(scheme.A, molecular_masses)
-        delta_energies = rx.get_delta(scheme.A, energies)
-        delta_internal_energies = rx.get_delta(scheme.A, internal_energies)
-        delta_enthalpies = rx.get_delta(scheme.A, enthalpies)
-        # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_entropies = rx.get_delta(scheme.A, entropies) + rx.get_reaction_entropies(
-            scheme.A,
-            temperature=self.temperature,
-            pressure=self.pressure,
+        logger.info(
+            "reaction symmetry entropies: "
+            f"{rx._misc.format_numbers(scheme.reaction_entropies)} J·mol⁻¹·K⁻¹",
         )
-        delta_freeenergies = delta_enthalpies - self.temperature * delta_entropies
-        assert np.allclose(
-            delta_freeenergies,
-            rx.get_delta(scheme.A, freeenergies)
-            - self.temperature
-            * rx.get_reaction_entropies(
-                scheme.A,
-                temperature=self.temperature,
-                pressure=self.pressure,
-            ),
-        ), (
-            "reaction free energies do not match reaction enthalpies and reaction entropies"
+        quantities = np.stack(
+            [
+                molecular_masses,
+                energies,
+                internal_energies,
+                enthalpies,
+                entropies,
+            ],
         )
 
-        delta_activation_mass = rx.get_delta(scheme.B, molecular_masses)
-        delta_activation_energies = rx.get_delta(scheme.B, energies)
-        delta_activation_internal_energies = rx.get_delta(scheme.B, internal_energies)
-        delta_activation_enthalpies = rx.get_delta(scheme.B, enthalpies)
-        # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_activation_entropies = rx.get_delta(
-            scheme.B,
-            entropies,
-        ) + rx.get_reaction_entropies(
-            scheme.B,
-            temperature=self.temperature,
-            pressure=self.pressure,
+        def _deltas(deltas, symmetry_entropies, freeenergy_deltas):
+            """Return deltas of quantities, with symmetry in entropies and free energies."""
+            mass, energies, internal_energies, enthalpies, entropies = deltas(
+                quantities
+            )
+            return (
+                mass,
+                energies,
+                internal_energies,
+                enthalpies,
+                entropies + symmetry_entropies,
+                freeenergy_deltas(freeenergies, self.temperature),
+            )
+
+        (
+            delta_mass,
+            delta_energies,
+            delta_internal_energies,
+            delta_enthalpies,
+            delta_entropies,
+            delta_freeenergies,
+        ) = _deltas(
+            scheme.reaction_deltas,
+            scheme.reaction_entropies,
+            scheme.reaction_freeenergies,
         )
-        delta_activation_freeenergies = (
-            delta_activation_enthalpies - self.temperature * delta_activation_entropies
-        )
-        assert np.allclose(
+        (
+            delta_activation_mass,
+            delta_activation_energies,
+            delta_activation_internal_energies,
+            delta_activation_enthalpies,
+            delta_activation_entropies,
             delta_activation_freeenergies,
-            rx.get_delta(scheme.B, freeenergies)
-            - self.temperature
-            * rx.get_reaction_entropies(
-                scheme.B,
-                temperature=self.temperature,
-                pressure=self.pressure,
-            ),
-        ), (
-            "activation free energies do not match activation enthalpies and activation entropies"
+        ) = _deltas(
+            scheme.activation_deltas,
+            scheme.activation_entropies,
+            scheme.activation_freeenergies,
         )
 
         circ_table = Table(
@@ -444,7 +445,7 @@ class Report:
             box=self.box_style,
         )
         for i, reaction in enumerate(scheme.reactions):
-            if scheme.is_half_equilibrium[i]:
+            if scheme._is_half_equilibrium[i]:
                 circ_row = [
                     f"{i:d}",
                     reaction,
@@ -505,6 +506,7 @@ class Report:
             data = np.genfromtxt(self.bias, names=True, delimiter=",")
             data = {name: data[name] for name in data.dtype.names}
 
+            # TODO(schneiderfelipe): get_bias ignores the rate constant factors of fixed concentrations.
             scheme, _, y0 = _prepare_simulation(
                 self.model.scheme,
                 rx.get_k(
@@ -571,7 +573,7 @@ class Report:
         kappa = rx.get_kappa(
             self.model.scheme,
             self.model.compounds,
-            method=self.tunneling,
+            tunneling=self.tunneling,
             qrrho=self.qrrho,
             temperature=self.temperature,
         )
@@ -595,7 +597,7 @@ class Report:
                 + [f"{k[scale][i]:.3g}" for scale in k]
                 + [f"{kappa[i]:.3g}"]
             )
-            if self.model.scheme.is_half_equilibrium[i]:
+            if self.model.scheme._is_half_equilibrium[i]:
                 row[2] = "Yes"
                 row[-1] = None  # hide transmission coefficient
 
@@ -615,6 +617,8 @@ class Report:
                 k["M⁻ⁿ⁺¹·s⁻¹"],
                 self.concentrations,
             )
+            if self.plot not in {"none", "all", "active", None}:
+                scheme._check_compounds([self.plot])
 
             # TODO(schneiderfelipe): encapsulate everything in a function that depends
             # on the freeenergies as first parameter
@@ -622,7 +626,7 @@ class Report:
 
             y, r = rx.get_y(
                 dydt,
-                y0=y0,
+                y0=scheme.concentrations(y0),
                 method=self.method,
                 rtol=self.rtol,
                 atol=self.atol,
@@ -656,7 +660,7 @@ class Report:
                 rtol=0.01,
             )
             if self.plot == "all" or not np.any(active):
-                active = np.array([True for _ in scheme.compounds])
+                active = np.ones(len(scheme.compounds), dtype=bool)
 
             factor = y(y.t_max)[active].max()
             reference = y(y.t_max)[active] / factor
@@ -679,21 +683,20 @@ class Report:
 
             num = 100
             t = set(np.linspace(y.t_min, t_max, num=num))
-            for i, name in enumerate(scheme.compounds):
-                if not rx.is_transition_state(name):
-                    res = minimize_scalar(
-                        lambda t: -r(t)[i],
-                        bounds=(y.t_min, (t_max + y.t_max) / 2),
-                        method="bounded",
-                    )
-                    if y.t_min < res.x < t_max:
-                        t.update(np.linspace(y.t_min, res.x, num=num // 2))
-                        t.update(np.linspace(res.x, t_max, num=num // 2))
-                        active[i] = True
+            for i in range(len(scheme.compounds)):
+                res = minimize_scalar(
+                    lambda t: -r(t)[i],
+                    bounds=(y.t_min, (t_max + y.t_max) / 2),
+                    method="bounded",
+                )
+                if y.t_min < res.x < t_max:
+                    t.update(np.linspace(y.t_min, res.x, num=num // 2))
+                    t.update(np.linspace(res.x, t_max, num=num // 2))
+                    active[i] = True
 
             t.update(
                 np.geomspace(
-                    np.min([_t for _t in t if _t > 0.0]),
+                    min(_t for _t in t if _t > 0.0),
                     t_max,
                     num=num,
                 ),
@@ -705,7 +708,7 @@ class Report:
                     plt.plot(t, y(t)[scheme.compounds.index(name)], label=name, lw=3)
                 else:
                     for i, name in enumerate(scheme.compounds):
-                        if active[i] and not rx.is_transition_state(name):
+                        if active[i]:
                             plt.plot(t, y(t)[i], label=name, lw=3)
 
                 plt.legend()
@@ -735,8 +738,7 @@ def _prepare_simulation(scheme, k, concentrations):
     free_y0 = {}
     fixed_y0 = {}
     for spec in concentrations:
-        fields = spec.split(":", 1)
-        name, quantity = fields[0].strip(), fields[1].strip()
+        name, _, quantity = (field.strip() for field in spec.partition(":"))
 
         if quantity.startswith("!"):
             d = fixed_y0
@@ -746,20 +748,26 @@ def _prepare_simulation(scheme, k, concentrations):
 
         try:
             quantity = float(quantity)
-        except (IndexError, ValueError) as err:
+        except ValueError as err:
             msg = f"badly formatted concentrations: '{' '.join(concentrations)}'"
             raise ValueError(msg) from err
 
         d[name] = quantity
 
-    # TODO(schneiderfelipe): log stuff related to get_fixed_scheme
-    scheme, k = rx.get_fixed_scheme(scheme, k, fixed_y0)
+    both = free_y0.keys() & fixed_y0.keys()
+    if both:
+        msg = f"{', '.join(sorted(both))} given both free and fixed concentrations"
+        raise ValueError(msg)
+    scheme, factors = scheme.fix(fixed_y0)
+    k = k * factors
+    logger.info(f"fixed concentrations: {fixed_y0}")
+    logger.info(
+        "reaction rate constant factors from fixed concentrations: "
+        f"{rx._misc.format_numbers(factors)}",
+    )
 
-    y0 = np.zeros(len(scheme.compounds))
-    for compound in free_y0:
-        y0[scheme.compounds.index(compound)] = free_y0[compound]
-
-    return scheme, k, y0
+    scheme._check_compounds(free_y0)
+    return scheme, k, free_y0
 
 
 def main(arguments=None):
@@ -937,7 +945,7 @@ Parsing and calculating (this may take a while)…
         stream=sys.stdout,
     )
     for handler in logging.root.handlers:
-        handler.setFormatter(rx.io.InterfaceFormatter("%(message)s"))
+        handler.setFormatter(rx.io._InterfaceFormatter("%(message)s"))
 
     model = rx.io.parse_model(args.path, force_compile=args.compile)
     report = Report(
@@ -949,7 +957,7 @@ Parsing and calculating (this may take a while)…
         temperature=args.temperature,
         pressure=args.pressure,
         bias=args.bias,
-        tunneling=args.tunneling,
+        tunneling=None if args.tunneling == "none" else args.tunneling,
         method=args.method,
         max_time=args.max_time,
         rtol=args.rtol,

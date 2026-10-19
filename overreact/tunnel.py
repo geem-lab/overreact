@@ -8,8 +8,7 @@ __all__ = ["eckart", "wigner"]
 import logging
 
 import numpy as np
-from scipy.integrate import fixed_quad
-from scipy.special import roots_laguerre
+from scipy.special import roots_laguerre, roots_legendre
 
 from overreact import _constants as constants
 
@@ -137,8 +136,8 @@ def eckart(
 
     Examples
     --------
-    >>> eckart(1218, 13672.624, 24527.729644, temperature=300)
-    array(3.9)
+    >>> float(eckart(1218, 13672.624, 24527.729644, temperature=300))
+    3.9
     >>> eckart(1218, 13672.624, 24527.729644, temperature=[200, 298.15])
     array([17.1, 4.0])
     >>> eckart([1218, 200], 13672.624, 24527.729644, temperature=400)
@@ -146,12 +145,12 @@ def eckart(
 
     If no backward barrier is given, a symmetric Eckart potential is assumed:
 
-    >>> eckart(414.45, 394.54)
-    array(1.16)
-    >>> eckart(414.45, 789.08)
-    array(1.3)
-    >>> eckart(3315.6, 3156.31)
-    array(3.3)
+    >>> float(eckart(414.45, 394.54))
+    1.16
+    >>> float(eckart(414.45, 789.08))
+    1.3
+    >>> float(eckart(3315.6, 3156.31))
+    3.3
 
     And if either the forward or backward barrier is non-positive, we fall back
     to the Wigner correction, but a warning is issued:
@@ -169,36 +168,35 @@ def eckart(
     nu = _check_nu(vibfreq)
     u = constants.h * nu / (constants.k * temperature)
 
+    delta_forward = np.asarray(delta_forward)
     if delta_backward is None:
         delta_backward = delta_forward
+    delta_backward = np.asarray(delta_backward)
 
     logger.debug(f"forward  potential barrier: {delta_forward} J/mol")
     logger.debug(f"backward potential barrier: {delta_backward} J/mol")
 
-    if delta_forward <= 0 or delta_backward <= 0:
+    positive = (delta_forward > 0) & (delta_backward > 0)
+    if not positive.all():
         logger.warning(
             "forward or backward barrier is non-positive, falling back to Wigner correction",
         )
-        return wigner(vibfreq, temperature)
 
-    assert np.all(delta_forward > 0), "forward barrier should be positive"
-    assert np.all(delta_backward > 0), "backward barrier should be positive"
+    # convert energies in joules per mole to joules, with placeholders where Wigner is used
+    alpha1, alpha2 = (
+        2.0
+        * np.pi
+        * np.where(positive, delta, 1.0)
+        / (constants.N_A * constants.h * nu)
+        for delta in (delta_forward, delta_backward)
+    )
 
-    # convert energies in joules per mole to joules
-    delta_forward = delta_forward / constants.N_A
-    delta_backward = delta_backward / constants.N_A
-
-    assert delta_backward is not None, "delta_backward should be given"
-    two_pi = 2.0 * np.pi
-    alpha1 = two_pi * delta_forward / (constants.h * nu)
-    alpha2 = two_pi * delta_backward / (constants.h * nu)
-
-    kappa = _eckart(u, alpha1, alpha2)
+    kappa = np.where(positive, _eckart(u, alpha1, alpha2), wigner(vibfreq, temperature))
     logger.info(f"Eckart tunneling coefficient: {kappa}")
-    return kappa
+    return kappa[()]
 
 
-@np.vectorize
+# TODO(schneiderfelipe): returns NaN for large alphas (roughly above 100), outside the validated range.
 def _eckart(
     u: float,
     alpha1: float,
@@ -236,14 +234,14 @@ def _eckart(
     --------
     Symmetrical barrier:
 
-    >>> _eckart(10, 20)
+    >>> float(_eckart(10, 20))
     1150.
 
     Unsymmetrical barrier:
 
-    >>> _eckart(2, 0.5, 1.0)
+    >>> float(_eckart(2, 0.5, 1.0))
     1.125
-    >>> _eckart(2, 1.0, 0.5)
+    >>> float(_eckart(2, 1.0, 0.5))
     1.125
 
     """
@@ -255,12 +253,15 @@ def _eckart(
     if alpha2 is None:
         alpha2 = alpha1
 
+    # quadrature points go along a new last axis
+    u, alpha1, alpha2 = (np.asarray(x)[..., np.newaxis] for x in (u, alpha1, alpha2))
+
     two_pi = 2.0 * np.pi
     v1 = alpha1 * u / (two_pi)
     v2 = alpha2 * u / (two_pi)
 
     d = 4.0 * alpha1 * alpha2 - np.pi**2
-    D = np.cosh(np.sqrt(d)) if d > 0 else np.cos(np.sqrt(np.abs(d)))
+    D = np.where(d > 0, np.cosh(np.sqrt(np.abs(d))), np.cos(np.sqrt(np.abs(d))))
 
     sqrt_alpha1 = np.sqrt(alpha1)
     sqrt_alpha2 = np.sqrt(alpha2)
@@ -285,10 +286,12 @@ def _eckart(
         return p
 
     # integral from -min(v1, v2) to zero using Gauss quadrature
-    integ1 = fixed_quad(f, -min(v1, v2), 0, n=gauss_n)[0]
+    lower = -np.minimum(v1, v2)
+    x, w = roots_legendre(gauss_n)
+    integ1 = np.sum(-lower / 2.0 * w * f(lower * (1.0 - x) / 2.0), axis=-1)
 
     # integral from 0 to infinity using Laguerre quadrature
     x, w = roots_laguerre(n=laguerre_n)
-    integ2 = w @ f(x, with_exp=False)
+    integ2 = np.sum(w * f(x, with_exp=False), axis=-1)
 
     return integ1 + integ2

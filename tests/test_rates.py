@@ -5,9 +5,23 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import _constants as constants
+
+scales = st.sampled_from(
+    [
+        "cm3 mol-1 s-1",
+        "l mol-1 s-1",
+        "m3 mol-1 s-1",
+        "cm3 particle-1 s-1",
+        "mmHg-1 s-1",
+        "atm-1 s-1",
+    ],
+)
+temperatures = st.floats(min_value=100.0, max_value=1000.0)
 
 
 def test_sanity_for_chemical_kinetics() -> None:
@@ -17,15 +31,15 @@ def test_sanity_for_chemical_kinetics() -> None:
     https://gaussian.com/thermo/.
     """
     freeenergies_h = np.array(
-        [-98.579127, -454.557870, -553.109488, -98.001318, -455.146251],
+        [-98.579127, -454.557870, -98.001318, -455.146251, -553.109488],
     )
     freeenergies_d = np.array(
-        [-98.582608, -454.557870, -553.110424, -98.001318, -455.149092],
+        [-98.582608, -454.557870, -98.001318, -455.149092, -553.110424],
     )
 
-    scheme = rx.parse_reactions("FH + Cl -> FHCl‡ -> F + HCl")
-    delta_freeenergies_h = rx.thermo.get_delta(scheme.B, freeenergies_h)[0]
-    delta_freeenergies_d = rx.thermo.get_delta(scheme.B, freeenergies_d)[0]
+    scheme = rx.Scheme.parse("FH + Cl -> FHCl‡ -> F + HCl")
+    delta_freeenergies_h = scheme.activation_deltas(freeenergies_h)[0]
+    delta_freeenergies_d = scheme.activation_deltas(freeenergies_d)[0]
     assert delta_freeenergies_h == pytest.approx(0.027509)
     assert delta_freeenergies_h * (constants.hartree * constants.N_A) / (
         constants.kcal
@@ -38,10 +52,12 @@ def test_sanity_for_chemical_kinetics() -> None:
     k_h = rx.get_k(
         scheme,
         delta_freeenergies=delta_freeenergies_h * constants.hartree * constants.N_A,
+        scale="atm-1 s-1",
     )
     k_d = rx.get_k(
         scheme,
         delta_freeenergies=delta_freeenergies_d * constants.hartree * constants.N_A,
+        scale="atm-1 s-1",
     )
     assert k_h == pytest.approx(1.38, 4e-4)
     assert k_d == pytest.approx(0.0928, 5e-3)
@@ -253,42 +269,85 @@ def test_conversion_of_rate_constants_work() -> None:
     )
 
 
-def test_conversion_rates_know_about_reaction_order() -> None:
-    """Ensure calculated factors satisfy the reaction order requirements."""
-    assert rx.rates.convert_rate_constant(
-        1.0,
-        "cm3 particle-1 s-1",
-        "atm-1 s-1",
-    ) == pytest.approx(1.0)
-    assert (
-        rx.rates.convert_rate_constant(
-            1.0,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=3,
-        )
-        == rx.rates.convert_rate_constant(
-            1.0,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=2,
-        )
-        ** 2
+@given(scales, scales, temperatures, st.integers(min_value=1, max_value=5))
+def test_conversion_factors_scale_with_reaction_order(
+    new_scale, old_scale, temperature, molecularity
+) -> None:
+    """Ensure conversion factors are bimolecular factors to the order minus one."""
+    factor = rx.rates.convert_rate_constant(
+        1.0, new_scale, old_scale, molecularity=2, temperature=temperature
     )
-    assert (
-        rx.rates.convert_rate_constant(
-            1.0,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=4,
-        )
-        == rx.rates.convert_rate_constant(
-            1.0,
-            "cm3 particle-1 s-1",
-            "atm-1 s-1",
-            molecularity=2,
-        )
-        ** 3
+    assert rx.rates.convert_rate_constant(
+        1.0, new_scale, old_scale, molecularity=molecularity, temperature=temperature
+    ) == pytest.approx(factor ** (molecularity - 1))
+
+
+@given(temperatures)
+def test_conversion_between_pressure_units_is_their_ratio(temperature) -> None:
+    """Ensure 1 atm-1 s-1 is 1/760 mmHg-1 s-1 at any temperature."""
+    assert rx.rates.convert_rate_constant(
+        1.0, "mmHg-1 s-1", "atm-1 s-1", molecularity=2, temperature=temperature
+    ) == pytest.approx(constants.torr / constants.atm)
+
+
+@pytest.mark.parametrize("molecularity", [1, 2])
+def test_conversion_rejects_unknown_units(molecularity) -> None:
+    """Ensure unknown units raise, even when no conversion is needed."""
+    with pytest.raises(ValueError, match="not recognized"):
+        rx.rates.convert_rate_constant(1.0, "furlong-1 s-1", molecularity=molecularity)
+
+
+@given(scales, scales, temperatures, st.integers(min_value=1, max_value=5))
+def test_conversion_of_rate_constants_round_trips(
+    new_scale, old_scale, temperature, molecularity
+) -> None:
+    """Ensure converting back and forth gives the original rate constant."""
+    kwargs = {"molecularity": molecularity, "temperature": temperature}
+    k = rx.rates.convert_rate_constant(1.0, new_scale, old_scale, **kwargs)
+    assert rx.rates.convert_rate_constant(k, old_scale, new_scale, **kwargs) == (
+        pytest.approx(1.0)
+    )
+
+
+@given(
+    st.floats(min_value=0.0, max_value=100.0),
+    st.floats(min_value=-10.0, max_value=10.0),
+    temperatures,
+)
+def test_eyring_rates_grow_exponentially_with_lower_barriers(
+    barrier, decrease, temperature
+) -> None:
+    """Ensure lowering a barrier by x multiplies rates by exp(x / RT)."""
+    barrier, decrease = barrier * constants.kcal, decrease * constants.kcal
+    assert rx.rates.eyring(
+        barrier - decrease, temperature=temperature
+    ) / rx.rates.eyring(barrier, temperature=temperature) == pytest.approx(
+        np.exp(decrease / (constants.R * temperature))
+    )
+
+
+@given(
+    st.floats(0.0, 30.0),
+    st.integers(1, 3),
+    temperatures,
+    st.one_of(st.none(), st.floats(1e-3, 1.0)),
+)
+def test_eyring_takes_gas_phase_barriers_to_molar_rate_constants(
+    barrier, molecularity, temperature, volume
+) -> None:
+    """Ensure gas-phase barriers give k_c = (k T / h) exp(-dG / RT) (V / 1 L)^(n - 1)."""
+    barrier *= constants.kcal
+    molar_volume = (
+        constants.R * temperature / constants.atm if volume is None else volume
+    )
+    assert rx.rates.eyring(
+        barrier, molecularity=molecularity, temperature=temperature, volume=volume
+    ) == pytest.approx(
+        constants.k
+        * temperature
+        / constants.h
+        * np.exp(-barrier / (constants.R * temperature))
+        * (molar_volume / constants.liter) ** (molecularity - 1),
     )
 
 
@@ -979,3 +1038,20 @@ def test_third_order_conversion_rates_match_literature() -> None:
             molecularity=3,
             temperature=temperature,
         ) == pytest.approx(1.0)
+
+
+@pytest.mark.parametrize(
+    "function",
+    [
+        lambda: rx.rates.eyring(1e4),
+        lambda: rx.rates.eyring(1e4, molecularity=2),
+        lambda: rx.thermo.equilibrium_constant(1e4),
+        lambda: rx.thermo.change_reference_state(),
+        lambda: rx.tunnel.eckart(1000.0, 1e4),
+        lambda: rx.tunnel.eckart(1000.0, -1e4),
+        lambda: rx.tunnel.wigner(1000.0),
+    ],
+)
+def test_scalar_inputs_give_scalars(function) -> None:
+    """Ensure scalar inputs give floats, as in NumPy."""
+    assert isinstance(function(), float)

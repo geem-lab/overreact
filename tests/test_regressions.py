@@ -40,26 +40,24 @@ def test_basic_example_for_solvation_equilibria() -> None:
         + -228.292486796947
         - (-228.47794098 - -228.500117698893 + -228.169992151890)
     ) * (constants.hartree * constants.N_A / constants.kcal)
+    # gases are at 1 atm, solutes at 1 M
+    gas_to_solution = (
+        temperature
+        * rx.thermo.change_reference_state(temperature=temperature)
+        / constants.kcal
+    )
     delta_freeenergies_ref = [
         acid_energy,
         -acid_energy,
-        solv_energy,
-        -solv_energy,
-        charged_solv_energy,
-        -charged_solv_energy,
+        solv_energy + gas_to_solution,
+        -solv_energy - gas_to_solution,
+        charged_solv_energy + gas_to_solution,
+        -charged_solv_energy - gas_to_solution,
     ]
 
-    concentration_correction = -temperature * rx.change_reference_state(
-        temperature=temperature,
-    )
-
     for qrrho in [False, (False, True), True]:
-        # TODO(schneiderfelipe): log the contribution of reaction symmetry
-        delta_freeenergies = rx.get_delta(
-            model.scheme.A,
+        delta_freeenergies = model.scheme.reaction_freeenergies(
             rx.get_freeenergies(model.compounds, temperature=temperature, qrrho=qrrho),
-        ) - temperature * rx.get_reaction_entropies(
-            model.scheme.A,
             temperature=temperature,
         )
         assert delta_freeenergies / constants.kcal == pytest.approx(
@@ -68,10 +66,7 @@ def test_basic_example_for_solvation_equilibria() -> None:
         )
 
         # the following tests the solvation free energy from doi:10.1021/jp810292n
-        assert delta_freeenergies[2] / constants.kcal == pytest.approx(
-            -6.70 + concentration_correction / constants.kcal,
-            1.5e-1,
-        )
+        assert delta_freeenergies[2] / constants.kcal == pytest.approx(-6.70, 2e-1)
 
         # the following tests the reaction free energy from doi:10.1063/1.1416902
         assert delta_freeenergies[0] == pytest.approx(27.147 * constants.kilo, 7e-3)
@@ -101,7 +96,7 @@ def test_basic_example_for_solvation_phase_kinetics() -> None:
     # 3-fold symmetry TS
     sym_correction = (
         -temperatures
-        * rx.change_reference_state(3, 1, temperature=temperatures)
+        * rx.thermo.change_reference_state(3, 1, temperature=temperatures)
         / constants.kcal
     )
     assert delta_freeenergies + sym_correction == pytest.approx(
@@ -111,7 +106,7 @@ def test_basic_example_for_solvation_phase_kinetics() -> None:
 
     delta_freeenergies -= (
         temperatures
-        * rx.change_reference_state(temperature=temperatures)
+        * rx.thermo.change_reference_state(temperature=temperatures)
         / constants.kcal
     )  # 1 atm to 1 M
     assert delta_freeenergies == pytest.approx(
@@ -169,7 +164,7 @@ def test_basic_example_for_gas_phase_kinetics() -> None:
     # 4-fold symmetry TS
     sym_correction = (
         -temperatures
-        * rx.change_reference_state(4, 1, temperature=temperatures)
+        * rx.thermo.change_reference_state(4, 1, temperature=temperatures)
         / constants.kcal
     )
     assert delta_freeenergies + sym_correction == pytest.approx(
@@ -179,7 +174,7 @@ def test_basic_example_for_gas_phase_kinetics() -> None:
 
     delta_freeenergies -= (
         temperatures
-        * rx.change_reference_state(temperature=temperatures)
+        * rx.thermo.change_reference_state(temperature=temperatures)
         / constants.kcal
     )  # 1 atm to 1 M
     assert delta_freeenergies == pytest.approx([6.9, 8.4, 8.4, 9.9], 8e-3)
@@ -436,10 +431,9 @@ def test_delta_energies_for_hickel1992() -> None:
             temperature=temperature,
             qrrho=(False, True),
         )
-        delta_freeenergy = (
-            rx.get_delta(model.scheme.B, freeenergies)
-            - temperature
-            * rx.get_reaction_entropies(model.scheme.B, temperature=temperature)
+        delta_freeenergy = model.scheme.activation_freeenergies(
+            freeenergies,
+            temperature=temperature,
         )[0]
 
         delta_freeenergies.append(delta_freeenergy)
@@ -448,7 +442,7 @@ def test_delta_energies_for_hickel1992() -> None:
     assert delta_freeenergies / constants.kcal == pytest.approx(
         delta_freeenergies_ref
         - temperatures
-        * rx.change_reference_state(temperature=temperatures)
+        * rx.thermo.change_reference_state(temperature=temperatures)
         / constants.kcal,
         2e-2,
     )  # M06-2X/6-311++G(d,p) from doi:10.1002/qua.25686
@@ -483,10 +477,9 @@ def test_delta_energies_for_tanaka1996() -> None:
     delta_freeenergies = []
     for temperature in temperatures:
         freeenergies = rx.get_freeenergies(model.compounds, temperature=temperature)
-        delta_freeenergy = (
-            rx.get_delta(model.scheme.B, freeenergies)
-            - temperature
-            * rx.get_reaction_entropies(model.scheme.B, temperature=temperature)[0]
+        delta_freeenergy = model.scheme.activation_freeenergies(
+            freeenergies,
+            temperature=temperature,
         )[0]
 
         delta_freeenergies.append(delta_freeenergy)
@@ -511,10 +504,9 @@ def test_delta_energies_for_tanaka1996() -> None:
     delta_freeenergies = []
     for temperature in temperatures:
         freeenergies = rx.get_freeenergies(model.compounds, temperature=temperature)
-        delta_freeenergy = (
-            rx.get_delta(model.scheme.B, freeenergies)
-            - temperature
-            * rx.get_reaction_entropies(model.scheme.B, temperature=temperature)[0]
+        delta_freeenergy = model.scheme.activation_freeenergies(
+            freeenergies,
+            temperature=temperature,
         )[0]
 
         delta_freeenergies.append(delta_freeenergy)

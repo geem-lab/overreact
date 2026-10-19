@@ -134,15 +134,11 @@ def get_molecular_volume(
         points = v1 + points * (v2 - v1)
         tree = KDTree(points)
 
-        within_vdw = set()
+        within_vdw = set().union(*tree.query_ball_point(atomcoords, vdw_radii))
         if full_output and method == "izato":
-            within_cav = set()
-        for i, atomcoord in enumerate(atomcoords):
-            within_vdw.update(tree.query_ball_point(atomcoord, vdw_radii[i]))
-            if full_output and method == "izato":
-                within_cav.update(
-                    tree.query_ball_point(atomcoord, alpha * vdw_radii[i]),
-                )
+            within_cav = set().union(
+                *tree.query_ball_point(atomcoords, alpha * vdw_radii),
+            )
 
         vdw_volumes.append((len(within_vdw) / n) * box_volume)
         if full_output and method == "izato":
@@ -683,7 +679,7 @@ def _find_point_group_symmetric_dihedral(
     if mirror_axes:
         if mirror_axes[0][0] == "h":
             return f"D{proper_axes[0][0]}h"
-        elif len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
+        elif sum(c == "v" for c, _ in mirror_axes) == proper_axes[0][0]:
             # all vertical mirror planes are dihedral for Dnd point groups
             return f"D{proper_axes[0][0]}d"
     return f"D{proper_axes[0][0]}"
@@ -726,7 +722,7 @@ def _find_point_group_symmetric_nondihedral(
     if mirror_axes:
         if mirror_axes[0][0] == "h":
             return f"C{proper_axes[0][0]}h"
-        elif len([v for c, v in mirror_axes if c == "v"]) == proper_axes[0][0]:
+        elif sum(c == "v" for c, _ in mirror_axes) == proper_axes[0][0]:
             return f"C{proper_axes[0][0]}v"
 
     improper_axes = _get_improper_axes(
@@ -1822,7 +1818,7 @@ def calc_hessian(atommasses, atomcoords, vibfreqs, vibdisps):
 
     L_cart = np.linalg.qr(L_cart, mode="complete")[0]
 
-    atommasses_sqrt = np.sqrt([mass for mass in atommasses for _ in range(3)])
+    atommasses_sqrt = np.sqrt(np.repeat(atommasses, 3))
     D = eckart_transform(atommasses, atomcoords)
     M = np.diag(1.0 / atommasses_sqrt)
     L = np.linalg.solve(M @ D, L_cart)
@@ -1872,7 +1868,7 @@ def calc_vibfreqs(hessian, atommasses):
     >>> calc_vibfreqs(data.hessian, data.atommasses)
     array([1619.09635865, 3671.7480167 , 3769.11914506])
     """
-    atommasses_sqrt = np.sqrt([mass for mass in atommasses for _ in range(3)])
+    atommasses_sqrt = np.sqrt(np.repeat(atommasses, 3))
 
     # mass-weighted Hessian
     hessian = np.asarray(hessian) / np.outer(atommasses_sqrt, atommasses_sqrt)
@@ -1982,13 +1978,10 @@ def eckart_transform(atommasses, atomcoords):
     D_trans = np.block(
         [x.reshape(1, dof).T, y.reshape(1, dof).T, z.reshape(1, dof).T],
     )
-    D_rot = np.array(
-        [
-            np.cross((atomcoords @ axes)[i], axes[:, j]) / np.sqrt(atommasses[i])
-            for i in range(natom)
-            for j in range(3)
-        ],
-    )
+    D_rot = (
+        np.cross((atomcoords @ axes)[:, np.newaxis, :], axes.T)
+        / np.sqrt(atommasses)[:, np.newaxis, np.newaxis]
+    ).reshape(dof, 3)
     D = np.block([D_trans, D_rot])
     return np.linalg.qr(D, mode="complete")[0]
 

@@ -14,7 +14,6 @@ import numpy as np
 from numpy import arange, array, hstack, newaxis, prod
 from scipy.stats import cauchy, norm
 
-import overreact as rx
 from overreact import _constants as constants
 
 
@@ -227,9 +226,6 @@ def copy_unhashable(maxsize=128, typed=False):
         @cache(maxsize=maxsize, typed=typed)
         @wraps(func)
         def cached_func(*hashable_args, **hashable_kwargs):
-            args = []
-            kwargs = {}
-
             def convert_back(arg):
                 if isinstance(arg, tuple) and len(arg) == 2:
                     shape, flat_data = arg
@@ -247,22 +243,17 @@ def copy_unhashable(maxsize=128, typed=False):
                             raise ValueError(msg)
                 return arg
 
-            args = [convert_back(arg) for arg in hashable_args]
-            for k, v in hashable_kwargs.items():
-                kwargs[k] = convert_back(v)
-            args = tuple(args)
-            return func(*args, **kwargs)
+            return func(
+                *(convert_back(arg) for arg in hashable_args),
+                **{k: convert_back(v) for k, v in hashable_kwargs.items()},
+            )
 
         def wrapper(*args, **kwargs):
-            wrapper_hashable_args = []
-            wrapper_hashable_kwargs = {}
-
-            wrapper_hashable_args = [make_hashable(arg) for arg in args]
-            for k, v in kwargs.items():
-                wrapper_hashable_kwargs[k] = make_hashable(v)
-            wrapper_hashable_args = tuple(wrapper_hashable_args)
             return deepcopy(
-                cached_func(*wrapper_hashable_args, **wrapper_hashable_kwargs),
+                cached_func(
+                    *(make_hashable(arg) for arg in args),
+                    **{k: make_hashable(v) for k, v in kwargs.items()},
+                ),
             )
 
         return wrapper
@@ -831,20 +822,13 @@ def broaden_spectrum(
     elif distribution in {"lorentzian", "cauchy"}:
         distribution = cauchy
 
-    s = np.sum(
-        [
-            yp
-            * distribution.pdf(
-                x,
-                xp,
-                scale=scale,
-                *args,
-                **kwargs,
-            )
-            for xp, yp in zip(x0, y0, strict=False)
-        ],
-        axis=0,
-    )
+    s = distribution.pdf(
+        np.asarray(x)[..., np.newaxis],
+        x0,
+        *args,
+        scale=scale,
+        **kwargs,
+    ) @ np.asarray(y0)
 
     if fit_points:
         s_max = np.max(s)
@@ -852,6 +836,22 @@ def broaden_spectrum(
             s_max = 1.0
         return s * np.max(y0) / s_max
     return s
+
+
+def format_numbers(values) -> str:
+    """Format numbers for logging.
+
+    Examples
+    --------
+    >>> format_numbers([1, 2.5e-10])
+    '      1, 2.5e-10'
+    >>> format_numbers([[1, 2], [3, 4]])
+    '      1,       2;       3,       4'
+    """
+    values = np.asarray(values)
+    if values.ndim > 1:
+        return "; ".join(map(format_numbers, values))
+    return ", ".join(f"{v:7.3g}" for v in values)
 
 
 # https://stackoverflow.com/a/10016613
@@ -872,8 +872,7 @@ def totuple(a):
     >>> totuple(array)
     ((2, 2), (2, -2))
     """
-    # we don't touch some types, and this includes namedtuples
-    if isinstance(a, int | float | str | rx.Scheme):
+    if isinstance(a, int | float | str):
         return a
 
     with contextlib.suppress(AttributeError):

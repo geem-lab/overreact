@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 import overreact as rx
+
+alphas = st.floats(min_value=0.5, max_value=20.0)
 
 
 def test_wigner_tunneling_corrections_are_correct() -> None:
@@ -46,12 +51,42 @@ def test_eckart_tunneling_corrections_are_correct() -> None:
     assert rx.tunnel.eckart(2486.7, 56813.61, 94689.35) == pytest.approx(3920, 1e-4)
 
 
-def test_eckart_is_symmetric() -> None:
-    """Ensure Eckart has symmetry under interchange of H1 and H2."""
-    vibfreq = 3e3
-    h1 = 1e4
-    h2 = 10 * h1
-    assert rx.tunnel.eckart(vibfreq, h1, h2) == rx.tunnel.eckart(vibfreq, h2, h1)
+@given(st.floats(min_value=2.0, max_value=16.0), alphas, alphas)
+def test_eckart_is_symmetric(u, alpha1, alpha2) -> None:
+    """Ensure Eckart has symmetry under interchange of forward and backward barriers.
+
+    Values cover the range of Table 1 of doi:10.1021/j100809a040.
+    """
+    assert rx.tunnel._eckart(u, alpha1, alpha2) == pytest.approx(
+        rx.tunnel._eckart(u, alpha2, alpha1),
+    )
+
+
+barriers = st.floats(-1e4, 1e5).filter(lambda x: abs(x) >= 1.0)
+
+
+@given(
+    st.lists(
+        st.tuples(st.floats(100.0, 1000.0), barriers, barriers), min_size=1, max_size=3
+    ),
+)
+def test_eckart_broadcasts(arguments) -> None:
+    """Ensure Eckart of arrays is Eckart of each element, with Wigner fallbacks."""
+    temperature, forward, backward = np.array(arguments).T
+    assert rx.tunnel.eckart(
+        1000.0, forward, backward, temperature=temperature
+    ) == pytest.approx(
+        [float(rx.tunnel.eckart(1000.0, f, b, temperature=t)) for t, f, b in arguments],
+    )
+
+
+@given(
+    st.floats(min_value=1.0, max_value=4000.0),
+    st.floats(min_value=10.0, max_value=2000.0),
+)
+def test_wigner_never_slows_reactions(vibfreq, temperature) -> None:
+    """Ensure Wigner corrections are at least one."""
+    assert rx.tunnel.wigner(vibfreq, temperature=temperature) >= 1.0
 
 
 def test_low_level_eckart_against_johnston1962() -> None:

@@ -1,6 +1,6 @@
 [project]
 name = "overreact"
-version = "1.2.0"
+version = "2.0.0"
 description = "⚛️📈 Create and analyze chemical microkinetic models built from computational chemistry data"
 authors = [
     { name = "Felipe S. S. Schneider", email = "schneider.felipe@posgrad.ufsc.br" },
@@ -88,6 +88,7 @@ dev = [
     "ruff>=0.0.210,<0.16.5",
     "seaborn>=0.12,<0.14",
     "types-setuptools>=65,<85",
+    "hypothesis>=6,<7",
 ]
 
 [tool.uv]
@@ -169,4 +170,4 @@ sort = "Miss"
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --doctest-glob=\"*.rst\""
 doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS NUMBER"
-norecursedirs = ["_build", "examples"]
+norecursedirs = [".hypothesis", "_build", "examples"]

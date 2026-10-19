@@ -8,12 +8,11 @@ __all__ = ["change_reference_state", "equilibrium_constant"]
 import logging
 
 import numpy as np
-from scipy.special import factorial
 
-import overreact as rx
 from overreact import _constants as constants
 from overreact._misc import _derivative as derivative
 from overreact.thermo._gas import (
+    _sackur_tetrode,
     calc_elec_energy,
     calc_elec_entropy,
     calc_rot_energy,
@@ -23,6 +22,7 @@ from overreact.thermo._gas import (
     calc_vib_entropy,
     molar_volume,
 )
+from overreact.thermo._solv import calc_cav_entropy, molar_free_volume
 
 logger = logging.getLogger(__name__)
 
@@ -62,9 +62,9 @@ def calc_trans_entropy(
         [discussions](https://github.com/geem-lab/overreact/discussions) if
         you're interested and would like to contribute.
         Leave this as "standard" for now.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
+    pressure : float, optional
         Reference gas pressure.
 
     Returns
@@ -74,6 +74,8 @@ def calc_trans_entropy(
 
     Raises
     ------
+    TypeError
+        If a solvation `method` is given without `atomnos` and `atomcoords`.
     ValueError
         If environment is "solid".
 
@@ -116,9 +118,10 @@ def calc_trans_entropy(
         msg = f"environment not yet implemented: {environment}"
         raise ValueError(msg)
     else:
-        assert atomnos is not None, "atomnos must be provided"
-        assert atomcoords is not None, "atomcoords must be provided"
-        volume = rx.thermo._solv.molar_free_volume(
+        if atomnos is None or atomcoords is None:
+            msg = f"solvation method {method!r} needs atomnos and atomcoords"
+            raise TypeError(msg)
+        volume = molar_free_volume(
             atomnos=atomnos,
             atomcoords=atomcoords,
             environment=environment,
@@ -127,7 +130,7 @@ def calc_trans_entropy(
             pressure=pressure,
         )
 
-    translational_entropy = rx.thermo._gas._sackur_tetrode(
+    translational_entropy = _sackur_tetrode(
         atommasses,
         volume,
         temperature=temperature,
@@ -167,7 +170,7 @@ def calc_internal_energy(
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -237,7 +240,7 @@ def calc_enthalpy(
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -341,9 +344,9 @@ def calc_entropy(
         S. Grimme (see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
+    pressure : float, optional
         Reference gas pressure.
 
     Notes
@@ -359,6 +362,8 @@ def calc_entropy(
 
     Raises
     ------
+    TypeError
+        If a solvation `method` is given without `atomnos` and `atomcoords`.
     ValueError
         If environment is "solid".
 
@@ -434,14 +439,10 @@ def calc_entropy(
             f"concentration correction = {concentration_correction} J/mol·K",
         )
         entropy = entropy + concentration_correction
-        if method == "standard":
-            pass
-        else:
-            assert atomnos is not None, "atomnos must be provided"
-            assert atomcoords is not None, "atomcoords must be provided"
+        if method != "standard":
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
-            entropy = entropy + rx.thermo._solv.calc_cav_entropy(
+            entropy = entropy + calc_cav_entropy(
                 atomnos=atomnos,
                 atomcoords=atomcoords,
                 environment=environment,
@@ -481,7 +482,7 @@ def calc_heat_capacity(
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
     dx : float, optional
         Spacing.
@@ -530,86 +531,6 @@ def calc_heat_capacity(
     return heat_capacity
 
 
-def get_molecularity(transform):
-    """Calculate molecularity of a chemical transformation.
-
-    The returned value is the reaction order, i.e., number of molecules that come
-    together to react. This number is always at least one.
-
-    Parameters
-    ----------
-    transform : array-like
-
-    Returns
-    -------
-    array-like
-
-    Examples
-    --------
-    >>> get_molecularity([-1, 1])
-    array(1)
-    >>> get_molecularity([-1, 0])
-    array(1)
-    >>> get_molecularity([-1, -1, 1])
-    array(2)
-    >>> get_molecularity([-1, -1, 0])
-    array(2)
-    >>> get_molecularity([[-1.,  1.,  1.],
-    ...                   [-1.,  1.,  0.],
-    ...                   [ 1., -1., -1.],
-    ...                   [ 0.,  0.,  0.],
-    ...                   [ 0.,  0.,  1.]])
-    array([2, 1, 1])
-    >>> get_molecularity([[0.], [0.]])
-    array([1])
-    """
-    res = np.sum(np.asarray(transform) < 0, axis=0)
-    return np.where(res > 0, res, 1)
-
-
-def get_delta(transform, property):
-    """Calculate deltas according to reactions.
-
-    Delta properties are differences in a property between the final and
-    initial state of a chemical transformation. They are calculated from
-    matrices representing the transformation and the absolute properties.
-    Transformation matrices are expected to have column-wise transformation
-    defined.
-
-    Very useful for the calculation of reaction and activation free energies
-    from absolute free energies of compounds. Matrices ``A`` and ``B`` of a
-    `Scheme` represent the transformations associated with reaction and
-    activation free energies, respectively.
-
-    Parameters
-    ----------
-    transform : array-like
-    property : array-like
-
-    Returns
-    -------
-    delta_property : array-like
-
-    Examples
-    --------
-    >>> int(get_delta([-1, 1], [-10, 10]))
-    20
-
-    You must ensure the transformation is properly defined, as no test is made
-    to ensure, e.g., conservation of matter:
-
-    >>> int(get_delta([-1, 0], [-10, 20]))
-    10
-
-    Normally, transformations are given as columns in a matrix:
-
-    >>> get_delta([[-1, -2],
-    ...            [ 1,  3]], [-5, 12])
-    array([17, 46])
-    """
-    return np.asarray(transform).T @ np.asarray(property)
-
-
 def equilibrium_constant(
     delta_freeenergy: float | np.ndarray,
     delta_moles: int | np.ndarray | None = None,
@@ -626,42 +547,31 @@ def equilibrium_constant(
     .. math::
         K(T) = \exp\left(-\frac{\Delta_\text{r} G^\circ}{R T}\right)
 
-    If `delta_moles` is given, the above will be multiplied by a term
-    :math:`\left( \frac{R T}{p} \right)^{-\Delta n}`, which effectively
-    transforms a :math:`K_p` equilibrium constant into a :math:`K_c`
-    (see below).
+    Free energies are taken at the 1 M standard state. If `delta_moles` is
+    given, they are taken as gas-phase data at `pressure` instead, and the
+    above is multiplied by
+    :math:`\left( \frac{V}{\text{1 L/mol}} \right)^{-\Delta n}`, which
+    transforms a :math:`K_p` equilibrium constant into a :math:`K_c`, where
+    :math:`V = \frac{R T}{p}` is the molar volume of gases (see below).
 
     Parameters
     ----------
     delta_freeenergy : array-like
-        Delta Gibbs reaction free energies. **This assumes values were already
-        corrected for a one molar reference state.**
+        Delta Gibbs reaction free energies.
     delta_moles : array-like, optional
-        Difference in moles between products and reactants. If set, this
-        multiplies the end result by
-        :math:`\left( \frac{R T}{p} \right)^{-\Delta n}`, which effectively
-        calculates a solution equilibrium constant for gas phase data. You
-        should set this to `None` if your free energies were already adjusted
-        for solution Gibbs free energies.
+        Change in moles of gas :math:`\Delta n`, from reactants to products,
+        for gas-phase free energies.
     temperature : array-like, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
         Reference gas pressure.
     volume : float, optional
-        Molar volume. This substitutes :math:`\frac{R T}{p}` if given. See
-        `delta_moles`.
+        Molar volume of gases in m³/mol, :math:`\frac{R T}{p}` by default.
 
     Returns
     -------
     K : array-like
         Equilibrium constant.
-
-    Notes
-    -----
-    If you want to calculate a solution equilibrium constant from gas phase data, set
-    `delta_moles` to the difference in moles between products and reactants.
-    Alternatively, convert your energies to solution Gibbs free energies and
-    set `delta_moles` to `None`.
 
     Examples
     --------
@@ -686,31 +596,22 @@ def equilibrium_constant(
 
     >>> temperature = 298.15
     >>> dG = -constants.R * temperature * np.log(Kc)
-    >>> equilibrium_constant(dG)
-    array([24.5])
+    >>> float(equilibrium_constant(dG))
+    24.5
 
-    By giving a `delta_moles` value (in this case, :math:`2 - 2 - 1 = -1`),
-    we can calculate the corresponding `K_p`:
+    Gas-phase free energies, at 1 atm, follow from changing the reference
+    state of each compound, and give the corresponding :math:`K_p`:
 
-    >>> equilibrium_constant(dG, delta_moles=-1)
-    array([1.002])
+    >>> dG_gas = dG + temperature * change_reference_state()
+    >>> float(equilibrium_constant(dG_gas))
+    1.002
 
     (As expected, it makes sense for gases to favor the most entropic side of
-    the equilibrium.) The example above clearly used "solution-based" data
-    (our :math:`K_c` was calculated using molar quantities, which means
-    reference volumes of one liter). You could convert it to gas phase data
-    to get the same result, by changing the reference state (in this case,
-    from one molar to one atmosphere using `change_reference_state`):
+    the equilibrium.) Giving the change in moles of gas (in this case,
+    :math:`2 - 2 - 1 = -1`) takes gas-phase free energies back to :math:`K_c`:
 
-    >>> dG += temperature * rx.change_reference_state()
-    >>> equilibrium_constant(dG)
-    array([1.002])
-
-    Having gas phase information, the inverse path can be taken just by
-    inverting the sign of `delta_moles`:
-
-    >>> equilibrium_constant(dG, delta_moles=1)
-    array([24.5])
+    >>> float(equilibrium_constant(dG_gas, delta_moles=-1))
+    24.5
 
     The following example is from
     [Wikipedia](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
@@ -719,21 +620,11 @@ def equilibrium_constant(
     solution standard Gibbs reaction free energy that is given:
 
     >>> dG1 = -37.4e3
-    >>> np.log10(equilibrium_constant(dG1))
-    array([6.55])
+    >>> float(np.log10(equilibrium_constant(dG1)))
+    6.55
     >>> dG2 = -60.67e3
-    >>> np.log10(equilibrium_constant(dG2))
-    array([10.62])
-
-    The above are thus :math:`\log_{10}(K_c)`. Since we are talking about a
-    mono- and a bidendate ligands, the `delta_moles` are -4 and -2,
-    respectively, and we could obtain the :math:`\log_{10}(K_p)` the following
-    way:
-
-    >>> np.log10(equilibrium_constant(dG1, delta_moles=-4))
-    array([0.998])
-    >>> np.log10(equilibrium_constant(dG2, delta_moles=-2))
-    array([7.85])
+    >>> float(np.log10(equilibrium_constant(dG2)))
+    10.62
 
     You can easily check that the above values match the values given
     [here](https://en.wikipedia.org/wiki/Stability_constants_of_complexes#The_chelate_effect).
@@ -741,14 +632,17 @@ def equilibrium_constant(
     temperature = np.asarray(temperature)
 
     equilibrium_constant = np.exp(
-        -np.atleast_1d(delta_freeenergy) / (constants.R * temperature),
+        -np.asarray(delta_freeenergy) / (constants.R * temperature),
     )
 
     if delta_moles is not None:
-        if volume is None:
-            volume = molar_volume(temperature, pressure) * constants.kilo
-
-        equilibrium_constant *= volume**delta_moles
+        equilibrium_constant *= np.exp(
+            -np.asarray(delta_moles)
+            * change_reference_state(
+                temperature=temperature, pressure=pressure, volume=volume
+            )
+            / constants.R
+        )
 
     logger.info(f"equilibrium constant = {equilibrium_constant}")
     return equilibrium_constant
@@ -815,21 +709,21 @@ def change_reference_state(
     By default, the correction returns a change in concentration from the gas
     phase standard concentration to the solvated-state standard concentration:
 
-    >>> float(-rx.change_reference_state() / constants.calorie)
+    >>> float(-change_reference_state() / constants.calorie)
     -6.4
-    >>> float(298.15 * rx.change_reference_state() / constants.kcal)
+    >>> float(298.15 * change_reference_state() / constants.kcal)
     1.89
-    >>> float(273.15 * rx.change_reference_state(temperature=273.15) / constants.kcal)
+    >>> float(273.15 * change_reference_state(temperature=273.15) / constants.kcal)
     1.69
 
     But this function can also be used to adjust symmetry effects from C1
     calculations (symmetry number equals to one). For D7h, for instance, the
     symmetry number is 14:
 
-    >>> float(-298.15 * rx.change_reference_state(14, 1) / constants.kcal)
+    >>> float(-298.15 * change_reference_state(14, 1) / constants.kcal)
     -1.56
 
-    >>> bool(rx.change_reference_state(sign=-1) == -rx.change_reference_state())
+    >>> bool(change_reference_state(sign=-1) == -change_reference_state())
     True
 
     """
@@ -841,70 +735,3 @@ def change_reference_state(
         old_reference = 1.0 / volume
 
     return sign * constants.R * np.log(new_reference / old_reference)
-
-
-# TODO(schneiderfelipe): we need a concrete example of this for testing.
-def get_reaction_entropies(transform, temperature=298.15, pressure=constants.atm):
-    r"""Calculate entropy contributions from the overall reaction structure.
-
-    This function currently implements the reaction translational entropy, a
-    result of the indistinguishability of reactants or products, i.e., a
-    difference in entropy of :math:`R ln 2!` for the reactions
-
-    .. math::
-        \ce{A + B -> C}
-
-    and
-
-    .. math::
-        \ce{2A -> C}
-
-    Parameters
-    ----------
-    transform : array-like
-    temperature : array-like, optional
-        Absolute temperature in Kelvin.
-    pressure : array-like, optional
-        Reference gas pressure.
-
-    Returns
-    -------
-    delta_entropy : array-like
-
-    Examples
-    --------
-    >>> import overreact as rx
-
-    >>> scheme = rx.parse_reactions("A + B <=> C")
-    >>> get_reaction_entropies(scheme.A)
-    array([0.0, 0.0])
-    >>> scheme = rx.parse_reactions("2A <=> C")
-    >>> get_reaction_entropies(scheme.A)
-    array([-5.763, 5.763])
-    >>> get_reaction_entropies(scheme.A, temperature=400.0)
-    array([-5.763, 5.763])
-
-    >>> scheme = rx.parse_reactions("A <=> B + C")
-    >>> get_reaction_entropies(scheme.A)
-    array([0.0, 0.0])
-    >>> scheme = rx.parse_reactions("A <=> 2B")
-    >>> get_reaction_entropies(scheme.A)
-    array([ 5.763, -5.763])
-
-    >>> scheme = rx.parse_reactions("A + B -> E# -> C")
-    >>> get_reaction_entropies(scheme.A)
-    array([0.0])
-    >>> get_reaction_entropies(scheme.B)
-    array([0.0])
-    >>> scheme = rx.parse_reactions("2A -> E# -> C")
-    >>> get_reaction_entropies(scheme.A)
-    array([-5.763])
-    >>> get_reaction_entropies(scheme.B)
-    array([-5.763])
-    """
-    sym = factorial(np.abs(np.asarray(transform)))
-    return np.sum(
-        np.sign(transform)
-        * change_reference_state(sym, 1, temperature=temperature, pressure=pressure),
-        axis=0,
-    )

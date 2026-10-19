@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from scipy.special import factorial
+from hypothesis import given
+from hypothesis import strategies as st
 
 import overreact as rx
 from overreact import _constants as constants
@@ -35,9 +36,9 @@ def test_sanity_for_relative_thermochemistry() -> None:
     enthalpies = energies + enthalpy_corrections
     freeenergies = energies + freeenergy_corrections
 
-    scheme = rx.parse_reactions("C2H5 + H2 -> C2H6 + H")
-    delta_enthalpy = rx.thermo.get_delta(scheme.A, enthalpies)[0]
-    delta_freeenergy = rx.thermo.get_delta(scheme.A, freeenergies)[0]
+    scheme = rx.Scheme.parse("C2H5 + H2 -> C2H6 + H")
+    delta_enthalpy = scheme.reaction_deltas(enthalpies)[0]
+    delta_freeenergy = scheme.reaction_deltas(freeenergies)[0]
     assert delta_enthalpy == pytest.approx(0.012876, 8e-5)
     assert delta_enthalpy * (constants.hartree * constants.N_A) / (
         constants.kcal
@@ -1129,14 +1130,6 @@ def test_heat_capacity_ideal_gases() -> None:
     ) / constants.R == pytest.approx(3.03, 1e-3)
 
 
-def test_get_delta_works() -> None:
-    """Ensure safe usage of get_delta."""
-    assert rx.thermo.get_delta([-1, 2], [-5.0, 5.0]) == pytest.approx(15.0)
-    assert rx.thermo.get_delta([[-1, -1], [2, 1]], [-5.0, 5.0]) == pytest.approx(
-        [15.0, 10.0],
-    )
-
-
 def test_equilibrium_constant_works() -> None:
     """Ensure equilibrium_constant gives correct numbers."""
     assert rx.thermo.equilibrium_constant(0.0) == 1.0
@@ -1193,40 +1186,63 @@ def test_molar_volume_is_precise() -> None:
     assert rx.thermo.molar_volume() == pytest.approx(0.024465, 1e-4)
 
 
-def test_molar_volume_works_with_sequences() -> None:
-    """Ensure molar volumes can be calculated for many temperatures at once."""
-    assert rx.thermo.molar_volume([273.15, 298.15], constants.bar) == pytest.approx(
-        [0.02271098038, 0.02478959842],
-        1e-5,
+@given(
+    st.lists(
+        st.tuples(st.floats(1.0, 1e4), st.floats(1.0, 1e7)),
+        min_size=1,
+        max_size=4,
+    ),
+    st.floats(0.1, 10.0),
+    st.floats(0.1, 10.0),
+)
+def test_molar_volume_is_proportional_to_temperature_over_pressure(
+    states, temperature_factor, pressure_factor
+) -> None:
+    """Ensure V(aT, bp) = (a/b) V(T, p), also for many states at once."""
+    temperatures, pressures = np.transpose(states)
+    assert rx.thermo.molar_volume(
+        temperature_factor * temperatures,
+        pressure_factor * pressures,
+    ) == pytest.approx(
+        temperature_factor
+        / pressure_factor
+        * rx.thermo.molar_volume(temperatures, pressures),
     )
-    assert rx.thermo.molar_volume(
-        [273.15, 298.15],
-        [constants.atm, constants.bar],
-    ) == pytest.approx([0.022414, 0.02478959842], 1e-5)
-    assert rx.thermo.molar_volume(
-        273.15,
-        [constants.atm, constants.bar],
-    ) == pytest.approx([0.022414, 0.02271098038], 1e-5)
+
+
+@given(st.floats(-300.0, 300.0), st.floats(-300.0, 300.0), st.floats(1.0, 1e4))
+def test_equilibrium_constants_multiply_over_added_free_energies(
+    first, second, temperature
+) -> None:
+    """Ensure K(dG1 + dG2) = K(dG1) K(dG2), with free energies in units of RT."""
+
+    def k(delta_freeenergy):
+        return rx.thermo.equilibrium_constant(
+            delta_freeenergy * constants.R * temperature,
+            temperature=temperature,
+        )
+
+    assert k(first + second) == pytest.approx(k(first) * k(second))
 
 
 def test_change_reference_state_works_for_symmetry() -> None:
     """Ensure that change_reference_state works for symmetry contributions."""
-    assert -200.0 * rx.change_reference_state(4, 1, temperature=200.0) / (
+    assert -200.0 * rx.thermo.change_reference_state(4, 1, temperature=200.0) / (
         constants.kcal
     ) == pytest.approx(-0.60, 9e-2)
-    assert -298.15 * rx.change_reference_state(4, 1) / (
+    assert -298.15 * rx.thermo.change_reference_state(4, 1) / (
         constants.kcal
     ) == pytest.approx(-0.85, 9e-2)
-    assert -300.0 * rx.change_reference_state(4, 1, temperature=300.0) / (
+    assert -300.0 * rx.thermo.change_reference_state(4, 1, temperature=300.0) / (
         constants.kcal
     ) == pytest.approx(-0.80, 9e-2)
-    assert -400.0 * rx.change_reference_state(4, 1, temperature=400.0) / (
+    assert -400.0 * rx.thermo.change_reference_state(4, 1, temperature=400.0) / (
         constants.kcal
     ) == pytest.approx(-1.10, 1e-2)
 
     # calculating many symmetry corrections at once
     temperatures = np.array([0, 200, 298.15, 300, 400])
-    assert temperatures * rx.change_reference_state(
+    assert temperatures * rx.thermo.change_reference_state(
         6,
         12,
         temperature=temperatures,
@@ -1241,12 +1257,6 @@ def test_head_gordon_damping() -> None:
     """Ensure the Head-Gordon damping for the treatment of QRRHO is done correctly."""
     assert rx.thermo._gas._head_gordon_damping(-70.0) == pytest.approx(
         [],
-    )
-    assert rx.thermo._gas._head_gordon_damping(-40.0) == pytest.approx(
-        rx.thermo._gas._head_gordon_damping(40.0),
-    )
-    assert rx.thermo._gas._head_gordon_damping(-10.0) == pytest.approx(
-        rx.thermo._gas._head_gordon_damping(10.0),
     )
     assert rx.thermo._gas._head_gordon_damping(1.0) == pytest.approx(
         8.67669882e-9,
@@ -1276,78 +1286,15 @@ def test_head_gordon_damping() -> None:
     ) == pytest.approx([8.67594611e-5, 8.67594611e-5, 0.5, 1.0, 1.0, 1.0], 8e-2)
 
 
-def test_can_calculate_reaction_entropies() -> None:
-    """Ensure we can calculate reaction translational entropies.
+@given(st.floats(1.0, 50.0, exclude_max=True))
+def test_head_gordon_damping_is_even(vibfreq) -> None:
+    """Ensure damping is the same for small imaginary and real frequencies."""
+    damping = rx.thermo._gas._head_gordon_damping
+    assert damping(-vibfreq) == pytest.approx(damping(vibfreq))
 
-    This contribution is due to indistinguishability of some reactants or
-    products.
-    """
-    assert rx.thermo.get_reaction_entropies([-1, 1]) == pytest.approx(0.0)
-    assert rx.thermo.get_reaction_entropies([-2, 1]) == pytest.approx(
-        -constants.R * np.log(2),
-    )
-    assert rx.thermo.get_reaction_entropies([-1, 2]) == pytest.approx(
-        constants.R * np.log(2),
-    )
-    assert rx.thermo.get_reaction_entropies([-3, 1]) == pytest.approx(
-        -constants.R * np.log(factorial(3)),
-    )
-    assert rx.thermo.get_reaction_entropies([-1, 3]) == pytest.approx(
-        constants.R * np.log(factorial(3)),
-    )
 
-    assert rx.thermo.get_reaction_entropies([-1, 0]) == pytest.approx(0.0)
-    assert rx.thermo.get_reaction_entropies([0, 1]) == pytest.approx(0.0)
-
-    assert rx.thermo.get_reaction_entropies([[-2, -1], [1, 3]]) == pytest.approx(
-        constants.R * np.array([-np.log(2), np.log(factorial(3))]),
-    )
-    assert rx.thermo.get_reaction_entropies([[-1, -2], [1, 3]]) == pytest.approx(
-        [0.0, constants.R * (np.log(factorial(3) / 2))],
-    )
-
-    scheme = rx.parse_reactions("A + B -> C")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(0.0)
-
-    scheme = rx.parse_reactions("C -> A + B")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(0.0)
-
-    scheme = rx.parse_reactions("A + B <=> C")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(0.0)
-
-    scheme = rx.parse_reactions("2A -> C")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(
-        -constants.R * np.log(2),
-    )
-
-    scheme = rx.parse_reactions("C -> 2A")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(
-        constants.R * np.log(2),
-    )
-
-    scheme = rx.parse_reactions("2A <=> C")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(
-        constants.R * np.log(2) * np.array([-1, 1]),
-    )
-
-    scheme = rx.parse_reactions("2A + 3B + 4C <=> 5D + 6E + 7F")
-    assert rx.thermo.get_reaction_entropies(scheme.A) == pytest.approx(
-        constants.R
-        * (
-            np.log(
-                factorial(5)
-                * factorial(6)
-                * factorial(7)
-                / (2 * factorial(3) * factorial(4)),
-            )
-        )
-        * np.array([1, -1]),
-    )
-
-    assert rx.thermo.get_reaction_entropies(
-        rx.parse_reactions("2A(g) + 3B(g) + 4C(g) <=> 5D(g) + 6E(g) + 7F(g").A,
-    ) == pytest.approx(
-        rx.thermo.get_reaction_entropies(
-            rx.parse_reactions("2A(w) + 3B(w) + 4C(w) <=> 5D(w) + 6E(w) + 7F(w").A,
-        ),
-    )
+@given(st.floats(1.0, 1e4), st.floats(0.0, 1e4))
+def test_head_gordon_damping_increases_from_zero_to_one(vibfreq, increase) -> None:
+    """Ensure damping increases with frequency within (0, 1]."""
+    damping = rx.thermo._gas._head_gordon_damping
+    assert 0.0 < damping(vibfreq) <= damping(vibfreq + increase) <= 1.0

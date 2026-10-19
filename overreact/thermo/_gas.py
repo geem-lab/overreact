@@ -56,7 +56,7 @@ def calc_elec_energy(energy=0.0, degeneracy=1, temperature=298.15):
         Degeneracies of the states of the molecule. This is normally the same
         as spin multiplicity, but might be total angular momentum degeneracy in
         some cases (e.g., fluorine).
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -126,7 +126,7 @@ def calc_elec_entropy(energy=0.0, degeneracy=1, temperature=298.15):
         Degeneracies of the states of the molecule. This is normally the same
         as spin multiplicity, but might be total angular momentum degeneracy in
         some cases (e.g., fluorine).
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -214,7 +214,7 @@ def calc_rot_energy(
         Head-Gordon, see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)).
     weights : array-like, optional
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -326,7 +326,7 @@ def calc_rot_entropy(
         (this is to be mainly used in the quasi-RRHO approach of S. Grimme, see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)).
     weights : array-like, optional
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
     pressure : array-like, optional
         Reference gas pressure.
@@ -454,7 +454,7 @@ def calc_vib_energy(vibfreqs=None, qrrho=True, temperature=298.15):
         M. Head-Gordon and others (see
         [*J. Phys. Chem. C* **2015**, 119, 4, 1840-1850](http://dx.doi.org/10.1021/jp509921r)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -537,7 +537,7 @@ def calc_vib_entropy(vibfreqs=None, qrrho=True, temperature=298.15):
         S. Grimme (see
         [*Theory. Chem. Eur. J.*, **2012**, 18: 9955-9964](https://doi.org/10.1002/chem.201200497)) on top of the classical
         RRHO.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns
@@ -612,7 +612,7 @@ def _sackur_tetrode(atommasses, volume, temperature=298.15):
         Atomic masses or molecular mass in atomic mass units (amu).
     volume : float
         Molar volume.
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
 
     Returns

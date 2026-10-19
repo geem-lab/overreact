@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__all__ = ["parse_model"]
+__all__ = ["parse_compounds", "parse_model"]
 
 
 import contextlib
@@ -67,11 +67,11 @@ def parse_model(path: str, force_compile: bool = False):
 
     >>> model = parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
-    Scheme(compounds=('S', 'E‡'),
-           reactions=('S -> S',),
-           is_half_equilibrium=(False,),
-           A=((0.0,), (0.0,)),
-           B=((-1.0,), (1.0,)))
+    Scheme(compounds=('S',),
+           reactants=array([[1]]),
+           products=array([[1]]),
+           transition_states=('E‡',),
+           equilibria=())
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.7713697,
@@ -136,11 +136,11 @@ def _parse_model(file_or_path):
     --------
     >>> model = _parse_model("data/ethane/B97-3c/model.jk")
     >>> model.scheme
-    Scheme(compounds=('S', 'E‡'),
-           reactions=('S -> S',),
-           is_half_equilibrium=(False,),
-           A=((1.,), (0.,)),
-           B=((-1.,), (1.,)))
+    Scheme(compounds=('S',),
+           reactants=array([[1]]),
+           products=array([[1]]),
+           transition_states=('E‡',),
+           equilibria=())
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.7713697,
@@ -175,7 +175,11 @@ def _parse_model(file_or_path):
             model = json.load(stream)
 
     if "scheme" in model:
-        model["scheme"] = rx.parse_reactions(model["scheme"])
+        model["scheme"] = rx.Scheme.parse(model["scheme"])
+        if "compounds" in model:
+            model["compounds"] = {
+                name: model["compounds"][name] for name in model["scheme"].names
+            }
 
     return DotDict(model)
 
@@ -202,31 +206,29 @@ def _parse_source(file_path_or_str):
     --------
     >>> model = _parse_source("data/ethane/B97-3c/model.k")
     >>> model.scheme
-    Scheme(compounds=('S', 'E‡'),
-           reactions=('S -> S',),
-           is_half_equilibrium=(False,),
-           A=((0.0,),
-              (0.0,)),
-           B=((-1.0,),
-              (1.0,)))
+    Scheme(compounds=('S',),
+           reactants=array([[1]]),
+           products=array([[1]]),
+           transition_states=('E‡',),
+           equilibria=())
     >>> print(_unparse_model(model))
     {"scheme":["S -> E‡ -> S"],"compounds":{"S":{"logfile":"da...,0.35746]]]}}}
 
-    It is guaranteed that both the list of compounds in the scheme and in the
-    keys of compounds match. This implementation detail is crucial for the
-    proper internal behavior of overreact:
+    It is guaranteed that the names in the scheme (compounds, then transition
+    states) and the keys of compounds match. This implementation detail is
+    crucial for the proper internal behavior of overreact:
 
     >>> model = parse_model("data/perez-soto2020/RI/B3LYP-D3BJ/cc-pVTZ/model.k",
     ...                     force_compile=True)
-    >>> model.scheme.compounds
+    >>> model.scheme.names
     ('Benzaldehyde(dcm)', 'NButylamine(dcm)', 'A_N(dcm)', 'A_N_N(dcm)',
-     'Water(dcm)', 'A_N_W(dcm)', 'A_N_N_W(dcm)', 'A_N_W_W(dcm)', 'TS1_#(dcm)',
-     'Hemiaminal(dcm)', 'TS2_#(dcm)', 'I_W(dcm)', 'TS1N_#(dcm)', 'Int_N(dcm)',
-     'TS2N_#(dcm)', 'I_N_W(dcm)', 'TS1W_#(dcm)', 'Int_W(dcm)', 'TS2W_#(dcm)',
-     'I_W_W(dcm)', 'TS1NW_#(dcm)', 'Int_N_W(dcm)', 'TS2NW_#(dcm)',
-     'I_N_W_W(dcm)', 'TS1WW_#(dcm)', 'Int_W_W(dcm)', 'TS2WW_#(dcm)',
-     'I_W_W_W(dcm)', 'Imine(dcm)')
-    >>> tuple(model.compounds) == model.scheme.compounds
+     'Water(dcm)', 'A_N_W(dcm)', 'A_N_N_W(dcm)', 'A_N_W_W(dcm)',
+     'Hemiaminal(dcm)', 'I_W(dcm)', 'Int_N(dcm)', 'I_N_W(dcm)', 'Int_W(dcm)',
+     'I_W_W(dcm)', 'Int_N_W(dcm)', 'I_N_W_W(dcm)', 'Int_W_W(dcm)',
+     'I_W_W_W(dcm)', 'Imine(dcm)', 'TS1_#(dcm)', 'TS2_#(dcm)', 'TS1N_#(dcm)',
+     'TS2N_#(dcm)', 'TS1W_#(dcm)', 'TS2W_#(dcm)', 'TS1NW_#(dcm)',
+     'TS2NW_#(dcm)', 'TS1WW_#(dcm)', 'TS2WW_#(dcm)')
+    >>> tuple(model.compounds) == model.scheme.names
     True
     """
     name = None
@@ -255,16 +257,17 @@ def _parse_source(file_path_or_str):
             sections[name].append(line)
 
     if "scheme" in sections:
-        sections["scheme"] = rx.parse_reactions(sections["scheme"])
+        sections["scheme"] = rx.Scheme.parse(sections["scheme"])
     if "compounds" in sections:
         sections["compounds"] = parse_compounds(
             sections["compounds"],
             path=path,
-            select=sections["scheme"].compounds,
+            select=sections["scheme"].names,
         )
     return DotDict(sections)
 
 
+# TODO(schneiderfelipe): this function has no callers.
 def _unparse_source(model):
     """Unparse a source input file (also known as a `.k` file).
 
@@ -310,11 +313,11 @@ def _unparse_source(model):
 
     >>> model = _parse_source(source)
     >>> model.scheme
-    Scheme(compounds=('S', 'E‡'),
-           reactions=('S -> S',),
-           is_half_equilibrium=(False,),
-           A=((1.,), (0.,)),
-           B=((-1.,), (1.,)))
+    Scheme(compounds=('S',),
+           reactants=array([[1]]),
+           products=array([[1]]),
+           transition_states=('E‡',),
+           equilibria=())
     >>> model.compounds["S"]
     {'logfile': 'data/ethane/B97-3c/staggered.out',
      'energy': -209483812.7713697,
@@ -345,7 +348,7 @@ def _unparse_source(model):
     source = "// generated by overreact\n"
     if "scheme" in model:
         source += "$scheme\n"
-        for line in rx.unparse_reactions(model.scheme).split("\n"):
+        for line in str(model.scheme).split("\n"):
             source += f" {line}\n"
         source += "$end\n"
     if "compounds" in model:
@@ -380,13 +383,13 @@ def _unparse_model(model):
     --------
     >>> model = _parse_model("data/hickel1992/UM06-2X/6-311++G(d,p)/model.jk")
     >>> print(_unparse_model(model))
-    {"scheme":["NH3(w) + OH·(w) -> NH3·OH#(w...,"atomcoords":[[0.0,0.0,0.0]]}}}
+    {"scheme":["NH3(w) + OH·(w) -> NH3·OH#(w...,"symmetry":3}}}
     """
     # create a new mutable object to avoid side effects
-    model = dict(model.copy())
+    model = dict(model)
 
     if "scheme" in model:
-        model["scheme"] = rx.unparse_reactions(model["scheme"]).split("\n")
+        model["scheme"] = str(model["scheme"]).split("\n")
     return json.dumps(model, ensure_ascii=False, separators=(",", ":"))
 
 
@@ -905,9 +908,7 @@ def _read_orca_logfile(path, minimal=True):
 
     if atommasses is None:
         logger.warning("using atomic masses from periodic table")
-        atommasses = []
-        for n in atomnos:
-            atommasses.append(rx._misc.atomic_mass[n])
+        atommasses = [rx._misc.atomic_mass[n] for n in atomnos]
     data.update({"atommasses": rx._misc.totuple(atommasses)})
 
     if vibfreqs is not None:
@@ -1020,7 +1021,7 @@ class _LazyDict(MutableMapping):
         return len(self._dict)
 
 
-class InterfaceFormatter(logging.Formatter):
+class _InterfaceFormatter(logging.Formatter):
     """Simple logging interface."""
 
     def __init__(

@@ -48,9 +48,9 @@ def calc_cav_entropy(
     atomcoords : array-like, optional
         Atomic coordinates.
     environment : str, optional
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
+    pressure : float, optional
         Reference gas pressure.
     dx : float, optional
         Spacing.
@@ -202,9 +202,9 @@ def molar_free_volume(
         you're interested and would like to contribute.
         Leave this as "standard" for now.
     environment : str, optional
-    temperature : array-like, optional
+    temperature : float, optional
         Absolute temperature in Kelvin.
-    pressure : array-like, optional
+    pressure : float, optional
         Reference gas pressure.
 
     Returns
