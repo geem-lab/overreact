@@ -183,16 +183,12 @@ def eckart(
         )
 
     # convert energies in joules per mole to joules, with placeholders where Wigner is used
-    two_pi = 2.0 * np.pi
-    alpha1 = (
-        two_pi
-        * np.where(positive, delta_forward, 1.0)
+    alpha1, alpha2 = (
+        2.0
+        * np.pi
+        * np.where(positive, delta, 1.0)
         / (constants.N_A * constants.h * nu)
-    )
-    alpha2 = (
-        two_pi
-        * np.where(positive, delta_backward, 1.0)
-        / (constants.N_A * constants.h * nu)
+        for delta in (delta_forward, delta_backward)
     )
 
     kappa = np.where(positive, _eckart(u, alpha1, alpha2), wigner(vibfreq, temperature))
@@ -298,4 +294,4 @@ def _eckart(
     x, w = roots_laguerre(n=laguerre_n)
     integ2 = np.sum(w * f(x, with_exp=False), axis=-1)
 
-    return np.asarray(integ1 + integ2)
+    return integ1 + integ2
