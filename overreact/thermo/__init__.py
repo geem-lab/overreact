@@ -74,6 +74,8 @@ def calc_trans_entropy(
 
     Raises
     ------
+    TypeError
+        If a solvation `method` is given without `atomnos` and `atomcoords`.
     ValueError
         If environment is "solid".
 
@@ -116,8 +118,9 @@ def calc_trans_entropy(
         msg = f"environment not yet implemented: {environment}"
         raise ValueError(msg)
     else:
-        assert atomnos is not None, "atomnos must be provided"
-        assert atomcoords is not None, "atomcoords must be provided"
+        if atomnos is None or atomcoords is None:
+            msg = f"solvation method {method!r} needs atomnos and atomcoords"
+            raise TypeError(msg)
         volume = molar_free_volume(
             atomnos=atomnos,
             atomcoords=atomcoords,
@@ -359,6 +362,8 @@ def calc_entropy(
 
     Raises
     ------
+    TypeError
+        If a solvation `method` is given without `atomnos` and `atomcoords`.
     ValueError
         If environment is "solid".
 
@@ -434,11 +439,7 @@ def calc_entropy(
             f"concentration correction = {concentration_correction} J/mol·K",
         )
         entropy = entropy + concentration_correction
-        if method == "standard":
-            pass
-        else:
-            assert atomnos is not None, "atomnos must be provided"
-            assert atomcoords is not None, "atomcoords must be provided"
+        if method != "standard":
             # TODO(schneiderfelipe): this includes "izato", "garza" and
             # possibly future methods for extra entropy terms such as cavity.
             entropy = entropy + calc_cav_entropy(

@@ -1137,3 +1137,12 @@ def test_change_reference_state_works_for_gas_to_liquid_standard_states() -> Non
         rx.thermo.molar_volume(temperature, constants.atm),
         temperature=temperature,
     ) / constants.kcal == pytest.approx(1.89, 1e-2)
+
+
+@pytest.mark.parametrize(
+    "function", [rx.thermo.calc_trans_entropy, rx.thermo.calc_entropy]
+)
+def test_solvation_methods_require_atoms(function) -> None:
+    """Ensure solvation methods ask for atomic numbers and coordinates."""
+    with pytest.raises(TypeError, match="atomnos and atomcoords"):
+        function(35.45, environment="water", method="izato")
