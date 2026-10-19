@@ -134,15 +134,11 @@ def get_molecular_volume(
         points = v1 + points * (v2 - v1)
         tree = KDTree(points)
 
-        within_vdw = set()
+        within_vdw = set().union(*tree.query_ball_point(atomcoords, vdw_radii))
         if full_output and method == "izato":
-            within_cav = set()
-        for i, atomcoord in enumerate(atomcoords):
-            within_vdw.update(tree.query_ball_point(atomcoord, vdw_radii[i]))
-            if full_output and method == "izato":
-                within_cav.update(
-                    tree.query_ball_point(atomcoord, alpha * vdw_radii[i]),
-                )
+            within_cav = set().union(
+                *tree.query_ball_point(atomcoords, alpha * vdw_radii),
+            )
 
         vdw_volumes.append((len(within_vdw) / n) * box_volume)
         if full_output and method == "izato":
