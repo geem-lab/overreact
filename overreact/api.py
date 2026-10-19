@@ -787,7 +787,7 @@ def get_kappa(
 
     def eckart(vibfreq, delta_forward, delta_backward, temperature):
         """Return the Eckart coefficient, or the Wigner one where Eckart fails."""
-        with warnings.catch_warnings():
+        with warnings.catch_warnings(), np.errstate(invalid="warn"):
             warnings.filterwarnings("error")
             try:
                 return tunnel.eckart(
@@ -813,13 +813,12 @@ def get_kappa(
         vibfreq = compounds[ts].vibfreqs[0]
 
         if method == "eckart":
-            kappas[..., i] = np.reshape(
-                [
-                    eckart(vibfreq, delta_forward[i], delta_backward[i], t)
-                    for t in temperatures[..., i].flat
-                ],
-                temperatures.shape[:-1],
-            )
+            # np.vectorize reports floating-point flags that eckart already handled
+            with np.errstate(invalid="ignore"):
+                kappas[..., i] = np.vectorize(
+                    partial(eckart, vibfreq, delta_forward[i], delta_backward[i]),
+                    otypes=[float],
+                )(temperatures[..., i])
         elif method == "wigner":
             kappas[..., i] = tunnel.wigner(vibfreq, temperature=temperatures[..., i])
         elif method not in {"none", None}:
